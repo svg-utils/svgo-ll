@@ -1,0 +1,15 @@
+d property only applies to paths.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <path style="d:path('m1 1l3 3');stroke:black"/>
+  <rect y="10" width="3" height="2" style="x:2;d:path('m1 1l3 3');cy:6"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path style="d:path('m1 1l3 3');stroke:black"/>
+    <rect y="10" width="3" height="2" style="x:2"/>
+</svg>

@@ -1,0 +1,35 @@
+Don't collapse groups if there are any selectors with combinators.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 120">
+  <style>
+        g {transform:rotate(-15deg)}
+        g + g {translate:30px 30px;opacity:.5}
+        g rect {fill:red} path[d*="L"] {fill:green;opacity:.2}
+        g + g rect {fill:blue}
+  </style>
+  <g>
+    <rect x="10" y="20" width="30" height="40"/>
+  </g>
+  <g>
+    <rect x="10" y="20" width="30" height="40"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 120">
+    <style>
+        g {transform:rotate(-15deg)}
+        g + g {translate:30px 30px;opacity:.5}
+        g rect {fill:red} path[d*=&quot;L&quot;] {fill:green;opacity:.2}
+        g + g rect {fill:blue}
+    </style>
+    <g>
+        <rect x="10" y="20" width="30" height="40"/>
+    </g>
+    <g>
+        <rect x="10" y="20" width="30" height="40"/>
+    </g>
+</svg>

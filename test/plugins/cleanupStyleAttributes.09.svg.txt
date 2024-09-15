@@ -1,0 +1,17 @@
+Don't allow styles on animation elements.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <path d="M 1 3 h 10" stroke="red">
+    <animateTransform style="stroke:black" attributeName="transform" attributeType="XML" type="rotate" from="0 1 3" to="360 1 3" dur="10s" repeatCount="indefinite" />
+  </path>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path d="M 1 3 h 10" stroke="red">
+        <animateTransform attributeName="transform" attributeType="XML" type="rotate" from="0 1 3" to="360 1 3" dur="10s" repeatCount="indefinite"/>
+    </path>
+</svg>

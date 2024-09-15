@@ -1,0 +1,15 @@
+Merge translate()scale()scale()translate().
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(180 40) scale(8) scale(0.2  0.2) translate(-5  -5)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(180 8) scale(8) scale(0.2  0.2) translate(-5  -5)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(1.6 0 0 1.6 172 32)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(172)scale(1.6)"/>
+</svg>

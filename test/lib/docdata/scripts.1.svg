@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <path d="M 1 5 h 10" stroke="red" onclick="this.setAttribute('stroke','blue');"/>
+  <path d="M 1 7 h 10" stroke="red" onclick="this.setAttribute('stroke','blue');"/>
+</svg>

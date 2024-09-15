@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "module": "node16",
+    "target": "ES2021",
+    "lib": ["ES2021", "DOM"],
+    "allowJs": true,
+    "checkJs": true,
+    "strict": true,
+    "resolveJsonModule": true
+  },
+  "include": ["**/*.js"],
+  "exclude": [
+    "coverage/**/*",
+    "dist/**/*",
+    "rollup.config.js",
+    "test/regression-extract.js"
+  ]
+}

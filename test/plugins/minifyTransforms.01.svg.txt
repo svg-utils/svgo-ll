@@ -1,0 +1,13 @@
+Make sure leading zeroes are removed.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect x="10" y="20" width="10" height="20" transform="matrix(-0.5 0 0 -0.4 73.906328 33.904199)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect x="10" y="20" width="10" height="20" transform="matrix(-.5 0 0 -.4 73.906328 33.904199)"/>
+</svg>

@@ -1,0 +1,21 @@
+Move only inheritable properties to group.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <g>
+    <circle style="cx:2;cy:2;r:1;fill:red"/>
+    <ellipse style="cx:2;cy:6;rx:1;ry:2;fill:red"/>
+  </g>
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <g style="fill:red">
+        <circle style="cx:2;cy:2;r:1"/>
+        <ellipse style="cx:2;cy:6;rx:1;ry:2"/>
+    </g>
+</svg>
+

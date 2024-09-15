@@ -1,0 +1,27 @@
+Find shortest representation of scale()rotate().
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(-1)rotate(179)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(-1)rotate(90)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(0 2.34 -2.34 0 0 0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(-2.34)rotate(-90)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(0 3 2 0 0 0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(-2 3)rotate(90)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(2 3)rotate(-179)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(2 -3)rotate(-179)"/>
+ </svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="rotate(-1)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="rotate(-90)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="rotate(90)scale(2.34)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="rotate(90)scale(2.34)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(0 3 2 0 0 0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(0 3 2 0 0 0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(2 3)rotate(181)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(-2 3)rotate(1)"/>
+</svg>

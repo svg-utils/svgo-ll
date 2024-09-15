@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>
+    path::after {content:'xxx'}
+  </style>
+  <style>
+    @media (max-width: 1250px) {
+      g circle {stroke:red}
+    }
+  </style>
+</svg>

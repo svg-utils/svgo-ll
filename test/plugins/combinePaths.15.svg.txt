@@ -1,0 +1,27 @@
+Don't merge paths in files with @import rules.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>
+    @import url("my-imported-styles.css");
+    .stroke {stroke:blue}
+  </style>
+  <g>
+    <path d="M 1 5 h 10" class="stroke"/>
+    <path d="M 1 7 h 10" class="stroke"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <style>
+        @import url(&quot;my-imported-styles.css&quot;);
+    .stroke {stroke:blue}
+    </style>
+    <g>
+        <path d="M 1 5 h 10" class="stroke"/>
+        <path d="M 1 7 h 10" class="stroke"/>
+    </g>
+</svg>

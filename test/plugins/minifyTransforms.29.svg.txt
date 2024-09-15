@@ -1,0 +1,23 @@
+Find exact scale()skew().
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(2,0,2,3,0,0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(2.1234,0,2.1234,2.1234,0,0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(2.1234,0,-2.1234,2.1234,0,0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(2.1234,2.1234,0,2.1234,0,0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(-2.1234,0,-2.1234,-2.1234,0,0)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(3,2.1234,0,2.1234,0,0)"/>
+ </svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(2 3)skewX(45)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(2.1234)skewX(45)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(2.1234)skewX(-45)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(2.1234)skewY(45)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(-2.1234)skewX(45)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(3 2.1234)skewY(45)"/>
+</svg>

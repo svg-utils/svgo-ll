@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 120">
+  <style>
+        :hover {fill:blue;}
+  </style>
+  <g id="g" style="fill:red">
+    <rect id="r" x="10" y="20" width="30" height="40"/>
+  </g>
+</svg>

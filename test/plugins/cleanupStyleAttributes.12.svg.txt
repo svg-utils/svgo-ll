@@ -1,0 +1,23 @@
+Keep referenced class attribute.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <style>
+    rect.blue {fill:blue}
+  </style>
+  <rect width="2" height="3" class="  red  and
+  
+  
+  blue    "/>
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <style>
+        rect.blue {fill:blue}
+    </style>
+    <rect width="2" height="3" class="blue"/>
+</svg>

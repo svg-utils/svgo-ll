@@ -1,0 +1,17 @@
+Merge all adjacent translates and scales.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(2.3)translate(2.4)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(2)translate(3)translate(4)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(2)translate(3)translate(4,3)scale(5)scale(6)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(4.7)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="translate(9)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="matrix(30 0 0 30 9 3)"/>
+</svg>

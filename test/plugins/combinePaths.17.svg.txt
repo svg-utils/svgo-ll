@@ -1,0 +1,29 @@
+Don't merge paths with media queries if they may affect dangerous properties. In this particular example it would
+be OK to merge, but in general the analysis is difficult - it would require examining all permuations of media queries, 
+parent nodes, etc. to ensure that there was no possibility of a stroke which had a URL reference.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>
+    path {stroke:blue}
+    @media (width > 600px) { 
+    path { stroke:red } 
+    }
+  </style>
+  <path d="M 1 3 h 10"/>
+  <path d="M 1 5 h 10"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <style>
+        path {stroke:blue}
+    @media (width &gt; 600px) { 
+    path { stroke:red } 
+    }
+    </style>
+    <path d="M 1 3 h 10"/>
+    <path d="M 1 5 h 10"/>
+</svg>

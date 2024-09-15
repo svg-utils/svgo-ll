@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>
+  @import url("my-imported-styles.css");
+    .stroke {stroke:blue} .stroke[d=&quot;M 1 5 h 10&quot;] {stroke:red}
+  </style>
+  <g>
+    <path d="M 1 5 h 10" class="stroke"/>
+    <path d="M 1 7 h 10" class="stroke"/>
+  </g>
+</svg>

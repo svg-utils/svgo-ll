@@ -1,0 +1,17 @@
+If group contains only shapes, remove properties on group that aren't relevant to shapes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <g style="font-family:Oxygen-Sans">
+    <path d="M 1 3 h 10" style="stroke:blue"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <g>
+        <path d="M 1 3 h 10" style="stroke:blue"/>
+    </g>
+</svg>

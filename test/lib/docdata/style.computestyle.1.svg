@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>
+    g.blue {stroke:blue}
+    g.red {stroke:red}
+    g.red-imp {stroke:red !important}
+  </style>
+  <g class="blue">
+    <path id="gblue" d="M 1 1 h 10"/>
+  </g>
+  <g class="red">
+    <g>
+      <path id="gred-g" d="M 1 3 h 10"/>
+    </g>
+  </g>
+  <g class="red">
+    <g class="blue">
+      <path id="gred-gblue" d="M 1 5 h 10"/>
+    </g>
+  </g>
+  <g class="red-imp">
+    <g class="blue">
+      <path id="gredimp-gblue" d="M 1 7 h 10"/>
+    </g>
+  </g>
+</svg>

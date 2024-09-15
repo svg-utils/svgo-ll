@@ -1,0 +1,17 @@
+Use scientific notation where it makes things shorter.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect y="10" width="5" height="8" transform="translate(.001)"/>
+    <rect y="20" width="5" height="8" transform="translate(.0001)"/>
+    <rect y="30" width="5" height="8" transform="translate(.000123)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <rect y="10" width="5" height="8" transform="translate(.001)"/>
+    <rect y="20" width="5" height="8" transform="translate(1e-4)"/>
+    <rect y="30" width="5" height="8" transform="translate(1.23e-4)"/>
+</svg>

@@ -1,0 +1,19 @@
+r property only applies to circles; rx and ry only to rects and ellipses.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <circle style="cx:2;cy:2;r:1;rx:1;ry:2;width:3;height:2;x:2;y:10"/>
+  <ellipse style="cx:2;cy:6;r:1;rx:1;ry:2;width:3;height:2;x:2;y:10"/>
+  <rect style="cx:2;cy:6;r:1;rx:1;ry:2;width:3;height:2;x:2;y:10"/>
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <circle style="cx:2;cy:2;r:1"/>
+    <ellipse style="cx:2;cy:6;rx:1;ry:2"/>
+    <rect style="rx:1;ry:2;width:3;height:2;x:2;y:10"/>
+</svg>
+

@@ -1,0 +1,18 @@
+height, width, x, and y properties don't apply to shapes other than rect.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <circle r="1" style="cx:2;cy:2;x:2;y:10;width:3;height:2"/>
+  <ellipse rx="1" ry="2" style="cx:2;cy:6;x:2;y:10;width:3;height:2"/>
+  <rect style="x:2;y:10;width:3;height:2"/>
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <circle r="1" style="cx:2;cy:2"/>
+    <ellipse rx="1" ry="2" style="cx:2;cy:6"/>
+    <rect style="x:2;y:10;width:3;height:2"/>
+</svg>

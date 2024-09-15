@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 120 120">
+  <style>
+        g {transform:rotate(-15deg)}
+        g + g {translate:30px 30px;opacity:.5}
+        g rect {fill:red} path[d*="L"] {fill:green;opacity:.2}
+        ellipse {fill:orange;opacity:.4}
+        g + g rect {fill:blue}
+        rect + rect {fill:yellow;transform:translate(10px,20px)}
+  </style>
+  <g>
+    <rect x="10" y="20" width="30" height="40"/>
+    <rect x="10" y="20" width="30" height="40"/>
+    <g>
+      <rect x="10" y="20" width="30" height="40"/>
+    </g>
+    <ellipse cx="10" cy="20" rx="10" ry="20" />
+    <path d="M10 50h30v40H10 L10 50"/>
+  </g>
+  <g>
+    <rect x="10" y="20" width="30" height="40"/>
+    <rect x="10" y="20" width="30" height="40"/>
+    <g>
+      <rect x="10" y="20" width="30" height="40"/>
+    </g>
+    <ellipse cx="10" cy="20" rx="10" ry="20" />
+    <path d="M10 50h30v40H10 L10 50"/>
+  </g>
+</svg>

@@ -72,6 +72,7 @@ export type Config = {
    * [{ name: 'myPlugin', fn: () => ({}) }]
    */
   plugins?: PluginConfig[];
+  preset?: 'default' | 'none';
   /** Options for rendering optimized SVG from AST. */
   js2svg?: StringifyOptions;
   /** Output as Data URI string. */

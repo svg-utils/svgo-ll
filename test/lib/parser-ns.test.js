@@ -16,13 +16,17 @@ function getData(filename) {
   const input = fs.readFileSync(path.resolve(testFileDir, `${filename}.svg`), {
     encoding: 'utf8',
   });
-  const expected = fs
-    .readFileSync(path.resolve(testFileDir, `${filename}.expected.svg`), {
+  const expected = fs.readFileSync(
+    path.resolve(testFileDir, `${filename}.expected.svg`),
+    {
       encoding: 'utf8',
-    })
-    .trim();
+    },
+  );
   const parsed = parseSvg(input);
-  return { actual: stringifySvg(parsed, {}), expected: expected };
+  return {
+    actual: stringifySvg(parsed, { pretty: true }),
+    expected: expected,
+  };
 }
 
 test('explicit svg namespace with no default', () => {

@@ -180,34 +180,45 @@ describe('coa', function () {
   });
 });
 
+const PLUGINOPT_DIR = path.resolve(__dirname, 'testPluginOpts');
+const PLUGINOPT_FILE1 = path.resolve(PLUGINOPT_DIR, 'test1.svg');
+const PLUGINOPT_FILE1_OPT = path.resolve(tempFolder, 'test1.svg');
+
+const EXPECT_TRANS =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="translate(10 20)"/></svg>';
+const EXPECT_TRANS_PATH =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>';
+const EXPECT_TRANS_PATH_SORTED =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h10v20H10z" transform="translate(10 20)"/></svg>';
+
 describe('test preset option', function () {
   afterAll(() => {
     fs.rmSync(tempFolder, { force: true, recursive: true });
   });
 
-  const dirName = path.resolve(__dirname, 'testPreset');
-  const svg1 = path.resolve(dirName, 'test1.svg');
-  const svg1Opt = path.resolve(tempFolder, 'test1.svg');
-
   it('should use default preset when option not specified', async () => {
-    await runProgram(['-i', svg1, '-o', svg1Opt, '--quiet']);
-    const opt = fs.readFileSync(svg1Opt, { encoding: 'utf8' });
-    expect(opt).toBe(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>',
-    );
+    await runProgram([
+      '-i',
+      PLUGINOPT_FILE1,
+      '-o',
+      PLUGINOPT_FILE1_OPT,
+      '--quiet',
+    ]);
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
+    expect(opt).toBe(EXPECT_TRANS_PATH);
   });
 
   it('should only remove whitespace when "none" specified', async () => {
     await runProgram([
       '-i',
-      svg1,
+      PLUGINOPT_FILE1,
       '-o',
-      svg1Opt,
+      PLUGINOPT_FILE1_OPT,
       '--quiet',
       '--preset',
       'none',
     ]);
-    const opt = fs.readFileSync(svg1Opt, { encoding: 'utf8' });
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
     expect(opt).toBe(
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="matrix(1 0 0 1 10 20) "/></svg>',
     );
@@ -216,18 +227,101 @@ describe('test preset option', function () {
   it('should only minify transform when "none" specified, but custom config is used', async () => {
     await runProgram([
       '-i',
-      svg1,
+      PLUGINOPT_FILE1,
       '-o',
-      svg1Opt,
+      PLUGINOPT_FILE1_OPT,
       '--quiet',
       '--preset',
       'none',
       '--config',
-      path.resolve(dirName, 'config1.js'),
+      path.resolve(PLUGINOPT_DIR, 'config1.js'),
     ]);
-    const opt = fs.readFileSync(svg1Opt, { encoding: 'utf8' });
-    expect(opt).toBe(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="translate(10 20)"/></svg>',
-    );
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
+    expect(opt).toBe(EXPECT_TRANS);
+  });
+});
+
+describe('test --enable option', function () {
+  afterAll(() => {
+    fs.rmSync(tempFolder, { force: true, recursive: true });
+  });
+
+  it('should only run one plugin with --preset=none and --enable=minifyTransforms', async () => {
+    await runProgram([
+      '-i',
+      PLUGINOPT_FILE1,
+      '-o',
+      PLUGINOPT_FILE1_OPT,
+      '--quiet',
+      '--preset=none',
+      '--enable=minifyTransforms',
+    ]);
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
+    expect(opt).toBe(EXPECT_TRANS);
+  });
+
+  it('should run two plugins with --preset=none and --enable minifyTransforms convertShapeToPath minifyPathData', async () => {
+    await runProgram([
+      '-i',
+      PLUGINOPT_FILE1,
+      '-o',
+      PLUGINOPT_FILE1_OPT,
+      '--quiet',
+      '--preset=none',
+      '--enable',
+      'minifyTransforms',
+      'convertShapeToPath',
+      'minifyPathData',
+    ]);
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
+    expect(opt).toBe(EXPECT_TRANS_PATH);
+  });
+
+  it('should ignore invalid plugin names', async () => {
+    await runProgram([
+      '-i',
+      PLUGINOPT_FILE1,
+      '-o',
+      PLUGINOPT_FILE1_OPT,
+      '--quiet',
+      '--preset=none',
+      '--enable',
+      'x',
+      'minifyTransforms',
+    ]);
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
+    expect(opt).toBe(EXPECT_TRANS);
+  });
+
+  it('should work when plugins are specified in custom config', async () => {
+    await runProgram([
+      '-i',
+      PLUGINOPT_FILE1,
+      '-o',
+      PLUGINOPT_FILE1_OPT,
+      '--quiet',
+      '--preset=none',
+      '--enable',
+      'convertShapeToPath',
+      'minifyPathData',
+      '--config',
+      path.resolve(PLUGINOPT_DIR, 'config1.js'),
+    ]);
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
+    expect(opt).toBe(EXPECT_TRANS_PATH);
+  });
+
+  it('should work with preset-default', async () => {
+    await runProgram([
+      '-i',
+      PLUGINOPT_FILE1,
+      '-o',
+      PLUGINOPT_FILE1_OPT,
+      '--quiet',
+      '--enable',
+      'sortAttrs',
+    ]);
+    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
+    expect(opt).toBe(EXPECT_TRANS_PATH_SORTED);
   });
 });

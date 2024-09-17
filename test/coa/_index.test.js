@@ -179,3 +179,55 @@ describe('coa', function () {
     });
   });
 });
+
+describe('test preset option', function () {
+  afterAll(() => {
+    fs.rmSync(tempFolder, { force: true, recursive: true });
+  });
+
+  const dirName = path.resolve(__dirname, 'testPreset');
+  const svg1 = path.resolve(dirName, 'test1.svg');
+  const svg1Opt = path.resolve(tempFolder, 'test1.svg');
+
+  it('should use default preset when option not specified', async () => {
+    await runProgram(['-i', svg1, '-o', svg1Opt, '--quiet']);
+    const opt = fs.readFileSync(svg1Opt, { encoding: 'utf8' });
+    expect(opt).toBe(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>',
+    );
+  });
+
+  it('should only remove whitespace when "none" specified', async () => {
+    await runProgram([
+      '-i',
+      svg1,
+      '-o',
+      svg1Opt,
+      '--quiet',
+      '--preset',
+      'none',
+    ]);
+    const opt = fs.readFileSync(svg1Opt, { encoding: 'utf8' });
+    expect(opt).toBe(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="matrix(1 0 0 1 10 20) "/></svg>',
+    );
+  });
+
+  it('should only minify transform when "none" specified, but custom config is used', async () => {
+    await runProgram([
+      '-i',
+      svg1,
+      '-o',
+      svg1Opt,
+      '--quiet',
+      '--preset',
+      'none',
+      '--config',
+      path.resolve(dirName, 'config1.js'),
+    ]);
+    const opt = fs.readFileSync(svg1Opt, { encoding: 'utf8' });
+    expect(opt).toBe(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="translate(10 20)"/></svg>',
+    );
+  });
+});

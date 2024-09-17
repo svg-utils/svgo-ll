@@ -73,6 +73,7 @@ export type Config = {
    */
   plugins?: PluginConfig[];
   preset?: 'default' | 'none';
+  enable?: string[];
   /** Options for rendering optimized SVG from AST. */
   js2svg?: StringifyOptions;
   /** Output as Data URI string. */

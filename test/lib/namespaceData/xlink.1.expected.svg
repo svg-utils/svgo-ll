@@ -1,0 +1,9 @@
+<svg viewBox="0 0 60 20" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:a="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg">
+    <circle id="c" cx="5" cy="5" r="4" stroke="none"/>
+    <rect id="r" x="5" y="15" width="3" height="2"/>
+    <use xlink:href="#c" x="10" fill="blue"/>
+    <use href="#c" x="20" fill="green"/>
+    <use xlink:href="#c" x="30" fill="red"/>
+    <use xlink:href="#c" x="40" fill="yellow" xmlns:b="http://www.w3.org/1999/xlink"/>
+    <use xlink:href="#c" href="#r" x="10" fill="orange"/>
+</svg>

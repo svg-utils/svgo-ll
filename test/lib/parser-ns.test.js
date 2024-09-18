@@ -33,3 +33,18 @@ test('explicit svg namespace with no default', () => {
   const data = getData('no-default-ns');
   expect(data.actual).toBe(data.expected);
 });
+
+test('all non-xlink prefixes changed to xlink', () => {
+  const data = getData('xlink.1');
+  expect(data.actual).toBe(data.expected);
+});
+
+test('add xlink ns to top element not there', () => {
+  const data = getData('xlink.2');
+  expect(data.actual).toBe(data.expected);
+});
+
+test('add xlink ns to top element if already there', () => {
+  const data = getData('xlink.3');
+  expect(data.actual).toBe(data.expected);
+});

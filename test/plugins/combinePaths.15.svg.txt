@@ -17,7 +17,7 @@ Don't merge paths in files with @import rules.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
     <style>
-        @import url(&quot;my-imported-styles.css&quot;);
+        @import url("my-imported-styles.css");
     .stroke {stroke:blue}
     </style>
     <g>

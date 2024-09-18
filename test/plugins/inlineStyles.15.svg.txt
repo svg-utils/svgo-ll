@@ -100,7 +100,7 @@
             body[fullbleed] { margin: 0px; height: 100vh; }
             html /deep/ [segment], html /deep/ segment { display: block; position: relative; box-sizing: border-box; margin: 1em 0.5em; padding: 1em; -webkit-box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 0px 1px; box-shadow: rgba(0, 0, 0, 0.0980392) 0px 0px 0px 1px; border-top-left-radius: 5px; border-top-right-radius: 5px; border-bottom-right-radius: 5px; border-bottom-left-radius: 5px; background-color: white; }
             html /deep/ core-icon { display: inline-block; vertical-align: middle; background-repeat: no-repeat; }
-            html /deep/ core-icon[size=&quot;&quot;] { position: relative; }
+            html /deep/ core-icon[size=""] { position: relative; }
         </style>
     </defs>
     <g id="airplanemode-on">

@@ -23,7 +23,7 @@ Don't collapse groups if there are any selectors with combinators.
     <style>
         g {transform:rotate(-15deg)}
         g + g {translate:30px 30px;opacity:.5}
-        g rect {fill:red} path[d*=&quot;L&quot;] {fill:green;opacity:.2}
+        g rect {fill:red} path[d*="L"] {fill:green;opacity:.2}
         g + g rect {fill:blue}
     </style>
     <g>

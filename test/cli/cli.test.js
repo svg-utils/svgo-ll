@@ -86,7 +86,7 @@ test('output as stream when "-" is specified', async () => {
   expect(stdout).toBe('<svg/>');
 });
 
-test('should exit with 1 code on syntax error', async () => {
+test('should exit with 0 code and show error on syntax error', async () => {
   const proc = spawn('node', ['../../bin/svgo', '--no-color', 'invalid.svg'], {
     cwd: __dirname,
   });
@@ -102,15 +102,10 @@ test('should exit with 1 code on syntax error', async () => {
       });
     }),
   ]);
-  expect(code).toBe(1);
-  expect(stderr)
-    .toBe(`SvgoParserError: invalid.svg:2:27: Unquoted attribute value
-
-  1 | <svg>
-> 2 |   <rect x="0" y="0" width=10" height="20" />
-    |                           ^
-  3 | </svg>
-  4 | 
-
-`);
+  expect(code).toBe(0);
+  expect(
+    stderr.startsWith(
+      'SvgoParserError: invalid.svg:2:27: Unquoted attribute value',
+    ),
+  ).toBe(true);
 });

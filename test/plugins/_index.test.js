@@ -46,7 +46,11 @@ describe('plugins tests', function () {
             });
             lastResultData = result.data;
             expect(normalize(result.data)).toStrictEqual(should);
-            expect(validateParentNodes(result.ast)).toBe(true);
+
+            // If exception was thrown before optimization completed, there will be no AST.
+            if (result.ast) {
+              expect(validateParentNodes(result.ast)).toBe(true);
+            }
           }
         });
       });

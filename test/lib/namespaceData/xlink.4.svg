@@ -1,0 +1,9 @@
+<svg viewBox="0 0 60 20"
+  xmlns="http://www.w3.org/2000/svg">
+  <circle id="c" cx="5" cy="5" r="4"/>
+  <s:g xmlns="http://www.example.org/notsvg"
+    xmlns:s="http://www.w3.org/2000/svg">
+    <s:circle cx="24" cy="18" r="3" fill="red"/>
+    <circle cx="24" cy="18" r="5" fill="green"/>
+  </s:g>
+</svg>

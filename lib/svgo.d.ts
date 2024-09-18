@@ -82,7 +82,8 @@ export type Config = {
 
 type Output = {
   data: string;
-  ast: XastRoot;
+  ast?: XastRoot;
+  error?: unknown;
 };
 
 export declare const _collections: {

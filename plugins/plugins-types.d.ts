@@ -187,6 +187,9 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
      */
     overrides?: PresetDefaultOverrides;
   };
+  'preset-next': {
+    overrides?: PresetDefaultOverrides;
+  };
   'preset-none': {};
   cleanupListOfValues: {
     floatPrecision?: number;

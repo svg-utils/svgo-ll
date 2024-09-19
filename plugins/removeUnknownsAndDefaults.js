@@ -197,7 +197,7 @@ export const fn = (root, params, info) => {
           const allowedChildren = allowedChildrenPerElement.get(
             parentNode.name,
           );
-          if (allowedChildren == null || allowedChildren.size === 0) {
+          if (!allowedChildren || allowedChildren.size === 0) {
             // TODO: DO WE NEED THIS CHECK? SHOULDN'T IT HAVE BEEN HANDLED BY THE PARENT IN THE ELSE BLOCK BELOW?
             // remove unknown elements
             if (allowedChildrenPerElement.get(node.name) == null) {
@@ -251,8 +251,13 @@ export const fn = (root, params, info) => {
           ) {
             delete node.attributes[name];
           }
+
+          // Don't remove default attributes from elements with an id attribute; they may be linearGradient, etc.
+          // where the attribute serves a purpose. If the id is unnecessary, it will be removed by another plugin
+          // and the attribute will then be removable.
           if (
             defaultAttrs &&
+            !node.attributes.id &&
             attributesDefaults &&
             attributesDefaults.get(name) === value
           ) {
@@ -264,7 +269,6 @@ export const fn = (root, params, info) => {
               saveForUsageCheck(node, name);
             }
           }
-          // TODO: DO WE NEED THE ID CHECK? SEEMS LIKE THIS IS HANDLED BY CHECKING FOR USE
           if (uselessOverrides && node.attributes.id == null) {
             const computedValue = computedParentStyle
               ? computedParentStyle.get(name)

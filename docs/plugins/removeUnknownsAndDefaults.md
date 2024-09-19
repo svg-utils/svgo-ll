@@ -23,4 +23,5 @@ Elements are removed if:
 Attributes set to a default value are removed if:
 
 - They are not overriding a value set by an ancestor, and
-- they are not in an element which is referenced by a `<use>` element (or a child of any such element)
+- they are not in an element that has an id (e.g., a `linearGradient` or similar element which may be referenced elsewhere)
+- they are not in an element which is referenced by a `<use>` element (or a child of any such element).

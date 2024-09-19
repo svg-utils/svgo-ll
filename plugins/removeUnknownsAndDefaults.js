@@ -6,6 +6,7 @@ import {
   presentationNonInheritableGroupAttrs,
 } from './_collections.js';
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
+import { findReferences } from '../lib/svgo/tools.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -84,6 +85,20 @@ for (const [name, config] of Object.entries(elems)) {
 }
 
 /**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} attName
+ */
+function getUseID(element, attName) {
+  const value = element.attributes[attName];
+  if (value) {
+    const ids = findReferences(attName, value);
+    if (ids) {
+      return ids[0];
+    }
+  }
+}
+
+/**
  * Remove unknown elements content and attributes,
  * remove attributes with default values.
  *
@@ -92,6 +107,40 @@ for (const [name, config] of Object.entries(elems)) {
  * @type {import('./plugins-types.js').Plugin<'removeUnknownsAndDefaults'>}
  */
 export const fn = (root, params, info) => {
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   * @returns {boolean}
+   */
+  function elementIsUsed(element) {
+    if (usedIDs.size === 0) {
+      return false;
+    }
+    // See if the element or any of its parents are used.
+    while (true) {
+      if (element.attributes.id && usedIDs.has(element.attributes.id)) {
+        return true;
+      }
+      const parent = element.parentNode;
+      if (parent.type === 'root') {
+        return false;
+      }
+      element = parent;
+    }
+  }
+
+  /**
+   * @param {import('../lib/types.js').XastElement} node
+   * @param {string} attName
+   */
+  function saveForUsageCheck(node, attName) {
+    let attNames = deleteIfUnused.get(node);
+    if (!attNames) {
+      attNames = [];
+      deleteIfUnused.set(node, attNames);
+    }
+    attNames.push(attName);
+  }
+
   const {
     unknownContent = true,
     unknownAttrs = true,
@@ -107,6 +156,11 @@ export const fn = (root, params, info) => {
   if (info.docData.hasScripts() || styleData === null) {
     return;
   }
+
+  /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
+  const deleteIfUnused = new Map();
+  /** @type {Set<string>} */
+  const usedIDs = new Set();
 
   return {
     instruction: {
@@ -127,12 +181,24 @@ export const fn = (root, params, info) => {
           return visitSkip;
         }
 
+        if (node.name === 'use') {
+          let id = getUseID(node, 'href');
+          if (!id) {
+            id = getUseID(node, 'xlink:href');
+          }
+          if (id) {
+            usedIDs.add(id);
+          }
+          return;
+        }
+
         // remove unknown element's content
         if (unknownContent && parentNode.type === 'element') {
           const allowedChildren = allowedChildrenPerElement.get(
             parentNode.name,
           );
-          if (allowedChildren == null || allowedChildren.size === 0) {
+          if (!allowedChildren || allowedChildren.size === 0) {
+            // TODO: DO WE NEED THIS CHECK? SHOULDN'T IT HAVE BEEN HANDLED BY THE PARENT IN THE ELSE BLOCK BELOW?
             // remove unknown elements
             if (allowedChildrenPerElement.get(node.name) == null) {
               detachNodeFromParent(node, parentNode);
@@ -185,9 +251,13 @@ export const fn = (root, params, info) => {
           ) {
             delete node.attributes[name];
           }
+
+          // Don't remove default attributes from elements with an id attribute; they may be linearGradient, etc.
+          // where the attribute serves a purpose. If the id is unnecessary, it will be removed by another plugin
+          // and the attribute will then be removable.
           if (
             defaultAttrs &&
-            node.attributes.id == null &&
+            !node.attributes.id &&
             attributesDefaults &&
             attributesDefaults.get(name) === value
           ) {
@@ -196,7 +266,7 @@ export const fn = (root, params, info) => {
               ? computedParentStyle.get(name)
               : undefined;
             if (value === undefined) {
-              delete node.attributes[name];
+              saveForUsageCheck(node, name);
             }
           }
           if (uselessOverrides && node.attributes.id == null) {
@@ -209,6 +279,18 @@ export const fn = (root, params, info) => {
             ) {
               delete node.attributes[name];
             }
+          }
+        }
+      },
+    },
+    root: {
+      exit: () => {
+        for (const [element, attNames] of deleteIfUnused.entries()) {
+          if (elementIsUsed(element)) {
+            continue;
+          }
+          for (const attName of attNames) {
+            delete element.attributes[attName];
           }
         }
       },

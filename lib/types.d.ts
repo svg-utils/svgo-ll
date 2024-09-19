@@ -136,7 +136,7 @@ export class StyleData {
   getFeatures(): Set<CSSFeatures>;
   getFirstStyleElement(): XastElement | undefined;
   getIdsReferencedByProperties(): string[];
-  hasAttributeSelector(attName: string | undefined): boolean;
+  hasAttributeSelector(attName?: string): boolean;
   hasClassReference(className: string): boolean;
   hasOnlyFeatures(features: CSSFeatures[]): boolean;
   hasStyles(): boolean;

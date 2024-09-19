@@ -18,7 +18,7 @@ The following plugins are included in `preset-default`, in the order that they'r
 - cleanupIds
 - removeUselessDefs
 - convertColors
-- removeUnknownsAndDefaults
+- [removeUnknownsAndDefaults](./plugins/removeUnknownsAndDefaults.md)
 - removeNonInheritableGroupAttrs
 - removeUselessStrokeAndFill
 - removeHiddenElems

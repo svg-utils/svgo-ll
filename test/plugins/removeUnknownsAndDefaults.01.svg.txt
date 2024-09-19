@@ -7,5 +7,5 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:test="http://" y="10" test:attr="val" xml:space="preserve">
     <rect/>
-    <rect fill="#000" id="black-rect"/>
+    <rect id="black-rect"/>
 </svg>

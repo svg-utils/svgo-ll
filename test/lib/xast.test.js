@@ -1,9 +1,9 @@
 /**
- * @typedef {import('./types.js').XastElement} XastElement
- * @typedef {import('./types.js').XastRoot} XastRoot
+ * @typedef {import('../../lib/types.js').XastElement} XastElement
+ * @typedef {import('../../lib/types.js').XastRoot} XastRoot
  */
 
-import { visit, visitSkip, detachNodeFromParent } from './xast.js';
+import { visit, visitSkip, detachNodeFromParent } from '../../lib/xast.js';
 
 /**
  * @type {(children: XastElement[]) => XastRoot}
@@ -15,7 +15,7 @@ const root = (children) => {
 /**
  * @type {(
  *   name: string,
- *   parentNode: import('./types.js').XastParent,
+ *   parentNode: import('../../lib/types.js').XastParent,
  *   attrs?: ?Record<string, string>,
  *   children?: XastElement[]
  * ) => XastElement}
@@ -100,10 +100,10 @@ test('visit skips entering children if node is detached', () => {
   const ast = makeAst();
   visit(ast, {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         entered.push(node.name);
         if (node.name === 'g') {
-          detachNodeFromParent(node, parentNode);
+          detachNodeFromParent(node);
         }
       },
     },

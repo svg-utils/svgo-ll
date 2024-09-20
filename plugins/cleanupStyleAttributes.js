@@ -1,4 +1,4 @@
-import { parseStyleDeclarations } from '../lib/style-css-tree.js';
+import { parseStyleDeclarations } from '../lib/css.js';
 import { writeStyleAttribute } from '../lib/style.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups, uselessShapeProperties } from './_collections.js';

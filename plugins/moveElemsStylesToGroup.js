@@ -1,4 +1,4 @@
-import { parseStyleDeclarations } from '../lib/style-css-tree.js';
+import { parseStyleDeclarations } from '../lib/css.js';
 import { writeStyleAttribute } from '../lib/style.js';
 import { inheritableAttrs } from './_collections.js';
 

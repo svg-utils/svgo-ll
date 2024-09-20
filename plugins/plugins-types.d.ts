@@ -187,6 +187,9 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
      */
     overrides?: PresetDefaultOverrides;
   };
+  'preset-next': {
+    overrides?: PresetDefaultOverrides;
+  };
   'preset-none': {};
   cleanupListOfValues: {
     floatPrecision?: number;
@@ -194,6 +197,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
     defaultPx?: boolean;
     convertToPx?: boolean;
   };
+  cleanupXlink: void;
   convertOneStopGradients: void;
   convertStyleToAttrs: {
     keepImportant?: boolean;

@@ -1,0 +1,30 @@
+If there are attribute selectors, disable plugin.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
+  <style>
+    [href] {stroke:red}
+  </style>
+  <defs>
+    <rect id="a" width="2" height="3"/>
+    <rect id="b" width="2" height="3" y="5" fill="green"/>
+  </defs>
+  <use xlinkhref="#a"/>
+  <use xlink:href="#b"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20">
+    <style>
+        [href] {stroke:red}
+    </style>
+    <defs>
+        <rect id="a" width="2" height="3"/>
+        <rect id="b" width="2" height="3" y="5" fill="green"/>
+    </defs>
+    <use xlinkhref="#a"/>
+    <use xlink:href="#b"/>
+</svg>

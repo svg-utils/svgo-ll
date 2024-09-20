@@ -77,6 +77,9 @@ export const fn = (root, params, info) => {
    */
   const removedDefIds = new Set();
 
+  /** @type {Set<XastElement>} */
+  const defNodesToRemove = new Set();
+
   /**
    * @type {Set<XastElement>}
    */
@@ -144,7 +147,7 @@ export const fn = (root, params, info) => {
   }
 
   /**
-   * @param {XastChild} node
+   * @param {XastElement} node
    * @param {XastParent} parentNode
    */
   function removeElement(node, parentNode) {
@@ -157,7 +160,7 @@ export const fn = (root, params, info) => {
       removedDefIds.add(node.attributes.id);
     }
 
-    detachNodeFromParent(node);
+    defNodesToRemove.add(node);
   }
 
   // Record all references in the style element.
@@ -457,6 +460,11 @@ export const fn = (root, params, info) => {
     },
     root: {
       exit: () => {
+        for (const child of defNodesToRemove) {
+          detachNodeFromParent(child);
+          nonRenderedNodes.delete(child);
+        }
+
         for (const id of removedDefIds) {
           const refs = referencesById.get(id);
           if (refs) {

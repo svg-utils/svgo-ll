@@ -35,9 +35,11 @@ async function performTests(options) {
   let totalCompression = 0;
 
   /** @type {import('../lib/svgo.js').Config} */
-  const config = {};
-  config.preset = options.preset;
-  config.enable = options.enable;
+  const config = {
+    preset: options.preset,
+    enable: options.enable,
+    disable: options.disable,
+  };
 
   /**
    * @param {string[]} list
@@ -180,7 +182,11 @@ program
   )
   .option(
     '--enable <plugin...>',
-    'Specify one or more builtin plugins to run in addition to the presets',
+    'Specify one or more builtin plugins to run in addition to those in the preset or config',
+  )
+  .option(
+    '--disable <plugin...>',
+    'Specify one or more plugins from the preset or config which should not be run ',
   )
   .option(
     '--inputdir <dir>',

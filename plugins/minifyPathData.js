@@ -1,6 +1,6 @@
-import { path2js, js2path } from './_path.js';
+import { path2js } from './_path.js';
 import { pathElems } from './_collections.js';
-import { cleanupOutData, exactAdd } from '../lib/svgo/tools.js';
+import { cleanupOutData, exactAdd, minifyNumber } from '../lib/svgo/tools.js';
 
 /**
  * @typedef {import('../lib/types.js').PathDataItem} PathDataItem
@@ -32,11 +32,12 @@ export const fn = (root, params, info) => {
         if (pathElems.has(node.name) && node.attributes.d != null) {
           const computedStyle = styleData.computeStyle(node, parentInfo);
           const origData = path2js(node);
+          // let data = origData;
           let data = convertToRelative(origData);
           data = filterCommands(data, computedStyle);
           data = convertToMixed(data);
           if (data.length) {
-            js2path(node, data, {});
+            js2path(node, data);
           }
         }
       },
@@ -347,3 +348,119 @@ function filterCommands(pathData, styles) {
     return true;
   });
 }
+
+/**
+ * Convert path array to string.
+ *
+ * @param {import('../lib/types.js').XastElement} path
+ * @param {PathDataItem[]} data
+ */
+function js2path(path, data) {
+  path.pathJS = data;
+
+  const pathData = [];
+  for (const item of data) {
+    // remove moveto commands which are followed by moveto commands
+    if (
+      pathData.length !== 0 &&
+      (item.command === 'M' || item.command === 'm')
+    ) {
+      const last = pathData[pathData.length - 1];
+      if (last.command === 'M' || last.command === 'm') {
+        pathData.pop();
+      }
+    }
+    pathData.push({
+      command: item.command,
+      args: item.args,
+    });
+  }
+
+  path.attributes.d = stringifyPathData(pathData);
+}
+
+/**
+ * @param {PathDataItem[]} pathData
+ * @returns {string}
+ */
+function stringifyPathData(pathData) {
+  if (pathData.length === 1) {
+    const { command, args } = pathData[0];
+    return command + stringifyArgs(command, args);
+  }
+
+  let result = '';
+  let prev = { ...pathData[0] };
+
+  // match leading moveto with following lineto
+  if (pathData[1].command === 'L') {
+    prev.command = 'M';
+  } else if (pathData[1].command === 'l') {
+    prev.command = 'm';
+  }
+
+  for (let i = 1; i < pathData.length; i++) {
+    const { command, args } = pathData[i];
+    if (
+      (prev.command === command &&
+        prev.command !== 'M' &&
+        prev.command !== 'm') ||
+      // combine matching moveto and lineto sequences
+      (prev.command === 'M' && command === 'L') ||
+      (prev.command === 'm' && command === 'l')
+    ) {
+      prev.args = [...prev.args, ...args];
+      if (i === pathData.length - 1) {
+        result += prev.command + stringifyArgs(prev.command, prev.args);
+      }
+    } else {
+      result += prev.command + stringifyArgs(prev.command, prev.args);
+
+      if (i === pathData.length - 1) {
+        result += command + stringifyArgs(command, args);
+      } else {
+        prev = { command, args };
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * @param {string} command
+ * @param {number[]} args
+ */
+function stringifyArgs(command, args) {
+  let result = '';
+  let previous;
+
+  for (let i = 0; i < args.length; i++) {
+    const roundedStr = minifyNumber(args[i]);
+    if (i === 0 || args[i] < 0) {
+      // avoid space before first and negative numbers
+      result += roundedStr;
+    } else if (!Number.isInteger(previous) && !isDigit(roundedStr[0])) {
+      // remove space before decimal with zero whole
+      // only when previous number is also decimal
+      result += roundedStr;
+    } else {
+      result += ` ${roundedStr}`;
+    }
+    previous = args[i];
+  }
+
+  return result;
+}
+
+/**
+ * @param {string} c
+ * @returns {boolean}
+ */
+const isDigit = (c) => {
+  const codePoint = c.codePointAt(0);
+  if (codePoint == null) {
+    return false;
+  }
+  return 48 <= codePoint && codePoint <= 57;
+};

@@ -33,6 +33,7 @@ async function performTests(options) {
   const notOptimized = new Set();
   let totalInputSize = 0;
   let totalCompression = 0;
+  let totalPixelMismatches = 0;
 
   /** @type {import('../lib/svgo.js').Config} */
   const config = {
@@ -71,6 +72,7 @@ async function performTests(options) {
       if (notOptimized.has(name)) {
         return;
       }
+      totalPixelMismatches += mismatchCount;
       if (mismatchCount <= 0) {
         passed++;
       } else {
@@ -114,6 +116,7 @@ async function performTests(options) {
     console.info(
       `Total Compression: ${totalCompression} bytes (${toFixed((totalCompression / totalInputSize) * 100, 2)}%)`,
     );
+    console.info(`Total Pixel Mismatches: ${totalPixelMismatches}`);
     return mismatched === 0;
   }
 

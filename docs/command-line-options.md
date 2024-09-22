@@ -1,5 +1,7 @@
 # Command Line Options
 
+For examples of how these options can be used, see the [FAQ](./faq.md).
+
 `-v, --version`  
 Output the version number.
 

@@ -17,23 +17,19 @@ npm install -g svgo-ll
 
 ## Command-line usage
 
-Process single files:
+To process a single file with the default settings for **svgo-ll** version 5:
 
 ```sh
-svgo-ll one.svg two.svg -o one.min.svg two.min.svg
+svgo-ll -i one.svg -o one.min.svg
 ```
 
-Process a directory of files recursively with `-f`/`--folder`:
+To process a single file with the latest settings (which will become the defaults for **svgo-ll** version 6):
 
 ```sh
-svgo-ll -f path/to/directory_with_svgs -o path/to/output_directory
+svgo-ll --preset next -i one.svg -o one.min.svg
 ```
 
-Help for advanced usage:
-
-```sh
-svgo-ll --help
-```
+For more detailed options, see the [command line option documentation](https://github.com/svg-utils/svgo-ll/blob/main/docs/command-line-options.md) or [FAQ](https://github.com/svg-utils/svgo-ll/blob/main/docs/faq.md).
 
 ## Configuration
 

@@ -60,7 +60,7 @@ export const fn = (root, params, info) => {
           data = filterCommands(data, computedStyle);
           data = convertToMixed(data);
           if (data.length) {
-            js2path(node, data);
+            node.attributes.d = stringifyPathData(data);
           }
         }
       },
@@ -398,16 +398,6 @@ const isDigit = (c) => {
 const isWhiteSpace = (c) => {
   return c === ' ' || c === '\t' || c === '\r' || c === '\n';
 };
-
-/**
- * Convert path array to string.
- *
- * @param {import('../lib/types.js').XastElement} path
- * @param {PathDataItem[]} data
- */
-function js2path(path, data) {
-  path.attributes.d = stringifyPathData(data);
-}
 
 /**
  * @param {string} string

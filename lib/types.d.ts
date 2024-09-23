@@ -133,9 +133,11 @@ export class StyleData {
     node: XastElement,
     parents: { element: XastParent; styles?: Map<string, string | null> }[],
   ): Map<string, string | null>;
+  deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
   getFirstStyleElement(): XastElement | undefined;
   getIdsReferencedByProperties(): string[];
+  getMatchingRules(element: XastElement): CSSRule[];
   hasAttributeSelector(attName?: string): boolean;
   hasClassReference(className: string): boolean;
   hasOnlyFeatures(features: CSSFeatures[]): boolean;
@@ -146,13 +148,7 @@ export class StyleData {
     ids: string[];
     classes: string[];
   }): void;
-}
-
-export class CSSRuleSet {
-  getFeatures(): Set<CSSFeatures>;
-  getRules(): CSSRule[];
-  hasAtRules(): boolean;
-  hasAttributeSelector(attName: string | undefined): boolean;
+  writeRules(): void;
 }
 
 export class CSSRule {

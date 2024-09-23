@@ -42,6 +42,18 @@ export const fn = (root, params, info) => {
     return;
   }
 
+  /**
+   * @param {XastElement} element
+   * @param {import('../lib/types.js').ParentList} parentInfo,
+   */
+  function elementHasUnmovableProperties(element, parentInfo) {
+    // @ts-ignore - styles is no null
+    const properties = styles.computeStyle(element, parentInfo);
+    return ['clip-path', 'filter', 'mask'].some(
+      (propName) => properties.get(propName) !== undefined,
+    );
+  }
+
   return {
     element: {
       exit: (node, parentNode, parentInfo) => {
@@ -59,21 +71,13 @@ export const fn = (root, params, info) => {
           node.children.length === 1
         ) {
           const firstChild = node.children[0];
-          const properties = styles.computeStyle(node, parentInfo);
-          const filter = properties.get('filter');
-          const nodeHasFilter = filter === null || filter;
           // TODO untangle this mess
           if (
             firstChild.type === 'element' &&
             firstChild.attributes.id == null &&
-            !nodeHasFilter &&
+            !elementHasUnmovableProperties(node, parentInfo) &&
             (node.attributes.class == null ||
-              firstChild.attributes.class == null) &&
-            ((node.attributes['clip-path'] == null &&
-              node.attributes.mask == null) ||
-              (firstChild.name === 'g' &&
-                node.attributes.transform == null &&
-                firstChild.attributes.transform == null))
+              firstChild.attributes.class == null)
           ) {
             const newChildElemAttrs = { ...firstChild.attributes };
 

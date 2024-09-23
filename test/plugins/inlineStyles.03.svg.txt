@@ -26,5 +26,5 @@
             cls-7-and-8: 1;
         }
     </style>
-    <path style="only-cls-7:1;cls-7-and-8:1"/>
+    <path class="cls-7"/>
 </svg>

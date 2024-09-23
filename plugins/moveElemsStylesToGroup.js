@@ -1,5 +1,4 @@
-import { parseStyleDeclarations } from '../lib/css.js';
-import { writeStyleAttribute } from '../lib/style.js';
+import { getStyleDeclarations, writeStyleAttribute } from '../lib/css.js';
 import { inheritableAttrs } from './_collections.js';
 
 export const name = 'moveElemsStylesToGroup';
@@ -28,12 +27,12 @@ export const fn = (root, params, info) => {
         }
 
         // Record child properties so we don't have to re-parse them.
-        /** @type {Map<import('../lib/types.js').XastElement,Map<string,string>>} */
+        /** @type {Map<import('../lib/types.js').XastElement,Map<string,{value:string,important?:boolean}>>} */
         const childProperties = new Map();
 
         /**
          * Find common properties in group children.
-         * @type {Map<string, string>}
+         * @type {Map<string, {value:string,important?:boolean}>}
          */
         const commonProperties = new Map();
         let initial = true;
@@ -42,11 +41,10 @@ export const fn = (root, params, info) => {
             continue;
           }
 
-          const style = child.attributes.style;
-          if (style === undefined) {
+          const properties = getStyleDeclarations(child);
+          if (properties === undefined) {
             return;
           }
-          const properties = parseStyleDeclarations(style);
           childProperties.set(child, properties);
 
           if (initial) {
@@ -63,7 +61,12 @@ export const fn = (root, params, info) => {
           } else {
             // exclude uncommon attributes from initial list
             for (const [name, value] of commonProperties) {
-              if (properties.get(name) !== value) {
+              const dec = properties.get(name);
+              if (
+                !dec ||
+                dec.value !== value.value ||
+                dec.important !== value.important
+              ) {
                 commonProperties.delete(name);
               }
             }
@@ -85,7 +88,8 @@ export const fn = (root, params, info) => {
         }
 
         // Add common child properties to group.
-        const groupProperties = parseStyleDeclarations(node.attributes.style);
+        /** @type {Map<string,{value:string,important?:boolean}>} */
+        const groupProperties = getStyleDeclarations(node) ?? new Map();
 
         for (const [name, value] of commonProperties) {
           groupProperties.set(name, value);
@@ -96,8 +100,8 @@ export const fn = (root, params, info) => {
         // Delete common properties from children.
         for (const child of node.children) {
           if (child.type === 'element') {
-            /** @type {Map<string,string>} */
-            // @ts-ignore
+            /** @type {Map<string,{value:string,important?:boolean}>} */
+            // @ts-ignore - properties should be defined because
             const properties = childProperties.get(child);
             for (const [name] of commonProperties) {
               properties.delete(name);

@@ -1,5 +1,4 @@
-import { parseStyleDeclarations } from '../lib/css.js';
-import { writeStyleAttribute } from '../lib/style.js';
+import { getStyleDeclarations, writeStyleAttribute } from '../lib/css.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups, uselessShapeProperties } from './_collections.js';
 
@@ -170,8 +169,8 @@ export const fn = (root, params, info) => {
           return;
         }
 
-        const origStyle = node.attributes.style;
-        if (origStyle === undefined || origStyle === '') {
+        const origProperties = getStyleDeclarations(node);
+        if (!origProperties) {
           return;
         }
 
@@ -184,7 +183,6 @@ export const fn = (root, params, info) => {
         }
 
         const isShapeGroup = node.name === 'g' && hasOnlyShapeChildren(node);
-        const origProperties = parseStyleDeclarations(origStyle);
         for (const [p, v] of origProperties.entries()) {
           if (!elementCanHaveProperty(node.name, p)) {
             continue;

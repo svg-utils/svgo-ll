@@ -29,31 +29,54 @@ describe('test whether a style attribute has complex declarations', function () 
 });
 
 describe('test parsing of style attributes', function () {
+  /** @type{{input:string,expected:Object<string,import('../../lib/types.js').CSSPropertyValue>}[]
+  } */
   const tests = [
     {
       input: 'fill:red;stroke:green',
-      expected: { fill: 'red', stroke: 'green' },
+      expected: {
+        fill: { value: 'red', important: false },
+        stroke: { value: 'green', important: false },
+      },
+    },
+    {
+      input: 'fill:red!important;stroke:green',
+      expected: {
+        fill: { value: 'red', important: true },
+        stroke: { value: 'green', important: false },
+      },
     },
     {
       input: ' ; fill: red  ; stroke : green   ;  ',
-      expected: { fill: 'red', stroke: 'green' },
+      expected: {
+        fill: { value: 'red', important: false },
+        stroke: { value: 'green', important: false },
+      },
     },
     {
       input: 'mask: url(masks.svg#star) stroke-box;',
-      expected: { mask: 'url(masks.svg#star) stroke-box' },
+      expected: {
+        mask: { value: 'url(masks.svg#star) stroke-box', important: false },
+      },
     },
     {
       input: 'mask: url(http://localhost//test.svg?x=1;y=2#mask1) stroke-box;',
       expected: {
-        mask: 'url(http://localhost//test.svg?x=1;y=2#mask1) stroke-box',
+        mask: {
+          value: 'url(http://localhost//test.svg?x=1;y=2#mask1) stroke-box',
+          important: false,
+        },
       },
     },
     {
       input:
         'mask: url(http://localhost//test.svg?x=1;y=2#mask1) stroke-box;fill:red ',
       expected: {
-        mask: 'url(http://localhost//test.svg?x=1;y=2#mask1) stroke-box',
-        fill: 'red',
+        mask: {
+          value: 'url(http://localhost//test.svg?x=1;y=2#mask1) stroke-box',
+          important: false,
+        },
+        fill: { value: 'red', important: false },
       },
     },
   ];
@@ -64,7 +87,8 @@ describe('test parsing of style attributes', function () {
       const parsed = parseStyleDeclarations(test.input);
       expect(parsed.size).toBe(Object.keys(test.expected).length);
       for (const [prop, value] of Object.entries(test.expected)) {
-        expect(parsed.get(prop)).toBe(value);
+        expect(parsed.get(prop)?.value).toBe(value.value);
+        expect(parsed.get(prop)?.important).toBe(value.important);
       }
     });
   }

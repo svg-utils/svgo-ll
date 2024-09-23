@@ -162,6 +162,10 @@ export class CSSRule {
   matches(element: XastElement): boolean;
 }
 
+export type CSSPropertyValue = { value: string; important: boolean };
+
+export type CSSDeclarationMap = Map<string, CSSPropertyValue>;
+
 export type PluginInfo = {
   path?: string;
   passNumber: number;

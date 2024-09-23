@@ -183,3 +183,17 @@ test('computeStyle - selector list for tags', () => {
   expect(getComputed(styleData, treeInfo, 'c', 'fill')).toBe('green');
   expect(getComputed(styleData, treeInfo, 'r', 'fill')).toBe('green');
 });
+
+test('computeStyle - !important', () => {
+  const data = generateData('./test/lib/docdata/style.computestyle.10.svg');
+  const treeInfo = generateTreeData(data.root);
+  const styleData = data.docData.getStyles();
+
+  expect(styleData).toBeTruthy();
+  if (styleData === null) {
+    return;
+  }
+
+  expect(getComputed(styleData, treeInfo, 'y', 'fill')).toBe('yellow');
+  expect(getComputed(styleData, treeInfo, 'r', 'fill')).toBe('red');
+});

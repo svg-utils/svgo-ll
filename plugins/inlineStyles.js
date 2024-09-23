@@ -1,10 +1,10 @@
+import { writeStyleAttribute } from '../lib/css.js';
+
 /**
  * @typedef {import('../lib/types.js').XastElement} XastElement
  * @typedef {import('../lib/types.js').XastParent} XastParent
  * @typedef {import('../lib/types.js').CSSRule} CSSRule
  */
-
-import { writeStyleAttribute } from '../lib/style.js';
 
 export const name = 'inlineStyles';
 export const description =

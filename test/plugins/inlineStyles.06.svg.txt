@@ -22,8 +22,8 @@
             fill: blue;
         }
     </style>
-    <rect width="100" height="100" style="fill:blue"/>
-    <rect width="100" height="100" style="fill:blue"/>
+    <rect width="100" height="100" class="red blue"/>
+    <rect width="100" height="100" class="blue red"/>
 </svg>
 
 @@@

@@ -33,8 +33,8 @@ export const fn = (root, params, info) => {
    * @param {XastElement} element
    */
   function addElementToRule(rule, element) {
-    if (rule.hasPseudos()) {
-      // Don't inline anything with a pseudo-class or pseudo-element.
+    if (rule.isInMediaQuery() || rule.hasPseudos()) {
+      // Don't inline anything in a media query, or with a pseudo-class or pseudo-element.
       return;
     }
     const elements = elementsPerRule.get(rule);

@@ -52,16 +52,16 @@ function updateReferencedStyleId(element, idMap) {
   }
   for (const [propName, decl] of decls.entries()) {
     const value = decl.value;
-    const id = getReferencedIdInStyleProperty(value);
-    if (!id) {
+    const idInfo = getReferencedIdInStyleProperty(value);
+    if (!idInfo) {
       continue;
     }
-    const newId = idMap.get(id);
+    const newId = idMap.get(idInfo.id);
     if (newId === undefined) {
       continue;
     }
     decls.set(propName, {
-      value: value.replace('#' + id, '#' + newId),
+      value: value.replace('#' + idInfo.literalString, '#' + newId),
       important: decl.important,
     });
   }

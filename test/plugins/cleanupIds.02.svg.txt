@@ -11,5 +11,5 @@
     <style>
         .cls-1 { fill: #fff; }
     </style>
-    <circle id="circle001" fill="red" cx="60" cy="60" r="50"/>
+    <circle fill="red" cx="60" cy="60" r="50"/>
 </svg>

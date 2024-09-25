@@ -5,9 +5,9 @@
 import { getStyleDeclarations, writeStyleAttribute } from '../lib/css.js';
 import {
   generateId,
-  getReferencedIdInStyleProperty,
   getReferencedIds,
   getReferencedIdsInAttribute,
+  updateReferencedDeclarationIds,
 } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
@@ -50,21 +50,7 @@ function updateReferencedStyleId(element, idMap) {
   if (decls === undefined) {
     throw new Error();
   }
-  for (const [propName, decl] of decls.entries()) {
-    const value = decl.value;
-    const idInfo = getReferencedIdInStyleProperty(value);
-    if (!idInfo) {
-      continue;
-    }
-    const newId = idMap.get(idInfo.id);
-    if (newId === undefined) {
-      continue;
-    }
-    decls.set(propName, {
-      value: value.replace('#' + idInfo.literalString, '#' + newId),
-      important: decl.important,
-    });
-  }
+  updateReferencedDeclarationIds(decls, idMap);
   writeStyleAttribute(element, decls);
 }
 
@@ -80,6 +66,8 @@ export const fn = (_root, params, info) => {
   if (info.docData.hasScripts() || styleData === null) {
     return;
   }
+
+  const styleElementIds = styleData.getReferencedIds();
 
   let disabled = false;
 
@@ -194,7 +182,7 @@ export const fn = (_root, params, info) => {
 
         for (const [id, element] of foundIds.entries()) {
           // Delete id attribute if it is not referenced.
-          if (allReferencedIds.has(id)) {
+          if (allReferencedIds.has(id) || styleElementIds.has(id)) {
             referencedIds.push(id);
           } else if (
             !preserveIds.has(id) &&
@@ -229,6 +217,8 @@ export const fn = (_root, params, info) => {
             );
           }
         }
+
+        styleData.updateReferencedIds(styleElementIds, idMap);
       },
     },
   };

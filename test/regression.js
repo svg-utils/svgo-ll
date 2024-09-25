@@ -17,6 +17,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const width = 960;
 const height = 720;
 
+/** @type {Object<string,{lengthOrig:number,lengthOpt:number,pixels:number}>} */
+const stats = {};
+
 /** @type {import('playwright').PageScreenshotOptions} */
 const screenshotOptions = {
   omitBackground: true,
@@ -53,6 +56,13 @@ async function performTests(options) {
      * @param {string} name
      */
     const processFile = async (page, name) => {
+      const fileStats = {
+        lengthOrig: 0,
+        lengthOpt: 0,
+        pixels: Number.MAX_SAFE_INTEGER,
+      };
+      stats[name.replace(/\\/g, '/')] = fileStats;
+
       await page.goto(`http://localhost:5000/original/${name}`);
       const originalBuffer = await page.screenshot(screenshotOptions);
       await page.goto(`http://localhost:5000/optimized/${name}`);
@@ -72,6 +82,8 @@ async function performTests(options) {
       if (notOptimized.has(name)) {
         return;
       }
+
+      fileStats.pixels = mismatchCount;
       totalPixelMismatches += mismatchCount;
       if (mismatchCount <= 0) {
         passed++;
@@ -117,6 +129,26 @@ async function performTests(options) {
       `Total Compression: ${totalCompression} bytes (${toFixed((totalCompression / totalInputSize) * 100, 2)}%)`,
     );
     console.info(`Total Pixel Mismatches: ${totalPixelMismatches}`);
+
+    // Write statistics.
+    const statArray = [
+      ['Name', 'Orig Len', 'Opt Len', 'Reduction', 'Pixels'].join('\t'),
+    ];
+    for (const name of Object.keys(stats).sort()) {
+      const fileStats = stats[name];
+      const orig = fileStats.lengthOrig;
+      const opt = fileStats.lengthOpt;
+      const reduction = orig - opt;
+      statArray.push([name, orig, opt, reduction, fileStats.pixels].join('\t'));
+    }
+
+    const statsFileName = `tmp/regression-stats-${new Date()
+      .toISOString()
+      .replace(/:/g, '')
+      .substring(0, 17)}.tsv`;
+    await fs.mkdir(path.dirname(statsFileName), { recursive: true });
+    await fs.writeFile(statsFileName, statArray.join('\n'));
+
     return mismatched === 0;
   }
 
@@ -129,6 +161,7 @@ async function performTests(options) {
         throw new Error();
       }
       const name = req.url.slice(req.url.indexOf('/', 1));
+      const statsName = name.substring(1);
       let file;
       try {
         file = await fs.readFile(path.join(fixturesDir, name), 'utf-8');
@@ -139,12 +172,15 @@ async function performTests(options) {
       }
 
       if (req.url.startsWith('/original/')) {
+        stats[statsName].lengthOrig = file.length;
         res.setHeader('Content-Type', 'image/svg+xml');
         res.end(file);
         return;
       }
       if (req.url.startsWith('/optimized/')) {
         const optimized = optimize(file, config);
+        stats[statsName].lengthOpt = optimized.data.length;
+
         if (optimized.error) {
           notOptimized.add(name.substring(1));
         }
@@ -165,6 +201,7 @@ async function performTests(options) {
     server.close();
     const end = process.hrtime.bigint();
     const diff = (end - start) / BigInt(1e6);
+
     if (passed) {
       console.info(`Regression tests successfully completed in ${diff}ms`);
     } else {

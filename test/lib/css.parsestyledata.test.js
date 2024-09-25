@@ -1,4 +1,7 @@
-import { _isStyleComplex, parseStyleDeclarations } from '../../lib/css.js';
+import {
+  _isStyleComplex,
+  parseStyleDeclarations,
+} from '../../lib/css-tools.js';
 import { parseStylesheet } from '../../lib/style-css-tree.js';
 
 describe('test whether a style attribute has complex declarations', function () {

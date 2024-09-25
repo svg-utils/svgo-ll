@@ -2,7 +2,8 @@
  * @typedef {import('../lib/types.js').XastElement} XastElement
  */
 
-import { getStyleDeclarations, writeStyleAttribute } from '../lib/css.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
 import {
   generateId,
   getReferencedIds,

@@ -1,23 +1,4 @@
-import { visit } from '../../lib/xast.js';
-import { generateData } from './testutils.js';
-
-/**
- * @param {import('../../lib/types.js').XastRoot} root
- */
-function generateTreeData(root) {
-  const data = new Map();
-  visit(root, {
-    element: {
-      enter: (node) => {
-        if (node.attributes.id) {
-          data.set(node.attributes.id, node);
-        }
-      },
-    },
-  });
-
-  return data;
-}
+import { generateData, generateTreeData } from './testutils.js';
 
 /**
  * @param {import('../../lib/docdata.js').StyleData} styleData

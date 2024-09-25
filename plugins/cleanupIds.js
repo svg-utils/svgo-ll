@@ -8,6 +8,7 @@ import {
   generateId,
   getReferencedIds,
   getReferencedIdsInAttribute,
+  SVGOError,
   updateReferencedDeclarationIds,
 } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
@@ -157,6 +158,9 @@ export const fn = (_root, params, info) => {
         }
 
         if (element.attributes.id) {
+          if (foundIds.has(element.attributes.id)) {
+            throw new SVGOError(`Duplicate id "${element.attributes.id}"`);
+          }
           foundIds.set(element.attributes.id, element);
         }
 

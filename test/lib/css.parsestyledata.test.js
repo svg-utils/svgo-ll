@@ -100,6 +100,11 @@ describe('test parsing of style attributes', function () {
 
 describe('test parsing and stringifying of selectors', function () {
   const tests = [
+    // Attribute selectors.
+    { input: '[x]' },
+    { input: 'a[href="https://example.org"]' },
+    { input: 'a[href*="example"]' },
+    { input: 'a[href*="cAsE"s]' },
     // Classes.
     { input: '.a' },
     // Pseudo-classes.
@@ -109,6 +114,8 @@ describe('test parsing and stringifying of selectors', function () {
     { input: 'tspan::first-letter' },
     // Combinators.
     { input: '[stroke]+path' },
+    { input: 'ul.my-things>li' },
+    { input: 'ul.my-things li' },
   ];
 
   for (let index = 0; index < tests.length; index++) {

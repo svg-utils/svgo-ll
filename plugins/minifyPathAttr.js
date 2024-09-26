@@ -2,8 +2,9 @@ import { pathElems } from './_collections.js';
 
 /**
  * @typedef {{'command':'h',dx:ExactNum}} HRel
+ * @typedef {{'command':'l',dx:ExactNum,dy:ExactNum}} LineRel
  * @typedef {{'command':'m',dx:ExactNum,dy:ExactNum}} MoveRel
- * @typedef {HRel|MoveRel} PathCommand
+ * @typedef {HRel|LineRel|MoveRel} PathCommand
  * @typedef {'none' | 'sign' | 'whole' | 'decimal_point' | 'decimal' | 'e' | 'exponent_sign' | 'exponent'} ReadNumberState
  */
 
@@ -65,7 +66,7 @@ export const fn = (root, params, info) => {
 
 /**
  * @param {string} c
- * @returns {'space'|'command'|'digit'}
+ * @returns {'space'|'command'|'digit'|'.'|','|'sign'|'e'}
  */
 function getCharType(c) {
   switch (c) {
@@ -96,6 +97,15 @@ function getCharType(c) {
     case '8':
     case '9':
       return 'digit';
+    case 'e':
+    case 'E':
+      return 'e';
+    case '.':
+    case ',':
+      return c;
+    case '-':
+    case '+':
+      return 'sign';
     default:
       throw new PathParseError(`unexpected character "${c}" in path`);
   }
@@ -114,14 +124,21 @@ function normalize(commands) {
  * @returns {PathCommand[]}
  */
 export function parsePathCommands(path) {
+  function addArg() {
+    if (currentArg !== '') {
+      args.push(currentArg);
+      currentArg = '';
+    }
+    hasDecimal = false;
+    inExponent = false;
+  }
+
   /**
    * @param {string} nextCommand
    */
   function addCurrentCommand(nextCommand) {
-    if (currentArg !== '') {
-      args.push(currentArg);
-    }
-    commands.push(makeCommand(currentCommand, args));
+    addArg();
+    commands.push(...makeCommand(currentCommand, args));
     currentCommand = nextCommand;
     args = [];
     currentArg = '';
@@ -130,21 +147,38 @@ export function parsePathCommands(path) {
   /**
    * @param {string} command
    * @param {string[]} args
-   * @returns {PathCommand}
+   * @returns {PathCommand[]}
    */
   function makeCommand(command, args) {
     switch (command) {
       case 'h':
-        return {
-          command: command,
-          dx: new ExactNum(args[0]),
-        };
-      case 'm':
-        return {
-          command: command,
-          dx: new ExactNum(args[0]),
-          dy: new ExactNum(args[1]),
-        };
+        return [
+          {
+            command: command,
+            dx: new ExactNum(args[0]),
+          },
+        ];
+      case 'm': {
+        if (args.length % 2 !== 0) {
+          throw new PathParseError('odd number of arguments found for move');
+        }
+        /** @type {PathCommand[]} */
+        const commands = [
+          {
+            command: command,
+            dx: new ExactNum(args[0]),
+            dy: new ExactNum(args[1]),
+          },
+        ];
+        for (let index = 2; index < args.length; index += 2) {
+          commands.push({
+            command: 'l',
+            dx: new ExactNum(args[index]),
+            dy: new ExactNum(args[index + 1]),
+          });
+        }
+        return commands;
+      }
       default:
         throw new Error(`unexpected command "${command}"`);
     }
@@ -160,6 +194,10 @@ export function parsePathCommands(path) {
   let args = [];
   /** @type {string} */
   let currentArg = '';
+  // true if we have already seen a decimal point in the current arg.
+  let hasDecimal = false;
+  // true if we are in the exponent portion of a number.
+  let inExponent = false;
 
   for (let index = 0; index < path.length; index++) {
     const c = path[index];
@@ -169,14 +207,48 @@ export function parsePathCommands(path) {
           case 'command':
             addCurrentCommand(c);
             continue;
+          case '.':
+            if (hasDecimal || inExponent) {
+              addArg();
+            }
+            currentArg += c;
+            hasDecimal = true;
+            continue;
+          case 'e':
+            if (inExponent) {
+              throw new PathParseError(`already in exponent: "${currentArg}"`);
+            }
+            inExponent = true;
+            currentArg += 'e';
+            continue;
+          case 'sign':
+            // Sign is allowed as first character of exponent, otherwise it begins a new argument.
+            if (
+              currentArg.length &&
+              currentArg[currentArg.length - 1] !== 'e'
+            ) {
+              addArg();
+            }
+            if (c !== '+') {
+              currentArg += c;
+            }
+            continue;
           case 'digit':
             currentArg += c;
             continue;
           case 'space':
-            if (currentArg) {
-              args.push(currentArg);
-              currentArg = '';
+            addArg();
+            continue;
+          case ',':
+            // Treat comma the same as space, except no more than one comma between args, and no commas before first arg.
+            if (currentArg === '') {
+              throw new PathParseError(
+                args.length === 0
+                  ? 'comma not allowed before first argument'
+                  : 'only one comma allowed between arguments',
+              );
             }
+            addArg();
             continue;
           default:
             throw new PathParseError(
@@ -190,8 +262,6 @@ export function parsePathCommands(path) {
           case 'command':
             currentCommand = c;
             state = 'command';
-            args = [];
-            currentArg = '';
             break;
           default:
             throw new PathParseError(
@@ -211,27 +281,50 @@ export function parsePathCommands(path) {
  * @returns {string}
  */
 export function stringifyPathCommands(commands) {
+  /**
+   * @param {string} commandCode
+   * @param {ExactNum} arg1
+   * @param {ExactNum} arg2
+   */
+  function stringify2Args(commandCode, arg1, arg2) {
+    let result = '';
+    const v1 = arg1.getString();
+    const v2 = arg2.getString();
+
+    if (prevCommand === 'm' && commandCode === 'l') {
+      // See if we can shorten the command by omitting the 'l'.
+      if (v1.startsWith('-')) {
+        commandCode = '';
+      }
+    }
+    if (commandCode !== '') {
+      result += commandCode;
+      prevCommand = commandCode;
+    }
+    result += v1;
+    if (getCharType(v2[0]) === 'digit' || !v1.includes('.')) {
+      result += ' ';
+    }
+    result += v2;
+    return result;
+  }
+
   let result = '';
+  let prevCommand = '';
   for (const command of commands) {
     switch (command.command) {
       case 'h':
-        {
-          const arg1 = command.dx.getString();
-          result += command.command;
-          result += arg1;
-        }
+        result += command.command;
+        result += command.dx.getString();
+        prevCommand = command.command;
         break;
+      case 'l':
       case 'm':
-        {
-          const arg1 = command.dx.getString();
-          const arg2 = command.dy.getString();
-          result += command.command;
-          result += arg1;
-          result += ' ' + arg2;
-        }
+        result += stringify2Args(command.command, command.dx, command.dy);
         break;
       default:
-        throw new Error(`unexpected command "${command}"`);
+        // @ts-ignore
+        throw new Error(`unexpected command "${command.command}"`);
     }
   }
   return result;

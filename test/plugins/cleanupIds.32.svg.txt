@@ -20,14 +20,14 @@ Update ids in <style> elements with attribute selector with no matcher, pseudo-c
 
 <svg xmlns="http://www.w3.org/2000/svg">
     <style>
-        #c:hover{fill-opacity:.3}rect#d[x]{fill:url(#a)}
+        #c:hover{fill-opacity:.3}rect#d[x]{fill:url(#b)}
     </style>
-    <linearGradient id="b" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop stop-color="#5a2100"/>
     </linearGradient>
-    <linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="0%">
+    <linearGradient id="b" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop stop-color="red"/>
     </linearGradient>
-    <rect id="c" x="30" y="30" height="150" width="370" style="fill:url(#b)"/>
+    <rect id="c" x="30" y="30" height="150" width="370" style="fill:url(#a)"/>
     <rect id="d" x="30" y="200" height="150" width="370"/>
 </svg>

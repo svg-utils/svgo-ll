@@ -221,9 +221,6 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
-        <text id="a0">
-            referenced text
-        </text>
         <text id="a">
             referenced text
         </text>
@@ -380,10 +377,12 @@
         <text id="Z">
             referenced text
         </text>
+        <text id="a0">
+            referenced text
+        </text>
     </defs>
-    <tref xlink:href="#a0"/>
-    <tref xlink:href="#a0"/>
-    <tref xlink:href="#a0"/>
+    <tref xlink:href="#a"/>
+    <tref xlink:href="#a"/>
     <tref xlink:href="#a"/>
     <tref xlink:href="#b"/>
     <tref xlink:href="#c"/>
@@ -436,4 +435,5 @@
     <tref xlink:href="#X"/>
     <tref xlink:href="#Y"/>
     <tref xlink:href="#Z"/>
+    <tref xlink:href="#a0"/>
 </svg>

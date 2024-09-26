@@ -99,10 +99,16 @@ export const fn = (_root, params, info) => {
     /** @type {Map<string,string>} */
     const idMap = new Map();
 
-    // Sort by size, then alpha.
-    originalIds = originalIds.sort((a, b) =>
-      a.length === b.length ? a.localeCompare(b) : a.length - b.length,
-    );
+    // Sort by number of references, thensize, then alpha.
+    originalIds = originalIds.sort((a, b) => {
+      const aRefs = allReferencedIds.get(a);
+      const bRefs = allReferencedIds.get(b);
+      const r = (bRefs ? bRefs.length : 0) - (aRefs ? aRefs.length : 0);
+      if (r !== 0) {
+        return r;
+      }
+      return a.length === b.length ? a.localeCompare(b) : a.length - b.length;
+    });
 
     /** @type {Set<string>} */
     const currentIds = new Set(originalIds);

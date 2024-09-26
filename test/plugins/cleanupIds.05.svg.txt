@@ -20,14 +20,14 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
-        <g id="c"/>
-        <g id="d">
-            <use xlink:href="#c"/>
-            <use xlink:href="#b"/>
-        </g>
         <g id="b"/>
-        <g id="e">
+        <g id="d">
+            <use xlink:href="#b"/>
             <use xlink:href="#c"/>
+        </g>
+        <g id="c"/>
+        <g id="e">
+            <use xlink:href="#b"/>
         </g>
     </defs>
     <path d="M0 0" id="a"/>

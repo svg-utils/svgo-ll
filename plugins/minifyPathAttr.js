@@ -299,7 +299,11 @@ export function stringifyPathCommands(commands) {
       ((prevCommand === 'M' || prevCommand === 'L') && commandCode === 'L')
     ) {
       // See if we can shorten the command by omitting the 'l' or 'L'.
-      if (v1.startsWith('-')) {
+      if (
+        v1.startsWith('-') ||
+        (v1.startsWith('.') &&
+          (lastNumber.includes('.') || lastNumber.includes('e')))
+      ) {
         commandCode = '';
       }
     }
@@ -313,11 +317,13 @@ export function stringifyPathCommands(commands) {
       result += ' ';
     }
     result += v2;
+    lastNumber = v2;
     return result;
   }
 
   let result = '';
   let prevCommand = '';
+  let lastNumber = '';
   for (const command of commands) {
     switch (command.command) {
       case 'h':

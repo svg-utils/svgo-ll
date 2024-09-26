@@ -1,0 +1,33 @@
+Update ids in <style> elements with attribute selector with no matcher, pseudo-class, and encoded URL.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg">
+  <style>
+        #rect1:hover {fill-opacity:.3} rect#rect2[x] {fill:url(#%E6%B8%90%E5%8F%98_2)}
+  </style>
+  <linearGradient id="fill1" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop stop-color="#5a2100"/>
+  </linearGradient>
+  <linearGradient id="渐变_2" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop stop-color="red"/>
+  </linearGradient>
+  <rect id="rect1" x="30" y="30" height="150" width="370" style="fill:url(#fill1)"/>
+  <rect id="rect2" x="30" y="200" height="150" width="370"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg">
+    <style>
+        #c:hover{fill-opacity:.3}rect#d[x]{fill:url(#b)}
+    </style>
+    <linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop stop-color="#5a2100"/>
+    </linearGradient>
+    <linearGradient id="b" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop stop-color="red"/>
+    </linearGradient>
+    <rect id="c" x="30" y="30" height="150" width="370" style="fill:url(#a)"/>
+    <rect id="d" x="30" y="200" height="150" width="370"/>
+</svg>

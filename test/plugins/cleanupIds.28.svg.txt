@@ -1,0 +1,30 @@
+Should handle non-ASCII IDs in style attribute reference.
+
+See: https://github.com/svg/svgo/issues/1981
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg">
+  <linearGradient id="渐变_1" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop stop-color="#5a2100" />
+  </linearGradient>
+  <linearGradient id="渐变_2" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop stop-color="red" />
+  </linearGradient>
+  <rect x="30" y="30" height="150" width="370" style="fill:url(#渐变_1)" />
+  <rect x="30" y="200" height="150" width="370" style="fill:url(#%E6%B8%90%E5%8F%98_2)" />
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg">
+    <linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop stop-color="#5a2100"/>
+    </linearGradient>
+    <linearGradient id="b" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop stop-color="red"/>
+    </linearGradient>
+    <rect x="30" y="30" height="150" width="370" style="fill:url(#a)"/>
+    <rect x="30" y="200" height="150" width="370" style="fill:url(#b)"/>
+</svg>

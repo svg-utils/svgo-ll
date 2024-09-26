@@ -1,4 +1,5 @@
-import { getStyleDeclarations, writeStyleAttribute } from '../lib/css.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
 import { inheritableAttrs } from './_collections.js';
 
 export const name = 'moveElemsStylesToGroup';

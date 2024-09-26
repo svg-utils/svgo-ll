@@ -20,18 +20,18 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:x="http://www.w3.org/1999/xlink" xmlns:xlink="http://www.w3.org/1999/xlink">
     <defs>
-        <g id="a"/>
+        <g id="b"/>
         <g id="d">
-            <use xlink:href="#a"/>
+            <use xlink:href="#b"/>
+            <use xlink:href="#c"/>
+        </g>
+        <g id="c"/>
+        <g id="e">
             <use xlink:href="#b"/>
         </g>
-        <g id="b"/>
-        <g id="e">
-            <use xlink:href="#a"/>
-        </g>
     </defs>
-    <path d="M0 0" id="c"/>
-    <use xlink:href="#c" x="50" y="50"/>
+    <path d="M0 0" id="a"/>
+    <use xlink:href="#a" x="50" y="50"/>
     <use xlink:href="#d"/>
     <use xlink:href="#e"/>
 </svg>

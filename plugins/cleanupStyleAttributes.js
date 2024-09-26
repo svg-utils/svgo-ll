@@ -1,4 +1,5 @@
-import { getStyleDeclarations, writeStyleAttribute } from '../lib/css.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups, uselessShapeProperties } from './_collections.js';
 

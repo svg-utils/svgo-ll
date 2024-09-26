@@ -95,6 +95,7 @@ type DefaultPlugins = {
     floatPrecision?: number;
     noSpaceAfterFlags?: boolean;
   };
+  minifyPathAttr: void;
   minifyPathData: void;
   minifyStyles: void;
   minifyTransforms: void;

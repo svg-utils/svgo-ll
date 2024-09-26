@@ -59,7 +59,7 @@ async function performTests(options) {
       const fileStats = {
         lengthOrig: 0,
         lengthOpt: 0,
-        pixels: Number.MAX_SAFE_INTEGER,
+        pixels: -1,
       };
       stats[name.replace(/\\/g, '/')] = fileStats;
 

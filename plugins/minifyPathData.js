@@ -403,6 +403,7 @@ function makeDxDyCommand(command, arg1, arg2) {
 function optimize(commands) {
   /** @type {PathCommand[]} */
   const optimized = [];
+  let currentPoint = ExactPoint.zero();
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
     switch (command.command) {
@@ -415,8 +416,52 @@ function optimize(commands) {
           command = { command: 'v', dy: command.dy };
         }
         break;
+      case 'L':
+        if (
+          command.y.getMinifiedString() ===
+          currentPoint.getY().getMinifiedString()
+        ) {
+          // Convert L x 0 to H x.
+          command = { command: 'H', x: command.x };
+        } else if (
+          command.x.getMinifiedString() ===
+          currentPoint.getX().getMinifiedString()
+        ) {
+          // Convert L 0 y to V y.
+          command = { command: 'V', y: command.y };
+        }
+        break;
     }
     optimized.push(command);
+    switch (command.command) {
+      case 'z':
+        currentPoint = ExactPoint.zero();
+        break;
+      case 'a':
+      case 'c':
+      case 'l':
+      case 'm':
+      case 'q':
+      case 's':
+      case 't':
+        currentPoint.incr(command.dx, command.dy);
+        break;
+      case 'h':
+        currentPoint.incr(command.dx);
+        break;
+      case 'v':
+        currentPoint.incr(undefined, command.dy);
+        break;
+      case 'H':
+        currentPoint.setX(command.x.clone());
+        break;
+      case 'V':
+        currentPoint.setY(command.y.clone());
+        break;
+      default:
+        currentPoint = new ExactPoint(command.x.clone(), command.y.clone());
+        break;
+    }
   }
   return optimized;
 }
@@ -725,21 +770,90 @@ export function stringifyPathCommands(commands) {
   return result;
 }
 
+class ExactPoint {
+  #x;
+  #y;
+
+  /**
+   * @param {ExactNum} x
+   * @param {ExactNum} y
+   */
+  constructor(x, y) {
+    this.#x = x;
+    this.#y = y;
+  }
+
+  getX() {
+    return this.#x;
+  }
+
+  getY() {
+    return this.#y;
+  }
+
+  /**
+   * @param {ExactNum|undefined} dx
+   * @param {ExactNum} [dy]
+   */
+  incr(dx, dy) {
+    if (dx) {
+      this.#x.incr(dx);
+    }
+    if (dy) {
+      this.#y.incr(dy);
+    }
+  }
+
+  /**
+   * @param {ExactNum} x
+   */
+  setX(x) {
+    this.#x = x;
+  }
+
+  /**
+   * @param {ExactNum} y
+   */
+  setY(y) {
+    this.#y = y;
+  }
+
+  static zero() {
+    return new ExactPoint(new ExactNum(0), new ExactNum(0));
+  }
+}
+
 class ExactNum {
+  /** @type {string|undefined} */
   #str;
   /** @type {number|undefined} */
   #value;
   /** @type {number|undefined} */
   #numDigits;
+  /** @type {string|undefined} */
+  #minifiedString;
 
   /**
-   * @param {string} str
+   * @param {string|number} n
    */
-  constructor(str) {
-    this.#str = str;
+  constructor(n) {
+    if (typeof n === 'string') {
+      this.#str = n;
+    } else {
+      this.#value = n;
+    }
   }
 
-  getMinifiedString() {
+  clone() {
+    const n = new ExactNum('');
+    n.#str = this.#str;
+    n.#value = this.#value;
+    n.#numDigits = this.#numDigits;
+    n.#minifiedString = this.#minifiedString;
+    return n;
+  }
+
+  #generateMinifiedString() {
     const n = this.getValue();
 
     // Use exponential if it is shorter.
@@ -758,18 +872,48 @@ class ExactNum {
     return strValue;
   }
 
+  getMinifiedString() {
+    if (this.#minifiedString === undefined) {
+      this.#minifiedString = this.#generateMinifiedString();
+    }
+    return this.#minifiedString;
+  }
+
   getNumberOfDigits() {
     if (this.#numDigits === undefined) {
-      this.#numDigits = getNumberOfDecimalDigits(this.#str);
+      this.#numDigits = getNumberOfDecimalDigits(this.#getString());
     }
     return this.#numDigits;
   }
 
+  #getString() {
+    if (this.#str === undefined) {
+      if (this.#value === undefined) {
+        // One or the other should always be defined; should never get here.
+        throw new Error();
+      }
+      this.#str = this.#value.toString();
+    }
+    return this.#str;
+  }
+
   getValue() {
     if (this.#value === undefined) {
-      this.#value = parseFloat(this.#str);
+      this.#value = parseFloat(this.#getString());
     }
     return this.#value;
+  }
+
+  /**
+   * @param {ExactNum} n
+   */
+  incr(n) {
+    const value = this.getValue();
+    const numDigits = this.getNumberOfDigits();
+    this.#str = undefined;
+    this.#minifiedString = undefined;
+    this.#value = value + n.getValue();
+    this.#numDigits = Math.max(numDigits, n.getNumberOfDigits());
   }
 }
 

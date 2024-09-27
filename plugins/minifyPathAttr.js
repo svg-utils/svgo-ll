@@ -3,7 +3,10 @@ import { pathElems } from './_collections.js';
 
 /**
  * @typedef {{dx:ExactNum,dy:ExactNum}} DxDyCmd
- * @typedef {{'command':'C',cp1x:ExactNum,cp1y:ExactNum,cp2x:ExactNum,cp2y:ExactNum,x:ExactNum,y:ExactNum}} CBezAbs
+ * @typedef {{x:ExactNum,y:ExactNum}} XYCmd
+ * @typedef {{rx:ExactNum,ry:ExactNum,angle:ExactNum,flagLgArc:'0'|'1',flagSweep:'0'|'1'}} ArcCmd
+ * @typedef {{'command':'A'}&ArcCmd&XYCmd} ArcAbs
+ * @typedef {{'command':'C',cp1x:ExactNum,cp1y:ExactNum,cp2x:ExactNum,cp2y:ExactNum}&XYCmd} CBezAbs
  * @typedef {{'command':'h',dx:ExactNum}} HRel
  * @typedef {{'command':'L',x:ExactNum,y:ExactNum}} LineAbs
  * @typedef {{'command':'l'}&DxDyCmd} LineRel
@@ -13,7 +16,7 @@ import { pathElems } from './_collections.js';
  * @typedef {{'command':'S',cp2x:ExactNum,cp2y:ExactNum,x:ExactNum,y:ExactNum}} SBezAbs
  * @typedef {{'command':'t'}&DxDyCmd} TBezRel
  * @typedef {HRel|LineRel|MoveRel|TBezRel} RelCommand
- * @typedef {CBezAbs|LineAbs|MoveAbs|QBezAbs|SBezAbs} AbsCommand
+ * @typedef {ArcAbs|CBezAbs|LineAbs|MoveAbs|QBezAbs|SBezAbs} AbsCommand
  * @typedef {RelCommand|AbsCommand} PathCommand
  */
 
@@ -69,6 +72,8 @@ function getCharType(c) {
     case '\r':
     case '\t':
       return 'space';
+    case 'a':
+    case 'A':
     case 'c':
     case 'C':
     case 'h':
@@ -123,6 +128,37 @@ function makeCommand(commandCode, args) {
     return [];
   }
   switch (commandCode) {
+    case 'A': {
+      if (args.length === 0 || args.length % 7 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${commandCode} must be a multiple of 7"`,
+        );
+      }
+      const commands = [];
+      for (let index = 0; index < args.length; index += 7) {
+        /**
+         * @param {string} str
+         * @returns {'0'|'1'}
+         */
+        function getFlagValue(str) {
+          if (str === '0' || str === '1') {
+            return str;
+          }
+          throw new PathParseError(`invalid flag value "${str}"`);
+        }
+        commands.push({
+          command: commandCode,
+          rx: new ExactNum(args[index + 0]),
+          ry: new ExactNum(args[index + 1]),
+          angle: new ExactNum(args[index + 2]),
+          flagLgArc: getFlagValue(args[index + 3]),
+          flagSweep: getFlagValue(args[index + 4]),
+          x: new ExactNum(args[index + 5]),
+          y: new ExactNum(args[index + 6]),
+        });
+      }
+      return commands;
+    }
     case 'C': {
       if (args.length === 0 || args.length % 6 !== 0) {
         throw new PathParseError(
@@ -395,16 +431,19 @@ export function stringifyPathCommands(commands) {
   }
   /**
    * @param {string} commandCode
-   * @param  {ExactNum[]} args
+   * @param  {(ExactNum|string)[]} args
    */
-  function stringifyBezier(commandCode, ...args) {
+  function stringifyCommand(commandCode, ...args) {
     let result = '';
     // If last command was the same, no need to repeat it.
     if (prevCommand !== commandCode) {
       result += commandCode;
     }
     for (let index = 0; index < args.length; index++) {
-      const arg = args[index].getMinifiedString();
+      let arg = args[index];
+      if (arg instanceof ExactNum) {
+        arg = arg.getMinifiedString();
+      }
       if (index === 0) {
         // Don't print space unless we're omitting the command, and we need a space before the first arg.
         if (prevCommand === commandCode && needSpaceBefore(arg)) {
@@ -459,6 +498,18 @@ export function stringifyPathCommands(commands) {
   let lastNumber = '';
   for (const command of commands) {
     switch (command.command) {
+      case 'A':
+        result += stringifyCommand(
+          command.command,
+          command.rx,
+          command.ry,
+          command.angle,
+          command.flagLgArc,
+          command.flagSweep,
+          command.x,
+          command.y,
+        );
+        break;
       case 'h':
         result += command.command;
         result += command.dx.getMinifiedString();
@@ -473,7 +524,7 @@ export function stringifyPathCommands(commands) {
         result += stringifyML(command.command, command.x, command.y);
         break;
       case 'C':
-        result += stringifyBezier(
+        result += stringifyCommand(
           command.command,
           command.cp1x,
           command.cp1y,
@@ -484,7 +535,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'Q':
-        result += stringifyBezier(
+        result += stringifyCommand(
           command.command,
           command.cp1x,
           command.cp1y,
@@ -493,7 +544,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'S':
-        result += stringifyBezier(
+        result += stringifyCommand(
           command.command,
           command.cp2x,
           command.cp2y,
@@ -502,7 +553,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 't':
-        result += stringifyBezier(command.command, command.dx, command.dy);
+        result += stringifyCommand(command.command, command.dx, command.dy);
         break;
       default:
         // @ts-ignore

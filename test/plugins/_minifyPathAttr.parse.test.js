@@ -40,6 +40,11 @@ describe('test parsing of path', function () {
       input: 'M 10,50Q 25,25 40,50t 30,0 30,0 30,0 30,0 30,0',
       expected: 'M10 50Q25 25 40 50t30 0 30 0 30 0 30 0 30 0',
     },
+    // arcs
+    {
+      input: 'M 6,10A 6 4 10 1 0 14,10',
+      expected: 'M6 10A6 4 10 1 0 14 10',
+    },
   ];
 
   for (const test of tests) {

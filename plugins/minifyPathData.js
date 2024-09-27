@@ -415,15 +415,6 @@ function optimize(commands) {
           command = { command: 'v', dy: command.dy };
         }
         break;
-      case 'L':
-        if (command.y.getValue() === 0) {
-          // Convert L x 0 to H x.
-          command = { command: 'H', x: command.x };
-        } else if (command.x.getValue() === 0) {
-          // Convert L 0 y to V y.
-          command = { command: 'V', y: command.y };
-        }
-        break;
     }
     optimized.push(command);
   }

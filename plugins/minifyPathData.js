@@ -1,42 +1,41 @@
+import { getNumberOfDecimalDigits, toFixed } from '../lib/svgo/tools.js';
 import { pathElems } from './_collections.js';
-import { cleanupOutData, exactAdd, minifyNumber } from '../lib/svgo/tools.js';
 
 /**
- * @typedef {import('../lib/types.js').PathDataItem} PathDataItem
- * @typedef {import('../lib/types.js').PathDataCommand} PathDataCommand
- * @typedef {'none' | 'sign' | 'whole' | 'decimal_point' | 'decimal' | 'e' | 'exponent_sign' | 'exponent'} ReadNumberState
- * @typedef {import('../lib/types.js').PathDataItem&{base?:number[],coords?:[number,number]}} InitialExtendedPathDataItem
- * @typedef {import('../lib/types.js').PathDataItem&{base:number[],coords:[number,number]}} ExtendedPathDataItem
+ * @typedef {{dx:ExactNum,dy:ExactNum}} DxDyCmd
+ * @typedef {{x:ExactNum,y:ExactNum}} XYCmd
+ * @typedef {{rx:ExactNum,ry:ExactNum,angle:ExactNum,flagLgArc:'0'|'1',flagSweep:'0'|'1'}} ArcCmd
+ * @typedef {{cp1x:ExactNum,cp1y:ExactNum,cp2x:ExactNum,cp2y:ExactNum}} CBezCmd
+ * @typedef {{'command':'A'}&ArcCmd&XYCmd} ArcAbs
+ * @typedef {{'command':'a'}&ArcCmd&DxDyCmd} ArcRel
+ * @typedef {{'command':'C'}&CBezCmd&XYCmd} CBezAbs
+ * @typedef {{'command':'c'}&CBezCmd&DxDyCmd} CBezRel
+ * @typedef {{'command':'H',x:ExactNum}} HAbs
+ * @typedef {{'command':'h',dx:ExactNum}} HRel
+ * @typedef {{'command':'L'}&XYCmd} LineAbs
+ * @typedef {{'command':'l'}&DxDyCmd} LineRel
+ * @typedef {{'command':'M'}&XYCmd} MoveAbs
+ * @typedef {{'command':'m'}&DxDyCmd} MoveRel
+ * @typedef {{'command':'Q',cp1x:ExactNum,cp1y:ExactNum}&XYCmd} QBezAbs
+ * @typedef {{'command':'q',cp1x:ExactNum,cp1y:ExactNum}&DxDyCmd} QBezRel
+ * @typedef {{'command':'S',cp2x:ExactNum,cp2y:ExactNum}&XYCmd} SBezAbs
+ * @typedef {{'command':'s',cp2x:ExactNum,cp2y:ExactNum}&DxDyCmd} SBezRel
+ * @typedef {{'command':'T'}&XYCmd} TBezAbs
+ * @typedef {{'command':'t'}&DxDyCmd} TBezRel
+ * @typedef {{'command':'V',y:ExactNum}} VAbs
+ * @typedef {{'command':'v',dy:ExactNum}} VRel
+ * @typedef {{'command':'z'}} ZCmd
+ * @typedef {ArcRel|CBezRel|HRel|LineRel|MoveRel|QBezRel|SBezRel|TBezRel|VRel} RelCommand
+ * @typedef {ArcAbs|CBezAbs|HAbs|LineAbs|MoveAbs|QBezAbs|SBezAbs|TBezAbs|VAbs} AbsCommand
+ * @typedef {RelCommand|AbsCommand|ZCmd} PathCommand
  */
 
 export const name = 'minifyPathData';
-export const description = 'writes path data in shortest form';
-
-const argsCountPerCommand = {
-  M: 2,
-  m: 2,
-  Z: 0,
-  z: 0,
-  L: 2,
-  l: 2,
-  H: 1,
-  h: 1,
-  V: 1,
-  v: 1,
-  C: 6,
-  c: 6,
-  S: 4,
-  s: 4,
-  Q: 4,
-  q: 4,
-  T: 2,
-  t: 2,
-  A: 7,
-  a: 7,
-};
+export const description = 'writes path commands in shortest form';
 
 /**
- * @see https://www.w3.org/TR/SVG11/paths.html#PathData
+ * @see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+ * @see https://svgwg.org/svg2-draft/paths.html#DProperty
  *
  * @type {import('./plugins-types.js').Plugin<'minifyPathData'>}
  */
@@ -52,16 +51,20 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (node, parentNode, parentInfo) => {
-        if (pathElems.has(node.name) && node.attributes.d != null) {
-          const computedStyle = styleData.computeStyle(node, parentInfo);
-          const origData = path2js(node);
-          let data = convertToRelative(origData);
-          data = filterCommands(data, computedStyle);
-          data = convertToMixed(data);
-          if (data.length) {
-            node.attributes.d = stringifyPathData(data);
+      enter: (node) => {
+        if (pathElems.has(node.name) && node.attributes.d !== undefined) {
+          let origData;
+          try {
+            origData = parsePathCommands(node.attributes.d);
+          } catch (error) {
+            if (error instanceof PathParseError) {
+              console.warn(error.message);
+              return;
+            }
+            throw error;
           }
+          let data = normalize(origData);
+          node.attributes.d = stringifyPathCommands(data);
         }
       },
     },
@@ -69,599 +72,695 @@ export const fn = (root, params, info) => {
 };
 
 /**
- * Writes data in shortest form using absolute or relative coordinates.
- *
- * @type {(path: ExtendedPathDataItem[]) => ExtendedPathDataItem[]}
+ * @param {string} c
+ * @returns {'space'|'command'|'digit'|'.'|','|'sign'|'e'}
  */
-function convertToMixed(path) {
-  var prev = path[0];
-
-  path = path.filter(function (item, index) {
-    if (index == 0) return true;
-    if (item.command === 'Z' || item.command === 'z') {
-      prev = item;
-      return true;
-    }
-
-    const command = item.command,
-      data = item.args,
-      adata = data.slice(),
-      rdata = data.slice();
-
-    if (
-      command === 'm' ||
-      command === 'l' ||
-      command === 't' ||
-      command === 'q' ||
-      command === 's' ||
-      command === 'c'
-    ) {
-      for (var i = adata.length; i--; ) {
-        adata[i] = exactAdd(adata[i], item.base[i % 2]);
-      }
-    } else if (command == 'h') {
-      adata[0] = exactAdd(adata[0], item.base[0]);
-    } else if (command == 'v') {
-      adata[0] = exactAdd(adata[0], item.base[1]);
-    } else if (command == 'a') {
-      adata[5] = exactAdd(adata[5], item.base[0]);
-      adata[6] = exactAdd(adata[6], item.base[1]);
-    }
-
-    const absoluteDataStr = cleanupOutData(adata, { negativeExtraSpace: true });
-    const relativeDataStr = cleanupOutData(rdata, { negativeExtraSpace: true });
-
-    // Convert to absolute coordinates if it's shorter..
-    // v-20 -> V0
-    // Don't convert if it fits following previous command.
-    // l20 30-10-50 instead of l20 30L20 30
-    if (
-      absoluteDataStr.length < relativeDataStr.length &&
-      !(
-        command == prev.command &&
-        prev.command.charCodeAt(0) > 96 &&
-        absoluteDataStr.length === relativeDataStr.length - 1 &&
-        (data[0] < 0 ||
-          (Math.floor(data[0]) === 0 &&
-            !Number.isInteger(data[0]) &&
-            prev.args[prev.args.length - 1] % 1))
-      )
-    ) {
-      // @ts-ignore
-      item.command = command.toUpperCase();
-      item.args = adata;
-    }
-
-    prev = item;
-    return true;
-  });
-
-  return path;
+function getCharType(c) {
+  switch (c) {
+    case ' ':
+    case '\n':
+    case '\r':
+    case '\t':
+      return 'space';
+    case 'a':
+    case 'A':
+    case 'c':
+    case 'C':
+    case 'h':
+    case 'H':
+    case 'l':
+    case 'L':
+    case 'm':
+    case 'M':
+    case 'q':
+    case 'Q':
+    case 's':
+    case 'S':
+    case 't':
+    case 'T':
+    case 'v':
+    case 'V':
+    case 'z':
+    case 'Z':
+      return 'command';
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+      return 'digit';
+    case 'e':
+    case 'E':
+      return 'e';
+    case '.':
+    case ',':
+      return c;
+    case '-':
+    case '+':
+      return 'sign';
+    default:
+      throw new Error(`unexpected character "${c}" in path`);
+  }
 }
 
 /**
- * Convert absolute path data coordinates to relative.
- *
- * @type {(pathData: InitialExtendedPathDataItem[]) => ExtendedPathDataItem[]}
+ * @param {string} commandCode
+ * @param {string[]} args
+ * @returns {PathCommand[]}
  */
-function convertToRelative(pathData) {
-  let start = [0, 0];
-  let cursor = [0, 0];
-  let prevCoords = [0, 0];
-
-  for (let i = 0; i < pathData.length; i++) {
-    const pathItem = pathData[i];
-    let { command, args } = pathItem;
-
-    // moveto (x y)
-    if (command === 'm') {
-      // update start and cursor
-      cursor[0] = exactAdd(cursor[0], args[0]);
-      cursor[1] = exactAdd(cursor[1], args[1]);
-      start[0] = cursor[0];
-      start[1] = cursor[1];
-    }
-    if (command === 'M') {
-      // M → m
-      // skip first moveto
-      if (i !== 0) {
-        command = 'm';
+function makeCommand(commandCode, args) {
+  if (commandCode === '') {
+    return [];
+  }
+  switch (commandCode) {
+    case 'a':
+    case 'A': {
+      if (args.length === 0 || args.length % 7 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${commandCode} must be a multiple of 7"`,
+        );
       }
-      args[0] = exactAdd(args[0], -cursor[0]);
-      args[1] = exactAdd(args[1], -cursor[1]);
-      // update start and cursor
-      cursor[0] = exactAdd(cursor[0], args[0]);
-      cursor[1] = exactAdd(cursor[1], args[1]);
-      start[0] = cursor[0];
-      start[1] = cursor[1];
+      const commands = [];
+      for (let index = 0; index < args.length; index += 7) {
+        /**
+         * @param {string} str
+         * @returns {'0'|'1'}
+         */
+        function getFlagValue(str) {
+          if (str === '0' || str === '1') {
+            return str;
+          }
+          throw new PathParseError(`invalid flag value "${str}"`);
+        }
+        if (commandCode === 'a') {
+          commands.push({
+            command: commandCode,
+            rx: new ExactNum(args[index + 0]),
+            ry: new ExactNum(args[index + 1]),
+            angle: new ExactNum(args[index + 2]),
+            flagLgArc: getFlagValue(args[index + 3]),
+            flagSweep: getFlagValue(args[index + 4]),
+            dx: new ExactNum(args[index + 5]),
+            dy: new ExactNum(args[index + 6]),
+          });
+        } else {
+          commands.push({
+            command: commandCode,
+            rx: new ExactNum(args[index + 0]),
+            ry: new ExactNum(args[index + 1]),
+            angle: new ExactNum(args[index + 2]),
+            flagLgArc: getFlagValue(args[index + 3]),
+            flagSweep: getFlagValue(args[index + 4]),
+            x: new ExactNum(args[index + 5]),
+            y: new ExactNum(args[index + 6]),
+          });
+        }
+      }
+      return commands;
     }
+    case 'c':
+    case 'C': {
+      if (args.length === 0 || args.length % 6 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${commandCode} must be a multiple of 6"`,
+        );
+      }
+      const commands = [];
+      for (let index = 0; index < args.length; index += 6) {
+        if (commandCode === 'c') {
+          commands.push({
+            command: commandCode,
+            cp1x: new ExactNum(args[index + 0]),
+            cp1y: new ExactNum(args[index + 1]),
+            cp2x: new ExactNum(args[index + 2]),
+            cp2y: new ExactNum(args[index + 3]),
+            dx: new ExactNum(args[index + 4]),
+            dy: new ExactNum(args[index + 5]),
+          });
+        } else {
+          commands.push({
+            command: commandCode,
+            cp1x: new ExactNum(args[index + 0]),
+            cp1y: new ExactNum(args[index + 1]),
+            cp2x: new ExactNum(args[index + 2]),
+            cp2y: new ExactNum(args[index + 3]),
+            x: new ExactNum(args[index + 4]),
+            y: new ExactNum(args[index + 5]),
+          });
+        }
+      }
+      return commands;
+    }
+    case 'h':
+    case 'H':
+    case 'v':
+    case 'V': {
+      const commands = [];
+      if (args.length === 0) {
+        `"${commandCode}" command requires at least one argument`;
+      }
+      for (const arg of args) {
+        switch (commandCode) {
+          case 'h':
+            commands.push({
+              command: commandCode,
+              dx: new ExactNum(arg),
+            });
+            break;
+          case 'v':
+            commands.push({
+              command: commandCode,
+              dy: new ExactNum(arg),
+            });
+            break;
+          case 'H':
+            commands.push({
+              command: commandCode,
+              x: new ExactNum(arg),
+            });
+            break;
+          case 'V':
+            commands.push({
+              command: commandCode,
+              y: new ExactNum(arg),
+            });
+            break;
+        }
+      }
+      return commands;
+    }
+    case 'l':
+    case 'm':
+    case 'L':
+    case 'M': {
+      if (args.length === 0 || args.length % 2 !== 0) {
+        throw new PathParseError(
+          `odd number of arguments found for path command "${commandCode}"`,
+        );
+      }
+      /** @type {PathCommand[]} */
+      const commands = [];
+      if (commandCode === 'l' || commandCode === 'm') {
+        commands.push(makeDxDyCommand(commandCode, args[0], args[1]));
+      } else {
+        commands.push(makeXYCommand(commandCode, args[0], args[1]));
+      }
+      const lineCommandCode =
+        commandCode === 'l' || commandCode === 'm' ? 'l' : 'L';
+      for (let index = 2; index < args.length; index += 2) {
+        switch (lineCommandCode) {
+          case 'l':
+            commands.push(
+              makeDxDyCommand(lineCommandCode, args[index], args[index + 1]),
+            );
+            break;
+          case 'L':
+            commands.push(
+              makeXYCommand(lineCommandCode, args[index], args[index + 1]),
+            );
+            break;
+        }
+      }
+      return commands;
+    }
+    case 'q':
+    case 'Q':
+    case 's':
+    case 'S': {
+      if (args.length === 0 || args.length % 4 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${commandCode} must be a multiple of 4"`,
+        );
+      }
+      const commands = [];
+      for (let index = 0; index < args.length; index += 4) {
+        switch (commandCode) {
+          case 'q':
+            commands.push({
+              command: commandCode,
+              cp1x: new ExactNum(args[index + 0]),
+              cp1y: new ExactNum(args[index + 1]),
+              dx: new ExactNum(args[index + 2]),
+              dy: new ExactNum(args[index + 3]),
+            });
+            break;
+          case 'Q':
+            commands.push({
+              command: commandCode,
+              cp1x: new ExactNum(args[index + 0]),
+              cp1y: new ExactNum(args[index + 1]),
+              x: new ExactNum(args[index + 2]),
+              y: new ExactNum(args[index + 3]),
+            });
+            break;
+          case 's':
+            commands.push({
+              command: commandCode,
+              cp2x: new ExactNum(args[index + 0]),
+              cp2y: new ExactNum(args[index + 1]),
+              dx: new ExactNum(args[index + 2]),
+              dy: new ExactNum(args[index + 3]),
+            });
+            break;
+          case 'S':
+            commands.push({
+              command: commandCode,
+              cp2x: new ExactNum(args[index + 0]),
+              cp2y: new ExactNum(args[index + 1]),
+              x: new ExactNum(args[index + 2]),
+              y: new ExactNum(args[index + 3]),
+            });
+            break;
+        }
+      }
+      return commands;
+    }
+    case 't':
+    case 'T': {
+      if (args.length === 0 || args.length % 2 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${commandCode} must be a multiple of 2"`,
+        );
+      }
+      const commands = [];
+      for (let index = 0; index < args.length; index += 2) {
+        switch (commandCode) {
+          case 't':
+            commands.push(makeDxDyCommand('t', args[index], args[index + 1]));
+            break;
+          case 'T':
+            commands.push(makeXYCommand('T', args[index], args[index + 1]));
+            break;
+        }
+      }
+      return commands;
+    }
+    case 'z':
+    case 'Z':
+      return [{ command: 'z' }];
+    default:
+      throw new PathParseError(`unexpected command "${commandCode}"`);
+  }
+}
 
-    // lineto (x y)
-    if (command === 'l') {
-      cursor[0] = exactAdd(cursor[0], args[0]);
-      cursor[1] = exactAdd(cursor[1], args[1]);
-    }
-    if (command === 'L') {
-      // L → l
-      command = 'l';
-      args[0] = exactAdd(args[0], -cursor[0]);
-      args[1] = exactAdd(args[1], -cursor[1]);
-      cursor[0] = exactAdd(cursor[0], args[0]);
-      cursor[1] = exactAdd(cursor[1], args[1]);
-    }
+/**
+ * @param {'L'|'M'|'T'} command
+ * @param {string} arg1
+ * @param {string} arg2
+ * @returns {LineAbs|MoveAbs|TBezAbs}
+ */
+function makeXYCommand(command, arg1, arg2) {
+  return {
+    command: command,
+    x: new ExactNum(arg1),
+    y: new ExactNum(arg2),
+  };
+}
 
-    // horizontal lineto (x)
-    if (command === 'h') {
-      cursor[0] = exactAdd(cursor[0], args[0]);
-    }
-    if (command === 'H') {
-      // H → h
-      command = 'h';
-      args[0] = exactAdd(args[0], -cursor[0]);
-      cursor[0] = exactAdd(cursor[0], args[0]);
-    }
+/**
+ * @param {'l'|'m'|'t'} command
+ * @param {string} arg1
+ * @param {string} arg2
+ * @returns {LineRel|MoveRel|TBezRel}
+ */
+function makeDxDyCommand(command, arg1, arg2) {
+  return {
+    command: command,
+    dx: new ExactNum(arg1),
+    dy: new ExactNum(arg2),
+  };
+}
 
-    // vertical lineto (y)
-    if (command === 'v') {
-      cursor[1] = exactAdd(cursor[1], args[0]);
-    }
-    if (command === 'V') {
-      // V → v
-      command = 'v';
-      args[0] = exactAdd(args[0], -cursor[1]);
-      cursor[1] = exactAdd(cursor[1], args[0]);
-    }
+/**
+ * @param {PathCommand[]} commands
+ * @returns {PathCommand[]}
+ */
+function normalize(commands) {
+  return commands;
+}
 
-    // curveto (x1 y1 x2 y2 x y)
-    if (command === 'c') {
-      cursor[0] = exactAdd(cursor[0], args[4]);
-      cursor[1] = exactAdd(cursor[1], args[5]);
+/**
+ * @param {string} path
+ * @returns {PathCommand[]}
+ */
+export function parsePathCommands(path) {
+  function addArg() {
+    if (currentArg !== '') {
+      args.push(currentArg);
+      currentArg = '';
     }
-    if (command === 'C') {
-      // C → c
-      command = 'c';
-      args[0] = exactAdd(args[0], -cursor[0]);
-      args[1] = exactAdd(args[1], -cursor[1]);
-      args[2] = exactAdd(args[2], -cursor[0]);
-      args[3] = exactAdd(args[3], -cursor[1]);
-      args[4] = exactAdd(args[4], -cursor[0]);
-      args[5] = exactAdd(args[5], -cursor[1]);
-      cursor[0] = exactAdd(cursor[0], args[4]);
-      cursor[1] = exactAdd(cursor[1], args[5]);
-    }
-
-    // smooth curveto (x2 y2 x y)
-    if (command === 's') {
-      cursor[0] = exactAdd(cursor[0], args[2]);
-      cursor[1] = exactAdd(cursor[1], args[3]);
-    }
-    if (command === 'S') {
-      // S → s
-      command = 's';
-      args[0] = exactAdd(args[0], -cursor[0]);
-      args[1] = exactAdd(args[1], -cursor[1]);
-      args[2] = exactAdd(args[2], -cursor[0]);
-      args[3] = exactAdd(args[3], -cursor[1]);
-      cursor[0] = exactAdd(cursor[0], args[2]);
-      cursor[1] = exactAdd(cursor[1], args[3]);
-    }
-
-    // quadratic Bézier curveto (x1 y1 x y)
-    if (command === 'q') {
-      cursor[0] = exactAdd(cursor[0], args[2]);
-      cursor[1] = exactAdd(cursor[1], args[3]);
-    }
-    if (command === 'Q') {
-      // Q → q
-      command = 'q';
-      args[0] = exactAdd(args[0], -cursor[0]);
-      args[1] = exactAdd(args[1], -cursor[1]);
-      args[2] = exactAdd(args[2], -cursor[0]);
-      args[3] = exactAdd(args[3], -cursor[1]);
-      cursor[0] = exactAdd(cursor[0], args[2]);
-      cursor[1] = exactAdd(cursor[1], args[3]);
-    }
-
-    // smooth quadratic Bézier curveto (x y)
-    if (command === 't') {
-      cursor[0] = exactAdd(cursor[0], args[0]);
-      cursor[1] = exactAdd(cursor[1], args[1]);
-    }
-    if (command === 'T') {
-      // T → t
-      command = 't';
-      args[0] = exactAdd(args[0], -cursor[0]);
-      args[1] = exactAdd(args[1], -cursor[1]);
-      cursor[0] = exactAdd(cursor[0], args[0]);
-      cursor[1] = exactAdd(cursor[1], args[1]);
-    }
-
-    // elliptical arc (rx ry x-axis-rotation large-arc-flag sweep-flag x y)
-    if (command === 'a') {
-      cursor[0] = exactAdd(cursor[0], args[5]);
-      cursor[1] = exactAdd(cursor[1], args[6]);
-    }
-    if (command === 'A') {
-      // A → a
-      command = 'a';
-      args[5] = exactAdd(args[5], -cursor[0]);
-      args[6] = exactAdd(args[6], -cursor[1]);
-      cursor[0] = exactAdd(cursor[0], args[5]);
-      cursor[1] = exactAdd(cursor[1], args[6]);
-    }
-
-    // closepath
-    if (command === 'Z' || command === 'z') {
-      // reset cursor
-      cursor[0] = start[0];
-      cursor[1] = start[1];
-    }
-
-    pathItem.command = command;
-    pathItem.args = args;
-    // store absolute coordinates for later use
-    // base should preserve reference from other element
-    pathItem.base = prevCoords;
-    pathItem.coords = [cursor[0], cursor[1]];
-    prevCoords = pathItem.coords;
+    hasComma = false;
+    hasDecimal = false;
+    inExponent = false;
   }
 
-  // @ts-ignore - all items now have base and coords attributes
-  return pathData;
-}
-
-/**
- * @param {ExtendedPathDataItem[]} pathData
- * @param {Map<string,string|null>} styles
- */
-function filterCommands(pathData, styles) {
-  /** @type {ExtendedPathDataItem|undefined} */
-  let prev;
-
-  return pathData.filter((item, index, path) => {
-    if (!prev) {
-      prev = item;
-      return true;
-    }
-
-    let command = item.command;
-    let data = item.args;
-
-    const lineCap = styles.get('stroke-linecap');
-    if (lineCap === undefined || lineCap === 'butt') {
-      // remove useless non-first path segments
-      // l 0,0 / h 0 / v 0 / q 0,0 0,0 / t 0,0 / c 0,0 0,0 0,0 / s 0,0 0,0
-      if (
-        (command === 'l' ||
-          command === 'h' ||
-          command === 'v' ||
-          command === 'q' ||
-          command === 't' ||
-          command === 'c' ||
-          command === 's') &&
-        data.every(function (i) {
-          return i === 0;
-        })
-      ) {
-        path[index] = prev;
-        return false;
-      }
-
-      // a 25,25 -30 0,1 0,0
-      if (command === 'a' && data[5] === 0 && data[6] === 0) {
-        path[index] = prev;
-        return false;
-      }
-    }
-
-    // horizontal and vertical line shorthands
-    // l 50 0 → h 50
-    // l 0 50 → v 50
-    if (command === 'l') {
-      if (data[1] === 0) {
-        command = 'h';
-        data.pop();
-      } else if (data[0] === 0) {
-        command = 'v';
-        data.shift();
-      }
-      item.command = command;
-    }
-
-    return true;
-  });
-}
-
-/**
- * @type {(c: string) => c is PathDataCommand}
- */
-const isCommand = (c) => {
-  return c in argsCountPerCommand;
-};
-
-/**
- * @param {string} c
- * @returns {boolean}
- */
-const isDigit = (c) => {
-  const codePoint = c.codePointAt(0);
-  if (codePoint == null) {
-    return false;
+  /**
+   * @param {string} nextCommand
+   */
+  function addCurrentCommand(nextCommand) {
+    addArg();
+    commands.push(...makeCommand(currentCommand, args));
+    currentCommand = nextCommand;
+    args = [];
+    currentArg = '';
   }
-  return 48 <= codePoint && codePoint <= 57;
-};
 
-/**
- * @param {string} c
- * @returns {boolean}
- */
-const isWhiteSpace = (c) => {
-  return c === ' ' || c === '\t' || c === '\r' || c === '\n';
-};
+  /*** @type {PathCommand[]} */
+  const commands = [];
+  /** @type {string} */
+  let currentCommand = '';
+  /** @type {string[]} */
+  let args = [];
+  /** @type {string} */
+  let currentArg = '';
+  // true if we have seen one comma between arguments
+  let hasComma = false;
+  // true if we have already seen a decimal point in the current arg.
+  let hasDecimal = false;
+  // true if we are in the exponent portion of a number.
+  let inExponent = false;
 
-/**
- * @param {string} string
- * @returns {PathDataItem[]}
- */
-export const parsePathData = (string) => {
-  /**
-   * @type {PathDataItem[]}
-   */
-  const pathData = [];
-  /**
-   * @type {PathDataCommand|null}
-   */
-  let command = null;
-  let args = /** @type {number[]} */ ([]);
-  let argsCount = 0;
-  let canHaveComma = false;
-  let hadComma = false;
-  for (let i = 0; i < string.length; i += 1) {
-    const c = string.charAt(i);
-    if (isWhiteSpace(c)) {
-      continue;
-    }
-    // allow comma only between arguments
-    if (canHaveComma && c === ',') {
-      if (hadComma) {
+  for (let index = 0; index < path.length; index++) {
+    const c = path[index];
+    switch (getCharType(c)) {
+      case 'command':
+        addCurrentCommand(c);
+        continue;
+      case '.':
+        if (currentCommand === '') {
+          throw new PathParseError('unexpected "." in path data');
+        }
+        if (hasDecimal || inExponent) {
+          addArg();
+        }
+        currentArg += c;
+        hasDecimal = true;
+        hasComma = false;
+        continue;
+      case 'e':
+        if (inExponent) {
+          throw new PathParseError(`already in exponent: "${currentArg}"`);
+        }
+        inExponent = true;
+        currentArg += 'e';
+        continue;
+      case 'sign':
+        // Sign is allowed as first character of exponent, otherwise it begins a new argument.
+        if (currentArg.length && currentArg[currentArg.length - 1] !== 'e') {
+          addArg();
+        }
+        if (c !== '+') {
+          currentArg += c;
+        }
+        hasComma = false;
+        continue;
+      case 'digit':
+        currentArg += c;
+        hasComma = false;
+        continue;
+      case 'space':
+        addArg();
+        continue;
+      case ',':
+        // Treat comma the same as space, except no more than one comma between args, and no commas before first arg.
+        if ((currentArg === '' && args.length === 0) || hasComma) {
+          throw new PathParseError('comma not allowed before first argument');
+        }
+        addArg();
+        hasComma = true;
         break;
-      }
-      hadComma = true;
-      continue;
-    }
-    if (isCommand(c)) {
-      if (hadComma) {
-        return pathData;
-      }
-      if (command == null) {
-        // moveto should be leading command
-        if (c !== 'M' && c !== 'm') {
-          return pathData;
-        }
-      } else if (args.length !== 0) {
-        // stop if previous command arguments are not flushed
-        return pathData;
-      }
-      command = c;
-      args = [];
-      argsCount = argsCountPerCommand[command];
-      canHaveComma = false;
-      // flush command without arguments
-      if (argsCount === 0) {
-        pathData.push({ command, args });
-      }
-      continue;
-    }
-    // avoid parsing arguments if no command detected
-    if (command == null) {
-      return pathData;
-    }
-    // read next argument
-    let newCursor = i;
-    let number = null;
-    if (command === 'A' || command === 'a') {
-      const position = args.length;
-      if (position === 0 || position === 1) {
-        // allow only positive number without sign as first two arguments
-        if (c !== '+' && c !== '-') {
-          [newCursor, number] = readNumber(string, i);
-        }
-      }
-      if (position === 2 || position === 5 || position === 6) {
-        [newCursor, number] = readNumber(string, i);
-      }
-      if (position === 3 || position === 4) {
-        // read flags
-        if (c === '0') {
-          number = 0;
-        }
-        if (c === '1') {
-          number = 1;
-        }
-      }
-    } else {
-      [newCursor, number] = readNumber(string, i);
-    }
-    if (number == null) {
-      return pathData;
-    }
-    args.push(number);
-    canHaveComma = true;
-    hadComma = false;
-    i = newCursor;
-    // flush arguments when necessary count is reached
-    if (args.length === argsCount) {
-      pathData.push({ command, args });
-      // subsequent moveto coordinates are treated as implicit lineto commands
-      if (command === 'M') {
-        command = 'L';
-      }
-      if (command === 'm') {
-        command = 'l';
-      }
-      args = [];
+      default:
+        throw new PathParseError(`unexpected character "${c}"`);
     }
   }
-  return pathData;
-};
 
-/**
- * @param {import('../lib/types.js').XastElement} path
- * @returns {PathDataItem[]}
- */
-function path2js(path) {
-  /**
-   * @type {PathDataItem[]}
-   */
-  const pathData = []; // JS representation of the path data
-  const newPathData = parsePathData(path.attributes.d);
-  for (const { command, args } of newPathData) {
-    pathData.push({ command, args });
-  }
-  // First moveto is actually absolute. Subsequent coordinates were separated above.
-  if (pathData.length && pathData[0].command == 'm') {
-    pathData[0].command = 'M';
-  }
-  return pathData;
+  addCurrentCommand('');
+
+  return commands;
 }
 
 /**
- * @type {(string: string, cursor: number) => [number, ?number]}
- */
-const readNumber = (string, cursor) => {
-  let i = cursor;
-  let value = '';
-  let state = /** @type {ReadNumberState} */ ('none');
-  for (; i < string.length; i += 1) {
-    const c = string[i];
-    if (c === '+' || c === '-') {
-      if (state === 'none') {
-        state = 'sign';
-        value += c;
-        continue;
-      }
-      if (state === 'e') {
-        state = 'exponent_sign';
-        value += c;
-        continue;
-      }
-    }
-    if (isDigit(c)) {
-      if (state === 'none' || state === 'sign' || state === 'whole') {
-        state = 'whole';
-        value += c;
-        continue;
-      }
-      if (state === 'decimal_point' || state === 'decimal') {
-        state = 'decimal';
-        value += c;
-        continue;
-      }
-      if (state === 'e' || state === 'exponent_sign' || state === 'exponent') {
-        state = 'exponent';
-        value += c;
-        continue;
-      }
-    }
-    if (c === '.') {
-      if (state === 'none' || state === 'sign' || state === 'whole') {
-        state = 'decimal_point';
-        value += c;
-        continue;
-      }
-    }
-    if (c === 'E' || c == 'e') {
-      if (
-        state === 'whole' ||
-        state === 'decimal_point' ||
-        state === 'decimal'
-      ) {
-        state = 'e';
-        value += c;
-        continue;
-      }
-    }
-    break;
-  }
-  const number = Number.parseFloat(value);
-  if (Number.isNaN(number)) {
-    return [cursor, null];
-  } else {
-    // step back to delegate iteration to parent loop
-    return [i - 1, number];
-  }
-};
-
-/**
- * @param {PathDataItem[]} pathData
+ * @param {PathCommand[]} commands
  * @returns {string}
  */
-function stringifyPathData(pathData) {
-  if (pathData.length === 1) {
-    const { command, args } = pathData[0];
-    return command + stringifyArgs(command, args);
+export function stringifyPathCommands(commands) {
+  /**
+   * @param {string} arg
+   */
+  function needSpaceBefore(arg) {
+    return !(
+      arg.startsWith('-') ||
+      (arg.startsWith('.') &&
+        (lastNumber.includes('.') || lastNumber.includes('e')))
+    );
   }
-
-  const commands = [];
-  let prev = { ...pathData[0] };
-
-  // match leading moveto with following lineto
-  if (pathData[1].command === 'L') {
-    prev.command = 'M';
-  } else if (pathData[1].command === 'l') {
-    prev.command = 'm';
-  }
-
-  for (let i = 1; i < pathData.length; i++) {
-    const { command, args } = pathData[i];
-    if (
-      (prev.command === command &&
-        prev.command !== 'M' &&
-        prev.command !== 'm') ||
-      // combine matching moveto and lineto sequences
-      (prev.command === 'M' && command === 'L') ||
-      (prev.command === 'm' && command === 'l')
-    ) {
-      prev.args = [...prev.args, ...args];
-      if (i === pathData.length - 1) {
-        commands.push(prev.command + stringifyArgs(prev.command, prev.args));
+  /**
+   * @param {string} commandCode
+   * @param  {(ExactNum|string)[]} args
+   */
+  function stringifyCommand(commandCode, ...args) {
+    let result = '';
+    // If last command was the same, no need to repeat it.
+    if (prevCommand !== commandCode) {
+      result += commandCode;
+    }
+    for (let index = 0; index < args.length; index++) {
+      let arg = args[index];
+      if (arg instanceof ExactNum) {
+        arg = arg.getMinifiedString();
       }
-    } else {
-      commands.push(prev.command + stringifyArgs(prev.command, prev.args));
+      if (index === 0) {
+        // Don't print space unless we're omitting the command, and we need a space before the first arg.
+        if (prevCommand === commandCode && needSpaceBefore(arg)) {
+          result += ' ';
+        }
+      } else if (needSpaceBefore(arg)) {
+        result += ' ';
+      }
+      result += arg;
+      lastNumber = arg;
+    }
 
-      if (i === pathData.length - 1) {
-        commands.push(command + stringifyArgs(command, args));
-      } else {
-        prev = { command, args };
+    prevCommand = commandCode;
+    return result;
+  }
+
+  /**
+   * @param {string} commandCode
+   * @param {ExactNum} arg1
+   * @param {ExactNum} arg2
+   */
+  function stringifyML(commandCode, arg1, arg2) {
+    let result = '';
+    const v1 = arg1.getMinifiedString();
+    const v2 = arg2.getMinifiedString();
+
+    if (
+      ((prevCommand === 'm' || prevCommand === 'l') && commandCode === 'l') ||
+      ((prevCommand === 'M' || prevCommand === 'L') && commandCode === 'L')
+    ) {
+      // See if we can shorten the command by omitting the 'l' or 'L'.
+      if (!needSpaceBefore(v1)) {
+        commandCode = '';
       }
     }
+    if (commandCode !== '') {
+      result += commandCode;
+      prevCommand = commandCode;
+    }
+    result += v1;
+    const v2Start = getCharType(v2[0]);
+    if (v2Start === 'digit' || (v2Start === '.' && !v1.includes('.'))) {
+      result += ' ';
+    }
+    result += v2;
+    lastNumber = v2;
+    return result;
   }
 
-  return commands.join('');
+  let result = '';
+  let prevCommand = '';
+  let lastNumber = '';
+  for (const command of commands) {
+    switch (command.command) {
+      case 'a':
+        result += stringifyCommand(
+          command.command,
+          command.rx,
+          command.ry,
+          command.angle,
+          command.flagLgArc,
+          command.flagSweep,
+          command.dx,
+          command.dy,
+        );
+        break;
+      case 'A':
+        result += stringifyCommand(
+          command.command,
+          command.rx,
+          command.ry,
+          command.angle,
+          command.flagLgArc,
+          command.flagSweep,
+          command.x,
+          command.y,
+        );
+        break;
+      case 'c':
+        result += stringifyCommand(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.cp2x,
+          command.cp2y,
+          command.dx,
+          command.dy,
+        );
+        break;
+      case 'C':
+        result += stringifyCommand(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.cp2x,
+          command.cp2y,
+          command.x,
+          command.y,
+        );
+        break;
+      case 'h':
+        result += stringifyCommand(command.command, command.dx);
+        break;
+      case 'H':
+        result += stringifyCommand(command.command, command.x);
+        break;
+      case 'v':
+        result += stringifyCommand(command.command, command.dy);
+        break;
+      case 'V':
+        result += stringifyCommand(command.command, command.y);
+        break;
+      case 'l':
+      case 'm':
+        result += stringifyML(command.command, command.dx, command.dy);
+        break;
+      case 'L':
+      case 'M':
+        result += stringifyML(command.command, command.x, command.y);
+        break;
+      case 'q':
+        result += stringifyCommand(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.dx,
+          command.dy,
+        );
+        break;
+      case 'Q':
+        result += stringifyCommand(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.x,
+          command.y,
+        );
+        break;
+      case 's':
+        result += stringifyCommand(
+          command.command,
+          command.cp2x,
+          command.cp2y,
+          command.dx,
+          command.dy,
+        );
+        break;
+      case 'S':
+        result += stringifyCommand(
+          command.command,
+          command.cp2x,
+          command.cp2y,
+          command.x,
+          command.y,
+        );
+        break;
+      case 't':
+        result += stringifyCommand(command.command, command.dx, command.dy);
+        break;
+      case 'T':
+        result += stringifyCommand(command.command, command.x, command.y);
+        break;
+      case 'z':
+        result += 'z';
+        prevCommand = 'z';
+        break;
+      default:
+        // @ts-ignore
+        throw new Error(`unexpected command "${command.command}"`);
+    }
+  }
+  return result;
 }
 
-/**
- * @param {string} command
- * @param {number[]} args
- */
-function stringifyArgs(command, args) {
-  let result = '';
-  let previous;
+class ExactNum {
+  #str;
+  /** @type {number|undefined} */
+  #value;
+  /** @type {number|undefined} */
+  #numDigits;
 
-  for (let i = 0; i < args.length; i++) {
-    const roundedStr = minifyNumber(args[i]);
-    if (i === 0 || args[i] < 0) {
-      // avoid space before first and negative numbers
-      result += roundedStr;
-    } else if (!Number.isInteger(previous) && !isDigit(roundedStr[0])) {
-      // remove space before decimal with zero whole
-      // only when previous number is also decimal
-      result += roundedStr;
-    } else {
-      result += ` ${roundedStr}`;
-    }
-    previous = args[i];
+  /**
+   * @param {string} str
+   */
+  constructor(str) {
+    this.#str = str;
   }
 
-  return result;
+  getMinifiedString() {
+    const n = this.getValue();
+
+    // Use exponential if it is shorter.
+    if (n !== 0 && n < 0.001 && n > -0.001) {
+      return n.toExponential();
+    }
+
+    // Otherwise trim leading 0 from before the decimal if there is one.
+    const strValue = toFixed(n, this.getNumberOfDigits()).toString();
+    if (0 < n && n < 1 && strValue.startsWith('0')) {
+      return strValue.slice(1);
+    }
+    if (-1 < n && n < 0 && strValue[1] === '0') {
+      return strValue[0] + strValue.slice(2);
+    }
+    return strValue;
+  }
+
+  getNumberOfDigits() {
+    if (this.#numDigits === undefined) {
+      this.#numDigits = getNumberOfDecimalDigits(this.#str);
+    }
+    return this.#numDigits;
+  }
+
+  getValue() {
+    if (this.#value === undefined) {
+      this.#value = parseFloat(this.#str);
+    }
+    return this.#value;
+  }
+}
+
+class PathParseError extends Error {
+  /**
+   * @param {string} msg
+   */
+  constructor(msg) {
+    super(msg);
+  }
 }

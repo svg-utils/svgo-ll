@@ -31,6 +31,10 @@ describe('test parsing of path', function () {
     { input: 'm4 3-1 5' },
     { input: 'm4,3l-1 5 6 10', expected: 'm4 3-1 5l6 10' },
     { input: 'm4 3h10 5' },
+    {
+      input: 'M163.49,167.72l-.7,14.52,8.74,10.39',
+      expected: 'M163.49 167.72l-.7 14.52l8.74 10.39',
+    },
     // cubic beziers
     {
       input: 'M 10,90C 30,90 25,10 50,10S 70,90 90,90',

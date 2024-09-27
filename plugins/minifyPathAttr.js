@@ -460,6 +460,7 @@ export function parsePathCommands(path) {
         }
         currentArg += c;
         hasDecimal = true;
+        hasComma = false;
         continue;
       case 'e':
         if (inExponent) {
@@ -476,9 +477,11 @@ export function parsePathCommands(path) {
         if (c !== '+') {
           currentArg += c;
         }
+        hasComma = false;
         continue;
       case 'digit':
         currentArg += c;
+        hasComma = false;
         continue;
       case 'space':
         addArg();

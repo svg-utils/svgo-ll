@@ -129,6 +129,24 @@ function getCharType(c) {
 }
 
 /**
+ * @param {PathCommand} c
+ * @returns {(ExactNum|string)[]}
+ */
+function getCmdArgs(c) {
+  switch (c.command) {
+    case 'm':
+      return [c.dx, c.dy];
+    case 'M':
+      return [c.x, c.y];
+    case 'v':
+      return [c.dy];
+    case 'V':
+      return [c.y];
+  }
+  return [];
+}
+
+/**
  * @param {string} commandCode
  * @param {string[]} args
  * @returns {PathCommand[]}
@@ -404,6 +422,8 @@ function optimize(commands) {
   /** @type {PathCommand[]} */
   const optimized = [];
   let currentPoint = ExactPoint.zero();
+  let prevCmdChar = '';
+  let lastNumber;
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
     switch (command.command) {
@@ -432,7 +452,41 @@ function optimize(commands) {
         }
         break;
     }
+
+    if (optimized.length > 0) {
+      // Try both relative and absolute versions, and use whichever is shorter.
+      /** @type {PathCommand|undefined} */
+      let otherVersion;
+      switch (command.command) {
+        case 'V':
+          otherVersion = {
+            command: 'v',
+            dy: command.y.sub(currentPoint.getY()),
+          };
+          break;
+      }
+      if (otherVersion) {
+        const strCmd = stringifyCommand(
+          command.command,
+          prevCmdChar,
+          lastNumber,
+          getCmdArgs(command),
+        );
+        const strOther = stringifyCommand(
+          otherVersion.command,
+          prevCmdChar,
+          lastNumber,
+          getCmdArgs(otherVersion),
+        );
+        if (strOther.result.length < strCmd.result.length) {
+          command = otherVersion;
+        }
+      }
+    }
+
     optimized.push(command);
+
+    // Update current point.
     switch (command.command) {
       case 'z':
         currentPoint = ExactPoint.zero();
@@ -462,8 +516,59 @@ function optimize(commands) {
         currentPoint = new ExactPoint(command.x.clone(), command.y.clone());
         break;
     }
+    prevCmdChar = command.command;
+    const cmdArgs = getCmdArgs(command);
+    lastNumber =
+      cmdArgs.length > 0
+        ? // @ts-ignore - last argument is always ExactNum
+          cmdArgs[cmdArgs.length - 1].getMinifiedString()
+        : undefined;
   }
   return optimized;
+}
+
+/**
+ * @param {string} cmdCode
+ * @param {string} prevCmdChar
+ * @param {string} lastNumber
+ * @param  {(ExactNum|string)[]} args
+ */
+function stringifyCommand(cmdCode, prevCmdChar, lastNumber, args) {
+  /**
+   * @param {string} arg
+   */
+  function needSpaceBefore(arg) {
+    return !(
+      arg.startsWith('-') ||
+      (arg.startsWith('.') &&
+        (lastNumber.includes('.') || lastNumber.includes('e')))
+    );
+  }
+
+  let result = '';
+  // If last command was the same, no need to repeat it.
+  if (prevCmdChar !== cmdCode) {
+    result += cmdCode;
+  }
+  for (let index = 0; index < args.length; index++) {
+    let arg = args[index];
+    if (arg instanceof ExactNum) {
+      arg = arg.getMinifiedString();
+    }
+    if (index === 0) {
+      // Don't print space unless we're omitting the command, and we need a space before the first arg.
+      if (prevCmdChar === cmdCode && needSpaceBefore(arg)) {
+        result += ' ';
+      }
+    } else if (needSpaceBefore(arg)) {
+      result += ' ';
+    }
+    result += arg;
+    lastNumber = arg;
+  }
+
+  prevCmdChar = cmdCode;
+  return { result: result, lastNumber: lastNumber };
 }
 
 /**
@@ -573,6 +678,7 @@ export function parsePathCommands(path) {
 export function stringifyPathCommands(commands) {
   /**
    * @param {string} arg
+   * @deprecated
    */
   function needSpaceBefore(arg) {
     return !(
@@ -581,41 +687,37 @@ export function stringifyPathCommands(commands) {
         (lastNumber.includes('.') || lastNumber.includes('e')))
     );
   }
+
+  /**
+   * @param {string} commandCode
+   * @param  {(ExactNum|string)[]} args
+   * @deprecated
+   */
+  function stringifyCmdDep(commandCode, ...args) {
+    const result = stringifyCommand(commandCode, prevCommand, lastNumber, args);
+
+    prevCommand = commandCode;
+    lastNumber = result.lastNumber;
+    return result.result;
+  }
+
   /**
    * @param {string} commandCode
    * @param  {(ExactNum|string)[]} args
    */
-  function stringifyCommand(commandCode, ...args) {
-    let result = '';
-    // If last command was the same, no need to repeat it.
-    if (prevCommand !== commandCode) {
-      result += commandCode;
-    }
-    for (let index = 0; index < args.length; index++) {
-      let arg = args[index];
-      if (arg instanceof ExactNum) {
-        arg = arg.getMinifiedString();
-      }
-      if (index === 0) {
-        // Don't print space unless we're omitting the command, and we need a space before the first arg.
-        if (prevCommand === commandCode && needSpaceBefore(arg)) {
-          result += ' ';
-        }
-      } else if (needSpaceBefore(arg)) {
-        result += ' ';
-      }
-      result += arg;
-      lastNumber = arg;
-    }
+  function stringifyCmd(commandCode, args) {
+    const result = stringifyCommand(commandCode, prevCommand, lastNumber, args);
 
     prevCommand = commandCode;
-    return result;
+    lastNumber = result.lastNumber;
+    return result.result;
   }
 
   /**
    * @param {string} commandCode
    * @param {ExactNum} arg1
    * @param {ExactNum} arg2
+   * @deprecated
    */
   function stringifyML(commandCode, arg1, arg2) {
     let result = '';
@@ -651,7 +753,7 @@ export function stringifyPathCommands(commands) {
   for (const command of commands) {
     switch (command.command) {
       case 'a':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.rx,
           command.ry,
@@ -663,7 +765,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'A':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.rx,
           command.ry,
@@ -675,7 +777,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'c':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.cp1x,
           command.cp1y,
@@ -686,7 +788,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'C':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.cp1x,
           command.cp1y,
@@ -697,16 +799,14 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'h':
-        result += stringifyCommand(command.command, command.dx);
+        result += stringifyCmdDep(command.command, command.dx);
         break;
       case 'H':
-        result += stringifyCommand(command.command, command.x);
+        result += stringifyCmdDep(command.command, command.x);
         break;
       case 'v':
-        result += stringifyCommand(command.command, command.dy);
-        break;
       case 'V':
-        result += stringifyCommand(command.command, command.y);
+        result += stringifyCmd(command.command, getCmdArgs(command));
         break;
       case 'l':
       case 'm':
@@ -717,7 +817,7 @@ export function stringifyPathCommands(commands) {
         result += stringifyML(command.command, command.x, command.y);
         break;
       case 'q':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.cp1x,
           command.cp1y,
@@ -726,7 +826,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'Q':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.cp1x,
           command.cp1y,
@@ -735,7 +835,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 's':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.cp2x,
           command.cp2y,
@@ -744,7 +844,7 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 'S':
-        result += stringifyCommand(
+        result += stringifyCmdDep(
           command.command,
           command.cp2x,
           command.cp2y,
@@ -753,10 +853,10 @@ export function stringifyPathCommands(commands) {
         );
         break;
       case 't':
-        result += stringifyCommand(command.command, command.dx, command.dy);
+        result += stringifyCmdDep(command.command, command.dx, command.dy);
         break;
       case 'T':
-        result += stringifyCommand(command.command, command.x, command.y);
+        result += stringifyCmdDep(command.command, command.x, command.y);
         break;
       case 'z':
         result += 'z';
@@ -906,14 +1006,29 @@ class ExactNum {
 
   /**
    * @param {ExactNum} n
+   * @param {boolean} [decrement=false]
    */
-  incr(n) {
+  incr(n, decrement = false) {
     const value = this.getValue();
     const numDigits = this.getNumberOfDigits();
     this.#str = undefined;
     this.#minifiedString = undefined;
-    this.#value = value + n.getValue();
+    if (decrement) {
+      this.#value = value - n.getValue();
+    } else {
+      this.#value = value + n.getValue();
+    }
     this.#numDigits = Math.max(numDigits, n.getNumberOfDigits());
+  }
+
+  /**
+   * @param {ExactNum} n
+   * @returns {ExactNum}
+   */
+  sub(n) {
+    const ret = this.clone();
+    ret.incr(n, true);
+    return ret;
   }
 }
 

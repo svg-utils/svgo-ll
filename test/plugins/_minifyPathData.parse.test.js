@@ -5,8 +5,6 @@ import {
 
 describe('test parsing of path', function () {
   /** @type {{input:string,expected?:string}[]} */
-  // TODO:
-  // implicit params for h, v, etc.
   const tests = [
     { input: 'm 2 2 h10', expected: 'm2 2h10' },
     { input: 'm2 2h10' },

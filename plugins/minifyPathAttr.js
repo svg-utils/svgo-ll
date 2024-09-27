@@ -2,15 +2,18 @@ import { getNumberOfDecimalDigits, toFixed } from '../lib/svgo/tools.js';
 import { pathElems } from './_collections.js';
 
 /**
+ * @typedef {{dx:ExactNum,dy:ExactNum}} DxDyCmd
  * @typedef {{'command':'C',cp1x:ExactNum,cp1y:ExactNum,cp2x:ExactNum,cp2y:ExactNum,x:ExactNum,y:ExactNum}} CBezAbs
  * @typedef {{'command':'h',dx:ExactNum}} HRel
  * @typedef {{'command':'L',x:ExactNum,y:ExactNum}} LineAbs
- * @typedef {{'command':'l',dx:ExactNum,dy:ExactNum}} LineRel
+ * @typedef {{'command':'l'}&DxDyCmd} LineRel
  * @typedef {{'command':'M',x:ExactNum,y:ExactNum}} MoveAbs
- * @typedef {{'command':'m',dx:ExactNum,dy:ExactNum}} MoveRel
+ * @typedef {{'command':'m'}&DxDyCmd} MoveRel
+ * @typedef {{'command':'Q',cp1x:ExactNum,cp1y:ExactNum,x:ExactNum,y:ExactNum}} QBezAbs
  * @typedef {{'command':'S',cp2x:ExactNum,cp2y:ExactNum,x:ExactNum,y:ExactNum}} SBezAbs
- * @typedef {HRel|LineRel|MoveRel} RelCommand
- * @typedef {CBezAbs|LineAbs|MoveAbs|SBezAbs} AbsCommand
+ * @typedef {{'command':'t'}&DxDyCmd} TBezRel
+ * @typedef {HRel|LineRel|MoveRel|TBezRel} RelCommand
+ * @typedef {CBezAbs|LineAbs|MoveAbs|QBezAbs|SBezAbs} AbsCommand
  * @typedef {RelCommand|AbsCommand} PathCommand
  */
 
@@ -74,8 +77,12 @@ function getCharType(c) {
     case 'L':
     case 'm':
     case 'M':
+    case 'q':
+    case 'Q':
     case 's':
     case 'S':
+    case 't':
+    case 'T':
     case 'v':
     case 'V':
     case 'z':
@@ -107,25 +114,25 @@ function getCharType(c) {
 }
 
 /**
- * @param {string} command
+ * @param {string} commandCode
  * @param {string[]} args
  * @returns {PathCommand[]}
  */
-function makeCommand(command, args) {
-  if (command === '') {
+function makeCommand(commandCode, args) {
+  if (commandCode === '') {
     return [];
   }
-  switch (command) {
+  switch (commandCode) {
     case 'C': {
       if (args.length === 0 || args.length % 6 !== 0) {
         throw new PathParseError(
-          `number of arguments found for path command "${command} must be a multiple of 6"`,
+          `number of arguments found for path command "${commandCode} must be a multiple of 6"`,
         );
       }
       const commands = [];
       for (let index = 0; index < args.length; index += 6) {
         commands.push({
-          command: command,
+          command: commandCode,
           cp1x: new ExactNum(args[index + 0]),
           cp1y: new ExactNum(args[index + 1]),
           cp2x: new ExactNum(args[index + 2]),
@@ -139,11 +146,11 @@ function makeCommand(command, args) {
     case 'h': {
       const commands = [];
       if (args.length === 0) {
-        `"${command}" command requires at least one argument`;
+        `"${commandCode}" command requires at least one argument`;
       }
       for (const arg of args) {
         commands.push({
-          command: command,
+          command: commandCode,
           dx: new ExactNum(arg),
         });
       }
@@ -155,45 +162,86 @@ function makeCommand(command, args) {
     case 'M': {
       if (args.length === 0 || args.length % 2 !== 0) {
         throw new PathParseError(
-          `odd number of arguments found for path command "${command}"`,
+          `odd number of arguments found for path command "${commandCode}"`,
         );
       }
-      const commandFunc =
-        command === 'l' || command === 'm'
-          ? makeMLCommandRel
-          : makeMLCommandAbs;
-      const lineCommandCode = command === 'l' || command === 'm' ? 'l' : 'L';
       /** @type {PathCommand[]} */
-      // @ts-ignore
-      const commands = [commandFunc(command, args[0], args[1])];
+      const commands = [];
+      if (commandCode === 'l' || commandCode === 'm') {
+        commands.push(makeDxDyCommandRel(commandCode, args[0], args[1]));
+      } else {
+        commands.push(makeMLCommandAbs(commandCode, args[0], args[1]));
+      }
+      const lineCommandCode =
+        commandCode === 'l' || commandCode === 'm' ? 'l' : 'L';
       for (let index = 2; index < args.length; index += 2) {
-        commands.push(
-          // @ts-ignore
-          commandFunc(lineCommandCode, args[index], args[index + 1]),
-        );
+        switch (lineCommandCode) {
+          case 'l':
+            commands.push(
+              makeDxDyCommandRel(lineCommandCode, args[index], args[index + 1]),
+            );
+            break;
+          case 'L':
+            commands.push(
+              makeMLCommandAbs(lineCommandCode, args[index], args[index + 1]),
+            );
+            break;
+        }
       }
       return commands;
     }
+    case 'Q':
     case 'S': {
       if (args.length === 0 || args.length % 4 !== 0) {
         throw new PathParseError(
-          `number of arguments found for path command "${command} must be a multiple of 4"`,
+          `number of arguments found for path command "${commandCode} must be a multiple of 4"`,
         );
       }
       const commands = [];
       for (let index = 0; index < args.length; index += 4) {
-        commands.push({
-          command: command,
-          cp2x: new ExactNum(args[index + 0]),
-          cp2y: new ExactNum(args[index + 1]),
-          x: new ExactNum(args[index + 2]),
-          y: new ExactNum(args[index + 3]),
-        });
+        switch (commandCode) {
+          case 'Q':
+            commands.push({
+              command: commandCode,
+              cp1x: new ExactNum(args[index + 0]),
+              cp1y: new ExactNum(args[index + 1]),
+              x: new ExactNum(args[index + 2]),
+              y: new ExactNum(args[index + 3]),
+            });
+            break;
+          case 'S':
+            commands.push({
+              command: commandCode,
+              cp2x: new ExactNum(args[index + 0]),
+              cp2y: new ExactNum(args[index + 1]),
+              x: new ExactNum(args[index + 2]),
+              y: new ExactNum(args[index + 3]),
+            });
+            break;
+        }
+      }
+      return commands;
+    }
+    case 't': {
+      if (args.length === 0 || args.length % 2 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${commandCode} must be a multiple of 2"`,
+        );
+      }
+      const commands = [];
+      for (let index = 0; index < args.length; index += 2) {
+        switch (commandCode) {
+          case 't':
+            commands.push(
+              makeDxDyCommandRel('t', args[index], args[index + 1]),
+            );
+            break;
+        }
       }
       return commands;
     }
     default:
-      throw new PathParseError(`unexpected command "${command}"`);
+      throw new PathParseError(`unexpected command "${commandCode}"`);
   }
 }
 
@@ -212,12 +260,12 @@ function makeMLCommandAbs(command, arg1, arg2) {
 }
 
 /**
- * @param {'l'|'m'} command
+ * @param {'l'|'m'|'t'} command
  * @param {string} arg1
  * @param {string} arg2
- * @returns {LineRel|MoveRel}
+ * @returns {LineRel|MoveRel|TBezRel}
  */
-function makeMLCommandRel(command, arg1, arg2) {
+function makeDxDyCommandRel(command, arg1, arg2) {
   return {
     command: command,
     dx: new ExactNum(arg1),
@@ -435,6 +483,15 @@ export function stringifyPathCommands(commands) {
           command.y,
         );
         break;
+      case 'Q':
+        result += stringifyBezier(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.x,
+          command.y,
+        );
+        break;
       case 'S':
         result += stringifyBezier(
           command.command,
@@ -443,6 +500,9 @@ export function stringifyPathCommands(commands) {
           command.x,
           command.y,
         );
+        break;
+      case 't':
+        result += stringifyBezier(command.command, command.dx, command.dy);
         break;
       default:
         // @ts-ignore

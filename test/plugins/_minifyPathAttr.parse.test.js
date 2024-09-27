@@ -35,6 +35,11 @@ describe('test parsing of path', function () {
       input: 'M 10,90C 30,90 25,10 50,10S 70,90 90,90',
       expected: 'M10 90C30 90 25 10 50 10S70 90 90 90',
     },
+    // quadratic beziers
+    {
+      input: 'M 10,50Q 25,25 40,50t 30,0 30,0 30,0 30,0 30,0',
+      expected: 'M10 50Q25 25 40 50t30 0 30 0 30 0 30 0 30 0',
+    },
   ];
 
   for (const test of tests) {

@@ -63,7 +63,7 @@ export const fn = (root, params, info) => {
             }
             throw error;
           }
-          let data = normalize(origData);
+          let data = optimize(origData);
           node.attributes.d = stringifyPathCommands(data);
         }
       },
@@ -400,8 +400,34 @@ function makeDxDyCommand(command, arg1, arg2) {
  * @param {PathCommand[]} commands
  * @returns {PathCommand[]}
  */
-function normalize(commands) {
-  return commands;
+function optimize(commands) {
+  /** @type {PathCommand[]} */
+  const optimized = [];
+  for (let index = 0; index < commands.length; index++) {
+    let command = commands[index];
+    switch (command.command) {
+      case 'l':
+        if (command.dy.getValue() === 0) {
+          // Convert l dx 0 to h dx.
+          command = { command: 'h', dx: command.dx };
+        } else if (command.dx.getValue() === 0) {
+          // Convert l 0 dy to v dy.
+          command = { command: 'v', dy: command.dy };
+        }
+        break;
+      case 'L':
+        if (command.y.getValue() === 0) {
+          // Convert L x 0 to H x.
+          command = { command: 'H', x: command.x };
+        } else if (command.x.getValue() === 0) {
+          // Convert L 0 y to V y.
+          command = { command: 'V', y: command.y };
+        }
+        break;
+    }
+    optimized.push(command);
+  }
+  return optimized;
 }
 
 /**

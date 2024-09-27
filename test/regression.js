@@ -142,12 +142,14 @@ async function performTests(options) {
       statArray.push([name, orig, opt, reduction, fileStats.pixels].join('\t'));
     }
 
-    const statsFileName = `tmp/regression-stats-${new Date()
-      .toISOString()
-      .replace(/:/g, '')
-      .substring(0, 17)}.tsv`;
-    await fs.mkdir(path.dirname(statsFileName), { recursive: true });
-    await fs.writeFile(statsFileName, statArray.join('\n'));
+    if (options.log) {
+      const statsFileName = `tmp/regression-stats-${new Date()
+        .toISOString()
+        .replace(/:/g, '')
+        .substring(0, 17)}.tsv`;
+      await fs.mkdir(path.dirname(statsFileName), { recursive: true });
+      await fs.writeFile(statsFileName, statArray.join('\n'));
+    }
 
     return mismatched === 0;
   }
@@ -228,6 +230,7 @@ program
     '--disable <plugin...>',
     'Specify one or more plugins from the preset or config which should not be run ',
   )
+  .option('-l, --log', 'Write statistics log file to ./tmp directory')
   .option(
     '--inputdir <dir>',
     'Location of input files',

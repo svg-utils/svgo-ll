@@ -6,8 +6,7 @@ import {
 describe('test parsing of path', function () {
   /** @type {{input:string,expected?:string}[]} */
   // TODO:
-  // implicit params for M, L
-  // moves with implicit lines - implicit line start with .123, previous arg had decimal or exponent
+  // implicit params for h, v, etc.
   const tests = [
     { input: 'm 2 2 h10', expected: 'm2 2h10' },
     { input: 'm2 2h10' },
@@ -31,6 +30,11 @@ describe('test parsing of path', function () {
     { input: 'm4 3-1 5' },
     { input: 'm4,3l-1 5 6 10', expected: 'm4 3-1 5l6 10' },
     { input: 'm4 3h10h5' },
+    // cubic beziers
+    {
+      input: 'M 10,90C 30,90 25,10 50,10S 70,90 90,90',
+      expected: 'M10 90C30 90 25 10 50 10S70 90 90 90',
+    },
   ];
 
   for (const test of tests) {

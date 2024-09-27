@@ -2,12 +2,16 @@ import { getNumberOfDecimalDigits, toFixed } from '../lib/svgo/tools.js';
 import { pathElems } from './_collections.js';
 
 /**
+ * @typedef {{'command':'C',cp1x:ExactNum,cp1y:ExactNum,cp2x:ExactNum,cp2y:ExactNum,x:ExactNum,y:ExactNum}} CBezAbs
  * @typedef {{'command':'h',dx:ExactNum}} HRel
  * @typedef {{'command':'L',x:ExactNum,y:ExactNum}} LineAbs
  * @typedef {{'command':'l',dx:ExactNum,dy:ExactNum}} LineRel
  * @typedef {{'command':'M',x:ExactNum,y:ExactNum}} MoveAbs
  * @typedef {{'command':'m',dx:ExactNum,dy:ExactNum}} MoveRel
- * @typedef {HRel|LineAbs|LineRel|MoveAbs|MoveRel} PathCommand
+ * @typedef {{'command':'S',cp2x:ExactNum,cp2y:ExactNum,x:ExactNum,y:ExactNum}} SBezAbs
+ * @typedef {HRel|LineRel|MoveRel} RelCommand
+ * @typedef {CBezAbs|LineAbs|MoveAbs|SBezAbs} AbsCommand
+ * @typedef {RelCommand|AbsCommand} PathCommand
  */
 
 export const name = 'minifyPathAttr';
@@ -62,12 +66,16 @@ function getCharType(c) {
     case '\r':
     case '\t':
       return 'space';
+    case 'c':
+    case 'C':
     case 'h':
     case 'H':
     case 'l':
     case 'L':
     case 'm':
     case 'M':
+    case 's':
+    case 'S':
     case 'v':
     case 'V':
     case 'z':
@@ -94,7 +102,7 @@ function getCharType(c) {
     case '+':
       return 'sign';
     default:
-      throw new PathParseError(`unexpected character "${c}" in path`);
+      throw new Error(`unexpected character "${c}" in path`);
   }
 }
 
@@ -108,8 +116,31 @@ function makeCommand(command, args) {
     return [];
   }
   switch (command) {
+    case 'C': {
+      if (args.length === 0 || args.length % 6 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${command} must be a multiple of 6"`,
+        );
+      }
+      const commands = [];
+      for (let index = 0; index < args.length; index += 6) {
+        commands.push({
+          command: command,
+          cp1x: new ExactNum(args[index + 0]),
+          cp1y: new ExactNum(args[index + 1]),
+          cp2x: new ExactNum(args[index + 2]),
+          cp2y: new ExactNum(args[index + 3]),
+          x: new ExactNum(args[index + 4]),
+          y: new ExactNum(args[index + 5]),
+        });
+      }
+      return commands;
+    }
     case 'h': {
       const commands = [];
+      if (args.length === 0) {
+        `"${command}" command requires at least one argument`;
+      }
       for (const arg of args) {
         commands.push({
           command: command,
@@ -122,7 +153,7 @@ function makeCommand(command, args) {
     case 'm':
     case 'L':
     case 'M': {
-      if (args.length % 2 !== 0) {
+      if (args.length === 0 || args.length % 2 !== 0) {
         throw new PathParseError(
           `odd number of arguments found for path command "${command}"`,
         );
@@ -133,21 +164,41 @@ function makeCommand(command, args) {
           : makeMLCommandAbs;
       const lineCommandCode = command === 'l' || command === 'm' ? 'l' : 'L';
       /** @type {PathCommand[]} */
+      // @ts-ignore
       const commands = [commandFunc(command, args[0], args[1])];
       for (let index = 2; index < args.length; index += 2) {
         commands.push(
+          // @ts-ignore
           commandFunc(lineCommandCode, args[index], args[index + 1]),
         );
       }
       return commands;
     }
+    case 'S': {
+      if (args.length === 0 || args.length % 4 !== 0) {
+        throw new PathParseError(
+          `number of arguments found for path command "${command} must be a multiple of 4"`,
+        );
+      }
+      const commands = [];
+      for (let index = 0; index < args.length; index += 4) {
+        commands.push({
+          command: command,
+          cp2x: new ExactNum(args[index + 0]),
+          cp2y: new ExactNum(args[index + 1]),
+          x: new ExactNum(args[index + 2]),
+          y: new ExactNum(args[index + 3]),
+        });
+      }
+      return commands;
+    }
     default:
-      throw new Error(`unexpected command "${command}"`);
+      throw new PathParseError(`unexpected command "${command}"`);
   }
 }
 
 /**
- * @param {string} command
+ * @param {'L'|'M'} command
  * @param {string} arg1
  * @param {string} arg2
  * @returns {LineAbs|MoveAbs}
@@ -161,7 +212,7 @@ function makeMLCommandAbs(command, arg1, arg2) {
 }
 
 /**
- * @param {string} command
+ * @param {'l'|'m'} command
  * @param {string} arg1
  * @param {string} arg2
  * @returns {LineRel|MoveRel}
@@ -285,11 +336,49 @@ export function parsePathCommands(path) {
  */
 export function stringifyPathCommands(commands) {
   /**
+   * @param {string} arg
+   */
+  function needSpaceBefore(arg) {
+    return !(
+      arg.startsWith('-') ||
+      (arg.startsWith('.') &&
+        (lastNumber.includes('.') || lastNumber.includes('e')))
+    );
+  }
+  /**
+   * @param {string} commandCode
+   * @param  {ExactNum[]} args
+   */
+  function stringifyBezier(commandCode, ...args) {
+    let result = '';
+    // If last command was the same, no need to repeat it.
+    if (prevCommand !== commandCode) {
+      result += commandCode;
+    }
+    for (let index = 0; index < args.length; index++) {
+      const arg = args[index].getMinifiedString();
+      if (index === 0) {
+        // Don't print space unless we're omitting the command, and we need a space before the first arg.
+        if (prevCommand === commandCode && needSpaceBefore(arg)) {
+          result += ' ';
+        }
+      } else if (needSpaceBefore(arg)) {
+        result += ' ';
+      }
+      result += arg;
+      lastNumber = arg;
+    }
+
+    prevCommand = commandCode;
+    return result;
+  }
+
+  /**
    * @param {string} commandCode
    * @param {ExactNum} arg1
    * @param {ExactNum} arg2
    */
-  function stringify2Args(commandCode, arg1, arg2) {
+  function stringifyML(commandCode, arg1, arg2) {
     let result = '';
     const v1 = arg1.getMinifiedString();
     const v2 = arg2.getMinifiedString();
@@ -299,11 +388,7 @@ export function stringifyPathCommands(commands) {
       ((prevCommand === 'M' || prevCommand === 'L') && commandCode === 'L')
     ) {
       // See if we can shorten the command by omitting the 'l' or 'L'.
-      if (
-        v1.startsWith('-') ||
-        (v1.startsWith('.') &&
-          (lastNumber.includes('.') || lastNumber.includes('e')))
-      ) {
+      if (!needSpaceBefore(v1)) {
         commandCode = '';
       }
     }
@@ -333,11 +418,31 @@ export function stringifyPathCommands(commands) {
         break;
       case 'l':
       case 'm':
-        result += stringify2Args(command.command, command.dx, command.dy);
+        result += stringifyML(command.command, command.dx, command.dy);
         break;
       case 'L':
       case 'M':
-        result += stringify2Args(command.command, command.x, command.y);
+        result += stringifyML(command.command, command.x, command.y);
+        break;
+      case 'C':
+        result += stringifyBezier(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.cp2x,
+          command.cp2y,
+          command.x,
+          command.y,
+        );
+        break;
+      case 'S':
+        result += stringifyBezier(
+          command.command,
+          command.cp2x,
+          command.cp2y,
+          command.x,
+          command.y,
+        );
         break;
       default:
         // @ts-ignore

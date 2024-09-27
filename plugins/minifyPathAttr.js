@@ -5,19 +5,29 @@ import { pathElems } from './_collections.js';
  * @typedef {{dx:ExactNum,dy:ExactNum}} DxDyCmd
  * @typedef {{x:ExactNum,y:ExactNum}} XYCmd
  * @typedef {{rx:ExactNum,ry:ExactNum,angle:ExactNum,flagLgArc:'0'|'1',flagSweep:'0'|'1'}} ArcCmd
+ * @typedef {{cp1x:ExactNum,cp1y:ExactNum,cp2x:ExactNum,cp2y:ExactNum}} CBezCmd
  * @typedef {{'command':'A'}&ArcCmd&XYCmd} ArcAbs
- * @typedef {{'command':'C',cp1x:ExactNum,cp1y:ExactNum,cp2x:ExactNum,cp2y:ExactNum}&XYCmd} CBezAbs
+ * @typedef {{'command':'a'}&ArcCmd&DxDyCmd} ArcRel
+ * @typedef {{'command':'C'}&CBezCmd&XYCmd} CBezAbs
+ * @typedef {{'command':'c'}&CBezCmd&DxDyCmd} CBezRel
+ * @typedef {{'command':'H',x:ExactNum}} HAbs
  * @typedef {{'command':'h',dx:ExactNum}} HRel
- * @typedef {{'command':'L',x:ExactNum,y:ExactNum}} LineAbs
+ * @typedef {{'command':'L'}&XYCmd} LineAbs
  * @typedef {{'command':'l'}&DxDyCmd} LineRel
- * @typedef {{'command':'M',x:ExactNum,y:ExactNum}} MoveAbs
+ * @typedef {{'command':'M'}&XYCmd} MoveAbs
  * @typedef {{'command':'m'}&DxDyCmd} MoveRel
- * @typedef {{'command':'Q',cp1x:ExactNum,cp1y:ExactNum,x:ExactNum,y:ExactNum}} QBezAbs
- * @typedef {{'command':'S',cp2x:ExactNum,cp2y:ExactNum,x:ExactNum,y:ExactNum}} SBezAbs
+ * @typedef {{'command':'Q',cp1x:ExactNum,cp1y:ExactNum}&XYCmd} QBezAbs
+ * @typedef {{'command':'q',cp1x:ExactNum,cp1y:ExactNum}&DxDyCmd} QBezRel
+ * @typedef {{'command':'S',cp2x:ExactNum,cp2y:ExactNum}&XYCmd} SBezAbs
+ * @typedef {{'command':'s',cp2x:ExactNum,cp2y:ExactNum}&DxDyCmd} SBezRel
+ * @typedef {{'command':'T'}&XYCmd} TBezAbs
  * @typedef {{'command':'t'}&DxDyCmd} TBezRel
- * @typedef {HRel|LineRel|MoveRel|TBezRel} RelCommand
- * @typedef {ArcAbs|CBezAbs|LineAbs|MoveAbs|QBezAbs|SBezAbs} AbsCommand
- * @typedef {RelCommand|AbsCommand} PathCommand
+ * @typedef {{'command':'V',y:ExactNum}} VAbs
+ * @typedef {{'command':'v',dy:ExactNum}} VRel
+ * @typedef {{'command':'z'}} ZCmd
+ * @typedef {ArcRel|CBezRel|HRel|LineRel|MoveRel|QBezRel|SBezRel|TBezRel|VRel} RelCommand
+ * @typedef {ArcAbs|CBezAbs|HAbs|LineAbs|MoveAbs|QBezAbs|SBezAbs|TBezAbs|VAbs} AbsCommand
+ * @typedef {RelCommand|AbsCommand|ZCmd} PathCommand
  */
 
 export const name = 'minifyPathAttr';
@@ -128,6 +138,7 @@ function makeCommand(commandCode, args) {
     return [];
   }
   switch (commandCode) {
+    case 'a':
     case 'A': {
       if (args.length === 0 || args.length % 7 !== 0) {
         throw new PathParseError(
@@ -146,19 +157,33 @@ function makeCommand(commandCode, args) {
           }
           throw new PathParseError(`invalid flag value "${str}"`);
         }
-        commands.push({
-          command: commandCode,
-          rx: new ExactNum(args[index + 0]),
-          ry: new ExactNum(args[index + 1]),
-          angle: new ExactNum(args[index + 2]),
-          flagLgArc: getFlagValue(args[index + 3]),
-          flagSweep: getFlagValue(args[index + 4]),
-          x: new ExactNum(args[index + 5]),
-          y: new ExactNum(args[index + 6]),
-        });
+        if (commandCode === 'a') {
+          commands.push({
+            command: commandCode,
+            rx: new ExactNum(args[index + 0]),
+            ry: new ExactNum(args[index + 1]),
+            angle: new ExactNum(args[index + 2]),
+            flagLgArc: getFlagValue(args[index + 3]),
+            flagSweep: getFlagValue(args[index + 4]),
+            dx: new ExactNum(args[index + 5]),
+            dy: new ExactNum(args[index + 6]),
+          });
+        } else {
+          commands.push({
+            command: commandCode,
+            rx: new ExactNum(args[index + 0]),
+            ry: new ExactNum(args[index + 1]),
+            angle: new ExactNum(args[index + 2]),
+            flagLgArc: getFlagValue(args[index + 3]),
+            flagSweep: getFlagValue(args[index + 4]),
+            x: new ExactNum(args[index + 5]),
+            y: new ExactNum(args[index + 6]),
+          });
+        }
       }
       return commands;
     }
+    case 'c':
     case 'C': {
       if (args.length === 0 || args.length % 6 !== 0) {
         throw new PathParseError(
@@ -167,28 +192,65 @@ function makeCommand(commandCode, args) {
       }
       const commands = [];
       for (let index = 0; index < args.length; index += 6) {
-        commands.push({
-          command: commandCode,
-          cp1x: new ExactNum(args[index + 0]),
-          cp1y: new ExactNum(args[index + 1]),
-          cp2x: new ExactNum(args[index + 2]),
-          cp2y: new ExactNum(args[index + 3]),
-          x: new ExactNum(args[index + 4]),
-          y: new ExactNum(args[index + 5]),
-        });
+        if (commandCode === 'c') {
+          commands.push({
+            command: commandCode,
+            cp1x: new ExactNum(args[index + 0]),
+            cp1y: new ExactNum(args[index + 1]),
+            cp2x: new ExactNum(args[index + 2]),
+            cp2y: new ExactNum(args[index + 3]),
+            dx: new ExactNum(args[index + 4]),
+            dy: new ExactNum(args[index + 5]),
+          });
+        } else {
+          commands.push({
+            command: commandCode,
+            cp1x: new ExactNum(args[index + 0]),
+            cp1y: new ExactNum(args[index + 1]),
+            cp2x: new ExactNum(args[index + 2]),
+            cp2y: new ExactNum(args[index + 3]),
+            x: new ExactNum(args[index + 4]),
+            y: new ExactNum(args[index + 5]),
+          });
+        }
       }
       return commands;
     }
-    case 'h': {
+    case 'h':
+    case 'H':
+    case 'v':
+    case 'V': {
       const commands = [];
       if (args.length === 0) {
         `"${commandCode}" command requires at least one argument`;
       }
       for (const arg of args) {
-        commands.push({
-          command: commandCode,
-          dx: new ExactNum(arg),
-        });
+        switch (commandCode) {
+          case 'h':
+            commands.push({
+              command: commandCode,
+              dx: new ExactNum(arg),
+            });
+            break;
+          case 'v':
+            commands.push({
+              command: commandCode,
+              dy: new ExactNum(arg),
+            });
+            break;
+          case 'H':
+            commands.push({
+              command: commandCode,
+              x: new ExactNum(arg),
+            });
+            break;
+          case 'V':
+            commands.push({
+              command: commandCode,
+              y: new ExactNum(arg),
+            });
+            break;
+        }
       }
       return commands;
     }
@@ -204,9 +266,9 @@ function makeCommand(commandCode, args) {
       /** @type {PathCommand[]} */
       const commands = [];
       if (commandCode === 'l' || commandCode === 'm') {
-        commands.push(makeDxDyCommandRel(commandCode, args[0], args[1]));
+        commands.push(makeDxDyCommand(commandCode, args[0], args[1]));
       } else {
-        commands.push(makeMLCommandAbs(commandCode, args[0], args[1]));
+        commands.push(makeXYCommand(commandCode, args[0], args[1]));
       }
       const lineCommandCode =
         commandCode === 'l' || commandCode === 'm' ? 'l' : 'L';
@@ -214,19 +276,21 @@ function makeCommand(commandCode, args) {
         switch (lineCommandCode) {
           case 'l':
             commands.push(
-              makeDxDyCommandRel(lineCommandCode, args[index], args[index + 1]),
+              makeDxDyCommand(lineCommandCode, args[index], args[index + 1]),
             );
             break;
           case 'L':
             commands.push(
-              makeMLCommandAbs(lineCommandCode, args[index], args[index + 1]),
+              makeXYCommand(lineCommandCode, args[index], args[index + 1]),
             );
             break;
         }
       }
       return commands;
     }
+    case 'q':
     case 'Q':
+    case 's':
     case 'S': {
       if (args.length === 0 || args.length % 4 !== 0) {
         throw new PathParseError(
@@ -236,6 +300,15 @@ function makeCommand(commandCode, args) {
       const commands = [];
       for (let index = 0; index < args.length; index += 4) {
         switch (commandCode) {
+          case 'q':
+            commands.push({
+              command: commandCode,
+              cp1x: new ExactNum(args[index + 0]),
+              cp1y: new ExactNum(args[index + 1]),
+              dx: new ExactNum(args[index + 2]),
+              dy: new ExactNum(args[index + 3]),
+            });
+            break;
           case 'Q':
             commands.push({
               command: commandCode,
@@ -243,6 +316,15 @@ function makeCommand(commandCode, args) {
               cp1y: new ExactNum(args[index + 1]),
               x: new ExactNum(args[index + 2]),
               y: new ExactNum(args[index + 3]),
+            });
+            break;
+          case 's':
+            commands.push({
+              command: commandCode,
+              cp2x: new ExactNum(args[index + 0]),
+              cp2y: new ExactNum(args[index + 1]),
+              dx: new ExactNum(args[index + 2]),
+              dy: new ExactNum(args[index + 3]),
             });
             break;
           case 'S':
@@ -258,7 +340,8 @@ function makeCommand(commandCode, args) {
       }
       return commands;
     }
-    case 't': {
+    case 't':
+    case 'T': {
       if (args.length === 0 || args.length % 2 !== 0) {
         throw new PathParseError(
           `number of arguments found for path command "${commandCode} must be a multiple of 2"`,
@@ -268,26 +351,30 @@ function makeCommand(commandCode, args) {
       for (let index = 0; index < args.length; index += 2) {
         switch (commandCode) {
           case 't':
-            commands.push(
-              makeDxDyCommandRel('t', args[index], args[index + 1]),
-            );
+            commands.push(makeDxDyCommand('t', args[index], args[index + 1]));
+            break;
+          case 'T':
+            commands.push(makeXYCommand('T', args[index], args[index + 1]));
             break;
         }
       }
       return commands;
     }
+    case 'z':
+    case 'Z':
+      return [{ command: 'z' }];
     default:
       throw new PathParseError(`unexpected command "${commandCode}"`);
   }
 }
 
 /**
- * @param {'L'|'M'} command
+ * @param {'L'|'M'|'T'} command
  * @param {string} arg1
  * @param {string} arg2
- * @returns {LineAbs|MoveAbs}
+ * @returns {LineAbs|MoveAbs|TBezAbs}
  */
-function makeMLCommandAbs(command, arg1, arg2) {
+function makeXYCommand(command, arg1, arg2) {
   return {
     command: command,
     x: new ExactNum(arg1),
@@ -301,7 +388,7 @@ function makeMLCommandAbs(command, arg1, arg2) {
  * @param {string} arg2
  * @returns {LineRel|MoveRel|TBezRel}
  */
-function makeDxDyCommandRel(command, arg1, arg2) {
+function makeDxDyCommand(command, arg1, arg2) {
   return {
     command: command,
     dx: new ExactNum(arg1),
@@ -498,6 +585,18 @@ export function stringifyPathCommands(commands) {
   let lastNumber = '';
   for (const command of commands) {
     switch (command.command) {
+      case 'a':
+        result += stringifyCommand(
+          command.command,
+          command.rx,
+          command.ry,
+          command.angle,
+          command.flagLgArc,
+          command.flagSweep,
+          command.dx,
+          command.dy,
+        );
+        break;
       case 'A':
         result += stringifyCommand(
           command.command,
@@ -510,18 +609,16 @@ export function stringifyPathCommands(commands) {
           command.y,
         );
         break;
-      case 'h':
-        result += command.command;
-        result += command.dx.getMinifiedString();
-        prevCommand = command.command;
-        break;
-      case 'l':
-      case 'm':
-        result += stringifyML(command.command, command.dx, command.dy);
-        break;
-      case 'L':
-      case 'M':
-        result += stringifyML(command.command, command.x, command.y);
+      case 'c':
+        result += stringifyCommand(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.cp2x,
+          command.cp2y,
+          command.dx,
+          command.dy,
+        );
         break;
       case 'C':
         result += stringifyCommand(
@@ -534,6 +631,35 @@ export function stringifyPathCommands(commands) {
           command.y,
         );
         break;
+      case 'h':
+        result += stringifyCommand(command.command, command.dx);
+        break;
+      case 'H':
+        result += stringifyCommand(command.command, command.x);
+        break;
+      case 'v':
+        result += stringifyCommand(command.command, command.dy);
+        break;
+      case 'V':
+        result += stringifyCommand(command.command, command.y);
+        break;
+      case 'l':
+      case 'm':
+        result += stringifyML(command.command, command.dx, command.dy);
+        break;
+      case 'L':
+      case 'M':
+        result += stringifyML(command.command, command.x, command.y);
+        break;
+      case 'q':
+        result += stringifyCommand(
+          command.command,
+          command.cp1x,
+          command.cp1y,
+          command.dx,
+          command.dy,
+        );
+        break;
       case 'Q':
         result += stringifyCommand(
           command.command,
@@ -541,6 +667,15 @@ export function stringifyPathCommands(commands) {
           command.cp1y,
           command.x,
           command.y,
+        );
+        break;
+      case 's':
+        result += stringifyCommand(
+          command.command,
+          command.cp2x,
+          command.cp2y,
+          command.dx,
+          command.dy,
         );
         break;
       case 'S':
@@ -554,6 +689,13 @@ export function stringifyPathCommands(commands) {
         break;
       case 't':
         result += stringifyCommand(command.command, command.dx, command.dy);
+        break;
+      case 'T':
+        result += stringifyCommand(command.command, command.x, command.y);
+        break;
+      case 'z':
+        result += 'z';
+        prevCommand = 'z';
         break;
       default:
         // @ts-ignore

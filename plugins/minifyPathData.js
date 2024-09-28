@@ -51,11 +51,11 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (node) => {
-        if (pathElems.has(node.name) && node.attributes.d !== undefined) {
-          let origData;
+      enter: (element, parentNode, parentInfo) => {
+        if (pathElems.has(element.name) && element.attributes.d !== undefined) {
+          let data;
           try {
-            origData = parsePathCommands(node.attributes.d);
+            data = parsePathCommands(element.attributes.d);
           } catch (error) {
             if (error instanceof PathParseError) {
               console.warn(error.message);
@@ -63,8 +63,9 @@ export const fn = (root, params, info) => {
             }
             throw error;
           }
-          let data = optimize(origData);
-          node.attributes.d = stringifyPathCommands(data);
+          const computedStyle = styleData.computeStyle(element, parentInfo);
+          data = optimize(data, computedStyle);
+          element.attributes.d = stringifyPathCommands(data);
         }
       },
     },
@@ -416,9 +417,10 @@ function makeDxDyCommand(command, arg1, arg2) {
 
 /**
  * @param {PathCommand[]} commands
+ * @param {Map<string,string|null>} properties
  * @returns {PathCommand[]}
  */
-function optimize(commands) {
+function optimize(commands, properties) {
   /** @type {PathCommand[]} */
   const optimized = [];
   let currentPoint = ExactPoint.zero();
@@ -481,6 +483,13 @@ function optimize(commands) {
         if (strOther.result.length < strCmd.result.length) {
           command = otherVersion;
         }
+      }
+    }
+
+    const lineCap = properties.get('stroke-linecap');
+    if (lineCap === undefined || lineCap === 'butt') {
+      if (command.command === 'h' && command.dx.getMinifiedString() === '0') {
+        continue;
       }
     }
 

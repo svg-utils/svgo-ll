@@ -135,6 +135,10 @@ function getCharType(c) {
  */
 function getCmdArgs(c) {
   switch (c.command) {
+    case 'a':
+      return [c.rx, c.ry, c.angle, c.flagLgArc, c.flagSweep, c.dx, c.dy];
+    case 'A':
+      return [c.rx, c.ry, c.angle, c.flagLgArc, c.flagSweep, c.x, c.y];
     case 'm':
       return [c.dx, c.dy];
     case 'M':
@@ -460,6 +464,14 @@ function optimize(commands, properties) {
       /** @type {PathCommand|undefined} */
       let otherVersion;
       switch (command.command) {
+        case 'A':
+          otherVersion = {
+            ...command,
+            command: 'a',
+            dx: command.x.sub(currentPoint.getX()),
+            dy: command.y.sub(currentPoint.getY()),
+          };
+          break;
         case 'V':
           otherVersion = {
             command: 'v',
@@ -480,7 +492,13 @@ function optimize(commands, properties) {
           lastNumber,
           getCmdArgs(otherVersion),
         );
-        if (strOther.result.length < strCmd.result.length) {
+        const diff = strOther.result.length - strCmd.result.length;
+        if (
+          diff < 0 ||
+          // Prefer relative commands if they are the same length; this should generally result in shorter numbers.
+          (diff === 0 &&
+            otherVersion.command === otherVersion.command.toLowerCase())
+        ) {
           command = otherVersion;
         }
       }
@@ -761,30 +779,6 @@ export function stringifyPathCommands(commands) {
   let lastNumber = '';
   for (const command of commands) {
     switch (command.command) {
-      case 'a':
-        result += stringifyCmdDep(
-          command.command,
-          command.rx,
-          command.ry,
-          command.angle,
-          command.flagLgArc,
-          command.flagSweep,
-          command.dx,
-          command.dy,
-        );
-        break;
-      case 'A':
-        result += stringifyCmdDep(
-          command.command,
-          command.rx,
-          command.ry,
-          command.angle,
-          command.flagLgArc,
-          command.flagSweep,
-          command.x,
-          command.y,
-        );
-        break;
       case 'c':
         result += stringifyCmdDep(
           command.command,
@@ -813,6 +807,8 @@ export function stringifyPathCommands(commands) {
       case 'H':
         result += stringifyCmdDep(command.command, command.x);
         break;
+      case 'a':
+      case 'A':
       case 'v':
       case 'V':
         result += stringifyCmd(command.command, getCmdArgs(command));

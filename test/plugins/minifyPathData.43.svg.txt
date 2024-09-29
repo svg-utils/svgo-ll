@@ -1,0 +1,25 @@
+Merge adjacent "M" commands.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25">
+  <path d="M10 10M20 20L1 1" stroke="black" fill="none"/>
+  <path d="M20 20 1 1" stroke="green" stroke-width=".5" fill="none"/>
+  <g transform="translate(0,2)">
+    <path d="m10 10M20 20L1 1" stroke="black" fill="none"/>
+    <path d="M20 20 1 1" stroke="green" stroke-width=".5" fill="none"/>
+  </g>
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25">
+    <path d="M20 20 1 1" stroke="black" fill="none"/>
+    <path d="M20 20 1 1" stroke="green" stroke-width=".5" fill="none"/>
+    <g transform="translate(0,2)">
+        <path d="M20 20 1 1" stroke="black" fill="none"/>
+        <path d="M20 20 1 1" stroke="green" stroke-width=".5" fill="none"/>
+    </g>
+</svg>
+

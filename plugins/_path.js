@@ -14,6 +14,7 @@ var prevCtrlPoint;
  * Convert path string to JS representation.
  *
  * @type {(path: XastElement) => PathDataItem[]}
+ * @deprecated
  */
 export const path2js = (path) => {
   // @ts-ignore legacy

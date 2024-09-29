@@ -1,0 +1,15 @@
+Check for alternate "v" command.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25">
+  <path d="M10 20v-19" stroke="black" fill="none"/>
+  <path d="M10 20V1" stroke="green" stroke-width=".5" fill="none"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 25 25">
+    <path d="M10 20V1" stroke="black" fill="none"/>
+    <path d="M10 20V1" stroke="green" stroke-width=".5" fill="none"/>
+</svg>

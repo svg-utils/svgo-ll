@@ -7,7 +7,7 @@ import path from 'path';
 import { program } from 'commander';
 import colors from 'picocolors';
 import pixelmatch from 'pixelmatch';
-import { chromium } from 'playwright';
+import playwright from 'playwright';
 import { PNG } from 'pngjs';
 import { optimize } from '../lib/svgo.js';
 import { toFixed } from '../lib/svgo/tools.js';
@@ -37,6 +37,12 @@ async function performTests(options) {
   let totalInputSize = 0;
   let totalCompression = 0;
   let totalPixelMismatches = 0;
+
+  /** @type {'chromium' | 'firefox' | 'webkit'} */
+  const browserStr = ['chromium', 'firefox', 'webkit'].includes(options.browser)
+    ? options.browser
+    : 'chromium';
+  const browserType = playwright[browserStr];
 
   /** @type {import('../lib/svgo.js').Config} */
   const config = {
@@ -113,7 +119,7 @@ async function performTests(options) {
       await page.close();
     };
 
-    const browser = await chromium.launch();
+    const browser = await browserType.launch();
     const context = await browser.newContext({
       javaScriptEnabled: false,
       viewport: { width, height },
@@ -142,12 +148,14 @@ async function performTests(options) {
       statArray.push([name, orig, opt, reduction, fileStats.pixels].join('\t'));
     }
 
-    const statsFileName = `tmp/regression-stats-${new Date()
-      .toISOString()
-      .replace(/:/g, '')
-      .substring(0, 17)}.tsv`;
-    await fs.mkdir(path.dirname(statsFileName), { recursive: true });
-    await fs.writeFile(statsFileName, statArray.join('\n'));
+    if (options.log) {
+      const statsFileName = `tmp/regression-stats-${new Date()
+        .toISOString()
+        .replace(/:/g, '')
+        .substring(0, 17)}.tsv`;
+      await fs.mkdir(path.dirname(statsFileName), { recursive: true });
+      await fs.writeFile(statsFileName, statArray.join('\n'));
+    }
 
     return mismatched === 0;
   }
@@ -229,10 +237,16 @@ program
     'Specify one or more plugins from the preset or config which should not be run ',
   )
   .option(
-    '--inputdir <dir>',
+    '-b, --browser <chromium | firefox | webkit>',
+    'Browser engine to use in testing',
+    'chromium',
+  )
+  .option(
+    '-i, --inputdir <dir>',
     'Location of input files',
     './test/regression-fixtures',
   )
+  .option('-l, --log', 'Write statistics log file to ./tmp directory')
   .action(performTests);
 
 program.parseAsync();

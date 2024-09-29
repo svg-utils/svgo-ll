@@ -206,6 +206,7 @@ function getAlternateCmd(cmd, currentPoint) {
 function getCharType(c) {
   switch (c) {
     case ' ':
+    case '\f':
     case '\n':
     case '\r':
     case '\t':

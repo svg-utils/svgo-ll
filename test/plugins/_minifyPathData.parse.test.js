@@ -25,13 +25,13 @@ describe('test parsing of path', function () {
     { input: 'M-3-4h10' },
     { input: 'M10 10H90V90H10z' },
     // implicit lines
-    { input: 'm2,3 4 5', expected: 'm2 3l4 5' },
+    { input: 'm2,3 4 5', expected: 'm2 3 4 5' },
     { input: 'm4 3-1 5' },
-    { input: 'm4,3l-1 5 6 10', expected: 'm4 3-1 5l6 10' },
+    { input: 'm4,3l-1 5 6 10', expected: 'm4 3-1 5 6 10' },
     { input: 'm4 3h10 5' },
     {
       input: 'M163.49,167.72l-.7,14.52,8.74,10.39',
-      expected: 'M163.49 167.72l-.7 14.52l8.74 10.39',
+      expected: 'M163.49 167.72l-.7 14.52 8.74 10.39',
     },
     // cubic beziers
     {

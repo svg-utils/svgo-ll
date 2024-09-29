@@ -104,6 +104,7 @@ function getAlternateCmd(cmd, currentPoint) {
       return { command: 'H', x: cmd.dx.add(currentPoint.getX()) };
     case 'H':
       return { command: 'h', dx: cmd.x.sub(currentPoint.getX()) };
+    case 'L':
     case 'M':
     case 'T':
       return {
@@ -211,9 +212,11 @@ function getCmdArgs(c) {
       return [c.dx];
     case 'H':
       return [c.x];
+    case 'l':
     case 'm':
     case 't':
       return [c.dx, c.dy];
+    case 'L':
     case 'M':
     case 'T':
       return [c.x, c.y];
@@ -665,7 +668,11 @@ function stringifyCommand(cmdCode, prevCmdChar, lastNumber, args) {
 
   let result = '';
   // If last command was the same, no need to repeat it.
-  if (prevCmdChar !== cmdCode) {
+  const omitCommandCode =
+    prevCmdChar === cmdCode ||
+    (prevCmdChar === 'M' && cmdCode === 'L') ||
+    (prevCmdChar === 'm' && cmdCode === 'l');
+  if (!omitCommandCode) {
     result += cmdCode;
   }
   for (let index = 0; index < args.length; index++) {
@@ -675,7 +682,7 @@ function stringifyCommand(cmdCode, prevCmdChar, lastNumber, args) {
     }
     if (index === 0) {
       // Don't print space unless we're omitting the command, and we need a space before the first arg.
-      if (prevCmdChar === cmdCode && needSpaceBefore(arg)) {
+      if (omitCommandCode && needSpaceBefore(arg)) {
         result += ' ';
       }
     } else if (needSpaceBefore(arg)) {
@@ -822,6 +829,7 @@ export function stringifyPathCommands(commands) {
   /**
    * @param {string} commandCode
    * @param  {(ExactNum|string)[]} args
+   * @deprecated
    */
   function stringifyCmd(commandCode, args) {
     const result = stringifyCommand(commandCode, prevCommand, lastNumber, args);
@@ -876,6 +884,8 @@ export function stringifyPathCommands(commands) {
       case 'C':
       case 'h':
       case 'H':
+      case 'l':
+      case 'L':
       case 's':
       case 'S':
       case 't':
@@ -884,11 +894,9 @@ export function stringifyPathCommands(commands) {
       case 'V':
         result += stringifyCmd(command.command, getCmdArgs(command));
         break;
-      case 'l':
       case 'm':
         result += stringifyML(command.command, command.dx, command.dy);
         break;
-      case 'L':
       case 'M':
         result += stringifyML(command.command, command.x, command.y);
         break;

@@ -628,12 +628,12 @@ function optimize(commands, properties) {
       }
     }
 
-    const lineCap = properties.get('stroke-linecap');
-    if (lineCap === undefined || lineCap === 'butt') {
-      if (command.command === 'h' && command.dx.getMinifiedString() === '0') {
-        continue;
-      }
-    }
+    // const lineCap = properties.get('stroke-linecap');
+    // if (lineCap === undefined || lineCap === 'butt') {
+    //   if (command.command === 'h' && command.dx.getMinifiedString() === '0') {
+    //     continue;
+    //   }
+    // }
 
     optimized.push(command);
 

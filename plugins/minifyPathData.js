@@ -91,8 +91,10 @@ function getAlternateCmd(cmd, currentPoint) {
         dy: cmd.y.sub(currentPoint.getY()),
       };
     case 'M':
+    case 'T':
       return {
-        command: 'm',
+        // @ts-ignore
+        command: cmd.command.toLowerCase(),
         dx: cmd.x.sub(currentPoint.getX()),
         dy: cmd.y.sub(currentPoint.getY()),
       };
@@ -180,8 +182,10 @@ function getCmdArgs(c) {
     case 'A':
       return [c.rx, c.ry, c.angle, c.flagLgArc, c.flagSweep, c.x, c.y];
     case 'm':
+    case 't':
       return [c.dx, c.dy];
     case 'M':
+    case 'T':
       return [c.x, c.y];
     case 'v':
       return [c.dy];
@@ -856,6 +860,8 @@ export function stringifyPathCommands(commands) {
         break;
       case 'a':
       case 'A':
+      case 't':
+      case 'T':
       case 'v':
       case 'V':
         result += stringifyCmd(command.command, getCmdArgs(command));
@@ -903,12 +909,6 @@ export function stringifyPathCommands(commands) {
           command.x,
           command.y,
         );
-        break;
-      case 't':
-        result += stringifyCmdDep(command.command, command.dx, command.dy);
-        break;
-      case 'T':
-        result += stringifyCmdDep(command.command, command.x, command.y);
         break;
       case 'z':
         result += 'z';

@@ -73,6 +73,46 @@ export const fn = (root, params, info) => {
 };
 
 /**
+ * @param {PathCommand} cmd
+ * @param {ExactPoint} currentPoint
+ * @returns {PathCommand|undefined}
+ */
+function getAlternateCmd(cmd, currentPoint) {
+  switch (cmd.command) {
+    case 'A':
+      return {
+        command: 'a',
+        rx: cmd.rx,
+        ry: cmd.ry,
+        angle: cmd.angle,
+        flagLgArc: cmd.flagLgArc,
+        flagSweep: cmd.flagSweep,
+        dx: cmd.x.sub(currentPoint.getX()),
+        dy: cmd.y.sub(currentPoint.getY()),
+      };
+    case 'M':
+      return {
+        command: 'm',
+        dx: cmd.x.sub(currentPoint.getX()),
+        dy: cmd.y.sub(currentPoint.getY()),
+      };
+    case 'Q':
+      return {
+        command: 'q',
+        cp1x: cmd.cp1x.sub(currentPoint.getX()),
+        cp1y: cmd.cp1y.sub(currentPoint.getY()),
+        dx: cmd.x.sub(currentPoint.getX()),
+        dy: cmd.y.sub(currentPoint.getY()),
+      };
+    case 'V':
+      return {
+        command: 'v',
+        dy: cmd.y.sub(currentPoint.getY()),
+      };
+  }
+}
+
+/**
  * @param {string} c
  * @returns {'space'|'command'|'digit'|'.'|','|'sign'|'e'}
  */
@@ -430,8 +470,33 @@ function optimize(commands, properties) {
   let currentPoint = ExactPoint.zero();
   let prevCmdChar = '';
   let lastNumber;
+  let subpathStartPoint;
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
+    if (subpathStartPoint === undefined) {
+      // This is the first command of a subpath.
+      if (command.command === 'M') {
+        // Start the subpath here.
+        subpathStartPoint = new ExactPoint(
+          command.x.clone(),
+          command.y.clone(),
+        );
+      } else if (command.command === 'm') {
+        subpathStartPoint = new ExactPoint(
+          currentPoint.getX().add(command.dx),
+          currentPoint.getY().add(command.dy),
+        );
+      } else {
+        if (index === 0) {
+          throw new PathParseError(
+            `"${command.command}" can not be the first command in a path`,
+          );
+        } else {
+          // Use the same start point as the previous subpath, which should be in currentPoint.
+          subpathStartPoint = currentPoint.clone();
+        }
+      }
+    }
     switch (command.command) {
       case 'l':
         if (command.dy.getValue() === 0) {
@@ -462,23 +527,8 @@ function optimize(commands, properties) {
     if (optimized.length > 0) {
       // Try both relative and absolute versions, and use whichever is shorter.
       /** @type {PathCommand|undefined} */
-      let otherVersion;
-      switch (command.command) {
-        case 'A':
-          otherVersion = {
-            ...command,
-            command: 'a',
-            dx: command.x.sub(currentPoint.getX()),
-            dy: command.y.sub(currentPoint.getY()),
-          };
-          break;
-        case 'V':
-          otherVersion = {
-            command: 'v',
-            dy: command.y.sub(currentPoint.getY()),
-          };
-          break;
-      }
+      let otherVersion = getAlternateCmd(command, currentPoint);
+
       if (otherVersion) {
         const strCmd = stringifyCommand(
           command.command,
@@ -516,7 +566,8 @@ function optimize(commands, properties) {
     // Update current point.
     switch (command.command) {
       case 'z':
-        currentPoint = ExactPoint.zero();
+        currentPoint = subpathStartPoint;
+        subpathStartPoint = undefined;
         break;
       case 'a':
       case 'c':
@@ -888,6 +939,10 @@ class ExactPoint {
     this.#y = y;
   }
 
+  clone() {
+    return new ExactPoint(this.#x.clone(), this.#y.clone());
+  }
+
   getX() {
     return this.#x;
   }
@@ -1024,6 +1079,16 @@ class ExactNum {
       this.#value = value + n.getValue();
     }
     this.#numDigits = Math.max(numDigits, n.getNumberOfDigits());
+  }
+
+  /**
+   * @param {ExactNum} n
+   * @returns {ExactNum}
+   */
+  add(n) {
+    const ret = this.clone();
+    ret.incr(n);
+    return ret;
   }
 
   /**

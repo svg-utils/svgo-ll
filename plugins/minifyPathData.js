@@ -226,6 +226,10 @@ function getCmdArgs(c) {
     case 'M':
     case 'T':
       return [c.x, c.y];
+    case 'q':
+      return [c.cp1x, c.cp1y, c.dx, c.dy];
+    case 'Q':
+      return [c.cp1x, c.cp1y, c.x, c.y];
     case 's':
       return [c.cp2x, c.cp2y, c.dx, c.dy];
     case 'S':
@@ -560,12 +564,26 @@ function optimize(commands, properties) {
         }
         break;
       case 'm':
+        // If the next command is "M", this one is useless.
+        if (
+          index < commands.length - 1 &&
+          commands[index + 1].command === 'M'
+        ) {
+          continue;
+        }
         subpathStartPoint = new ExactPoint(
           currentPoint.getX().add(command.dx),
           currentPoint.getY().add(command.dy),
         );
         break;
       case 'M':
+        // If the next command is "M", this one is useless.
+        if (
+          index < commands.length - 1 &&
+          commands[index + 1].command === 'M'
+        ) {
+          continue;
+        }
         subpathStartPoint = new ExactPoint(
           command.x.clone(),
           command.y.clone(),
@@ -807,80 +825,23 @@ export function parsePathCommands(path) {
  * @returns {string}
  */
 export function stringifyPathCommands(commands) {
-  /**
-   * @param {string} commandCode
-   * @param  {(ExactNum|string)[]} args
-   * @deprecated
-   */
-  function stringifyCmdDep(commandCode, ...args) {
-    const result = stringifyCommand(commandCode, prevCommand, lastNumber, args);
-
-    prevCommand = commandCode;
-    lastNumber = result.lastNumber;
-    return result.result;
-  }
-
-  /**
-   * @param {string} commandCode
-   * @param  {(ExactNum|string)[]} args
-   * @deprecated
-   */
-  function stringifyCmd(commandCode, args) {
-    const result = stringifyCommand(commandCode, prevCommand, lastNumber, args);
-
-    prevCommand = commandCode;
-    lastNumber = result.lastNumber;
-    return result.result;
-  }
-
   let result = '';
   let prevCommand = '';
   let lastNumber = '';
   for (const command of commands) {
-    switch (command.command) {
-      case 'a':
-      case 'A':
-      case 'c':
-      case 'C':
-      case 'h':
-      case 'H':
-      case 'l':
-      case 'L':
-      case 'm':
-      case 'M':
-      case 's':
-      case 'S':
-      case 't':
-      case 'T':
-      case 'v':
-      case 'V':
-        result += stringifyCmd(command.command, getCmdArgs(command));
-        break;
-      case 'q':
-        result += stringifyCmdDep(
-          command.command,
-          command.cp1x,
-          command.cp1y,
-          command.dx,
-          command.dy,
-        );
-        break;
-      case 'Q':
-        result += stringifyCmdDep(
-          command.command,
-          command.cp1x,
-          command.cp1y,
-          command.x,
-          command.y,
-        );
-        break;
-      case 'z':
-        result += 'z';
-        prevCommand = 'z';
-        break;
-      default:
-        // @ts-ignore
-        throw new Error(`unexpected command "${command.command}"`);
+    if (command.command === 'z') {
+      result += 'z';
+      prevCommand = 'z';
+    } else {
+      const data = stringifyCommand(
+        command.command,
+        prevCommand,
+        lastNumber,
+        getCmdArgs(command),
+      );
+      result += data.result;
+      prevCommand = command.command;
+      lastNumber = data.lastNumber;
     }
   }
   return result;

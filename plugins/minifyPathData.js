@@ -105,8 +105,10 @@ function getAlternateCmd(cmd, currentPoint) {
     case 'H':
       return { command: 'h', dx: cmd.x.sub(currentPoint.getX()) };
     case 'l':
+    case 'm':
       return {
-        command: 'L',
+        // @ts-ignore
+        command: cmd.command.toUpperCase(),
         x: cmd.dx.add(currentPoint.getX()),
         y: cmd.dy.add(currentPoint.getY()),
       };
@@ -134,6 +136,11 @@ function getAlternateCmd(cmd, currentPoint) {
         cp2y: cmd.cp2y.sub(currentPoint.getY()),
         dx: cmd.x.sub(currentPoint.getX()),
         dy: cmd.y.sub(currentPoint.getY()),
+      };
+    case 'v':
+      return {
+        command: 'V',
+        y: cmd.dy.add(currentPoint.getY()),
       };
     case 'V':
       return {

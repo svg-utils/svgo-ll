@@ -465,38 +465,22 @@ function makeDxDyCommand(command, arg1, arg2) {
  * @returns {PathCommand[]}
  */
 function optimize(commands, properties) {
+  if (commands.length > 0 && !'mM'.includes(commands[0].command)) {
+    throw new PathParseError(
+      `"${commands[0].command}" can not be the first command in a path`,
+    );
+  }
+
   /** @type {PathCommand[]} */
   const optimized = [];
   let currentPoint = ExactPoint.zero();
+  let subpathStartPoint = ExactPoint.zero();
   let prevCmdChar = '';
   let lastNumber;
-  let subpathStartPoint;
+
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
-    if (subpathStartPoint === undefined) {
-      // This is the first command of a subpath.
-      if (command.command === 'M') {
-        // Start the subpath here.
-        subpathStartPoint = new ExactPoint(
-          command.x.clone(),
-          command.y.clone(),
-        );
-      } else if (command.command === 'm') {
-        subpathStartPoint = new ExactPoint(
-          currentPoint.getX().add(command.dx),
-          currentPoint.getY().add(command.dy),
-        );
-      } else {
-        if (index === 0) {
-          throw new PathParseError(
-            `"${command.command}" can not be the first command in a path`,
-          );
-        } else {
-          // Use the same start point as the previous subpath, which should be in currentPoint.
-          subpathStartPoint = currentPoint.clone();
-        }
-      }
-    }
+
     switch (command.command) {
       case 'l':
         if (command.dy.getValue() === 0) {
@@ -521,6 +505,18 @@ function optimize(commands, properties) {
           // Convert L 0 y to V y.
           command = { command: 'V', y: command.y };
         }
+        break;
+      case 'm':
+        subpathStartPoint = new ExactPoint(
+          currentPoint.getX().add(command.dx),
+          currentPoint.getY().add(command.dy),
+        );
+        break;
+      case 'M':
+        subpathStartPoint = new ExactPoint(
+          command.x.clone(),
+          command.y.clone(),
+        );
         break;
     }
 
@@ -567,7 +563,7 @@ function optimize(commands, properties) {
     switch (command.command) {
       case 'z':
         currentPoint = subpathStartPoint;
-        subpathStartPoint = undefined;
+        subpathStartPoint = currentPoint.clone();
         break;
       case 'a':
       case 'c':

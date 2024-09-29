@@ -1,0 +1,23 @@
+Track current point/start point for multiple moves.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <g transform="translate(0,1)">
+    <path d="M0 0H 2M4 0ZM6 0H10" stroke="black" fill="none"/>
+  </g>
+  <g transform="translate(0,4)">
+    <path d="M0 0H 2M4 0Zm2 0H10" stroke="black" fill="none"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <g transform="translate(0,1)">
+        <path d="M0 0H2m2 0zm2 0H10" stroke="black" fill="none"/>
+    </g>
+    <g transform="translate(0,4)">
+        <path d="M0 0H2m2 0zm2 0H10" stroke="black" fill="none"/>
+    </g>
+</svg>

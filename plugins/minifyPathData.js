@@ -104,6 +104,12 @@ function getAlternateCmd(cmd, currentPoint) {
       return { command: 'H', x: cmd.dx.add(currentPoint.getX()) };
     case 'H':
       return { command: 'h', dx: cmd.x.sub(currentPoint.getX()) };
+    case 'l':
+      return {
+        command: 'L',
+        x: cmd.dx.add(currentPoint.getX()),
+        y: cmd.dy.add(currentPoint.getY()),
+      };
     case 'L':
     case 'M':
     case 'T':
@@ -802,18 +808,6 @@ export function parsePathCommands(path) {
  */
 export function stringifyPathCommands(commands) {
   /**
-   * @param {string} arg
-   * @deprecated
-   */
-  function needSpaceBefore(arg) {
-    return !(
-      arg.startsWith('-') ||
-      (arg.startsWith('.') &&
-        (lastNumber.includes('.') || lastNumber.includes('e')))
-    );
-  }
-
-  /**
    * @param {string} commandCode
    * @param  {(ExactNum|string)[]} args
    * @deprecated
@@ -839,40 +833,6 @@ export function stringifyPathCommands(commands) {
     return result.result;
   }
 
-  /**
-   * @param {string} commandCode
-   * @param {ExactNum} arg1
-   * @param {ExactNum} arg2
-   * @deprecated
-   */
-  function stringifyML(commandCode, arg1, arg2) {
-    let result = '';
-    const v1 = arg1.getMinifiedString();
-    const v2 = arg2.getMinifiedString();
-
-    if (
-      ((prevCommand === 'm' || prevCommand === 'l') && commandCode === 'l') ||
-      ((prevCommand === 'M' || prevCommand === 'L') && commandCode === 'L')
-    ) {
-      // See if we can shorten the command by omitting the 'l' or 'L'.
-      if (!needSpaceBefore(v1)) {
-        commandCode = '';
-      }
-    }
-    if (commandCode !== '') {
-      result += commandCode;
-      prevCommand = commandCode;
-    }
-    result += v1;
-    const v2Start = getCharType(v2[0]);
-    if (v2Start === 'digit' || (v2Start === '.' && !v1.includes('.'))) {
-      result += ' ';
-    }
-    result += v2;
-    lastNumber = v2;
-    return result;
-  }
-
   let result = '';
   let prevCommand = '';
   let lastNumber = '';
@@ -886,6 +846,8 @@ export function stringifyPathCommands(commands) {
       case 'H':
       case 'l':
       case 'L':
+      case 'm':
+      case 'M':
       case 's':
       case 'S':
       case 't':
@@ -893,12 +855,6 @@ export function stringifyPathCommands(commands) {
       case 'v':
       case 'V':
         result += stringifyCmd(command.command, getCmdArgs(command));
-        break;
-      case 'm':
-        result += stringifyML(command.command, command.dx, command.dy);
-        break;
-      case 'M':
-        result += stringifyML(command.command, command.x, command.y);
         break;
       case 'q':
         result += stringifyCmdDep(

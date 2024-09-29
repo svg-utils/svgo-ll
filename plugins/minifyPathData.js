@@ -51,7 +51,7 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (element, parentNode, parentInfo) => {
+      enter: (element) => {
         if (pathElems.has(element.name) && element.attributes.d !== undefined) {
           let data;
           try {
@@ -63,14 +63,63 @@ export const fn = (root, params, info) => {
             }
             throw error;
           }
-          const computedStyle = styleData.computeStyle(element, parentInfo);
-          data = optimize(data, computedStyle);
+          data = optimize(data);
           element.attributes.d = stringifyPathCommands(data);
         }
       },
     },
   };
 };
+
+/**
+ * @param {string[]} args
+ */
+function fixArcFlags(args) {
+  const newArgs = [];
+  let index = 0;
+  for (const arg of args) {
+    switch (index % 7) {
+      case 0:
+      case 1:
+      case 2:
+      case 5:
+      case 6:
+        newArgs.push(arg);
+        index++;
+        break;
+      case 3:
+        switch (arg.length) {
+          case 1:
+            newArgs.push(arg);
+            index = 4;
+            break;
+          case 2:
+            newArgs.push(arg[0]);
+            newArgs.push(arg[1]);
+            index = 5;
+            break;
+          default:
+            newArgs.push(arg[0]);
+            newArgs.push(arg[1]);
+            newArgs.push(arg.substring(2));
+            index = 6;
+            break;
+        }
+        break;
+      case 4:
+        if (arg.length === 1) {
+          newArgs.push(arg);
+          index = 5;
+        } else {
+          newArgs.push(arg[0]);
+          newArgs.push(arg.substring(1));
+          index = 6;
+        }
+        break;
+    }
+  }
+  return newArgs;
+}
 
 /**
  * @param {PathCommand} cmd
@@ -261,6 +310,7 @@ function makeCommand(commandCode, args) {
   switch (commandCode) {
     case 'a':
     case 'A': {
+      args = fixArcFlags(args);
       if (args.length === 0 || args.length % 7 !== 0) {
         throw new PathParseError(
           `number of arguments found for path command "${commandCode} must be a multiple of 7"`,
@@ -519,10 +569,9 @@ function makeDxDyCommand(command, arg1, arg2) {
 
 /**
  * @param {PathCommand[]} commands
- * @param {Map<string,string|null>} properties
  * @returns {PathCommand[]}
  */
-function optimize(commands, properties) {
+function optimize(commands) {
   if (commands.length > 0) {
     switch (commands[0].command) {
       case 'm':
@@ -627,13 +676,6 @@ function optimize(commands, properties) {
         }
       }
     }
-
-    // const lineCap = properties.get('stroke-linecap');
-    // if (lineCap === undefined || lineCap === 'butt') {
-    //   if (command.command === 'h' && command.dx.getMinifiedString() === '0') {
-    //     continue;
-    //   }
-    // }
 
     optimized.push(command);
 

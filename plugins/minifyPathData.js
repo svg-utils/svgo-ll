@@ -90,6 +90,20 @@ function getAlternateCmd(cmd, currentPoint) {
         dx: cmd.x.sub(currentPoint.getX()),
         dy: cmd.y.sub(currentPoint.getY()),
       };
+    case 'C':
+      return {
+        command: 'c',
+        cp1x: cmd.cp1x.sub(currentPoint.getX()),
+        cp1y: cmd.cp1y.sub(currentPoint.getY()),
+        cp2x: cmd.cp2x.sub(currentPoint.getX()),
+        cp2y: cmd.cp2y.sub(currentPoint.getY()),
+        dx: cmd.x.sub(currentPoint.getX()),
+        dy: cmd.y.sub(currentPoint.getY()),
+      };
+    case 'h':
+      return { command: 'H', x: cmd.dx.add(currentPoint.getX()) };
+    case 'H':
+      return { command: 'h', dx: cmd.x.sub(currentPoint.getX()) };
     case 'M':
     case 'T':
       return {
@@ -103,6 +117,14 @@ function getAlternateCmd(cmd, currentPoint) {
         command: 'q',
         cp1x: cmd.cp1x.sub(currentPoint.getX()),
         cp1y: cmd.cp1y.sub(currentPoint.getY()),
+        dx: cmd.x.sub(currentPoint.getX()),
+        dy: cmd.y.sub(currentPoint.getY()),
+      };
+    case 'S':
+      return {
+        command: 's',
+        cp2x: cmd.cp2x.sub(currentPoint.getX()),
+        cp2y: cmd.cp2y.sub(currentPoint.getY()),
         dx: cmd.x.sub(currentPoint.getX()),
         dy: cmd.y.sub(currentPoint.getY()),
       };
@@ -181,12 +203,24 @@ function getCmdArgs(c) {
       return [c.rx, c.ry, c.angle, c.flagLgArc, c.flagSweep, c.dx, c.dy];
     case 'A':
       return [c.rx, c.ry, c.angle, c.flagLgArc, c.flagSweep, c.x, c.y];
+    case 'c':
+      return [c.cp1x, c.cp1y, c.cp2x, c.cp2y, c.dx, c.dy];
+    case 'C':
+      return [c.cp1x, c.cp1y, c.cp2x, c.cp2y, c.x, c.y];
+    case 'h':
+      return [c.dx];
+    case 'H':
+      return [c.x];
     case 'm':
     case 't':
       return [c.dx, c.dy];
     case 'M':
     case 'T':
       return [c.x, c.y];
+    case 's':
+      return [c.cp2x, c.cp2y, c.dx, c.dy];
+    case 'S':
+      return [c.cp2x, c.cp2y, c.x, c.y];
     case 'v':
       return [c.dy];
     case 'V':
@@ -469,10 +503,16 @@ function makeDxDyCommand(command, arg1, arg2) {
  * @returns {PathCommand[]}
  */
 function optimize(commands, properties) {
-  if (commands.length > 0 && !'mM'.includes(commands[0].command)) {
-    throw new PathParseError(
-      `"${commands[0].command}" can not be the first command in a path`,
-    );
+  if (commands.length > 0) {
+    switch (commands[0].command) {
+      case 'm':
+      case 'M':
+        break;
+      default:
+        throw new PathParseError(
+          `"${commands[0].command}" can not be the first command in a path`,
+        );
+    }
   }
 
   /** @type {PathCommand[]} */
@@ -830,36 +870,14 @@ export function stringifyPathCommands(commands) {
   let lastNumber = '';
   for (const command of commands) {
     switch (command.command) {
-      case 'c':
-        result += stringifyCmdDep(
-          command.command,
-          command.cp1x,
-          command.cp1y,
-          command.cp2x,
-          command.cp2y,
-          command.dx,
-          command.dy,
-        );
-        break;
-      case 'C':
-        result += stringifyCmdDep(
-          command.command,
-          command.cp1x,
-          command.cp1y,
-          command.cp2x,
-          command.cp2y,
-          command.x,
-          command.y,
-        );
-        break;
-      case 'h':
-        result += stringifyCmdDep(command.command, command.dx);
-        break;
-      case 'H':
-        result += stringifyCmdDep(command.command, command.x);
-        break;
       case 'a':
       case 'A':
+      case 'c':
+      case 'C':
+      case 'h':
+      case 'H':
+      case 's':
+      case 'S':
       case 't':
       case 'T':
       case 'v':
@@ -888,24 +906,6 @@ export function stringifyPathCommands(commands) {
           command.command,
           command.cp1x,
           command.cp1y,
-          command.x,
-          command.y,
-        );
-        break;
-      case 's':
-        result += stringifyCmdDep(
-          command.command,
-          command.cp2x,
-          command.cp2y,
-          command.dx,
-          command.dy,
-        );
-        break;
-      case 'S':
-        result += stringifyCmdDep(
-          command.command,
-          command.cp2x,
-          command.cp2y,
           command.x,
           command.y,
         );

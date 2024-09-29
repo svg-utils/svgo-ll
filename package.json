@@ -52,7 +52,8 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=4 --coverage",
     "test:bundles": "yarn build && node ./test/svgo.cjs && node ./test/browser.js",
     "test:regression": "node ./test/regression-extract.js && cross-env NO_DIFF=1 node ./test/regression.js",
-    "qa": "yarn typecheck && yarn lint && yarn test && yarn test:bundles",
+    "test:regress": "cross-env NO_DIFF=1 node ./test/regression.js --preset next -i ./test/fixtures/files",
+    "qa": "yarn typecheck && yarn lint && yarn test && yarn test:bundles && yarn test:regress",
     "prepublishOnly": "rimraf dist && yarn build"
   },
   "jest": {

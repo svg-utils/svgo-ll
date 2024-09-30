@@ -11,11 +11,12 @@ The following plugins are included in `preset-default`, in the order that they'r
 - removeEditorsNSData
 - removeDesc
 - cleanupAttrs
+- [cleanupXlink](./plugins/cleanupXlink.md)
 - cleanupStyleAttributes
 - combineStyleElements
-- inlineStyles
+- [inlineStyles](./plugins/inlineStyles.md)
 - minifyStyles
-- cleanupIds
+- [cleanupIds](./plugins/cleanupIds.md)
 - removeUselessDefs
 - convertColors
 - [removeUnknownsAndDefaults](./plugins/removeUnknownsAndDefaults.md)
@@ -30,7 +31,7 @@ The following plugins are included in `preset-default`, in the order that they'r
 - collapseGroups
 - convertShapeToPath
 - combinePaths
-- minifyPathData
+- [minifyPathData](./plugins/minifyPathData.md)
 - removeEmptyAttrs
 - removeEmptyContainers
 - removeUnusedNS

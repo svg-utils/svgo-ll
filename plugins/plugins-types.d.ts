@@ -12,11 +12,8 @@ type DefaultPlugins = {
   };
   cleanupEnableBackground: void;
   cleanupIds: {
-    remove?: boolean;
-    minify?: boolean;
     preserve?: string[];
     preservePrefixes?: string[];
-    force?: boolean;
   };
   cleanupNumericValues: {
     floatPrecision?: number;

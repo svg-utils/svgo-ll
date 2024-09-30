@@ -17,7 +17,7 @@ The following plugins are included in `preset-next`, in the order that they're e
 - combineStyleElements
 - [inlineStyles](./plugins/inlineStyles.md)
 - minifyStyles
-- cleanupIds
+- [cleanupIds](./plugins/cleanupIds.md)
 - removeUselessDefs
 - convertColors
 - [removeUnknownsAndDefaults](./plugins/removeUnknownsAndDefaults.md)

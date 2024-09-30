@@ -4,6 +4,28 @@ import { getDocData } from '../../lib/docdata.js';
 import { visit } from '../../lib/xast.js';
 
 /**
+ * @param {{elName:string,atts:[string,string][]}} elData
+ * @returns {import('../../lib/types.js').XastElement}
+ */
+export function createElement(elData) {
+  /** @type {import('../../lib/types.js').XastRoot} */
+  const root = { type: 'root', children: [] };
+  /** @type {import('../../lib/types.js').XastElement} */
+  const element = {
+    type: 'element',
+    name: elData.elName,
+    parentNode: root,
+    attributes: {},
+    children: [],
+  };
+  for (const att of elData.atts) {
+    element.attributes[att[0]] = att[1];
+  }
+  root.children.push(element);
+  return element;
+}
+
+/**
  * @param {string} fileName
  */
 export function generateData(fileName) {

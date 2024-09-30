@@ -1,4 +1,5 @@
 import { getReferencedIds } from '../../lib/svgo/tools.js';
+import { createElement } from './testutils.js';
 
 /**
  * @typedef {{
@@ -7,29 +8,6 @@ import { getReferencedIds } from '../../lib/svgo/tools.js';
  * expected:{id:string,attName:string}[]
  * }} TestInfo
  */
-
-/**
- *
- * @param {TestInfo} test
- * @returns {import('../../lib/types.js').XastElement}
- */
-function createElement(test) {
-  /** @type {import('../../lib/types.js').XastRoot} */
-  const root = { type: 'root', children: [] };
-  /** @type {import('../../lib/types.js').XastElement} */
-  const element = {
-    type: 'element',
-    name: test.elName,
-    parentNode: root,
-    attributes: {},
-    children: [],
-  };
-  for (const att of test.atts) {
-    element.attributes[att[0]] = att[1];
-  }
-  root.children.push(element);
-  return element;
-}
 
 describe('getReferencedIds()', () => {
   /**

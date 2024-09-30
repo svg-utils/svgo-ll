@@ -15,7 +15,7 @@ The following plugins are included in `preset-next`, in the order that they're e
 - [cleanupXlink](./plugins/cleanupXlink.md)
 - cleanupStyleAttributes
 - combineStyleElements
-- inlineStyles
+- [inlineStyles](./plugins/inlineStyles.md)
 - minifyStyles
 - cleanupIds
 - removeUselessDefs

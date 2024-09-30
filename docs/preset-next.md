@@ -32,7 +32,7 @@ The following plugins are included in `preset-next`, in the order that they're e
 - collapseGroups
 - convertShapeToPath
 - combinePaths
-- minifyPathData
+- [minifyPathData](./plugins/minifyPathData.md)
 - removeEmptyAttrs
 - removeEmptyContainers
 - removeUnusedNS

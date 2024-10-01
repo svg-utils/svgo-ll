@@ -28,6 +28,21 @@ describe('test parsing and stringifying of selectors', function () {
       expected: true,
     },
     {
+      selectorInfo: [{ type: 'ClassSelector', name: 'class1' }],
+      elData: { elName: 'path', atts: [['class', 'class1 class2']] },
+      expected: true,
+    },
+    {
+      selectorInfo: [{ type: 'ClassSelector', name: 'class1' }],
+      elData: { elName: 'path', atts: [['class', 'class2 class1']] },
+      expected: true,
+    },
+    {
+      selectorInfo: [{ type: 'ClassSelector', name: 'class1' }],
+      elData: { elName: 'path', atts: [['class', 'cl']] },
+      expected: false,
+    },
+    {
       selectorInfo: [
         { type: 'ClassSelector', name: 'class1' },
         { type: 'IdSelector', name: 'id1' },
@@ -66,7 +81,7 @@ describe('test parsing and stringifying of selectors', function () {
   for (const test of tests) {
     const sequences = [new CSSSelectorSequence(undefined, test.selectorInfo)];
     const selector = new CSSSelector(sequences);
-    it(`test ${selector.getString()}`, function () {
+    it(`test ${selector.getString()} - ${test.elData.atts}}`, function () {
       const rule = new CSSRule(selector, [0, 0, 0], declarations, false);
       const element = createElement(test.elData);
       expect(rule._matches(element)).toBe(test.expected);

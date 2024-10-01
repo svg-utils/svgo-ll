@@ -88,11 +88,14 @@ for (const [name, config] of Object.entries(elems)) {
 
 /**
  * @param {string} name
- * @param {string} value
- * @param {Map<string,string>} defaults
+ * @param {string|undefined} value
+ * @param {Map<string,string>|undefined} defaults
  * @returns {boolean}
  */
 function isDefaultPropertyValue(name, value, defaults) {
+  if (defaults === undefined) {
+    return false;
+  }
   const defaultVals = defaults.get(name);
   return value === defaultVals;
 }
@@ -230,47 +233,45 @@ export const fn = (root, params, info) => {
         const attributesDefaults = attributesDefaultsPerElement.get(node.name);
         const parentParentInfo = parentInfo.slice(0, -1);
         /** @type {Map<string, string | null>} */
+        /** @deprecated */
         const computedParentStyle =
           parentNode.type === 'element'
             ? styleData.computeStyle(parentNode, parentParentInfo)
             : new Map();
+        const computedStyle = styleData.computeStyle(node, parentInfo);
 
-        if (attributesDefaults && !node.attributes.id) {
+        if (!node.attributes.id) {
+          // Remove any unnecessary style properties.
           const styleProperties = getStyleDeclarations(node);
           if (styleProperties) {
-            const deletedProperties = new Map();
-            for (const [p, v] of styleProperties.entries()) {
-              // Delete the associated attribute, since it will always be overridden by this style property.
+            // Delete the associated attributes, since they will always be overridden by the style property.
+            for (const p of styleProperties.keys()) {
               delete node.attributes[p];
-              const parentValue = computedParentStyle.get(p);
-              if (
-                (parentValue === undefined || parentValue === v.value) &&
-                isDefaultPropertyValue(p, v.value, attributesDefaults)
-              ) {
-                styleProperties.delete(p);
-                deletedProperties.set(p, v);
-              }
             }
 
-            let numDeleted = deletedProperties.size;
-            if (numDeleted > 0) {
-              // Check to make sure none of the properties we deleted was overriding anything.
-              const newProperties = styleData.computeStyle(
-                node,
-                parentInfo,
-                styleProperties,
-              );
-              for (const [p, v] of deletedProperties.entries()) {
-                const newValue = newProperties.get(p);
-                if (newValue !== undefined && newValue !== v.value) {
-                  // The property was overriding something; don't delete it.
-                  styleProperties.set(p, v);
-                  numDeleted--;
-                }
+            // Calculate the style if we remove all properties.
+            const newComputedStyle = styleData.computeStyle(
+              node,
+              parentInfo,
+              new Map(),
+            );
+
+            // For each of the properties, remove it if the result was unchanged.
+            const origSize = styleProperties.size;
+            for (const p of styleProperties.keys()) {
+              const origVal = computedStyle.get(p);
+              const newVal = newComputedStyle.get(p);
+              if (
+                origVal !== null &&
+                (origVal === newVal ||
+                  (newVal === undefined &&
+                    isDefaultPropertyValue(p, origVal, attributesDefaults)))
+              ) {
+                styleProperties.delete(p);
               }
-              if (numDeleted) {
-                writeStyleAttribute(node, styleProperties);
-              }
+            }
+            if (origSize !== styleProperties.size) {
+              writeStyleAttribute(node, styleProperties);
             }
           }
         }

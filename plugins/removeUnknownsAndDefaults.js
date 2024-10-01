@@ -7,6 +7,8 @@ import {
 } from './_collections.js';
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
 import { findReferences } from '../lib/svgo/tools.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -82,6 +84,17 @@ for (const [name, config] of Object.entries(elems)) {
   allowedChildrenPerElement.set(name, allowedChildren);
   allowedAttributesPerElement.set(name, allowedAttributes);
   attributesDefaultsPerElement.set(name, attributesDefaults);
+}
+
+/**
+ * @param {string} name
+ * @param {string} value
+ * @param {Map<string,string>} defaults
+ * @returns {boolean}
+ */
+function isDefaultPropertyValue(name, value, defaults) {
+  const defaultVals = defaults.get(name);
+  return value === defaultVals;
 }
 
 /**
@@ -216,10 +229,33 @@ export const fn = (root, params, info) => {
         const allowedAttributes = allowedAttributesPerElement.get(node.name);
         const attributesDefaults = attributesDefaultsPerElement.get(node.name);
         const parentParentInfo = parentInfo.slice(0, -1);
+        /** @type {Map<string, string | null>} */
         const computedParentStyle =
           parentNode.type === 'element'
             ? styleData.computeStyle(parentNode, parentParentInfo)
-            : null;
+            : new Map();
+
+        if (attributesDefaults && !node.attributes.id) {
+          const styleProperties = getStyleDeclarations(node);
+          if (styleProperties) {
+            let writeStyle = false;
+            for (const [p, v] of styleProperties.entries()) {
+              // Delete the associated attribute, since it will always be overridden by this style property.
+              delete node.attributes[p];
+              const parentValue = computedParentStyle.get(p);
+              if (
+                (parentValue === undefined || parentValue === v.value) &&
+                isDefaultPropertyValue(p, v.value, attributesDefaults)
+              ) {
+                styleProperties.delete(p);
+                writeStyle = true;
+              }
+              if (writeStyle) {
+                writeStyleAttribute(node, styleProperties);
+              }
+            }
+          }
+        }
 
         // remove element's unknown attrs and attrs with default values
         for (const [name, value] of Object.entries(node.attributes)) {
@@ -262,17 +298,13 @@ export const fn = (root, params, info) => {
             attributesDefaults.get(name) === value
           ) {
             // keep defaults if parent has own or inherited style
-            const value = computedParentStyle
-              ? computedParentStyle.get(name)
-              : undefined;
+            const value = computedParentStyle.get(name);
             if (value === undefined) {
               saveForUsageCheck(node, name);
             }
           }
-          if (uselessOverrides && node.attributes.id == null) {
-            const computedValue = computedParentStyle
-              ? computedParentStyle.get(name)
-              : undefined;
+          if (uselessOverrides && !node.attributes.id) {
+            const computedValue = computedParentStyle.get(name);
             if (
               presentationNonInheritableGroupAttrs.has(name) === false &&
               computedValue === value

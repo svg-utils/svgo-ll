@@ -1,0 +1,29 @@
+Handle @font-face in @media.
+
+===
+
+<svg id="test" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <style>
+        @font-face{font-family:"Trickster";src:local("Trickster"),
+    url("trickster-COLRv1.otf") format("opentype") tech(color-COLRv1),
+    url("trickster-outline.otf") format("opentype"),
+    url("trickster-outline.woff") format("woff")}
+    @media print {
+      @font-face{font-family:"Two";src:local("Two")}
+    }
+    </style>
+</svg>
+
+@@@
+
+<svg id="test" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <style>
+        @font-face{font-family:"Trickster";src:local("Trickster"),
+    url("trickster-COLRv1.otf") format("opentype") tech(color-COLRv1),
+    url("trickster-outline.otf") format("opentype"),
+    url("trickster-outline.woff") format("woff")}
+    @media print {
+      @font-face{font-family:"Two";src:local("Two")}
+    }
+    </style>
+</svg>

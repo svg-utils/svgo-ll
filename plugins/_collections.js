@@ -170,7 +170,6 @@ export const attrsGroups = {
     'direction',
     'display',
     'dominant-baseline',
-    'enable-background',
     'fill-opacity',
     'fill-rule',
     'fill',

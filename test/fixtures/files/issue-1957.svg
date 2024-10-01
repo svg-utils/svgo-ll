@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210">
+  <linearGradient id="ccc">
+    <stop stop-color="#f00" offset="0"/>
+  </linearGradient>
+
+  <rect x="0" y="10" width="5" height="20" fill="url(#ccc)" />
+  <rect x="10" y="10" width="5" height="20" fill="  url(#ccc)" />
+  <rect x="20" y="10" width="5" height="20" fill="  url(  #ccc)" />
+  <rect x="30" y="10" width="5" height="20" fill="  url(  #ccc  )" />
+  <rect x="40" y="10" width="5" height="20" fill="  url(  #ccc  )  " />
+  <rect x="0" y="35" width="5" height="20" fill="url('#ccc')" />
+  <rect x="10" y="35" width="5" height="20" fill="  url('#ccc')" />
+  <rect x="20" y="35" width="5" height="20" fill="  url(  '#ccc')" />
+  <rect x="30" y="35" width="5" height="20" fill="  url(  '#ccc'  )" />
+  <rect x="40" y="35" width="5" height="20" fill="  url(  '#ccc'  )  " />
+  <rect x="0" y="60" width="5" height="20" fill="url(&quot;#ccc&quot;)" />
+  <rect x="10" y="60" width="5" height="20" fill="  url(&quot;#ccc&quot;)" />
+  <rect x="20" y="60" width="5" height="20" fill="  url(  &quot;#ccc&quot;)" />
+  <rect x="30" y="60" width="5" height="20" fill="  url(  &quot;#ccc&quot;  )" />
+  <rect x="40" y="60" width="5" height="20" fill="  url(  &quot;#ccc&quot;  )  " />
+  <rect x="0" y="85" width="5" height="20" fill="url (#ccc)" />
+  <rect x="10" y="85" width="5" height="20" fill="  url (#ccc)" />
+  <rect x="20" y="85" width="5" height="20" fill="  url (  #ccc)" />
+  <rect x="30" y="85" width="5" height="20" fill="  url (  #ccc  )" />
+  <rect x="40" y="85" width="5" height="20" fill="  url (  #ccc  )  " />
+
+  <rect x="0" y="110" width="5" height="20" style="fill:url(#ccc)" />
+  <rect x="10" y="110" width="5" height="20" style="fill:  url(#ccc)" />
+  <rect x="20" y="110" width="5" height="20" style="fill:  url(  #ccc)" />
+  <rect x="30" y="110" width="5" height="20" style="fill:  url(  #ccc  )" />
+  <rect x="40" y="110" width="5" height="20" style="fill:  url(  #ccc  )  " />
+  <rect x="0" y="135" width="5" height="20" style="fill:url('#ccc')" />
+  <rect x="10" y="135" width="5" height="20" style="fill:  url('#ccc')" />
+  <rect x="20" y="135" width="5" height="20" style="fill:  url(  '#ccc')" />
+  <rect x="30" y="135" width="5" height="20" style="fill:  url(  '#ccc'  )" />
+  <rect x="40" y="135" width="5" height="20" style="fill:  url(  '#ccc'  )  " />
+  <rect x="0" y="160" width="5" height="20" style="fill:url(&quot;#ccc&quot;)" />
+  <rect x="10" y="160" width="5" height="20" style="fill:  url(&quot;#ccc&quot;)" />
+  <rect x="20" y="160" width="5" height="20" style="fill:  url(  &quot;#ccc&quot;)" />
+  <rect x="30" y="160" width="5" height="20" style="fill:  url(  &quot;#ccc&quot;  )" />
+  <rect x="40" y="160" width="5" height="20" style="fill:  url(  &quot;#ccc&quot;  )  " />
+  <rect x="0" y="185" width="5" height="20" style="fill:url (#ccc)" />
+  <rect x="10" y="185" width="5" height="20" style="fill:  url (#ccc)" />
+  <rect x="20" y="185" width="5" height="20" style="fill:  url (  #ccc)" />
+  <rect x="30" y="185" width="5" height="20" style="fill:  url (  #ccc  )" />
+  <rect x="40" y="185" width="5" height="20" style="fill:  url (  #ccc  )  " />
+
+</svg>

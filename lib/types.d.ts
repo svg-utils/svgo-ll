@@ -132,6 +132,7 @@ export class StyleData {
   computeStyle(
     node: XastElement,
     parents: { element: XastParent; styles?: Map<string, string | null> }[],
+    declarations?: CSSDeclarationMap,
   ): Map<string, string | null>;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;

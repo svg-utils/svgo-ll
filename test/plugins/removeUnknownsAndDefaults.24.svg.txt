@@ -2,10 +2,17 @@ Don't remove default style attribute properties if they are overriding a selecto
 
 ===
 
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>rect{fill-opacity:.5}</style>
+  <rect width="2" height="3" style="fill-opacity:1"/>
+</svg>
 
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-    <rect width="2" height="3"/>
+    <style>
+        rect{fill-opacity:.5}
+    </style>
+    <rect width="2" height="3" style="fill-opacity:1"/>
 </svg>
 

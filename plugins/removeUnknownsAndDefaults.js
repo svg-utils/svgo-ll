@@ -238,7 +238,7 @@ export const fn = (root, params, info) => {
         if (attributesDefaults && !node.attributes.id) {
           const styleProperties = getStyleDeclarations(node);
           if (styleProperties) {
-            let writeStyle = false;
+            const deletedProperties = new Map();
             for (const [p, v] of styleProperties.entries()) {
               // Delete the associated attribute, since it will always be overridden by this style property.
               delete node.attributes[p];
@@ -248,9 +248,27 @@ export const fn = (root, params, info) => {
                 isDefaultPropertyValue(p, v.value, attributesDefaults)
               ) {
                 styleProperties.delete(p);
-                writeStyle = true;
+                deletedProperties.set(p, v);
               }
-              if (writeStyle) {
+            }
+
+            let numDeleted = deletedProperties.size;
+            if (numDeleted > 0) {
+              // Check to make sure none of the properties we deleted was overriding anything.
+              const newProperties = styleData.computeStyle(
+                node,
+                parentInfo,
+                styleProperties,
+              );
+              for (const [p, v] of deletedProperties.entries()) {
+                const newValue = newProperties.get(p);
+                if (newValue !== undefined && newValue !== v.value) {
+                  // The property was overriding something; don't delete it.
+                  styleProperties.set(p, v);
+                  numDeleted--;
+                }
+              }
+              if (numDeleted) {
                 writeStyleAttribute(node, styleProperties);
               }
             }

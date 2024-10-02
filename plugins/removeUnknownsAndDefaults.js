@@ -10,6 +10,10 @@ import { findReferences } from '../lib/svgo/tools.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 
+/**
+ * @typedef {import('../lib/types.js').XastElement} XastElement}
+ */
+
 export const name = 'removeUnknownsAndDefaults';
 export const description =
   'removes unknown elements content and attributes, removes attrs with default values';
@@ -146,11 +150,11 @@ export const fn = (root, params, info) => {
    * @param {import('../lib/types.js').XastElement} node
    * @param {string} attName
    */
-  function saveForUsageCheck(node, attName) {
-    let attNames = deleteIfUnused.get(node);
+  function saveAttributeForUsageCheck(node, attName) {
+    let attNames = attsToDeleteIfUnused.get(node);
     if (!attNames) {
       attNames = [];
-      deleteIfUnused.set(node, attNames);
+      attsToDeleteIfUnused.set(node, attNames);
     }
     attNames.push(attName);
   }
@@ -169,8 +173,10 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
-  const deleteIfUnused = new Map();
+  /** @type {Map<XastElement,string[]>} */
+  const attsToDeleteIfUnused = new Map();
+  /** @type {Map<XastElement,string[]>} */
+  const propsToDeleteIfUnused = new Map();
   /** @type {Set<string>} */
   const usedIDs = new Set();
 
@@ -236,15 +242,26 @@ export const fn = (root, params, info) => {
             : new Map();
         const computedStyle = styleData.computeStyle(node, parentInfo);
 
-        if (!node.attributes.id) {
-          // Remove any unnecessary style properties.
-          const styleProperties = getStyleDeclarations(node);
-          if (styleProperties) {
-            // Delete the associated attributes, since they will always be overridden by the style property.
-            for (const p of styleProperties.keys()) {
-              delete node.attributes[p];
+        // Remove any unnecessary style properties.
+        const styleProperties = getStyleDeclarations(node);
+        if (styleProperties) {
+          // Delete the associated attributes, since they will always be overridden by the style property.
+          for (let p of styleProperties.keys()) {
+            if (p === 'transform') {
+              switch (node.name) {
+                case 'linearGradient':
+                case 'radialGradient':
+                  p = 'gradientTransform';
+                  break;
+                case 'pattern':
+                  p = 'patternTransform';
+                  break;
+              }
             }
+            delete node.attributes[p];
+          }
 
+          if (!node.attributes.id) {
             // Calculate the style if we remove all properties.
             const newComputedStyle = styleData.computeStyle(
               node,
@@ -253,7 +270,7 @@ export const fn = (root, params, info) => {
             );
 
             // For each of the properties, remove it if the result was unchanged.
-            const origSize = styleProperties.size;
+            const propsToDelete = [];
             for (const p of styleProperties.keys()) {
               const origVal = computedStyle.get(p);
               const newVal = newComputedStyle.get(p);
@@ -263,11 +280,11 @@ export const fn = (root, params, info) => {
                   (newVal === undefined &&
                     isDefaultPropertyValue(p, origVal, attributesDefaults)))
               ) {
-                styleProperties.delete(p);
+                propsToDelete.push(p);
               }
             }
-            if (origSize !== styleProperties.size) {
-              writeStyleAttribute(node, styleProperties);
+            if (propsToDelete.length > 0) {
+              propsToDeleteIfUnused.set(node, propsToDelete);
             }
           }
         }
@@ -314,7 +331,7 @@ export const fn = (root, params, info) => {
             // keep defaults if parent has own or inherited style
             const value = computedParentStyle.get(name);
             if (value === undefined) {
-              saveForUsageCheck(node, name);
+              saveAttributeForUsageCheck(node, name);
             }
           }
           if (!node.attributes.id) {
@@ -331,12 +348,24 @@ export const fn = (root, params, info) => {
     },
     root: {
       exit: () => {
-        for (const [element, attNames] of deleteIfUnused.entries()) {
+        for (const [element, attNames] of attsToDeleteIfUnused.entries()) {
           if (elementIsUsed(element)) {
             continue;
           }
           for (const attName of attNames) {
             delete element.attributes[attName];
+          }
+        }
+        for (const [element, propNames] of propsToDeleteIfUnused.entries()) {
+          if (elementIsUsed(element)) {
+            continue;
+          }
+          const props = getStyleDeclarations(element);
+          if (props) {
+            for (const propName of propNames) {
+              props.delete(propName);
+            }
+            writeStyleAttribute(element, props);
           }
         }
       },

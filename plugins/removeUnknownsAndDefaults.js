@@ -3,7 +3,7 @@ import {
   attrsGroups,
   elemsGroups,
   attrsGroupsDefaults,
-  presentationNonInheritableGroupAttrs,
+  inheritableAttrs,
 } from './_collections.js';
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
 import { findReferences } from '../lib/svgo/tools.js';
@@ -315,32 +315,36 @@ export const fn = (root, params, info) => {
           if (
             unknownAttrs &&
             allowedAttributes &&
-            allowedAttributes.has(name) === false
+            !allowedAttributes.has(name)
           ) {
             delete node.attributes[name];
+            continue;
           }
 
           // Don't remove default attributes from elements with an id attribute; they may be linearGradient, etc.
           // where the attribute serves a purpose. If the id is unnecessary, it will be removed by another plugin
           // and the attribute will then be removable.
-          if (
-            !node.attributes.id &&
-            attributesDefaults &&
-            attributesDefaults.get(name) === value
-          ) {
-            // keep defaults if parent has own or inherited style
-            const value = computedParentStyle.get(name);
-            if (value === undefined) {
-              saveAttributeForUsageCheck(node, name);
-            }
-          }
           if (!node.attributes.id) {
-            const computedValue = computedParentStyle.get(name);
-            if (
-              presentationNonInheritableGroupAttrs.has(name) === false &&
-              computedValue === value
-            ) {
-              delete node.attributes[name];
+            // Only remove it if it is either
+            // (a) inheritable, and either
+            // -- a default value, and is not overriding the parent value, or
+            // -- has the same value as the parent.
+            // (b) not inheritable, and a default value.
+            const isDefault = isDefaultPropertyValue(
+              name,
+              value,
+              attributesDefaults,
+            );
+            if (inheritableAttrs.has(name)) {
+              const parentValue = computedParentStyle.get(name);
+              if (
+                (isDefault && parentValue === undefined) ||
+                value === parentValue
+              ) {
+                saveAttributeForUsageCheck(node, name);
+              }
+            } else if (isDefault) {
+              saveAttributeForUsageCheck(node, name);
             }
           }
         }

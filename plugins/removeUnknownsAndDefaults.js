@@ -242,31 +242,29 @@ export const fn = (root, params, info) => {
             delete node.attributes[p];
           }
 
-          if (true) {
-            // Calculate the style if we remove all properties.
-            const newComputedStyle = styleData.computeStyle(
-              node,
-              parentInfo,
-              new Map(),
-            );
+          // Calculate the style if we remove all properties.
+          const newComputedStyle = styleData.computeStyle(
+            node,
+            parentInfo,
+            new Map(),
+          );
 
-            // For each of the properties, remove it if the result was unchanged.
-            const propsToDelete = [];
-            for (const p of styleProperties.keys()) {
-              const origVal = computedStyle.get(p);
-              const newVal = newComputedStyle.get(p);
-              if (
-                origVal !== null &&
-                (origVal === newVal ||
-                  (newVal === undefined &&
-                    isDefaultPropertyValue(p, origVal, attributesDefaults)))
-              ) {
-                propsToDelete.push(p);
-              }
+          // For each of the properties, remove it if the result was unchanged.
+          const propsToDelete = [];
+          for (const p of styleProperties.keys()) {
+            const origVal = computedStyle.get(p);
+            const newVal = newComputedStyle.get(p);
+            if (
+              origVal !== null &&
+              (origVal === newVal ||
+                (newVal === undefined &&
+                  isDefaultPropertyValue(p, origVal, attributesDefaults)))
+            ) {
+              propsToDelete.push(p);
             }
-            if (propsToDelete.length > 0) {
-              propsToDeleteIfUnused.set(node, propsToDelete);
-            }
+          }
+          if (propsToDelete.length > 0) {
+            propsToDeleteIfUnused.set(node, propsToDelete);
           }
         }
 
@@ -303,32 +301,27 @@ export const fn = (root, params, info) => {
             continue;
           }
 
-          // Don't remove default attributes from elements with an id attribute; they may be linearGradient, etc.
-          // where the attribute serves a purpose. If the id is unnecessary, it will be removed by another plugin
-          // and the attribute will then be removable.
-          if (true) {
-            // Only remove it if it is either
-            // (a) inheritable, and either
-            // -- a default value, and is not overriding the parent value, or
-            // -- has the same value as the parent.
-            // (b) not inheritable, and a default value.
-            const isDefault = isDefaultPropertyValue(
-              name,
-              value,
-              attributesDefaults,
-            );
-            if (inheritableAttrs.has(name)) {
-              const parentProperties = styleData.computeParentStyle(parentInfo);
-              const parentValue = parentProperties.get(name);
-              if (
-                (isDefault && parentValue === undefined) ||
-                value === parentValue
-              ) {
-                attsToDelete.push(name);
-              }
-            } else if (isDefault) {
+          // Only remove it if it is either
+          // (a) inheritable, and either
+          // -- a default value, and is not overriding the parent value, or
+          // -- has the same value as the parent.
+          // (b) not inheritable, and a default value.
+          const isDefault = isDefaultPropertyValue(
+            name,
+            value,
+            attributesDefaults,
+          );
+          if (inheritableAttrs.has(name)) {
+            const parentProperties = styleData.computeParentStyle(parentInfo);
+            const parentValue = parentProperties.get(name);
+            if (
+              (isDefault && parentValue === undefined) ||
+              value === parentValue
+            ) {
               attsToDelete.push(name);
             }
+          } else if (isDefault) {
+            attsToDelete.push(name);
           }
         }
         if (attsToDelete.length > 0) {

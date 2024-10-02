@@ -1,3 +1,5 @@
+import { visitSkip } from '../lib/xast.js';
+
 export const name = 'removeDimensions';
 export const description =
   'removes width and height in presence of viewBox (opposite to removeViewBox)';
@@ -19,12 +21,12 @@ export const fn = () => {
     element: {
       enter: (node) => {
         if (node.name === 'svg') {
-          if (node.attributes.viewBox != null) {
+          if (node.attributes.viewBox) {
             delete node.attributes.width;
             delete node.attributes.height;
           } else if (
-            node.attributes.width != null &&
-            node.attributes.height != null &&
+            node.attributes.width &&
+            node.attributes.height &&
             Number.isNaN(Number(node.attributes.width)) === false &&
             Number.isNaN(Number(node.attributes.height)) === false
           ) {
@@ -35,6 +37,7 @@ export const fn = () => {
             delete node.attributes.height;
           }
         }
+        return visitSkip;
       },
     },
   };

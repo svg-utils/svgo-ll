@@ -1,0 +1,14 @@
+Consolidate consecutive "m" commands.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path d="m1 2m3 4m5 6h3" stroke="black"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path d="m9 12h3" stroke="black"/>
+</svg>
+

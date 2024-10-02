@@ -621,17 +621,32 @@ function optimize(commands) {
         }
         break;
       case 'm':
-        // If the next command is "M", this one is useless.
-        if (
-          index < commands.length - 1 &&
-          commands[index + 1].command === 'M'
-        ) {
-          continue;
+        {
+          const nextCommand =
+            index < commands.length - 1 ? commands[index + 1].command : '';
+          switch (nextCommand) {
+            case 'M':
+              // If the next command is "M", this one is useless.
+              continue;
+            case 'm':
+              // If the next command is 'm', merge this one into the next one.
+              {
+                /** @type {MoveRel} */
+                // @ts-ignore
+                const cmd = commands[index + 1];
+                cmd.dx = cmd.dx.add(command.dx);
+                cmd.dy = cmd.dy.add(command.dy);
+              }
+              continue;
+            default:
+              // Otherwise update the start point.
+              subpathStartPoint = new ExactPoint(
+                currentPoint.getX().add(command.dx),
+                currentPoint.getY().add(command.dy),
+              );
+              break;
+          }
         }
-        subpathStartPoint = new ExactPoint(
-          currentPoint.getX().add(command.dx),
-          currentPoint.getY().add(command.dy),
-        );
         break;
       case 'M':
         // If the next command is "M", this one is useless.
@@ -743,7 +758,7 @@ function stringifyCommand(cmdCode, prevCmdChar, lastNumber, args) {
   let result = '';
   // If last command was the same, no need to repeat it.
   const omitCommandCode =
-    prevCmdChar === cmdCode ||
+    (prevCmdChar === cmdCode && cmdCode !== 'm' && cmdCode !== 'M') ||
     (prevCmdChar === 'M' && cmdCode === 'L') ||
     (prevCmdChar === 'm' && cmdCode === 'l');
   if (!omitCommandCode) {

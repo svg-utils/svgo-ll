@@ -162,7 +162,7 @@ export class StyleData {
 
 export class CSSRule {
   addReferencedClasses(classes: Set<string>): void;
-  getDeclarations(): Map<string, { value: string; important?: boolean }>;
+  getDeclarations(): CSSDeclarationMap;
   getFeatures(): Set<CSSFeatures>;
   getSpecificity(): [number, number, number];
   hasAttributeSelector(attName: string | undefined): boolean;

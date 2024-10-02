@@ -2,6 +2,10 @@ import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import { inheritableAttrs } from './_collections.js';
 
+/**
+ * @typedef {import('../lib/types.js').CSSDeclarationMap} CSSDeclarationMap
+ */
+
 export const name = 'moveElemsStylesToGroup';
 export const description =
   'Move common style properties of group children to the group.';
@@ -33,7 +37,7 @@ export const fn = (root, params, info) => {
 
         /**
          * Find common properties in group children.
-         * @type {Map<string, {value:string,important?:boolean}>}
+         * @type {CSSDeclarationMap}
          */
         const commonProperties = new Map();
         let initial = true;
@@ -89,7 +93,7 @@ export const fn = (root, params, info) => {
         }
 
         // Add common child properties to group.
-        /** @type {Map<string,{value:string,important?:boolean}>} */
+        /** @type {CSSDeclarationMap} */
         const groupProperties = getStyleDeclarations(node) ?? new Map();
 
         for (const [name, value] of commonProperties) {
@@ -101,7 +105,7 @@ export const fn = (root, params, info) => {
         // Delete common properties from children.
         for (const child of node.children) {
           if (child.type === 'element') {
-            /** @type {Map<string,{value:string,important?:boolean}>} */
+            /** @type {CSSDeclarationMap} */
             // @ts-ignore - properties should be defined because
             const properties = childProperties.get(child);
             for (const [name] of commonProperties) {

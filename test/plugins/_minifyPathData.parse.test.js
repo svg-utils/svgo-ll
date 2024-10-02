@@ -24,6 +24,9 @@ describe('test parsing of path', function () {
     { input: 'M4 3h10.0', expected: 'M4 3h10' },
     { input: 'M-3-4h10' },
     { input: 'M10 10H90V90H10z' },
+    { input: 'M1 2M3 4M5 6h3' },
+    // m
+    { input: 'm1 2m3 4m5 6h3' },
     // implicit lines
     { input: 'm2,3 4 5', expected: 'm2 3 4 5' },
     { input: 'm4 3-1 5' },

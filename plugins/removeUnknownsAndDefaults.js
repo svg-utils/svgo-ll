@@ -146,19 +146,6 @@ export const fn = (root, params, info) => {
     }
   }
 
-  /**
-   * @param {import('../lib/types.js').XastElement} node
-   * @param {string} attName
-   */
-  function saveAttributeForUsageCheck(node, attName) {
-    let attNames = attsToDeleteIfUnused.get(node);
-    if (!attNames) {
-      attNames = [];
-      attsToDeleteIfUnused.set(node, attNames);
-    }
-    attNames.push(attName);
-  }
-
   const {
     unknownContent = true,
     unknownAttrs = true,
@@ -284,6 +271,7 @@ export const fn = (root, params, info) => {
         }
 
         // remove element's unknown attrs and attrs with default values
+        const attsToDelete = [];
         for (const [name, value] of Object.entries(node.attributes)) {
           if (keepDataAttrs && name.startsWith('data-')) {
             continue;
@@ -336,12 +324,15 @@ export const fn = (root, params, info) => {
                 (isDefault && parentValue === undefined) ||
                 value === parentValue
               ) {
-                saveAttributeForUsageCheck(node, name);
+                attsToDelete.push(name);
               }
             } else if (isDefault) {
-              saveAttributeForUsageCheck(node, name);
+              attsToDelete.push(name);
             }
           }
+        }
+        if (attsToDelete.length > 0) {
+          attsToDeleteIfUnused.set(node, attsToDelete);
         }
       },
     },

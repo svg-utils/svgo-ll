@@ -242,7 +242,7 @@ export const fn = (root, params, info) => {
             delete node.attributes[p];
           }
 
-          if (!node.attributes.id) {
+          if (true) {
             // Calculate the style if we remove all properties.
             const newComputedStyle = styleData.computeStyle(
               node,
@@ -306,7 +306,7 @@ export const fn = (root, params, info) => {
           // Don't remove default attributes from elements with an id attribute; they may be linearGradient, etc.
           // where the attribute serves a purpose. If the id is unnecessary, it will be removed by another plugin
           // and the attribute will then be removable.
-          if (!node.attributes.id) {
+          if (true) {
             // Only remove it if it is either
             // (a) inheritable, and either
             // -- a default value, and is not overriding the parent value, or

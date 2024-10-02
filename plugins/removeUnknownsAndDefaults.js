@@ -233,13 +233,7 @@ export const fn = (root, params, info) => {
 
         const allowedAttributes = allowedAttributesPerElement.get(node.name);
         const attributesDefaults = attributesDefaultsPerElement.get(node.name);
-        const parentParentInfo = parentInfo.slice(0, -1);
         /** @type {Map<string, string | null>} */
-        /** @deprecated */
-        const computedParentStyle =
-          parentNode.type === 'element'
-            ? styleData.computeStyle(parentNode, parentParentInfo)
-            : new Map();
         const computedStyle = styleData.computeStyle(node, parentInfo);
 
         // Remove any unnecessary style properties.
@@ -336,7 +330,8 @@ export const fn = (root, params, info) => {
               attributesDefaults,
             );
             if (inheritableAttrs.has(name)) {
-              const parentValue = computedParentStyle.get(name);
+              const parentProperties = styleData.computeParentStyle(parentInfo);
+              const parentValue = parentProperties.get(name);
               if (
                 (isDefault && parentValue === undefined) ||
                 value === parentValue

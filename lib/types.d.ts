@@ -129,9 +129,12 @@ type CSSFeatures =
 
 export class StyleData {
   computeOwnStyle(node: XastElement): Map<string, string | null>;
+  computeParentStyle(
+    parentInfo: { element: XastParent; styles?: Map<string, string | null> }[],
+  ): Map<string, string | null>;
   computeStyle(
     node: XastElement,
-    parents: { element: XastParent; styles?: Map<string, string | null> }[],
+    parentInfo: { element: XastParent; styles?: Map<string, string | null> }[],
     declarations?: CSSDeclarationMap,
   ): Map<string, string | null>;
   deleteRules(rules: Set<CSSRule>): void;

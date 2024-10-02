@@ -3,10 +3,16 @@ import {
   attrsGroups,
   elemsGroups,
   attrsGroupsDefaults,
-  presentationNonInheritableGroupAttrs,
+  inheritableAttrs,
 } from './_collections.js';
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
-import { findReferences } from '../lib/svgo/tools.js';
+import { getReferencedIdsInAttribute } from '../lib/svgo/tools.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
+
+/**
+ * @typedef {import('../lib/types.js').XastElement} XastElement}
+ */
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -85,15 +91,29 @@ for (const [name, config] of Object.entries(elems)) {
 }
 
 /**
- * @param {import('../lib/types.js').XastElement} element
+ * @param {string} name
+ * @param {string|undefined} value
+ * @param {Map<string,string>|undefined} defaults
+ * @returns {boolean}
+ */
+function isDefaultPropertyValue(name, value, defaults) {
+  if (defaults === undefined) {
+    return false;
+  }
+  const defaultVals = defaults.get(name);
+  return value === defaultVals;
+}
+
+/**
+ * @param {XastElement} element
  * @param {string} attName
  */
 function getUseID(element, attName) {
   const value = element.attributes[attName];
   if (value) {
-    const ids = findReferences(attName, value);
+    const ids = getReferencedIdsInAttribute(attName, value);
     if (ids) {
-      return ids[0];
+      return ids[0].id;
     }
   }
 }
@@ -101,8 +121,6 @@ function getUseID(element, attName) {
 /**
  * Remove unknown elements content and attributes,
  * remove attributes with default values.
- *
- * @author Kir Belevich
  *
  * @type {import('./plugins-types.js').Plugin<'removeUnknownsAndDefaults'>}
  */
@@ -128,25 +146,10 @@ export const fn = (root, params, info) => {
     }
   }
 
-  /**
-   * @param {import('../lib/types.js').XastElement} node
-   * @param {string} attName
-   */
-  function saveForUsageCheck(node, attName) {
-    let attNames = deleteIfUnused.get(node);
-    if (!attNames) {
-      attNames = [];
-      deleteIfUnused.set(node, attNames);
-    }
-    attNames.push(attName);
-  }
-
   const {
     unknownContent = true,
     unknownAttrs = true,
-    defaultAttrs = true,
     defaultMarkupDeclarations = true,
-    uselessOverrides = true,
     keepDataAttrs = true,
     keepAriaAttrs = true,
     keepRoleAttr = false,
@@ -157,8 +160,10 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
-  const deleteIfUnused = new Map();
+  /** @type {Map<XastElement,string[]>} */
+  const attsToDeleteIfUnused = new Map();
+  /** @type {Map<XastElement,string[]>} */
+  const propsToDeleteIfUnused = new Map();
   /** @type {Set<string>} */
   const usedIDs = new Set();
 
@@ -215,13 +220,56 @@ export const fn = (root, params, info) => {
 
         const allowedAttributes = allowedAttributesPerElement.get(node.name);
         const attributesDefaults = attributesDefaultsPerElement.get(node.name);
-        const parentParentInfo = parentInfo.slice(0, -1);
-        const computedParentStyle =
-          parentNode.type === 'element'
-            ? styleData.computeStyle(parentNode, parentParentInfo)
-            : null;
+        /** @type {Map<string, string | null>} */
+        const computedStyle = styleData.computeStyle(node, parentInfo);
+
+        // Remove any unnecessary style properties.
+        const styleProperties = getStyleDeclarations(node);
+        if (styleProperties) {
+          // Delete the associated attributes, since they will always be overridden by the style property.
+          for (let p of styleProperties.keys()) {
+            if (p === 'transform') {
+              switch (node.name) {
+                case 'linearGradient':
+                case 'radialGradient':
+                  p = 'gradientTransform';
+                  break;
+                case 'pattern':
+                  p = 'patternTransform';
+                  break;
+              }
+            }
+            delete node.attributes[p];
+          }
+
+          // Calculate the style if we remove all properties.
+          const newComputedStyle = styleData.computeStyle(
+            node,
+            parentInfo,
+            new Map(),
+          );
+
+          // For each of the properties, remove it if the result was unchanged.
+          const propsToDelete = [];
+          for (const p of styleProperties.keys()) {
+            const origVal = computedStyle.get(p);
+            const newVal = newComputedStyle.get(p);
+            if (
+              origVal !== null &&
+              (origVal === newVal ||
+                (newVal === undefined &&
+                  isDefaultPropertyValue(p, origVal, attributesDefaults)))
+            ) {
+              propsToDelete.push(p);
+            }
+          }
+          if (propsToDelete.length > 0) {
+            propsToDeleteIfUnused.set(node, propsToDelete);
+          }
+        }
 
         // remove element's unknown attrs and attrs with default values
+        const attsToDelete = [];
         for (const [name, value] of Object.entries(node.attributes)) {
           if (keepDataAttrs && name.startsWith('data-')) {
             continue;
@@ -247,50 +295,60 @@ export const fn = (root, params, info) => {
           if (
             unknownAttrs &&
             allowedAttributes &&
-            allowedAttributes.has(name) === false
+            !allowedAttributes.has(name)
           ) {
             delete node.attributes[name];
+            continue;
           }
 
-          // Don't remove default attributes from elements with an id attribute; they may be linearGradient, etc.
-          // where the attribute serves a purpose. If the id is unnecessary, it will be removed by another plugin
-          // and the attribute will then be removable.
-          if (
-            defaultAttrs &&
-            !node.attributes.id &&
-            attributesDefaults &&
-            attributesDefaults.get(name) === value
-          ) {
-            // keep defaults if parent has own or inherited style
-            const value = computedParentStyle
-              ? computedParentStyle.get(name)
-              : undefined;
-            if (value === undefined) {
-              saveForUsageCheck(node, name);
-            }
-          }
-          if (uselessOverrides && node.attributes.id == null) {
-            const computedValue = computedParentStyle
-              ? computedParentStyle.get(name)
-              : undefined;
+          // Only remove it if it is either
+          // (a) inheritable, and either
+          // -- a default value, and is not overriding the parent value, or
+          // -- has the same value as the parent.
+          // (b) not inheritable, and a default value.
+          const isDefault = isDefaultPropertyValue(
+            name,
+            value,
+            attributesDefaults,
+          );
+          if (inheritableAttrs.has(name)) {
+            const parentProperties = styleData.computeParentStyle(parentInfo);
+            const parentValue = parentProperties.get(name);
             if (
-              presentationNonInheritableGroupAttrs.has(name) === false &&
-              computedValue === value
+              (isDefault && parentValue === undefined) ||
+              value === parentValue
             ) {
-              delete node.attributes[name];
+              attsToDelete.push(name);
             }
+          } else if (isDefault) {
+            attsToDelete.push(name);
           }
+        }
+        if (attsToDelete.length > 0) {
+          attsToDeleteIfUnused.set(node, attsToDelete);
         }
       },
     },
     root: {
       exit: () => {
-        for (const [element, attNames] of deleteIfUnused.entries()) {
+        for (const [element, attNames] of attsToDeleteIfUnused.entries()) {
           if (elementIsUsed(element)) {
             continue;
           }
           for (const attName of attNames) {
             delete element.attributes[attName];
+          }
+        }
+        for (const [element, propNames] of propsToDeleteIfUnused.entries()) {
+          if (elementIsUsed(element)) {
+            continue;
+          }
+          const props = getStyleDeclarations(element);
+          if (props) {
+            for (const propName of propNames) {
+              props.delete(propName);
+            }
+            writeStyleAttribute(element, props);
           }
         }
       },

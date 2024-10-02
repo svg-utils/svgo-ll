@@ -1,0 +1,19 @@
+Remove style attribute properties if they don't override a !important rule.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>
+        rect{fill-opacity:.5!important}
+  </style>
+  <rect width="2" height="3" style="fill-opacity:1"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <style>
+        rect{fill-opacity:.5!important}
+    </style>
+    <rect width="2" height="3"/>
+</svg>

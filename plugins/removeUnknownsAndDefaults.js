@@ -6,7 +6,7 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
-import { findReferences } from '../lib/svgo/tools.js';
+import { getReferencedIdsInAttribute } from '../lib/svgo/tools.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 
@@ -105,15 +105,15 @@ function isDefaultPropertyValue(name, value, defaults) {
 }
 
 /**
- * @param {import('../lib/types.js').XastElement} element
+ * @param {XastElement} element
  * @param {string} attName
  */
 function getUseID(element, attName) {
   const value = element.attributes[attName];
   if (value) {
-    const ids = findReferences(attName, value);
+    const ids = getReferencedIdsInAttribute(attName, value);
     if (ids) {
-      return ids[0];
+      return ids[0].id;
     }
   }
 }

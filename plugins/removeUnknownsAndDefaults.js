@@ -118,8 +118,6 @@ function getUseID(element, attName) {
  * Remove unknown elements content and attributes,
  * remove attributes with default values.
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeUnknownsAndDefaults'>}
  */
 export const fn = (root, params, info) => {
@@ -160,9 +158,7 @@ export const fn = (root, params, info) => {
   const {
     unknownContent = true,
     unknownAttrs = true,
-    defaultAttrs = true,
     defaultMarkupDeclarations = true,
-    uselessOverrides = true,
     keepDataAttrs = true,
     keepAriaAttrs = true,
     keepRoleAttr = false,
@@ -311,7 +307,6 @@ export const fn = (root, params, info) => {
           // where the attribute serves a purpose. If the id is unnecessary, it will be removed by another plugin
           // and the attribute will then be removable.
           if (
-            defaultAttrs &&
             !node.attributes.id &&
             attributesDefaults &&
             attributesDefaults.get(name) === value
@@ -322,7 +317,7 @@ export const fn = (root, params, info) => {
               saveForUsageCheck(node, name);
             }
           }
-          if (uselessOverrides && !node.attributes.id) {
+          if (!node.attributes.id) {
             const computedValue = computedParentStyle.get(name);
             if (
               presentationNonInheritableGroupAttrs.has(name) === false &&

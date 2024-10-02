@@ -1,0 +1,35 @@
+Preserve style attribute properties on elements in <defs> that may be <use>d.
+
+See: https://github.com/svg/svgo/issues/1486
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="350 -953 560 490">
+  <defs>
+    <g id="bubble_2" fill="#ff0000">
+      <text x="791" y="-761" dy="0.7ex" style="text-anchor:start;stroke:none">China</text>
+    </g>
+  </defs>
+  <g style="text-anchor:middle">
+    <g style="text-anchor:start">
+      <use href="#bubble_2"/>
+    </g>
+    <use href="#bubble_2"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="350 -953 560 490">
+    <defs>
+        <g id="bubble_2" fill="#ff0000">
+            <text x="791" y="-761" dy="0.7ex" style="text-anchor:start;stroke:none">China</text>
+        </g>
+    </defs>
+    <g style="text-anchor:middle">
+        <g style="text-anchor:start">
+            <use href="#bubble_2"/>
+        </g>
+        <use href="#bubble_2"/>
+    </g>
+</svg>

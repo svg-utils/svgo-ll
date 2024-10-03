@@ -7,6 +7,8 @@ export const description =
 
 const pathElemsWithGroupsAndText = [...pathElems, 'g', 'text'];
 
+let deprecationWarning = true;
+
 /**
  * Move group attrs to the content elements.
  *
@@ -26,6 +28,12 @@ const pathElemsWithGroupsAndText = [...pathElems, 'g', 'text'];
  * @type {import('./plugins-types.js').Plugin<'moveGroupAttrsToElems'>}
  */
 export const fn = () => {
+  if (deprecationWarning) {
+    console.warn(
+      'The moveGroupAttrsToElems plugin is deprecated and will be removed in a future release.',
+    );
+    deprecationWarning = false;
+  }
   return {
     element: {
       enter: (node) => {

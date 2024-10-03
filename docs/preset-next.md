@@ -3,7 +3,7 @@
 
 ## Plugins List
 
-The following plugins are included in `preset-next`, in the order that they're executed:
+The following plugins are included in `preset-next`, in the order that they are executed:
 
 - removeDoctype
 - removeXMLProcInst
@@ -11,9 +11,8 @@ The following plugins are included in `preset-next`, in the order that they're e
 - removeMetadata
 - removeEditorsNSData
 - removeDesc
-- cleanupAttrs
 - [cleanupXlink](./plugins/cleanupXlink.md)
-- cleanupStyleAttributes
+- [cleanupStyleAttributes](./plugins/cleanupStyleAttributes.md)
 - combineStyleElements
 - [inlineStyles](./plugins/inlineStyles.md)
 - minifyStyles

@@ -1,5 +1,4 @@
 import { createPreset } from '../lib/svgo/plugins.js';
-import * as cleanupAttrs from './cleanupAttrs.js';
 import * as cleanupIds from './cleanupIds.js';
 import * as cleanupStyleAttributes from './cleanupStyleAttributes.js';
 import * as cleanupXlink from './cleanupXlink.js';
@@ -40,7 +39,6 @@ const presetDefault = createPreset({
     removeMetadata,
     removeEditorsNSData,
     removeDesc,
-    cleanupAttrs,
     cleanupXlink,
     cleanupStyleAttributes,
     combineStyleElements,

@@ -190,6 +190,18 @@ export const fn = (root, params, info) => {
           removeElement(element);
           return;
         }
+
+        const opacity = properties.get('opacity');
+        // https://www.w3.org/TR/SVG11/masking.html#ObjectAndGroupOpacityProperties
+        if (opacity === '0') {
+          if (element.name === 'path') {
+            // It's possible this will be referenced in a <textPath>; treat it as a non-rendered element.
+            addNonRenderedElement(element);
+          } else {
+            removeElement(element);
+            return;
+          }
+        }
       },
       exit: () => {},
     },

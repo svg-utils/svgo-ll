@@ -1,4 +1,4 @@
-Don't remove non-rendering elements if children have IDs. 
+Don't remove non-rendering elements if children have ids which are referenced.
 
 ===
 

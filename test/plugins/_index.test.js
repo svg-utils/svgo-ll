@@ -43,6 +43,7 @@ describe('plugins tests', function () {
               // @ts-ignore
               plugins: [plugin],
               js2svg: { pretty: true },
+              maxPasses: 1,
             });
             lastResultData = result.data;
             expect(normalize(result.data)).toStrictEqual(should);

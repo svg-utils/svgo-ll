@@ -18,11 +18,17 @@ var prevCtrlPoint;
  */
 export const path2js = (path) => {
   // @ts-ignore legacy
-  if (path.pathJS) return path.pathJS;
-  /**
-   * @type {PathDataItem[]}
-   */
+  if (path.pathJS) {
+    // @ts-ignore legacy
+    return path.pathJS;
+  }
+
+  if (path.attributes.d === undefined) {
+    return [];
+  }
+
   const pathData = []; // JS representation of the path data
+  // Note: seems like this copying is only necessary because of the use of path.pathJS
   const newPathData = parsePathData(path.attributes.d);
   for (const { command, args } of newPathData) {
     pathData.push({ command, args });

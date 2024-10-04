@@ -130,6 +130,20 @@ export const fn = (root, params, info) => {
         // Record any ids referenced by this element.
         recordReferencedIds(element);
 
+        if (element.name === 'defs') {
+          // Any children of <defs> are hidden, regardless of whether they are non-rendering.
+          for (const child of element.children) {
+            if (child.type === 'element') {
+              if (child.name === 'style') {
+                continue;
+              }
+              addNonRenderedElement(child);
+            }
+          }
+          return visitSkip;
+        }
+
+        // Process non-rendering elements outside of a <defs>.
         if (elemsGroups.nonRendering.has(element.name)) {
           addNonRenderedElement(element);
           return visitSkip;

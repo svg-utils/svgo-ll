@@ -29,11 +29,8 @@ export const fn = (root, params, info) => {
   const nonRenderedElements = new Map();
 
   /** Associate children of non-rendering elements with the top-level element. */
-  /** @type {Map<import('../lib/types.js').XastElement,import('../lib/types.js').XastElement} */
+  /** @type {Map<import('../lib/types.js').XastElement,import('../lib/types.js').XastElement>} */
   const nonRenderingChildren = new Map();
-
-  /** @type {Set<import('../lib/types.js').XastElement>} */
-  const nonRenderedReferencingChildren = new Set();
 
   /**
    * @param {string} id
@@ -58,7 +55,8 @@ export const fn = (root, params, info) => {
     function processElement(element) {
       if (element.attributes.id) {
         ids.add(element.attributes.id);
-        nonRenderedReferencingChildren.add(element);
+      }
+      if (recordReferencedIds(element)) {
         nonRenderingChildren.set(element, topElement);
       }
       for (const child of element.children) {
@@ -77,11 +75,11 @@ export const fn = (root, params, info) => {
    * @param {import('../lib/types.js').XastElement} element
    */
   function isReferenced(element) {
-    const ids = nonRenderedElements.get(element);
-    if (!ids) {
+    const idsInNonRenderedBranch = nonRenderedElements.get(element);
+    if (!idsInNonRenderedBranch) {
       throw new Error();
     }
-    for (const id of ids) {
+    for (const id of idsInNonRenderedBranch) {
       const referencingEls = referencedIds.get(id);
       if (referencingEls) {
         // See if any of the referencing nodes are referenced.
@@ -104,14 +102,22 @@ export const fn = (root, params, info) => {
     return false;
   }
 
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
+  function recordReferencedIds(element) {
+    const ids = getReferencedIds(element);
+    for (const id of ids) {
+      addIdReference(id.id, element);
+    }
+    return ids.length !== 0;
+  }
+
   return {
     element: {
       enter: (element) => {
         // Record any ids referenced by this element.
-        const ids = getReferencedIds(element);
-        for (const id of ids) {
-          addIdReference(id.id, element);
-        }
+        recordReferencedIds(element);
 
         if (elemsGroups.nonRendering.has(element.name)) {
           addNonRenderedElement(element);

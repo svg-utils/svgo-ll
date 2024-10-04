@@ -101,9 +101,12 @@ export const fn = (root, params, info) => {
             checkedElements = new Set();
           }
           checkedElements.add(topElement);
-          return checkedElements.has(nonRenderingEl)
-            ? false
-            : isReferenced(nonRenderingEl, checkedElements);
+          if (checkedElements.has(nonRenderingEl)) {
+            continue;
+          }
+          if (isReferenced(nonRenderingEl, checkedElements)) {
+            return true;
+          }
         }
       }
     }

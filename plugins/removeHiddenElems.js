@@ -72,10 +72,12 @@ export const fn = (root, params, info) => {
   }
 
   /**
-   * @param {import('../lib/types.js').XastElement} element
+   * @param {import('../lib/types.js').XastElement} topElement
+   * @param {Set<import('../lib/types.js').XastElement>} [checkedElements]
+   * @returns {boolean}
    */
-  function isReferenced(element) {
-    const idsInNonRenderedBranch = nonRenderedElements.get(element);
+  function isReferenced(topElement, checkedElements) {
+    const idsInNonRenderedBranch = nonRenderedElements.get(topElement);
     if (!idsInNonRenderedBranch) {
       throw new Error();
     }
@@ -93,9 +95,15 @@ export const fn = (root, params, info) => {
             // Referenced by a rendering element.
             return true;
           }
-          if (isReferenced(nonRenderingEl)) {
-            return true;
+          // Otherwise see if the non-rendering element that references this one is referenced. Keep track of which ones have
+          // been checked to avoid loops.
+          if (!checkedElements) {
+            checkedElements = new Set();
           }
+          checkedElements.add(topElement);
+          return checkedElements.has(nonRenderingEl)
+            ? false
+            : isReferenced(nonRenderingEl, checkedElements);
         }
       }
     }

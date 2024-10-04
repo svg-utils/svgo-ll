@@ -19,6 +19,10 @@ export const fn = (root, params, info) => {
     return;
   }
 
+  // Record which elements to delete, sorted by parent.
+  /** @type {Map<import('../lib/types.js').XastParent, Set<import('../lib/types.js').XastChild>>} */
+  const childrenToDeleteByParent = new Map();
+
   /** @type {Map<string,Set<(import('../lib/types.js').XastElement|undefined)>>} */
   const referencedIds = new Map();
   for (const id of styleData.getReferencedIds().keys()) {
@@ -116,6 +120,18 @@ export const fn = (root, params, info) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
    */
+  function removeElement(element) {
+    let childrenToDelete = childrenToDeleteByParent.get(element.parentNode);
+    if (!childrenToDelete) {
+      childrenToDelete = new Set();
+      childrenToDeleteByParent.set(element.parentNode, childrenToDelete);
+    }
+    childrenToDelete.add(element);
+  }
+
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
   function recordReferencedIds(element) {
     const ids = getReferencedIds(element);
     for (const id of ids) {
@@ -126,7 +142,7 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (element) => {
+      enter: (element, parentNode, parentInfo) => {
         // Record any ids referenced by this element.
         recordReferencedIds(element);
 
@@ -148,28 +164,43 @@ export const fn = (root, params, info) => {
           addNonRenderedElement(element);
           return visitSkip;
         }
+
+        // Remove any rendering elements which are not visible.
+
+        const properties = styleData.computeStyle(element, parentInfo);
+        if (!properties) {
+          return;
+        }
+
+        // Remove empty paths.
+        if (element.name === 'path' && !element.attributes.d) {
+          removeElement(element);
+          return;
+        }
+
+        // https://www.w3.org/TR/SVG11/painting.html#DisplayProperty
+        // "A value of display: none indicates that the given element
+        // and its children shall not be rendered directly"
+        const display = properties.get('display');
+        if (
+          display === 'none' &&
+          // markers with display: none still rendered
+          element.name !== 'marker'
+        ) {
+          removeElement(element);
+          return;
+        }
       },
       exit: () => {},
     },
     root: {
       exit: () => {
-        // Record which elements to delete, sorted by parent.
-        /** @type {Map<import('../lib/types.js').XastParent, Set<import('../lib/types.js').XastChild>>} */
-        const childrenToDeleteByParent = new Map();
-
         for (const element of nonRenderedElements.keys()) {
           if (isReferenced(element)) {
             continue;
           }
 
-          let childrenToDelete = childrenToDeleteByParent.get(
-            element.parentNode,
-          );
-          if (!childrenToDelete) {
-            childrenToDelete = new Set();
-            childrenToDeleteByParent.set(element.parentNode, childrenToDelete);
-          }
-          childrenToDelete.add(element);
+          removeElement(element);
         }
 
         // For each parent, delete no longer needed children.

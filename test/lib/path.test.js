@@ -1,8 +1,4 @@
-import { parsePathData, stringifyPathData } from './path.js';
-
-/**
- * @typedef {import('../lib/types.js').PathDataItem} PathDataItem
- */
+import { parsePathData, stringifyPathData } from '../../lib/path.js';
 
 describe('parse path data', () => {
   it('should allow spaces between commands', () => {
@@ -155,7 +151,7 @@ describe('stringify path data', () => {
   });
   it('should configure precision', () => {
     /**
-     * @type {PathDataItem[]}
+     * @type {import('../../lib/types.js').PathDataItem[]}
      */
     const pathData = [
       { command: 'M', args: [0, -1.9876] },
@@ -178,7 +174,7 @@ describe('stringify path data', () => {
   });
   it('allows to avoid spaces after arc flags', () => {
     /**
-     * @type {PathDataItem[]}
+     * @type {import('../../lib/types.js').PathDataItem[]}
      */
     const pathData = [
       { command: 'M', args: [0, 0] },
@@ -198,5 +194,15 @@ describe('stringify path data', () => {
         disableSpaceAfterFlags: true,
       }),
     ).toBe('M0 0A50 50 10 10.2 20a50 50 10 10.2 20 50 50 10 10.2 20');
+  });
+
+  it('handles empty paths', () => {
+    /** @type {import('../../lib/types.js').PathDataItem[]} */
+    const pathData = [];
+    expect(
+      stringifyPathData({
+        pathData,
+      }),
+    ).toBe('');
   });
 });

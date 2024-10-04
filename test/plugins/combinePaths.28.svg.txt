@@ -1,0 +1,21 @@
+Make sure empty paths don't cause trouble.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <g style="font-size:16px;">
+    <path d="M1 3h10" stroke="black"/>
+    <path d="" stroke="black"/>
+    <path d=" " stroke="black"/>
+    <path d="M1 5h10" stroke="black"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <g style="font-size:16px;">
+        <path d="M1 3h10M1 5h10" stroke="black"/>
+    </g>
+</svg>
+

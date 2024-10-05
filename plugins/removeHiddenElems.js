@@ -148,9 +148,21 @@ export const fn = (root, params, info) => {
 
   /**
    * @param {import('../lib/types.js').XastElement} element
+   * @returns {boolean}
    */
   function removeEmptyShapes(element) {
     switch (element.name) {
+      case 'ellipse':
+        // Ellipse with zero radius
+        // https://svgwg.org/svg2-draft/geometry.html#RxProperty
+        if (
+          element.children.length === 0 &&
+          (element.attributes.rx === '0' || element.attributes.ry === '0')
+        ) {
+          removeElement(element);
+          return true;
+        }
+        return false;
       case 'path': {
         if (!element.attributes.d) {
           removeElement(element);
@@ -217,9 +229,6 @@ export const fn = (root, params, info) => {
           return;
         }
 
-        // https://www.w3.org/TR/SVG11/painting.html#DisplayProperty
-        // "A value of display: none indicates that the given element
-        // and its children shall not be rendered directly"
         const display = properties.get('display');
         if (
           display === 'none' &&
@@ -231,7 +240,6 @@ export const fn = (root, params, info) => {
         }
 
         const opacity = properties.get('opacity');
-        // https://www.w3.org/TR/SVG11/masking.html#ObjectAndGroupOpacityProperties
         if (opacity === '0') {
           if (element.name === 'path') {
             // It's possible this will be referenced in a <textPath>; treat it as a non-rendered element.

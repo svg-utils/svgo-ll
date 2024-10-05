@@ -1,4 +1,3 @@
-import { getReferencedIds } from '../lib/svgo/tools.js';
 import { elemsGroups } from './_collections.js';
 import { parsePathCommands, PathParseError } from './minifyPathData.js';
 
@@ -23,30 +22,11 @@ export const fn = (root, params, info) => {
   /** @type {Map<import('../lib/types.js').XastParent, Set<import('../lib/types.js').XastChild>>} */
   const childrenToDeleteByParent = new Map();
 
-  /** @type {Map<string,Set<(import('../lib/types.js').XastElement|undefined)>>} */
-  const referencedIds = new Map();
-  for (const id of styleData.getReferencedIds().keys()) {
-    addIdReference(id, undefined);
-  }
-
   /** @type {Map<import('../lib/types.js').XastElement,Set<string>>} */
   const nonRenderedElements = new Map();
 
   /** @type {import('../lib/types.js').XastElement[]} */
   const nonRenderingStack = [];
-
-  /**
-   * @param {string} id
-   * @param {import('../lib/types.js').XastElement|undefined} element
-   */
-  function addIdReference(id, element) {
-    let referencingElements = referencedIds.get(id);
-    if (!referencingElements) {
-      referencingElements = new Set();
-      referencedIds.set(id, referencingElements);
-    }
-    referencingElements.add(element);
-  }
 
   /**
    * @param {import('../lib/types.js').XastChild} child
@@ -94,17 +74,6 @@ export const fn = (root, params, info) => {
     }
     children.forEach((c) => (c.parentNode = element));
     element.children = children;
-  }
-
-  /**
-   * @param {import('../lib/types.js').XastElement} element
-   */
-  function recordReferencedIds(element) {
-    const ids = getReferencedIds(element);
-    for (const id of ids) {
-      addIdReference(id.id, element);
-    }
-    return ids.length !== 0;
   }
 
   /**
@@ -181,9 +150,6 @@ export const fn = (root, params, info) => {
   return {
     element: {
       enter: (element, parentNode, parentInfo) => {
-        // Record any ids referenced by this element.
-        recordReferencedIds(element);
-
         if (element.name === 'defs') {
           processDefsChildren(element);
           return;

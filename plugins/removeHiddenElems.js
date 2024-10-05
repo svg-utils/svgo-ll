@@ -1,5 +1,4 @@
 import { getReferencedIds } from '../lib/svgo/tools.js';
-import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 import { parsePathCommands, PathParseError } from './minifyPathData.js';
 
@@ -33,9 +32,8 @@ export const fn = (root, params, info) => {
   /** @type {Map<import('../lib/types.js').XastElement,Set<string>>} */
   const nonRenderedElements = new Map();
 
-  /** Associate children of non-rendering elements with the top-level element. */
-  /** @type {Map<import('../lib/types.js').XastElement,import('../lib/types.js').XastElement>} */
-  const nonRenderingChildren = new Map();
+  /** @type {import('../lib/types.js').XastElement[]} */
+  const nonRenderingStack = [];
 
   /**
    * @param {string} id
@@ -48,37 +46,6 @@ export const fn = (root, params, info) => {
       referencedIds.set(id, referencingElements);
     }
     referencingElements.add(element);
-  }
-
-  /**
-   * @param {import('../lib/types.js').XastElement} topElement
-   */
-  function addNonRenderedElement(topElement) {
-    /**
-     * @param {import('../lib/types.js').XastElement} element
-     */
-    function processElement(element) {
-      // If the element is an empty shape, remove it and don't process any children.
-      // if (removeEmptyShapes(element)) {
-      //   return;
-      // }
-
-      if (element.attributes.id) {
-        ids.add(element.attributes.id);
-      }
-      if (recordReferencedIds(element)) {
-        nonRenderingChildren.set(element, topElement);
-      }
-      for (const child of element.children) {
-        if (child.type === 'element') {
-          processElement(child);
-        }
-      }
-    }
-
-    const ids = new Set();
-    processElement(topElement);
-    nonRenderedElements.set(topElement, ids);
   }
 
   /**
@@ -114,48 +81,6 @@ export const fn = (root, params, info) => {
   }
 
   /**
-   * @param {import('../lib/types.js').XastElement} topElement
-   * @param {Set<import('../lib/types.js').XastElement>} [checkedElements]
-   * @returns {boolean}
-   */
-  function isReferenced(topElement, checkedElements) {
-    const idsInNonRenderedBranch = nonRenderedElements.get(topElement);
-    if (!idsInNonRenderedBranch) {
-      throw new Error();
-    }
-    for (const id of idsInNonRenderedBranch) {
-      const referencingEls = referencedIds.get(id);
-      if (referencingEls) {
-        // See if any of the referencing nodes are referenced.
-        for (const el of referencingEls) {
-          if (el === undefined) {
-            // Referenced in a <style> element.
-            return true;
-          }
-          const nonRenderingEl = nonRenderingChildren.get(el);
-          if (nonRenderingEl === undefined) {
-            // Referenced by a rendering element.
-            return true;
-          }
-          // Otherwise see if the non-rendering element that references this one is referenced. Keep track of which ones have
-          // been checked to avoid loops.
-          if (!checkedElements) {
-            checkedElements = new Set();
-          }
-          checkedElements.add(topElement);
-          if (checkedElements.has(nonRenderingEl)) {
-            continue;
-          }
-          if (isReferenced(nonRenderingEl, checkedElements)) {
-            return true;
-          }
-        }
-      }
-    }
-    return false;
-  }
-
-  /**
    * @param {import('../lib/types.js').XastElement} element
    */
   function processDefsChildren(element) {
@@ -169,16 +94,6 @@ export const fn = (root, params, info) => {
     }
     children.forEach((c) => (c.parentNode = element));
     element.children = children;
-
-    // Any children of <defs> are hidden, regardless of whether they are non-rendering.
-    for (const child of children) {
-      if (child.type === 'element') {
-        if (child.name === 'style') {
-          continue;
-        }
-        addNonRenderedElement(child);
-      }
-    }
   }
 
   /**
@@ -271,19 +186,24 @@ export const fn = (root, params, info) => {
 
         if (element.name === 'defs') {
           processDefsChildren(element);
-          return visitSkip;
+          return;
         }
 
-        // Process non-rendering elements outside of a <defs>.
+        // Process non-rendering elements.
         if (elemsGroups.nonRendering.has(element.name)) {
-          if (element.attributes.id) {
-            addNonRenderedElement(element);
-            return visitSkip;
+          if (!element.attributes.id) {
+            // If the element doesn't have an id, it can't be referenced; but it may contain referenced elements. Change it to <defs>.
+            element.name = 'defs';
+            processDefsChildren(element);
+          } else {
+            nonRenderingStack.push(element);
           }
-          // If the element doesn't have an id, it can't be referenced; but it may contain referenced elements. Change it to <defs>.
-          element.name = 'defs';
-          processDefsChildren(element);
-          return visitSkip;
+          return;
+        }
+
+        if (element.attributes.id) {
+          // Never delete elements with an id.
+          return;
         }
 
         const properties = styleData.computeStyle(element, parentInfo);
@@ -307,26 +227,23 @@ export const fn = (root, params, info) => {
           return;
         }
 
-        const opacity = properties.get('opacity');
-        if (opacity === '0') {
-          if (element.name === 'path') {
-            // It's possible this will be referenced in a <textPath>; treat it as a non-rendered element.
-            addNonRenderedElement(element);
-          } else {
+        if (nonRenderingStack.length === 0) {
+          // Don't delete elements with opacity 0 which are in a non-rendering element.
+          const opacity = properties.get('opacity');
+          if (opacity === '0') {
             removeElement(element);
-            return;
           }
         }
       },
-      exit: () => {},
+      exit: (element) => {
+        if (elemsGroups.nonRendering.has(element.name)) {
+          nonRenderingStack.pop();
+        }
+      },
     },
     root: {
       exit: () => {
         for (const element of nonRenderedElements.keys()) {
-          if (isReferenced(element)) {
-            continue;
-          }
-
           removeElement(element);
         }
 

@@ -86,8 +86,16 @@ export const fn = (root, params, info) => {
    * @returns {import('../lib/types.js').XastChild[]}
    */
   function getChildrenWithIds(child) {
-    if (child.type !== 'element' || child.attributes.id) {
-      return [child];
+    switch (child.type) {
+      case 'comment':
+        return [child];
+      case 'element':
+        if (child.attributes.id) {
+          return [child];
+        }
+        break;
+      default:
+        return [];
     }
 
     // Preserve styles and scripts with no id.

@@ -178,6 +178,20 @@ export const fn = (root, params, info) => {
           return;
         }
 
+        //
+        // https://svgwg.org/svg2-draft/shapes.html#RectElement
+        if (
+          element.name === 'rect' &&
+          element.children.length === 0 &&
+          (!element.attributes.width ||
+            !element.attributes.height ||
+            element.attributes.width === '0' ||
+            element.attributes.height === '0')
+        ) {
+          removeElement(element);
+          return;
+        }
+
         // https://www.w3.org/TR/SVG11/painting.html#DisplayProperty
         // "A value of display: none indicates that the given element
         // and its children shall not be rendered directly"

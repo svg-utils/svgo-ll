@@ -59,9 +59,9 @@ export const fn = (root, params, info) => {
      */
     function processElement(element) {
       // If the element is an empty shape, remove it and don't process any children.
-      if (removeEmptyShapes(element)) {
-        return;
-      }
+      // if (removeEmptyShapes(element)) {
+      //   return;
+      // }
 
       if (element.attributes.id) {
         ids.add(element.attributes.id);
@@ -198,9 +198,10 @@ export const fn = (root, params, info) => {
 
   /**
    * @param {import('../lib/types.js').XastElement} element
+   * @param {Map<string,string|null>} properties
    * @returns {boolean}
    */
-  function removeEmptyShapes(element) {
+  function removeEmptyShapes(element, properties) {
     switch (element.name) {
       case 'ellipse':
         // Ellipse with zero radius
@@ -220,7 +221,10 @@ export const fn = (root, params, info) => {
         }
         try {
           const commands = parsePathCommands(element.attributes.d, 2);
-          if (commands.length < 2) {
+          if (commands.length === 1) {
+            if (properties.get('marker-end') !== undefined) {
+              return false;
+            }
             removeElement(element);
             return true;
           }
@@ -274,16 +278,16 @@ export const fn = (root, params, info) => {
           return visitSkip;
         }
 
-        if (removeEmptyShapes(element)) {
-          return;
-        }
-
-        // Remove any rendering elements which are not visible.
-
         const properties = styleData.computeStyle(element, parentInfo);
         if (!properties) {
           return;
         }
+
+        if (removeEmptyShapes(element, properties)) {
+          return;
+        }
+
+        // Remove any rendering elements which are not visible.
 
         const display = properties.get('display');
         if (

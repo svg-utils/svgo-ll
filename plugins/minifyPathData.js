@@ -1092,7 +1092,7 @@ class ExactNum {
   }
 }
 
-class PathParseError extends Error {
+export class PathParseError extends Error {
   /**
    * @param {string} msg
    */

@@ -1,7 +1,7 @@
 import { getReferencedIds } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
-import { parsePathCommands } from './minifyPathData.js';
+import { parsePathCommands, PathParseError } from './minifyPathData.js';
 
 export const name = 'removeHiddenElems';
 export const description =
@@ -168,10 +168,18 @@ export const fn = (root, params, info) => {
           removeElement(element);
           return true;
         }
-        const commands = parsePathCommands(element.attributes.d, 2);
-        if (commands.length < 2) {
-          removeElement(element);
-          return true;
+        try {
+          const commands = parsePathCommands(element.attributes.d, 2);
+          if (commands.length < 2) {
+            removeElement(element);
+            return true;
+          }
+        } catch (error) {
+          if (error instanceof PathParseError) {
+            console.warn(error.message);
+            return false;
+          }
+          throw error;
         }
         return false;
       }

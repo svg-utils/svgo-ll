@@ -57,6 +57,11 @@ export const fn = (root, params, info) => {
      * @param {import('../lib/types.js').XastElement} element
      */
     function processElement(element) {
+      // If the element is an empty shape, remove it and don't process any children.
+      if (removeEmptyShapes(element)) {
+        return;
+      }
+
       if (element.attributes.id) {
         ids.add(element.attributes.id);
       }
@@ -140,6 +145,32 @@ export const fn = (root, params, info) => {
     return ids.length !== 0;
   }
 
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
+  function removeEmptyShapes(element) {
+    // Remove empty paths.
+    if (element.name === 'path' && !element.attributes.d) {
+      removeElement(element);
+      return true;
+    }
+
+    // https://svgwg.org/svg2-draft/shapes.html#RectElement
+    if (
+      element.name === 'rect' &&
+      element.children.length === 0 &&
+      (!element.attributes.width ||
+        !element.attributes.height ||
+        element.attributes.width === '0' ||
+        element.attributes.height === '0')
+    ) {
+      removeElement(element);
+      return true;
+    }
+
+    return false;
+  }
+
   return {
     element: {
       enter: (element, parentNode, parentInfo) => {
@@ -165,30 +196,14 @@ export const fn = (root, params, info) => {
           return visitSkip;
         }
 
+        if (removeEmptyShapes(element)) {
+          return;
+        }
+
         // Remove any rendering elements which are not visible.
 
         const properties = styleData.computeStyle(element, parentInfo);
         if (!properties) {
-          return;
-        }
-
-        // Remove empty paths.
-        if (element.name === 'path' && !element.attributes.d) {
-          removeElement(element);
-          return;
-        }
-
-        //
-        // https://svgwg.org/svg2-draft/shapes.html#RectElement
-        if (
-          element.name === 'rect' &&
-          element.children.length === 0 &&
-          (!element.attributes.width ||
-            !element.attributes.height ||
-            element.attributes.width === '0' ||
-            element.attributes.height === '0')
-        ) {
-          removeElement(element);
           return;
         }
 

@@ -82,6 +82,30 @@ export const fn = (root, params, info) => {
   }
 
   /**
+   * @param {import('../lib/types.js').XastChild} child
+   * @returns {import('../lib/types.js').XastChild[]}
+   */
+  function getChildrenWithIds(child) {
+    if (child.type !== 'element' || child.attributes.id) {
+      return [child];
+    }
+
+    // Preserve styles and scripts with no id.
+    switch (child.name) {
+      case 'script':
+      case 'style':
+        return [child];
+    }
+
+    // It's an element with no id; return its children which have ids.
+    const children = [];
+    for (const grandchild of child.children) {
+      children.push(...getChildrenWithIds(grandchild));
+    }
+    return children;
+  }
+
+  /**
    * @param {import('../lib/types.js').XastElement} topElement
    * @param {Set<import('../lib/types.js').XastElement>} [checkedElements]
    * @returns {boolean}
@@ -121,6 +145,32 @@ export const fn = (root, params, info) => {
       }
     }
     return false;
+  }
+
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
+  function processDefsChildren(element) {
+    /** @type {import('../lib/types.js').XastChild[]} */
+    const children = [];
+
+    // Make sure all children of <defs> have an id; otherwise they can't be rendered. If a child doesn't have an id, delete it and move up
+    // its children so they are immediate children of the <defs>.
+    for (const child of element.children) {
+      children.push(...getChildrenWithIds(child));
+    }
+    children.forEach((c) => (c.parentNode = element));
+    element.children = children;
+
+    // Any children of <defs> are hidden, regardless of whether they are non-rendering.
+    for (const child of children) {
+      if (child.type === 'element') {
+        if (child.name === 'style') {
+          continue;
+        }
+        addNonRenderedElement(child);
+      }
+    }
   }
 
   /**
@@ -208,15 +258,7 @@ export const fn = (root, params, info) => {
         recordReferencedIds(element);
 
         if (element.name === 'defs') {
-          // Any children of <defs> are hidden, regardless of whether they are non-rendering.
-          for (const child of element.children) {
-            if (child.type === 'element') {
-              if (child.name === 'style') {
-                continue;
-              }
-              addNonRenderedElement(child);
-            }
-          }
+          processDefsChildren(element);
           return visitSkip;
         }
 

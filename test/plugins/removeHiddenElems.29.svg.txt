@@ -1,0 +1,36 @@
+Hoist children of <defs> so all children have id attributes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <rect fill="url(#a)" width="2" height="2"/>
+  <rect fill="url(#b)" width="2" height="2" y="5"/>
+  <defs>
+    <g>
+      <g>
+        <linearGradient id="a">
+          <stop offset="5%" stop-color="gold" />
+        </linearGradient>
+      </g>
+    </g>
+    <linearGradient id="b">
+      <stop offset="5%" stop-color="red" />
+    </linearGradient>
+  </defs>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <rect fill="url(#a)" width="2" height="2"/>
+    <rect fill="url(#b)" width="2" height="2" y="5"/>
+    <defs>
+        <linearGradient id="a">
+            <stop offset="5%" stop-color="gold"/>
+        </linearGradient>
+        <linearGradient id="b">
+            <stop offset="5%" stop-color="red"/>
+        </linearGradient>
+    </defs>
+</svg>
+

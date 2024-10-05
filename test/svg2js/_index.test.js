@@ -64,7 +64,7 @@ describe('svg2js', function () {
       expect(root.children[1]).toMatchObject({
         type: 'comment',
         value:
-          'Generator: Adobe Illustrator 15.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)',
+          ' Generator: Adobe Illustrator 15.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  ',
       });
     });
 

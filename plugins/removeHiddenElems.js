@@ -264,7 +264,13 @@ export const fn = (root, params, info) => {
 
         // Process non-rendering elements outside of a <defs>.
         if (elemsGroups.nonRendering.has(element.name)) {
-          addNonRenderedElement(element);
+          if (element.attributes.id) {
+            addNonRenderedElement(element);
+            return visitSkip;
+          }
+          // If the element doesn't have an id, it can't be referenced; but it may contain referenced elements. Change it to <defs>.
+          element.name = 'defs';
+          processDefsChildren(element);
           return visitSkip;
         }
 

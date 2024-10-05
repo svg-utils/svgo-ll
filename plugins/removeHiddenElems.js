@@ -1,6 +1,7 @@
 import { getReferencedIds } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
+import { parsePathCommands } from './minifyPathData.js';
 
 export const name = 'removeHiddenElems';
 export const description =
@@ -125,6 +126,17 @@ export const fn = (root, params, info) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
    */
+  function recordReferencedIds(element) {
+    const ids = getReferencedIds(element);
+    for (const id of ids) {
+      addIdReference(id.id, element);
+    }
+    return ids.length !== 0;
+  }
+
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
   function removeElement(element) {
     let childrenToDelete = childrenToDeleteByParent.get(element.parentNode);
     if (!childrenToDelete) {
@@ -137,35 +149,33 @@ export const fn = (root, params, info) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
    */
-  function recordReferencedIds(element) {
-    const ids = getReferencedIds(element);
-    for (const id of ids) {
-      addIdReference(id.id, element);
-    }
-    return ids.length !== 0;
-  }
-
-  /**
-   * @param {import('../lib/types.js').XastElement} element
-   */
   function removeEmptyShapes(element) {
-    // Remove empty paths.
-    if (element.name === 'path' && !element.attributes.d) {
-      removeElement(element);
-      return true;
-    }
-
-    // https://svgwg.org/svg2-draft/shapes.html#RectElement
-    if (
-      element.name === 'rect' &&
-      element.children.length === 0 &&
-      (!element.attributes.width ||
-        !element.attributes.height ||
-        element.attributes.width === '0' ||
-        element.attributes.height === '0')
-    ) {
-      removeElement(element);
-      return true;
+    switch (element.name) {
+      case 'path': {
+        if (!element.attributes.d) {
+          removeElement(element);
+          return true;
+        }
+        const commands = parsePathCommands(element.attributes.d, 2);
+        if (commands.length < 2) {
+          removeElement(element);
+          return true;
+        }
+        return false;
+      }
+      case 'rect':
+        // https://svgwg.org/svg2-draft/shapes.html#RectElement
+        if (
+          element.children.length === 0 &&
+          (!element.attributes.width ||
+            !element.attributes.height ||
+            element.attributes.width === '0' ||
+            element.attributes.height === '0')
+        ) {
+          removeElement(element);
+          return true;
+        }
+        break;
     }
 
     return false;

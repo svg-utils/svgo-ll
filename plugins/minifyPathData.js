@@ -787,9 +787,10 @@ function stringifyCommand(cmdCode, prevCmdChar, lastNumber, args) {
 
 /**
  * @param {string} path
+ * @param {number} [maxCommands]
  * @returns {PathCommand[]}
  */
-export function parsePathCommands(path) {
+export function parsePathCommands(path, maxCommands = Number.MAX_SAFE_INTEGER) {
   function addArg() {
     if (currentArg !== '') {
       args.push(currentArg);
@@ -831,6 +832,9 @@ export function parsePathCommands(path) {
     switch (getCharType(c)) {
       case 'command':
         addCurrentCommand(c);
+        if (commands.length >= maxCommands) {
+          return commands;
+        }
         continue;
       case '.':
         if (currentCommand === '') {

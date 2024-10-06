@@ -44,7 +44,7 @@ export const fn = (root, params, info) => {
 
   /**
    * @param {XastElement} element
-   * @param {import('../lib/types.js').ParentList} parentInfo,
+   * @param {Readonly<import('../lib/types.js').ParentList>} parentInfo,
    */
   function elementHasUnmovableProperties(element, parentInfo) {
     // @ts-ignore - styles is no null

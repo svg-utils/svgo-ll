@@ -68,12 +68,20 @@ function processAttributes(
   }
 }
 
+let deprecationWarning = true;
+
 /**
  * Remove deprecated attributes.
  *
  * @type {import('./plugins-types.js').Plugin<'removeDeprecatedAttrs'>}
  */
 export function fn(root, params, info) {
+  if (deprecationWarning) {
+    console.warn(
+      'The removeDeprecatedAttrs plugin is deprecated and will be removed in a future release.',
+    );
+    deprecationWarning = false;
+  }
   if (info.passNumber > 0) {
     return;
   }

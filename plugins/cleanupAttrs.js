@@ -6,6 +6,8 @@ const regNewlinesNeedSpace = /(\S)\r?\n(\S)/g;
 const regNewlines = /\r?\n/g;
 const regSpaces = /\s{2,}/g;
 
+let deprecationWarning = true;
+
 /**
  * Cleanup attributes values from newlines, trailing and repeating spaces.
  *
@@ -13,6 +15,12 @@ const regSpaces = /\s{2,}/g;
  * @type {import('./plugins-types.js').Plugin<'cleanupAttrs'>}
  */
 export const fn = (root, params) => {
+  if (deprecationWarning) {
+    console.warn(
+      'The cleanupAttrs plugin is deprecated and will be removed in a future release.',
+    );
+    deprecationWarning = false;
+  }
   const { newlines = true, trim = true, spaces = true } = params;
   return {
     element: {

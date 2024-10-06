@@ -20,5 +20,6 @@ Remove all unreferenced elements which are only referenced by other unreferenced
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs/>
     <path d="M200 200 l50 -300"/>
 </svg>

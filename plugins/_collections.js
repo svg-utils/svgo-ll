@@ -2381,6 +2381,21 @@ export const colorsProps = new Set([
   'stroke',
 ]);
 
+// See https://www.w3.org/TR/SVG2/geometry.html#geometry-properties
+/** @type {Object<string,Set<string>>} */
+export const geometryProperties = {
+  cx: new Set(['circle', 'ellipse']),
+  cy: new Set(['circle', 'ellipse']),
+  d: new Set(['path']),
+  height: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
+  r: new Set(['circle']),
+  rx: new Set(['ellipse', 'rect']),
+  ry: new Set(['ellipse', 'rect']),
+  width: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
+  x: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
+  y: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
+};
+
 /** @see https://developer.mozilla.org/docs/Web/CSS/Pseudo-classes */
 export const pseudoClasses = {
   displayState: new Set(['fullscreen', 'modal', 'picture-in-picture']),

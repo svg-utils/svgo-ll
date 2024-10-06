@@ -1,0 +1,123 @@
+Test with ellipses.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40">
+  <!-- Test ellipse rx/ry defaults.  -->
+  <style>
+      .e1{rx:2;ry:2}
+      .e2{rx:2;ry:0}
+      .e3{rx:2}
+      .e4{}
+      .e5{ry:2}
+  </style>
+  <g>
+    <g transform="translate(0,0)">
+      <ellipse cx="1" cy="2" rx="2" ry="2" />
+    </g>
+    <g transform="translate(0,5)">
+      <ellipse cx="1" cy="2" rx="2" ry=""/>
+    </g>
+    <g transform="translate(0,10)">
+      <ellipse cx="1" cy="2" rx="2" />
+    </g>
+    <g transform="translate(0,15)">
+      <ellipse cx="1" cy="2" />
+    </g>
+    <g transform="translate(0,20)">
+      <ellipse cx="1" cy="2" ry="2"/>
+    </g>
+  </g>
+  <g transform="translate(10,0)">
+    <g transform="translate(0,0)">
+      <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:2"/>
+    </g>
+    <g transform="translate(0,5)">
+      <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:0"/>
+    </g>
+    <g transform="translate(0,10)">
+      <ellipse cx="1" cy="2" rx="0" style="rx:2"/>
+    </g>
+    <g transform="translate(0,15)">
+      <ellipse cx="1" cy="2" rx="0" ry="0" style=""/>
+    </g>
+    <g transform="translate(0,20)">
+      <ellipse cx="1" cy="2" ry="0" style="ry:2"/>
+    </g>
+  </g>
+  <g transform="translate(20,0)">
+    <g transform="translate(0,0)">
+      <ellipse cx="1" cy="2" rx="0" ry="0" class="e1"/>
+    </g>
+    <g transform="translate(0,5)">
+      <ellipse cx="1" cy="2" rx="0" ry="0" class="e2"/>
+    </g>
+    <g transform="translate(0,10)">
+      <ellipse cx="1" cy="2" rx="0" class="e3"/>
+    </g>
+    <g transform="translate(0,15)">
+      <ellipse cx="1" cy="2" rx="0" ry="0" class="e4"/>
+    </g>
+    <g transform="translate(0,20)">
+      <ellipse cx="1" cy="2" ry="0" class="e5"/>
+    </g>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40">
+<!-- Test ellipse rx/ry defaults.  -->
+    <style>
+        .e1{rx:2;ry:2}
+      .e2{rx:2;ry:0}
+      .e3{rx:2}
+      .e4{}
+      .e5{ry:2}
+    </style>
+    <g>
+        <g transform="translate(0,0)">
+            <ellipse cx="1" cy="2" rx="2" ry="2"/>
+        </g>
+        <g transform="translate(0,5)">
+            <ellipse cx="1" cy="2" rx="2" ry=""/>
+        </g>
+        <g transform="translate(0,10)">
+            <ellipse cx="1" cy="2" rx="2"/>
+        </g>
+        <g transform="translate(0,15)"/>
+        <g transform="translate(0,20)">
+            <ellipse cx="1" cy="2" ry="2"/>
+        </g>
+    </g>
+    <g transform="translate(10,0)">
+        <g transform="translate(0,0)">
+            <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:2"/>
+        </g>
+        <g transform="translate(0,5)">
+            <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:0"/>
+        </g>
+        <g transform="translate(0,10)">
+            <ellipse cx="1" cy="2" rx="0" style="rx:2"/>
+        </g>
+        <g transform="translate(0,15)"/>
+        <g transform="translate(0,20)">
+            <ellipse cx="1" cy="2" ry="0" style="ry:2"/>
+        </g>
+    </g>
+    <g transform="translate(20,0)">
+        <g transform="translate(0,0)">
+            <ellipse cx="1" cy="2" rx="0" ry="0" class="e1"/>
+        </g>
+        <g transform="translate(0,5)">
+            <ellipse cx="1" cy="2" rx="0" ry="0" class="e2"/>
+        </g>
+        <g transform="translate(0,10)">
+            <ellipse cx="1" cy="2" rx="0" class="e3"/>
+        </g>
+        <g transform="translate(0,15)"/>
+        <g transform="translate(0,20)">
+            <ellipse cx="1" cy="2" ry="0" class="e5"/>
+        </g>
+    </g>
+</svg>

@@ -8,14 +8,23 @@ import { elemsGroups } from './_collections.js';
 export const name = 'removeUselessDefs';
 export const description = 'removes elements in <defs> without id';
 
+let deprecationWarning = true;
+
 /**
  * Removes content of defs and properties that aren't rendered directly without ids.
  *
  * @author Lev Solntsev
  *
  * @type {import('./plugins-types.js').Plugin<'removeUselessDefs'>}
+ * @deprecated
  */
 export const fn = () => {
+  if (deprecationWarning) {
+    console.warn(
+      'The moveGroupAttrsToElems plugin is deprecated and will be removed in a future release.',
+    );
+    deprecationWarning = false;
+  }
   return {
     element: {
       enter: (node, parentNode) => {

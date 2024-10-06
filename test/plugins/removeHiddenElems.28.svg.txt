@@ -1,0 +1,37 @@
+If a non-rendering element doesn't have an id, treat it the same as <defs> - remove any unreferenced children.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <symbol>
+    <linearGradient id="c">
+      <stop style="stop-color:#ffffff" offset="0"/>
+      <stop style="stop-color:#ffffff;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="a">
+      <stop style="stop-color:#000000" offset="0"/>
+      <stop style="stop-color:#8f8f8f" offset="1"/>
+    </linearGradient>
+    <linearGradient id="h" x1="66.103683" y1="23.970758" x2="66.103683" y2="120.60934" gradientUnits="userSpaceOnUse" href="#a"/>
+    <linearGradient id="m" gradientUnits="userSpaceOnUse" x1="108.93416" y1="103.98185" x2="108.93416" y2="128.02611" gradientTransform="translate(0 -16)" href="#c"/>
+  </symbol>
+  <path style="fill:#ffffff;stroke:url(#h);stroke-width:8;stroke-linecap:round;stroke-linejoin:round" d="M52.000004 28h24.000002v108.53865H52.000004z"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+    <defs>
+        <linearGradient id="c">
+            <stop style="stop-color:#ffffff" offset="0"/>
+            <stop style="stop-color:#ffffff;stop-opacity:0" offset="1"/>
+        </linearGradient>
+        <linearGradient id="a">
+            <stop style="stop-color:#000000" offset="0"/>
+            <stop style="stop-color:#8f8f8f" offset="1"/>
+        </linearGradient>
+        <linearGradient id="h" x1="66.103683" y1="23.970758" x2="66.103683" y2="120.60934" gradientUnits="userSpaceOnUse" href="#a"/>
+        <linearGradient id="m" gradientUnits="userSpaceOnUse" x1="108.93416" y1="103.98185" x2="108.93416" y2="128.02611" gradientTransform="translate(0 -16)" href="#c"/>
+    </defs>
+    <path style="fill:#ffffff;stroke:url(#h);stroke-width:8;stroke-linecap:round;stroke-linejoin:round" d="M52.000004 28h24.000002v108.53865H52.000004z"/>
+</svg>

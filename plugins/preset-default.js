@@ -26,7 +26,6 @@ import * as removeMetadata from './removeMetadata.js';
 import * as removeNonInheritableGroupAttrs from './removeNonInheritableGroupAttrs.js';
 import * as removeUnknownsAndDefaults from './removeUnknownsAndDefaults.js';
 import * as removeUnusedNS from './removeUnusedNS.js';
-import * as removeUselessDefs from './removeUselessDefs.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 
@@ -45,7 +44,6 @@ const presetDefault = createPreset({
     inlineStyles,
     minifyStyles,
     cleanupIds,
-    removeUselessDefs,
     convertColors,
     removeUnknownsAndDefaults,
     removeNonInheritableGroupAttrs,

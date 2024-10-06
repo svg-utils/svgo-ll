@@ -1,7 +1,11 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import { visitSkip } from '../lib/xast.js';
-import { elemsGroups, uselessShapeProperties } from './_collections.js';
+import {
+  elemsGroups,
+  geometryProperties,
+  uselessShapeProperties,
+} from './_collections.js';
 
 export const name = 'cleanupStyleAttributes';
 export const description = 'removes invalid properties from style attributes';
@@ -76,20 +80,6 @@ const presentationProperties = new Set([
   'writing-mode',
 ]);
 
-/** @type {Object<string,Set<string>>} */
-const limitedProperties = {
-  cx: new Set(['circle', 'ellipse']),
-  cy: new Set(['circle', 'ellipse']),
-  d: new Set(['path']),
-  height: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
-  r: new Set(['circle']),
-  rx: new Set(['ellipse', 'rect']),
-  ry: new Set(['ellipse', 'rect']),
-  width: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
-  x: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
-  y: new Set(['foreignObject', 'image', 'rect', 'svg', 'symbol', 'use']),
-};
-
 /**
  * @type {import('./plugins-types.js').Plugin<'cleanupStyleAttributes'>}
  */
@@ -135,7 +125,7 @@ export const fn = (root, params, info) => {
     }
 
     // See if it is allowed for this element.
-    const allowedElements = limitedProperties[propName];
+    const allowedElements = geometryProperties[propName];
     return allowedElements && allowedElements.has(elName);
   }
 

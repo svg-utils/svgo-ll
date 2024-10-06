@@ -19,6 +19,7 @@ Remove elements with display=none
         .a { display: block; }
     </style>
     <g>
+        <defs/>
         <rect display="none" class="a" x="0" y="0" width="20" height="20"/>
     </g>
 </svg>

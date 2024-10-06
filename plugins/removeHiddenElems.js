@@ -27,54 +27,6 @@ export const fn = (root, params, info) => {
   const nonRenderingStack = [];
 
   /**
-   * @param {import('../lib/types.js').XastChild} child
-   * @returns {import('../lib/types.js').XastChild[]}
-   */
-  function getChildrenWithIds(child) {
-    switch (child.type) {
-      case 'comment':
-        return [child];
-      case 'element':
-        if (child.attributes.id) {
-          return [child];
-        }
-        break;
-      default:
-        return [];
-    }
-
-    // Preserve styles and scripts with no id.
-    switch (child.name) {
-      case 'script':
-      case 'style':
-        return [child];
-    }
-
-    // It's an element with no id; return its children which have ids.
-    const children = [];
-    for (const grandchild of child.children) {
-      children.push(...getChildrenWithIds(grandchild));
-    }
-    return children;
-  }
-
-  /**
-   * @param {import('../lib/types.js').XastElement} element
-   */
-  function processDefsChildren(element) {
-    /** @type {import('../lib/types.js').XastChild[]} */
-    const children = [];
-
-    // Make sure all children of <defs> have an id; otherwise they can't be rendered. If a child doesn't have an id, delete it and move up
-    // its children so they are immediate children of the <defs>.
-    for (const child of element.children) {
-      children.push(...getChildrenWithIds(child));
-    }
-    children.forEach((c) => (c.parentNode = element));
-    element.children = children;
-  }
-
-  /**
    * @param {import('../lib/types.js').XastElement} element
    */
   function removeElement(element) {
@@ -166,8 +118,7 @@ export const fn = (root, params, info) => {
         if (elemsGroups.nonRendering.has(element.name)) {
           if (!element.attributes.id) {
             // If the element doesn't have an id, it can't be referenced; but it may contain referenced elements. Change it to <defs>.
-            element.name = 'defs';
-            processDefsChildren(element);
+            convertToDefs(element);
           } else {
             nonRenderingStack.push(element);
           }
@@ -196,7 +147,7 @@ export const fn = (root, params, info) => {
           // markers with display: none still rendered
           element.name !== 'marker'
         ) {
-          removeElement(element);
+          convertToDefs(element);
           return;
         }
 
@@ -204,7 +155,8 @@ export const fn = (root, params, info) => {
           // Don't delete elements with opacity 0 which are in a non-rendering element.
           const opacity = properties.get('opacity');
           if (opacity === '0') {
-            removeElement(element);
+            convertToDefs(element);
+            return;
           }
         }
       },
@@ -226,3 +178,60 @@ export const fn = (root, params, info) => {
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function convertToDefs(element) {
+  element.name = 'defs';
+  element.attributes = {};
+  processDefsChildren(element);
+}
+
+/**
+ * @param {import('../lib/types.js').XastChild} child
+ * @returns {import('../lib/types.js').XastChild[]}
+ */
+function getChildrenWithIds(child) {
+  switch (child.type) {
+    case 'comment':
+      return [child];
+    case 'element':
+      if (child.attributes.id) {
+        return [child];
+      }
+      break;
+    default:
+      return [];
+  }
+
+  // Preserve styles and scripts with no id.
+  switch (child.name) {
+    case 'script':
+    case 'style':
+      return [child];
+  }
+
+  // It's an element with no id; return its children which have ids.
+  const children = [];
+  for (const grandchild of child.children) {
+    children.push(...getChildrenWithIds(grandchild));
+  }
+  return children;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function processDefsChildren(element) {
+  /** @type {import('../lib/types.js').XastChild[]} */
+  const children = [];
+
+  // Make sure all children of <defs> have an id; otherwise they can't be rendered. If a child doesn't have an id, delete it and move up
+  // its children so they are immediate children of the <defs>.
+  for (const child of element.children) {
+    children.push(...getChildrenWithIds(child));
+  }
+  children.forEach((c) => (c.parentNode = element));
+  element.children = children;
+}

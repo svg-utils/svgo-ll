@@ -94,7 +94,9 @@ Test with ellipses.
         <g transform="translate(0,0)">
             <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:2"/>
         </g>
-        <g transform="translate(0,5)"/>
+        <g transform="translate(0,5)">
+            <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:0"/>
+        </g>
         <g transform="translate(0,10)">
             <ellipse cx="1" cy="2" rx="0" style="rx:2"/>
         </g>
@@ -107,7 +109,9 @@ Test with ellipses.
         <g transform="translate(0,0)">
             <ellipse cx="1" cy="2" rx="0" ry="0" class="e1"/>
         </g>
-        <g transform="translate(0,5)"/>
+        <g transform="translate(0,5)">
+            <ellipse cx="1" cy="2" rx="0" ry="0" class="e2"/>
+        </g>
         <g transform="translate(0,10)">
             <ellipse cx="1" cy="2" rx="0" class="e3"/>
         </g>

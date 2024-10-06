@@ -110,12 +110,16 @@ export const fn = (root, params, info) => {
         }
         return false;
       case 'path': {
-        if (!element.attributes.d) {
+        const d = properties.get('d');
+        if (d === null) {
+          return false;
+        }
+        if (!d) {
           removeElement(element);
           return true;
         }
         try {
-          const commands = parsePathCommands(element.attributes.d, 2);
+          const commands = parsePathCommands(d, 2);
           if (commands.length === 1) {
             if (properties.get('marker-end') !== undefined) {
               return false;

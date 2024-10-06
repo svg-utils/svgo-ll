@@ -53,11 +53,29 @@ export const fn = (root, params, info) => {
 
   /**
    * @param {import('../lib/types.js').XastElement} element
+   */
+  function removeUndisplayedElement(element) {
+    if (element.name === 'g') {
+      // It may contain referenced elements; treat it as <defs>.
+      convertToDefs(element);
+    } else {
+      removeElement(element);
+    }
+  }
+
+  /**
+   * @param {import('../lib/types.js').XastElement} element
    * @param {Map<string,string|null>} properties
    * @returns {boolean}
    */
   function removeEmptyShapes(element, properties) {
     switch (element.name) {
+      case 'circle':
+        if (properties.get('r') === '0' && !isAnimated(element)) {
+          removeElement(element);
+          return true;
+        }
+        return false;
       case 'ellipse':
         {
           // Ellipse with zero radius -- https://svgwg.org/svg2-draft/geometry.html#RxProperty
@@ -160,7 +178,7 @@ export const fn = (root, params, info) => {
           // markers with display: none still rendered
           element.name !== 'marker'
         ) {
-          convertToDefs(element);
+          removeUndisplayedElement(element);
           return;
         }
 
@@ -168,7 +186,7 @@ export const fn = (root, params, info) => {
           // Don't delete elements with opacity 0 which are in a non-rendering element.
           const opacity = properties.get('opacity');
           if (opacity === '0') {
-            convertToDefs(element);
+            removeUndisplayedElement(element);
             return;
           }
         }
@@ -222,6 +240,15 @@ function getChildrenWithIds(child) {
     children.push(...getChildrenWithIds(grandchild));
   }
   return children;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function isAnimated(element) {
+  // TODO: fix this - it doesn't really tell whether the element is animated, and doesn't handle the case of the animation being somewhere
+  // besdides within the element.
+  return element.children.length !== 0;
 }
 
 /**

@@ -122,6 +122,7 @@ function allStylesAreMergeable(styles) {
           continue;
         }
         break;
+      case 'd':
       case 'fill-opacity':
       case 'opacity':
       case 'stroke-linecap':

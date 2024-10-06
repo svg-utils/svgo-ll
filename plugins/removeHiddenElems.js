@@ -1,3 +1,4 @@
+import { getEllipseProperties } from '../lib/svgo/tools.js';
 import { elemsGroups } from './_collections.js';
 import { parsePathCommands, PathParseError } from './minifyPathData.js';
 
@@ -21,9 +22,6 @@ export const fn = (root, params, info) => {
   // Record which elements to delete, sorted by parent.
   /** @type {Map<import('../lib/types.js').XastParent, Set<import('../lib/types.js').XastChild>>} */
   const childrenToDeleteByParent = new Map();
-
-  /** @type {Map<import('../lib/types.js').XastElement,Set<string>>} */
-  const nonRenderedElements = new Map();
 
   /** @type {import('../lib/types.js').XastElement[]} */
   const nonRenderingStack = [];
@@ -96,14 +94,19 @@ export const fn = (root, params, info) => {
   function removeEmptyShapes(element, properties) {
     switch (element.name) {
       case 'ellipse':
-        // Ellipse with zero radius
-        // https://svgwg.org/svg2-draft/geometry.html#RxProperty
-        if (
-          element.children.length === 0 &&
-          (element.attributes.rx === '0' || element.attributes.ry === '0')
-        ) {
-          removeElement(element);
-          return true;
+        {
+          // Ellipse with zero radius -- https://svgwg.org/svg2-draft/geometry.html#RxProperty
+          const props = getEllipseProperties(properties);
+          if (props === undefined) {
+            return false;
+          }
+          if (
+            element.children.length === 0 &&
+            (props.rx === '0' || props.ry === '0')
+          ) {
+            removeElement(element);
+            return true;
+          }
         }
         return false;
       case 'path': {
@@ -209,10 +212,6 @@ export const fn = (root, params, info) => {
     },
     root: {
       exit: () => {
-        for (const element of nonRenderedElements.keys()) {
-          removeElement(element);
-        }
-
         // For each parent, delete no longer needed children.
         for (const [parent, childrenToDelete] of childrenToDeleteByParent) {
           parent.children = parent.children.filter(

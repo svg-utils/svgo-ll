@@ -160,6 +160,10 @@ export const fn = (root, params, info) => {
           return;
         }
 
+        if (node.attributes['style'] === '') {
+          delete node.attributes.style;
+        }
+
         const origProperties = getStyleDeclarations(node);
         if (!origProperties) {
           return;

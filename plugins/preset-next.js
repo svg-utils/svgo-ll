@@ -18,7 +18,6 @@ import * as removeComments from './removeComments.js';
 import * as removeDesc from './removeDesc.js';
 import * as removeDoctype from './removeDoctype.js';
 import * as removeEditorsNSData from './removeEditorsNSData.js';
-import * as removeEmptyAttrs from './removeEmptyAttrs.js';
 import * as removeEmptyContainers from './removeEmptyContainers.js';
 import * as removeEmptyText from './removeEmptyText.js';
 import * as removeHiddenElems from './removeHiddenElems.js';
@@ -58,7 +57,6 @@ const presetNext = createPreset({
     convertShapeToPath,
     combinePaths,
     minifyPathData,
-    removeEmptyAttrs,
     removeEmptyContainers,
     removeUnusedNS,
   ],

@@ -19,7 +19,6 @@ Remove elements with zero opacity
         .a { opacity: 0.5; }
     </style>
     <g>
-        <defs/>
         <rect opacity="0" class="a" x="0" y="0" width="20" height="20"/>
     </g>
 </svg>

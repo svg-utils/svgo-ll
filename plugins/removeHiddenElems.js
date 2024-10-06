@@ -29,6 +29,19 @@ export const fn = (root, params, info) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
    */
+  function convertToDefs(element) {
+    element.name = 'defs';
+    element.attributes = {};
+    processDefsChildren(element);
+    if (element.children.length === 0) {
+      // If there are no children, delete the element; otherwise it may limit opportunities for compression of siblings.
+      removeElement(element);
+    }
+  }
+
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
   function removeElement(element) {
     let childrenToDelete = childrenToDeleteByParent.get(element.parentNode);
     if (!childrenToDelete) {
@@ -178,15 +191,6 @@ export const fn = (root, params, info) => {
     },
   };
 };
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- */
-function convertToDefs(element) {
-  element.name = 'defs';
-  element.attributes = {};
-  processDefsChildren(element);
-}
 
 /**
  * @param {import('../lib/types.js').XastChild} child

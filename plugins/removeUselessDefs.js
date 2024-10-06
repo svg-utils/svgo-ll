@@ -21,7 +21,7 @@ let deprecationWarning = true;
 export const fn = () => {
   if (deprecationWarning) {
     console.warn(
-      'The moveGroupAttrsToElems plugin is deprecated and will be removed in a future release.',
+      'The removeUselessDefs plugin is deprecated and will be removed in a future release.',
     );
     deprecationWarning = false;
   }

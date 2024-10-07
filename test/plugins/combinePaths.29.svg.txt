@@ -1,0 +1,14 @@
+Merge paths with equivalent properties even if attributes are different.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <path d="M1 1H10" stroke="red"/>
+  <path d="M1 3H10" style="stroke:red"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <path d="M1 1H10M1 3H10" stroke="red"/>
+</svg>

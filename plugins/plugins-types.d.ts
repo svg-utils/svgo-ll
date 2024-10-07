@@ -61,6 +61,7 @@ type DefaultPlugins = {
     convertArcs?: boolean;
     floatPrecision?: number;
   };
+  createGroups: void;
   inlineStyles: {
     /** If true, do not inline styles if any CSS at rules are present. */
     disableIfAtRulesPresent?: boolean;

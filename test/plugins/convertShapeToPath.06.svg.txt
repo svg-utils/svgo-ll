@@ -1,0 +1,21 @@
+Don't covert <rect> with no width/height.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <rect y="0" width="2" height="1.5"/>
+  <rect y="3" width="0" height="1.5"/>
+  <rect y="6" width="2" height="0"/>
+  <rect y="9" height="1.5"/>
+  <rect y="12" width="2"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+    <path d="M0 0H2V1.5H0z"/>
+    <rect y="3" width="0" height="1.5"/>
+    <rect y="6" width="2" height="0"/>
+    <rect y="9" height="1.5"/>
+    <rect y="12" width="2"/>
+</svg>

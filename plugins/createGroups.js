@@ -44,15 +44,21 @@ function createGroups(element) {
    * @param {number} index
    */
   function writeGroup(index) {
-    if (
-      newChildren.length === 0 &&
-      (sharedProps === undefined ||
-        sharedProps.size === 0 ||
-        sharedPropStart === index - 1)
-    ) {
+    const groupSize = index - sharedPropStart;
+    const shouldCreateGroup = sharedProps.size > 0 && groupSize > 1;
+    if (newChildren.length === 0 && !shouldCreateGroup) {
       // No groups have been written yet, and there is no reason to write one here.
       return;
     }
+
+    if (!shouldCreateGroup) {
+      if (index === element.children.length) {
+        // This is the final group; write any ungrouped children.
+        newChildren.push(...element.children.slice(ungroupedStart));
+      }
+      return;
+    }
+
     // Copy any ungrouped children to newChildren.
     newChildren.push(
       ...element.children.slice(ungroupedStart, sharedPropStart),
@@ -74,14 +80,22 @@ function createGroups(element) {
     groupChildren.forEach((c) => {
       c.parentNode = groupElement;
       if (c.type !== 'element') {
-        throw new Error();
+        return;
       }
+      const decls = getStyleDeclarations(c);
       for (const name of sharedProps.keys()) {
         delete c.attributes[name];
+        if (decls) {
+          decls.delete(name);
+        }
       }
-      // TODO - DELETE STYLE PROPS AS WELL
+      if (decls) {
+        writeStyleAttribute(c, decls);
+      }
     });
     newChildren.push(groupElement);
+
+    ungroupedStart = index;
   }
 
   /** @type {import('../lib/types.js').XastChild[]} */
@@ -96,7 +110,8 @@ function createGroups(element) {
   for (; index < element.children.length; index++) {
     const child = element.children[index];
     if (child.type !== 'element') {
-      return;
+      // Any non-elements can be included in the group.
+      continue;
     }
     const currentChildProps = getInheritableProperties(child);
     if (sharedProps.size === 0) {

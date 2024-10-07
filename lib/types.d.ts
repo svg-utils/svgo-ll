@@ -246,6 +246,7 @@ export type PathDataCommand =
   | 'A'
   | 'a';
 
+/** @deprecated */
 export type PathDataItem = {
   command: PathDataCommand;
   args: number[];

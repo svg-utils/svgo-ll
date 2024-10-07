@@ -1,6 +1,5 @@
 import { stringifyPathData } from '../lib/path.js';
 import { exactAdd } from '../lib/svgo/tools.js';
-import { detachNodeFromParent } from '../lib/xast.js';
 
 /**
  * @typedef {import('../lib/types.js').PathDataItem} PathDataItem
@@ -32,12 +31,14 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         // convert rect to path
         if (
           node.name === 'rect' &&
-          node.attributes.width != null &&
-          node.attributes.height != null &&
+          node.attributes.width !== undefined &&
+          node.attributes.width !== '0' &&
+          node.attributes.height !== undefined &&
+          node.attributes.height !== '0' &&
           node.attributes.rx == null &&
           node.attributes.ry == null
         ) {
@@ -98,7 +99,6 @@ export const fn = (root, params, info) => {
             Number,
           );
           if (coords.length < 4) {
-            detachNodeFromParent(node, parentNode);
             return;
           }
           /**

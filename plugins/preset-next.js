@@ -3,7 +3,6 @@ import * as cleanupIds from './cleanupIds.js';
 import * as cleanupStyleAttributes from './cleanupStyleAttributes.js';
 import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
-import * as combinePaths from './combinePaths.js';
 import * as combineStyleElements from './combineStyleElements.js';
 import * as convertColors from './convertColors.js';
 import * as convertEllipseToCircle from './convertEllipseToCircle.js';
@@ -55,7 +54,6 @@ const presetNext = createPreset({
     moveElemsStylesToGroup,
     collapseGroups,
     convertShapeToPath,
-    combinePaths,
     minifyPathData,
     removeEmptyContainers,
     removeUnusedNS,

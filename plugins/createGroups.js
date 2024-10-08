@@ -1,11 +1,17 @@
+import { svgStringifyTransform } from '../lib/svg-parse-att.js';
+import { cssGetTransform } from '../lib/css-parse-decl.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
+import { ExactNum } from '../lib/exactnum.js';
+import { svgGetTransform, svgToString } from '../lib/svg-parse-att.js';
 import { getHrefId } from '../lib/svgo/tools.js';
 import { inheritableAttrs } from './_collections.js';
 
 export const name = 'createGroups';
 export const description =
   'Create groups if common properties can be moved to group';
+
+const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
 
 /**
  * @type {import('./plugins-types.js').Plugin<'createGroups'>}
@@ -99,8 +105,8 @@ function createGroups(element, usedIds, elementsToCheck) {
     };
 
     // Add styles to group.
-    const cssTransform = sharedProps.get('transform');
-    if (cssTransform) {
+    const attTransform = transformCSSToAttr(sharedProps.get('transform'));
+    if (attTransform) {
       // Add transform as an attribute.
       sharedProps.delete('transform');
     }
@@ -120,7 +126,7 @@ function createGroups(element, usedIds, elementsToCheck) {
           decls.delete(name);
         }
       }
-      if (cssTransform) {
+      if (attTransform) {
         delete c.attributes['transform'];
         if (decls) {
           decls.delete('transform');
@@ -132,10 +138,8 @@ function createGroups(element, usedIds, elementsToCheck) {
     });
 
     // Add transform attribute.
-    if (cssTransform) {
-      groupElement.attributes.transform = transformCSSToAttr(
-        cssTransform.value,
-      );
+    if (attTransform) {
+      groupElement.attributes.transform = attTransform;
     }
     newChildren.push(groupElement);
 
@@ -147,6 +151,8 @@ function createGroups(element, usedIds, elementsToCheck) {
 
   /** @type {import('../lib/types.js').CSSDeclarationMap} */
   let sharedProps = new Map();
+  /** @type {Set<string>} */
+  let transformProps = new Set();
   let sharedPropStart = 0;
   let ungroupedStart = 0;
 
@@ -162,11 +168,19 @@ function createGroups(element, usedIds, elementsToCheck) {
       // If the element is <use>d, we can't move any properties to a group, so it needs to be on its own.
       writeGroup(index);
       sharedProps = new Map();
+      transformProps = new Set();
       sharedPropStart = index;
       continue;
     }
 
     const currentChildProps = getInheritableProperties(child);
+    // Record which transform properties are present.
+    TRANSFORM_PROP_NAMES.forEach((name) => {
+      if (currentChildProps.has(name)) {
+        transformProps.add(name);
+      }
+    });
+
     if (sharedProps.size === 0) {
       sharedProps = currentChildProps;
       sharedPropStart = index;
@@ -182,6 +196,14 @@ function createGroups(element, usedIds, elementsToCheck) {
       if (currentProp && currentProp.value === v.value) {
         newSharedProps.set(k, v);
       }
+    }
+
+    // If both transform properties are present, either move them both or neither.
+    if (
+      transformProps.size === 2 &&
+      !TRANSFORM_PROP_NAMES.every((name) => newSharedProps.has(name))
+    ) {
+      TRANSFORM_PROP_NAMES.forEach((name) => newSharedProps.delete(name));
     }
 
     if (newSharedProps.size > 0) {
@@ -226,10 +248,16 @@ function getInheritableProperties(element) {
 
   // Gather all inheritable attributes.
   for (const [k, v] of Object.entries(element.attributes)) {
+    const value = getSVGAttributeValue(v);
     if (inheritableAttrs.has(k)) {
-      props.set(k, { value: v, important: false });
+      props.set(k, { value: svgToString(value), important: false });
     } else if (k === 'transform') {
-      props.set(k, { value: transformAttrToCSS(v), important: false });
+      const cssValue = transformAttrToCSS(value);
+      if (cssValue) {
+        props.set(k, cssValue);
+      }
+    } else if (TRANSFORM_PROP_NAMES.includes(k)) {
+      props.set(k, { value: svgToString(value), important: false });
     }
   }
 
@@ -237,7 +265,7 @@ function getInheritableProperties(element) {
   const styleProps = getStyleDeclarations(element);
   if (styleProps) {
     styleProps.forEach((v, k) => {
-      if (inheritableAttrs.has(k) || k === 'transform') {
+      if (inheritableAttrs.has(k) || TRANSFORM_PROP_NAMES.includes(k)) {
         if (v === null) {
           props.delete(k);
         } else {
@@ -251,17 +279,75 @@ function getInheritableProperties(element) {
 }
 
 /**
- * @param {string} attValue
- * @returns {string}
+ * @param {string|import('../lib/types.js').SVGAttValue} v
+ * @returns {import('../lib/types.js').SVGAttValue}
  */
-function transformAttrToCSS(attValue) {
-  return attValue;
+function getSVGAttributeValue(v) {
+  if (typeof v === 'string') {
+    return { strVal: v };
+  }
+  return v;
 }
 
 /**
- * @param {string} attValue
- * @returns {string}
+ * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @returns {import('../lib/types.js').CSSPropertyValue|undefined}
  */
-function transformCSSToAttr(attValue) {
-  return attValue;
+function transformAttrToCSS(attValue) {
+  const svgTransforms = svgGetTransform(attValue);
+  if (svgTransforms === null) {
+    return;
+  }
+  /** @type {import('../lib/types-css-decl.js').CSSTransformFn[]} */
+  const cssTransforms = [];
+  for (const t of svgTransforms) {
+    switch (t.name) {
+      case 'rotate':
+        cssTransforms.push({
+          name: 'rotate',
+          a: { n: t.a.getValue(), unit: 'deg' },
+        });
+        break;
+      default:
+        throw new Error();
+    }
+  }
+  // @ts-ignore - remove ignore once string value is optional in CSSPropertyValue
+  return {
+    parsedValue: { type: 'transform', value: cssTransforms },
+    important: false,
+  };
+}
+
+/**
+ * @param {import('../lib/types.js').CSSPropertyValue|undefined} cssValue
+ * TODO: CHANGE RETURN TYPE
+ * @returns {string|undefined}
+ */
+function transformCSSToAttr(cssValue) {
+  if (!cssValue) {
+    return;
+  }
+  const cssTransforms = cssGetTransform(cssValue);
+  if (cssTransforms === null) {
+    return;
+  }
+  /** @type {import('../lib/types-svg-attr.js').SVGTransformFn[]} */
+  const svgTransforms = [];
+  for (const cssTransform of cssTransforms) {
+    switch (cssTransform.name) {
+      case 'rotate':
+        if (cssTransform.a.unit !== 'deg') {
+          return;
+        }
+        svgTransforms.push({
+          name: 'rotate',
+          a: new ExactNum(cssTransform.a.n),
+        });
+        break;
+      default:
+        return;
+    }
+  }
+  return svgStringifyTransform(svgTransforms);
 }

@@ -61,6 +61,15 @@ export type XastParent = XastRoot | XastElement;
 
 export type XastNode = XastRoot | XastChild;
 
+export type SVGAttValue = { strVal?: string; parsedVal?: SVGParsedValue };
+
+export type SVGParsedValue = SVGParsedTransform;
+
+export type SVGParsedTransform = {
+  type: 'transform';
+  value: import('./types-svg-attr.js').SVGTransformFn[] | null;
+};
+
 export type StringifyOptions = {
   doctypeStart?: string;
   doctypeEnd?: string;
@@ -175,7 +184,18 @@ export class CSSRule {
   matches(element: XastElement): boolean;
 }
 
-export type CSSPropertyValue = { value: string; important: boolean };
+export type CSSParsedTransform = {
+  type: 'transform';
+  value: import('./types-css-decl.js').CSSTransformFn[] | null;
+};
+
+export type CSSParsedProperty = CSSParsedTransform;
+
+export type CSSPropertyValue = {
+  value: string;
+  parsedValue?: CSSParsedProperty;
+  important: boolean;
+};
 
 export type CSSDeclarationMap = Map<string, CSSPropertyValue>;
 

@@ -1,5 +1,6 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
+import { getHrefId } from '../lib/svgo/tools.js';
 import { inheritableAttrs } from './_collections.js';
 
 export const name = 'createGroups';
@@ -19,14 +20,34 @@ export const fn = (root, params, info) => {
     return;
   }
 
+  /** @type {import('../lib/types.js').XastElement[]} */
+  const elementsToCheck = [];
+
+  /** @type {Set<string>} */
+  const usedIds = new Set();
+
   return {
     element: {
       enter: (element) => {
         switch (element.name) {
           case 'g':
           case 'svg':
-            createGroups(element);
+            elementsToCheck.push(element);
+            break;
+          case 'use':
+            {
+              const id = getHrefId(element);
+              if (id) {
+                usedIds.add(id);
+              }
+            }
+            break;
         }
+      },
+    },
+    root: {
+      exit: () => {
+        elementsToCheck.forEach((e) => createGroups(e, usedIds));
       },
     },
   };
@@ -34,8 +55,9 @@ export const fn = (root, params, info) => {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @param {Set<string>} usedIds
  */
-function createGroups(element) {
+function createGroups(element, usedIds) {
   if (element.children.length < 2) {
     return;
   }
@@ -113,6 +135,15 @@ function createGroups(element) {
       // Any non-elements can be included in the group.
       continue;
     }
+
+    if (usedIds.has(child.attributes.id)) {
+      // If the element is <use>d, we can't move any properties to a group, so it needs to be on its own.
+      writeGroup(index);
+      sharedProps = new Map();
+      sharedPropStart = index;
+      continue;
+    }
+
     const currentChildProps = getInheritableProperties(child);
     if (sharedProps.size === 0) {
       sharedProps = currentChildProps;

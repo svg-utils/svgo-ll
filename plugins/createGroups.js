@@ -20,8 +20,8 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  /** @type {import('../lib/types.js').XastElement[]} */
-  const elementsToCheck = [];
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const elementsToCheck = new Set();
 
   /** @type {Set<string>} */
   const usedIds = new Set();
@@ -32,7 +32,7 @@ export const fn = (root, params, info) => {
         switch (element.name) {
           case 'g':
           case 'svg':
-            elementsToCheck.push(element);
+            elementsToCheck.add(element);
             break;
           case 'use':
             {
@@ -47,7 +47,9 @@ export const fn = (root, params, info) => {
     },
     root: {
       exit: () => {
-        elementsToCheck.forEach((e) => createGroups(e, usedIds));
+        elementsToCheck.forEach((e) =>
+          createGroups(e, usedIds, elementsToCheck),
+        );
       },
     },
   };
@@ -56,8 +58,9 @@ export const fn = (root, params, info) => {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {Set<string>} usedIds
+ * @param {Set<import('./cleanupIds.js').XastElement>} elementsToCheck
  */
-function createGroups(element, usedIds) {
+function createGroups(element, usedIds, elementsToCheck) {
   if (element.children.length < 2) {
     return;
   }
@@ -181,6 +184,16 @@ function createGroups(element, usedIds) {
   // Update the children if any groups were created.
   if (newChildren.length) {
     element.children = newChildren;
+    // See if the new groups can be split further.
+    for (const child of element.children) {
+      if (
+        child.type === 'element' &&
+        child.name === 'g' &&
+        !elementsToCheck.has(child)
+      ) {
+        createGroups(child, usedIds, elementsToCheck);
+      }
+    }
   }
 }
 

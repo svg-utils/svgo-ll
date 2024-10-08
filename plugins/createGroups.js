@@ -99,6 +99,11 @@ function createGroups(element, usedIds, elementsToCheck) {
     };
 
     // Add styles to group.
+    const cssTransform = sharedProps.get('transform');
+    if (cssTransform) {
+      // Add transform as an attribute.
+      sharedProps.delete('transform');
+    }
     writeStyleAttribute(groupElement, sharedProps);
 
     // Remove properties from children.
@@ -108,16 +113,30 @@ function createGroups(element, usedIds, elementsToCheck) {
         return;
       }
       const decls = getStyleDeclarations(c);
+
       for (const name of sharedProps.keys()) {
         delete c.attributes[name];
         if (decls) {
           decls.delete(name);
         }
       }
+      if (cssTransform) {
+        delete c.attributes['transform'];
+        if (decls) {
+          decls.delete('transform');
+        }
+      }
       if (decls) {
         writeStyleAttribute(c, decls);
       }
     });
+
+    // Add transform attribute.
+    if (cssTransform) {
+      groupElement.attributes.transform = transformCSSToAttr(
+        cssTransform.value,
+      );
+    }
     newChildren.push(groupElement);
 
     ungroupedStart = index;
@@ -209,6 +228,8 @@ function getInheritableProperties(element) {
   for (const [k, v] of Object.entries(element.attributes)) {
     if (inheritableAttrs.has(k)) {
       props.set(k, { value: v, important: false });
+    } else if (k === 'transform') {
+      props.set(k, { value: transformAttrToCSS(v), important: false });
     }
   }
 
@@ -216,7 +237,7 @@ function getInheritableProperties(element) {
   const styleProps = getStyleDeclarations(element);
   if (styleProps) {
     styleProps.forEach((v, k) => {
-      if (inheritableAttrs.has(k)) {
+      if (inheritableAttrs.has(k) || k === 'transform') {
         if (v === null) {
           props.delete(k);
         } else {
@@ -227,4 +248,20 @@ function getInheritableProperties(element) {
   }
 
   return props;
+}
+
+/**
+ * @param {string} attValue
+ * @returns {string}
+ */
+function transformAttrToCSS(attValue) {
+  return attValue;
+}
+
+/**
+ * @param {string} attValue
+ * @returns {string}
+ */
+function transformCSSToAttr(attValue) {
+  return attValue;
 }

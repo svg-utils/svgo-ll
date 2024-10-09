@@ -1,9 +1,11 @@
-import { svgSetAttributeValue } from '../lib/svg-parse-att.js';
-import { cssGetTransform } from '../lib/css-parse-decl.js';
+import {
+  svgAttTransformToCSS,
+  svgSetAttributeValue,
+} from '../lib/svg-parse-att.js';
+import { cssTransformToSVGAtt } from '../lib/css-parse-decl.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
-import { ExactNum } from '../lib/exactnum.js';
-import { svgGetTransform, svgToString } from '../lib/svg-parse-att.js';
+import { svgToString } from '../lib/svg-parse-att.js';
 import { getHrefId } from '../lib/svgo/tools.js';
 import { inheritableAttrs } from './_collections.js';
 
@@ -105,7 +107,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     };
 
     // Add styles to group.
-    const attTransform = transformCSSToAttr(sharedProps.get('transform'));
+    const attTransform = cssTransformToSVGAtt(sharedProps.get('transform'));
     if (attTransform) {
       // Add transform as an attribute.
       sharedProps.delete('transform');
@@ -252,7 +254,7 @@ function getInheritableProperties(element) {
     if (inheritableAttrs.has(k)) {
       props.set(k, { value: svgToString(value), important: false });
     } else if (k === 'transform') {
-      const cssValue = transformAttrToCSS(value);
+      const cssValue = svgAttTransformToCSS(value);
       if (cssValue) {
         props.set(k, cssValue);
       }
@@ -287,68 +289,4 @@ function getSVGAttributeValue(v) {
     return { strVal: v };
   }
   return v;
-}
-
-/**
- * @param {import('../lib/types.js').SVGAttValue} attValue
- * @returns {import('../lib/types.js').CSSPropertyValue|undefined}
- */
-function transformAttrToCSS(attValue) {
-  const svgTransforms = svgGetTransform(attValue);
-  if (svgTransforms === null) {
-    return;
-  }
-  /** @type {import('../lib/types-css-decl.js').CSSTransformFn[]} */
-  const cssTransforms = [];
-  for (const t of svgTransforms) {
-    switch (t.name) {
-      case 'rotate':
-        cssTransforms.push({
-          name: 'rotate',
-          a: { n: t.a.clone(), unit: 'deg' },
-        });
-        break;
-      default:
-        throw new Error();
-    }
-  }
-  // @ts-ignore - remove ignore once string value is optional in CSSPropertyValue
-  return {
-    parsedValue: { type: 'transform', value: cssTransforms },
-    important: false,
-  };
-}
-
-/**
- * @param {import('../lib/types.js').CSSPropertyValue|undefined} cssValue
- * @returns {import('../lib/types.js').SVGAttValue|undefined}
- */
-function transformCSSToAttr(cssValue) {
-  if (!cssValue) {
-    return;
-  }
-  const cssTransforms = cssGetTransform(cssValue);
-  if (cssTransforms === null) {
-    return;
-  }
-  /** @type {import('../lib/types-svg-attr.js').SVGTransformFn[]} */
-  const svgTransforms = [];
-  for (const cssTransform of cssTransforms) {
-    switch (cssTransform.name) {
-      case 'rotate':
-        if (cssTransform.a.unit !== 'deg') {
-          return;
-        }
-        svgTransforms.push({
-          name: 'rotate',
-          a: cssTransform.a.n.clone(),
-          tx: ExactNum.zero(),
-          ty: ExactNum.zero(),
-        });
-        break;
-      default:
-        return;
-    }
-  }
-  return { parsedVal: { type: 'transform', value: svgTransforms } };
 }

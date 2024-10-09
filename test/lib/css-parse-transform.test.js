@@ -10,6 +10,11 @@ describe('test css transform parsing', () => {
     { in: 'translate(100px,20px)' },
     { in: 'translate(100px)' },
     { in: 'translate(100mm)', out: null },
+    { in: 'skewX(1.2deg)' },
+    { in: 'skewY(1.2deg)' },
+    { in: 'scale(2)' },
+    { in: 'scale(2,3)' },
+    { in: 'scale(3,3)', out: 'scale(3)' },
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
@@ -17,7 +22,7 @@ describe('test css transform parsing', () => {
       if (transforms === null) {
         expect(testCase.out).toBeNull();
       } else {
-        const expected = testCase.in;
+        const expected = testCase.out ? testCase.out : testCase.in;
         expect(cssStringifyTransform(transforms)).toBe(expected);
       }
     });

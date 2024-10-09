@@ -7,6 +7,7 @@ import * as combineStyleElements from './combineStyleElements.js';
 import * as convertColors from './convertColors.js';
 import * as convertEllipseToCircle from './convertEllipseToCircle.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
+import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
@@ -57,6 +58,7 @@ const presetDefault = createPreset({
     minifyPathData,
     removeEmptyContainers,
     removeUnusedNS,
+    createGroups,
   ],
 });
 

@@ -1,0 +1,23 @@
+Move transform attribute if possible.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <rect transform="rotate(30)" y="0" width="2" height="1.5" style="fill:green"/>
+  <rect transform="rotate(30)" y="3" width="2" height="1.5" style="fill:green"/>
+  <rect transform="rotate(30)" y="6" width="2" height="1.5" style="fill:green;stroke:red"/>
+  <rect transform="rotate(30)" y="9" width="2" height="1.5" style="fill:green;stroke:red"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+    <g style="fill:green" transform="rotate(30)">
+        <rect y="0" width="2" height="1.5"/>
+        <rect y="3" width="2" height="1.5"/>
+        <g style="stroke:red">
+            <rect y="6" width="2" height="1.5"/>
+            <rect y="9" width="2" height="1.5"/>
+        </g>
+    </g>
+</svg>

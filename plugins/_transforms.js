@@ -1,6 +1,7 @@
 import { toFixed } from '../lib/svgo/tools.js';
 
 /**
+ * @deprecated
  * @typedef {{ name: string, data: number[] }} TransformItem
  * @typedef {{
  *   convertToShorts: boolean,
@@ -36,6 +37,7 @@ const regNumericValues = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
  *
  * @param {string} transformString
  * @returns {TransformItem[]} Object representation of transform, or an empty array if it was malformed.
+ * @deprecated
  */
 export const transform2js = (transformString) => {
   /** @type {TransformItem[]} */

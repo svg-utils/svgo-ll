@@ -6,13 +6,9 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
-import { getReferencedIdsInAttribute } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/svgo/tools.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
-
-/**
- * @typedef {import('../lib/types.js').XastElement} XastElement}
- */
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -105,20 +101,6 @@ function isDefaultPropertyValue(name, value, defaults) {
 }
 
 /**
- * @param {XastElement} element
- * @param {string} attName
- */
-function getUseID(element, attName) {
-  const value = element.attributes[attName];
-  if (value) {
-    const ids = getReferencedIdsInAttribute(attName, value);
-    if (ids) {
-      return ids[0].id;
-    }
-  }
-}
-
-/**
  * Remove unknown elements content and attributes,
  * remove attributes with default values.
  *
@@ -160,9 +142,9 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  /** @type {Map<XastElement,string[]>} */
+  /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
   const attsToDeleteIfUnused = new Map();
-  /** @type {Map<XastElement,string[]>} */
+  /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
   const propsToDeleteIfUnused = new Map();
   /** @type {Set<string>} */
   const usedIDs = new Set();
@@ -187,10 +169,7 @@ export const fn = (root, params, info) => {
         }
 
         if (node.name === 'use') {
-          let id = getUseID(node, 'href');
-          if (!id) {
-            id = getUseID(node, 'xlink:href');
-          }
+          const id = getHrefId(node);
           if (id) {
             usedIDs.add(id);
           }

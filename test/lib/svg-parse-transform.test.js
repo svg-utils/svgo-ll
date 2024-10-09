@@ -42,6 +42,10 @@ describe('test transform conversion between attributes and properties', () => {
     { in: 'translate(31)' },
     { in: 'translate(31 3)' },
     { in: 'matrix(1 2 3 4 5 6)' },
+    { in: 'skewX(31)' },
+    { in: 'skewY(31)' },
+    { in: 'scale(31)' },
+    { in: 'scale(3 1)' },
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {

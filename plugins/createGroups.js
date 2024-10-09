@@ -305,7 +305,7 @@ function transformAttrToCSS(attValue) {
       case 'rotate':
         cssTransforms.push({
           name: 'rotate',
-          a: { n: t.a.getValue(), unit: 'deg' },
+          a: { n: t.a.clone(), unit: 'deg' },
         });
         break;
       default:
@@ -341,7 +341,7 @@ function transformCSSToAttr(cssValue) {
         }
         svgTransforms.push({
           name: 'rotate',
-          a: new ExactNum(cssTransform.a.n),
+          a: cssTransform.a.n.clone(),
           tx: ExactNum.zero(),
           ty: ExactNum.zero(),
         });

@@ -4,16 +4,22 @@ import {
 } from '../../lib/css-parse-decl.js';
 
 describe('test css transform parsing', () => {
-  /** @type {{in:string}[]} */
-  const testCases = [{ in: 'rotate(31deg)' }];
+  /** @type {{in:string;out?:string|null}[]} */
+  const testCases = [
+    { in: 'rotate(31deg)' },
+    { in: 'translate(100px,20px)' },
+    { in: 'translate(100px)' },
+    { in: 'translate(100mm)', out: null },
+  ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
       const transforms = cssParseTransform(testCase.in);
       if (transforms === null) {
-        throw new Error();
+        expect(testCase.out).toBeNull();
+      } else {
+        const expected = testCase.in;
+        expect(cssStringifyTransform(transforms)).toBe(expected);
       }
-      const expected = testCase.in;
-      expect(cssStringifyTransform(transforms)).toBe(expected);
     });
   }
 });

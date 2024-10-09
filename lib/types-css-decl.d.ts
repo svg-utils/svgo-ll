@@ -6,6 +6,15 @@ export type CSSTypeAngle = {
 };
 export type CSSTypeLength = { n: ExactNum; unit: 'px' };
 
+export type CSSTransFnMatrix = {
+  name: 'matrix';
+  a: ExactNum;
+  b: ExactNum;
+  c: ExactNum;
+  d: ExactNum;
+  e: ExactNum;
+  f: ExactNum;
+};
 export type CSSTransFnRotate = { name: 'rotate'; a: CSSTypeAngle };
 export type CSSTransFnScale = {
   name: 'scale';
@@ -21,6 +30,7 @@ export type CSSTransFnTranslate = {
 };
 
 export type CSSTransformFn =
+  | CSSTransFnMatrix
   | CSSTransFnRotate
   | CSSTransFnScale
   | CSSTransFnSkewX

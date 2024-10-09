@@ -1,4 +1,4 @@
-import { svgStringifyTransform } from '../lib/svg-parse-att.js';
+import { svgSetAttributeValue } from '../lib/svg-parse-att.js';
 import { cssGetTransform } from '../lib/css-parse-decl.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
@@ -139,7 +139,7 @@ function createGroups(element, usedIds, elementsToCheck) {
 
     // Add transform attribute.
     if (attTransform) {
-      groupElement.attributes.transform = attTransform;
+      svgSetAttributeValue(groupElement, 'transform', attTransform);
     }
     newChildren.push(groupElement);
 
@@ -321,8 +321,7 @@ function transformAttrToCSS(attValue) {
 
 /**
  * @param {import('../lib/types.js').CSSPropertyValue|undefined} cssValue
- * TODO: CHANGE RETURN TYPE
- * @returns {string|undefined}
+ * @returns {import('../lib/types.js').SVGAttValue|undefined}
  */
 function transformCSSToAttr(cssValue) {
   if (!cssValue) {
@@ -343,11 +342,13 @@ function transformCSSToAttr(cssValue) {
         svgTransforms.push({
           name: 'rotate',
           a: new ExactNum(cssTransform.a.n),
+          tx: ExactNum.zero(),
+          ty: ExactNum.zero(),
         });
         break;
       default:
         return;
     }
   }
-  return svgStringifyTransform(svgTransforms);
+  return { parsedVal: { type: 'transform', value: svgTransforms } };
 }

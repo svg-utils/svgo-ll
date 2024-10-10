@@ -7,6 +7,7 @@ export const description =
   'removes non-rendered elements that are not referenced';
 
 /**
+ * @see https://svgwg.org/svg2-draft/render.html#TermNeverRenderedElement
  * @type {import('./plugins-types.js').Plugin<'removeHiddenElems'>}
  */
 export const fn = (root, params, info) => {

@@ -19,6 +19,8 @@ The `style` attribute is removed from all animation elements.
 
 The list of allowable properties comes from https://www.w3.org/TR/SVG2/styling.html#PresentationAttributes, and also includes the `font` shorthand property.
 
+Empty `style` attributes are removed.
+
 Style attributes are not changed if the document has attribute selectors on the `style` attribute.
 
 ### `class` Attributes

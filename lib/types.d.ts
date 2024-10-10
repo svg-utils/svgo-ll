@@ -63,8 +63,12 @@ export type XastNode = XastRoot | XastChild;
 
 export type SVGAttValue = { strVal?: string; parsedVal?: SVGParsedValue };
 
-export type SVGParsedValue = SVGParsedTransform;
+export type SVGParsedValue = SVGParsedOpacity | SVGParsedTransform;
 
+export type SVGParsedOpacity = {
+  type: 'opacity';
+  value: number;
+};
 export type SVGParsedTransform = {
   type: 'transform';
   value: import('./types-svg-attr.js').SVGTransformFn[] | null;

@@ -1,7 +1,7 @@
-import { svgSetAttributeValue } from '../lib/svg-parse-att.js';
 import { cssToString, cssTransformToSVGAtt } from '../lib/css-parse-decl.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
+import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { getHrefId } from '../lib/svgo/tools.js';
 import { getInheritableProperties } from './_styles.js';
 
@@ -137,7 +137,7 @@ function createGroups(element, usedIds, elementsToCheck) {
 
     // Add transform attribute.
     if (attTransform) {
-      svgSetAttributeValue(groupElement, 'transform', attTransform);
+      svgSetAttValue(groupElement, 'transform', attTransform);
     }
     newChildren.push(groupElement);
 

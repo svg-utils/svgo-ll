@@ -12,7 +12,6 @@ import * as inlineStyles from './inlineStyles.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
 import * as minifyTransforms from './minifyTransforms.js';
-import * as moveElemsAttrsToGroup from './moveElemsAttrsToGroup.js';
 import * as moveElemsStylesToGroup from './moveElemsStylesToGroup.js';
 import * as removeComments from './removeComments.js';
 import * as removeDesc from './removeDesc.js';
@@ -51,7 +50,6 @@ const presetDefault = createPreset({
     removeEmptyText,
     minifyTransforms,
     convertEllipseToCircle,
-    moveElemsAttrsToGroup,
     moveElemsStylesToGroup,
     collapseGroups,
     convertShapeToPath,

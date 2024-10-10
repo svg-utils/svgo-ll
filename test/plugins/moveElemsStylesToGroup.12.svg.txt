@@ -1,0 +1,18 @@
+Don't move transform if there is at least one transform-origin that can't be moved.
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 20 20">
+  <g>
+    <rect x="3" y="4" width="2" height="3" stroke="black" fill="red" transform-origin="3 4" transform="rotate(30)"/>
+    <rect x="3" y="4" width="2" height="3" stroke="black" fill="green" transform="rotate(30)"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 20 20">
+    <g style="stroke:black">
+        <rect x="3" y="4" width="2" height="3" fill="red" transform-origin="3 4" transform="rotate(30)"/>
+        <rect x="3" y="4" width="2" height="3" fill="green" transform="rotate(30)"/>
+    </g>
+</svg>

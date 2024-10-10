@@ -2,6 +2,8 @@
 
 Moves style properties from `<style>` elements to the `style` attribute of matching elements.
 
+## Details
+
 The plugin has no effect if:
 
 - The document has scripts.

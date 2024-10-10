@@ -4,6 +4,8 @@ export const name = 'moveElemsAttrsToGroup';
 export const description =
   'Move common attributes of group children to the group';
 
+let deprecationWarning = true;
+
 /**
  * Move common attributes of group children to the group
  *
@@ -27,6 +29,12 @@ export const description =
  * @type {import('./plugins-types.js').Plugin<'moveElemsAttrsToGroup'>}
  */
 export const fn = (root, params, info) => {
+  if (deprecationWarning) {
+    console.warn(
+      'The moveElemsAttrsToGroup plugin is deprecated and will be removed in a future release.',
+    );
+    deprecationWarning = false;
+  }
   const styleData = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||

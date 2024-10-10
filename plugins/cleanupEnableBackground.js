@@ -8,6 +8,8 @@ export const description =
 const regEnableBackground =
   /^new\s0\s0\s([-+]?\d*\.?\d+([eE][-+]?\d+)?)\s([-+]?\d*\.?\d+([eE][-+]?\d+)?)$/;
 
+let deprecationWarning = true;
+
 /**
  * Remove or cleanup enable-background attr which coincides with a width/height box.
  *
@@ -20,6 +22,12 @@ const regEnableBackground =
  * @type {import('./plugins-types.js').Plugin<'cleanupEnableBackground'>}
  */
 export const fn = (root) => {
+  if (deprecationWarning) {
+    console.warn(
+      'The cleanupEnableBackground plugin is deprecated and will be removed in a future release.',
+    );
+    deprecationWarning = false;
+  }
   let hasFilter = false;
 
   visit(root, {

@@ -31,4 +31,4 @@ The following plugins are included in `preset-next`, in the order that they are 
 - [minifyPathData](./plugins/minifyPathData.md)
 - removeEmptyContainers
 - removeUnusedNS
-- createGroups
+- [createGroups](./plugins/createGroups.md)

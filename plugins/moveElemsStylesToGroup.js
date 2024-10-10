@@ -2,10 +2,7 @@ import { cssToString, cssTransformToSVGAtt } from '../lib/css-parse-decl.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import { svgToString } from '../lib/svg-parse-att.js';
-import {
-  getInheritableProperties,
-  TRANSFORM_PROP_NAMES,
-} from '../lib/svgo/tools.js';
+import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'moveElemsStylesToGroup';
 export const description =

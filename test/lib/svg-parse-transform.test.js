@@ -1,10 +1,12 @@
-import { cssTransformToSVGAtt } from '../../lib/css-parse-decl.js';
 import {
-  svgAttTransformToCSS,
   svgParseTransform,
   svgStringifyTransform,
   SVGTransformValue,
 } from '../../lib/svg-parse-att.js';
+import {
+  cssTransformToSVGAtt,
+  svgAttTransformToCSS,
+} from '../../lib/svg-to-css.js';
 
 describe('test svg transform parsing', () => {
   /** @type {{in:string,out?:string}[]} */

@@ -1,5 +1,5 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { svgAttTransformToCSS } from '../lib/svg-parse-att.js';
+import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
 import { inheritableAttrs } from './_collections.js';
 
 export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];

@@ -1,4 +1,6 @@
 import { OpacityValue } from '../lib/attvalue.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
 import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
 
@@ -35,6 +37,32 @@ export const fn = (root, params, info) => {
           if (newVal) {
             svgSetAttValue(element, attName, newVal);
           }
+        }
+
+        // Round style attribute properties.
+        const props = getStyleDeclarations(element);
+        if (!props) {
+          return;
+        }
+        let propChanged = false;
+        for (const [propName, propValue] of props.entries()) {
+          let newVal;
+          switch (propName) {
+            case 'fill-opacity':
+            case 'opacity':
+              newVal = roundOpacity(propValue.value, opacityDigits);
+              break;
+          }
+          if (newVal) {
+            propChanged = true;
+            props.set(propName, {
+              value: newVal,
+              important: propValue.important,
+            });
+          }
+        }
+        if (propChanged) {
+          writeStyleAttribute(element, props);
         }
       },
     },

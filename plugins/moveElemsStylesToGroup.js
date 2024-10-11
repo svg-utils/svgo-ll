@@ -1,6 +1,6 @@
-import { cssTransformToSVGAtt } from '../lib/css-parse-decl.js';
-import { getStyleDeclarations } from '../lib/css-tools.js';
-import { cssPropToString, writeStyleAttribute } from '../lib/css.js';
+import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
+import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'moveElemsStylesToGroup';

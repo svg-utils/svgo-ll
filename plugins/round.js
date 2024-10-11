@@ -20,7 +20,7 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  const { opacityDigits = 2 } = params;
+  const { opacityDigits = 3 } = params;
 
   return {
     element: {

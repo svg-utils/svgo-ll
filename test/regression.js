@@ -17,8 +17,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const width = 960;
 const height = 720;
 
-/** @type {Object<string,{lengthOrig:number,lengthOpt:number,pixels:number}>} */
-const stats = {};
+/** @type {Map<string,{lengthOrig:number,lengthOpt:number,pixels:number}>} */
+const stats = new Map();
 
 /** @type {import('playwright').PageScreenshotOptions} */
 const screenshotOptions = {
@@ -41,7 +41,8 @@ async function performTests(options) {
   /** @type {'chromium' | 'firefox' | 'webkit'} */
   const browserStr = ['chromium', 'firefox', 'webkit'].includes(options.browser)
     ? options.browser
-    : 'chromium';
+    : // Default to webkit since that shows fewer false positives.
+      'webkit';
   const browserType = playwright[browserStr];
 
   /** @type {import('../lib/svgo.js').Config} */
@@ -67,7 +68,7 @@ async function performTests(options) {
         lengthOpt: 0,
         pixels: -1,
       };
-      stats[name.replace(/\\/g, '/')] = fileStats;
+      stats.set(name.replace(/\\/g, '/'), fileStats);
 
       await page.goto(`http://localhost:5000/original/${name}`);
       const originalBuffer = await page.screenshot(screenshotOptions);
@@ -140,8 +141,15 @@ async function performTests(options) {
     const statArray = [
       ['Name', 'Orig Len', 'Opt Len', 'Reduction', 'Pixels'].join('\t'),
     ];
-    for (const name of Object.keys(stats).sort()) {
-      const fileStats = stats[name];
+    const sortedKeys = [];
+    for (const key of stats.keys()) {
+      sortedKeys.push(key);
+    }
+    for (const name of sortedKeys.sort()) {
+      const fileStats = stats.get(name);
+      if (!fileStats) {
+        throw new Error();
+      }
       const orig = fileStats.lengthOrig;
       const opt = fileStats.lengthOpt;
       const reduction = orig - opt;
@@ -168,26 +176,31 @@ async function performTests(options) {
       if (req.url === undefined) {
         throw new Error();
       }
-      const name = req.url.slice(req.url.indexOf('/', 1));
+      const name = decodeURI(req.url.slice(req.url.indexOf('/', 1)));
       const statsName = name.substring(1);
       let file;
       try {
         file = await fs.readFile(path.join(fixturesDir, name), 'utf-8');
       } catch {
+        console.error(`error reading file ${name}`);
         res.statusCode = 404;
         res.end();
         return;
       }
 
+      const fileStats = stats.get(statsName);
+      if (!fileStats) {
+        throw new Error();
+      }
       if (req.url.startsWith('/original/')) {
-        stats[statsName].lengthOrig = file.length;
+        fileStats.lengthOrig = file.length;
         res.setHeader('Content-Type', 'image/svg+xml');
         res.end(file);
         return;
       }
       if (req.url.startsWith('/optimized/')) {
         const optimized = optimize(file, config);
-        stats[statsName].lengthOpt = optimized.data.length;
+        fileStats.lengthOpt = optimized.data.length;
 
         if (optimized.error) {
           notOptimized.add(name.substring(1));

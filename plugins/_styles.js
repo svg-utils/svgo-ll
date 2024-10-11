@@ -1,5 +1,5 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { svgAttTransformToCSS, svgToString } from '../lib/svg-parse-att.js';
+import { svgAttTransformToCSS } from '../lib/svg-parse-att.js';
 import { inheritableAttrs } from './_collections.js';
 
 export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
@@ -13,17 +13,16 @@ export function getInheritableProperties(element) {
   const props = new Map();
 
   // Gather all inheritable attributes.
-  for (const [k, v] of Object.entries(element.attributes)) {
-    const value = getSVGAttributeValue(v);
-    if (inheritableAttrs.has(k)) {
-      props.set(k, { value: svgToString(value), important: false });
-    } else if (k === 'transform') {
+  for (const [name, value] of Object.entries(element.attributes)) {
+    if (inheritableAttrs.has(name)) {
+      props.set(name, { value: value, important: false });
+    } else if (name === 'transform') {
       const cssValue = svgAttTransformToCSS(value);
       if (cssValue) {
-        props.set(k, cssValue);
+        props.set(name, cssValue);
       }
-    } else if (TRANSFORM_PROP_NAMES.includes(k)) {
-      props.set(k, { value: svgToString(value), important: false });
+    } else if (TRANSFORM_PROP_NAMES.includes(name)) {
+      props.set(name, { value: value, important: false });
     }
   }
 
@@ -42,15 +41,4 @@ export function getInheritableProperties(element) {
   }
 
   return props;
-}
-
-/**
- * @param {string|import('../lib/types.js').SVGAttValue} v
- * @returns {import('../lib/types.js').SVGAttValue}
- */
-function getSVGAttributeValue(v) {
-  if (typeof v === 'string') {
-    return { strVal: v };
-  }
-  return v;
 }

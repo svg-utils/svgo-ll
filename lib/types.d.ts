@@ -1,3 +1,5 @@
+import type { AttValue } from './attvalue.js';
+
 export type XastDoctype = {
   type: 'doctype';
   parentNode: XastParent;
@@ -32,6 +34,7 @@ export type XastText = {
   value: string;
 };
 
+export type SVGAttValue = string | AttValue;
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
@@ -60,19 +63,6 @@ export type XastRoot = {
 export type XastParent = XastRoot | XastElement;
 
 export type XastNode = XastRoot | XastChild;
-
-export type SVGAttValue = { strVal?: string; parsedVal?: SVGParsedValue };
-
-export type SVGParsedValue = SVGParsedOpacity | SVGParsedTransform;
-
-export type SVGParsedOpacity = {
-  type: 'opacity';
-  value: number;
-};
-export type SVGParsedTransform = {
-  type: 'transform';
-  value: import('./types-svg-attr.js').SVGTransformFn[] | null;
-};
 
 export type StringifyOptions = {
   doctypeStart?: string;
@@ -193,11 +183,8 @@ export type CSSParsedTransform = {
   value: import('./types-css-decl.js').CSSTransformFn[] | null;
 };
 
-export type CSSParsedProperty = CSSParsedTransform;
-
 export type CSSPropertyValue = {
-  value: string;
-  parsedValue?: CSSParsedProperty;
+  value: string | AttValue;
   important: boolean;
 };
 

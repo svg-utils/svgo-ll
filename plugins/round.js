@@ -1,8 +1,5 @@
-import {
-  svgGetAttValue,
-  svgGetOpacity,
-  svgSetAttValue,
-} from '../lib/svg-parse-att.js';
+import { OpacityValue } from '../lib/attvalue.js';
+import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
 
 export const name = 'round';
@@ -27,9 +24,8 @@ export const fn = (root, params, info) => {
     element: {
       enter: (element) => {
         // Round attributes.
-        for (const [attName, value] of Object.entries(element.attributes)) {
+        for (const [attName, attValue] of Object.entries(element.attributes)) {
           let newVal;
-          const attValue = svgGetAttValue(value);
           switch (attName) {
             case 'fill-opacity':
             case 'opacity':
@@ -48,18 +44,16 @@ export const fn = (root, params, info) => {
 /**
  * @param {import('../lib/types.js').SVGAttValue} attValue
  * @param {number} digits
- * @returns {import('../lib/types.js').SVGAttValue|null}
+ * @returns {OpacityValue|null}
  */
 function roundOpacity(attValue, digits) {
-  const opacity = svgGetOpacity(attValue);
-  if (opacity === null) {
-    return null;
-  }
+  const value = OpacityValue.getOpacityObj(attValue);
+  const opacity = value.getOpacity();
   if (opacity >= 1) {
-    return { strVal: '1', parsedVal: { type: 'opacity', value: 1 } };
+    return new OpacityValue('1', 1);
   }
   if (opacity <= 0) {
-    return { strVal: '0', parsedVal: { type: 'opacity', value: 0 } };
+    return new OpacityValue('0', 0);
   }
-  return { strVal: toFixed(opacity, digits).toString() };
+  return new OpacityValue(undefined, toFixed(opacity, digits));
 }

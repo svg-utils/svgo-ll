@@ -1,7 +1,6 @@
-import { cssToString, cssTransformToSVGAtt } from '../lib/css-parse-decl.js';
+import { cssTransformToSVGAtt } from '../lib/css-parse-decl.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
-import { svgToString } from '../lib/svg-parse-att.js';
+import { cssPropToString, writeStyleAttribute } from '../lib/css.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'moveElemsStylesToGroup';
@@ -62,7 +61,8 @@ export const fn = (root, params, info) => {
               const childProperty = childProperties.get(name);
               if (
                 !childProperty ||
-                cssToString(childProperty) !== cssToString(commonValue) ||
+                cssPropToString(childProperty) !==
+                  cssPropToString(commonValue) ||
                 childProperty.important !== commonValue.important
               ) {
                 commonProperties.delete(name);
@@ -118,7 +118,7 @@ export const fn = (root, params, info) => {
             groupProperties.delete('transform');
             const currentTransform = node.attributes.transform ?? '';
             node.attributes.transform =
-              currentTransform + svgToString(attTransform);
+              currentTransform + attTransform.toString();
           } else {
             // This shouldn't happen unless there's a CSS transform which can't be converted to an attribute; don't
             // move the property.

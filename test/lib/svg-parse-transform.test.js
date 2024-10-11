@@ -1,10 +1,12 @@
-import { cssTransformToSVGAtt } from '../../lib/css-parse-decl.js';
 import {
-  svgAttTransformToCSS,
   svgParseTransform,
   svgStringifyTransform,
-  svgToString,
+  SVGTransformValue,
 } from '../../lib/svg-parse-att.js';
+import {
+  cssTransformToSVGAtt,
+  svgAttTransformToCSS,
+} from '../../lib/svg-to-css.js';
 
 describe('test svg transform parsing', () => {
   /** @type {{in:string,out?:string}[]} */
@@ -49,12 +51,13 @@ describe('test transform conversion between attributes and properties', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const css = svgAttTransformToCSS({ strVal: testCase.in });
+      const attValue = new SVGTransformValue(testCase.in);
+      const css = svgAttTransformToCSS(attValue);
       const att = cssTransformToSVGAtt(css);
       if (att === undefined) {
         throw new Error();
       }
-      expect(svgToString(att)).toBe(testCase.in);
+      expect(att.toString()).toBe(testCase.in);
     });
   }
 });

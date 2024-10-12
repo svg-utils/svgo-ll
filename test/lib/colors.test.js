@@ -9,8 +9,11 @@ describe('test parsing and minifying', () => {
     { in: 'cadetBlue', minified: '#5f9ea0' },
     { in: 'coRal', minified: 'coral' },
     { in: 'wHatEveR' },
+    { in: 'rGb( 50   100 ,   150 )', minified: '#326496' },
   ];
   // TODO:
+  // rgb values
+  // rgb pct.
   // CASE SENSITIVITY
   // INVALID VALUES
   // alpha channel

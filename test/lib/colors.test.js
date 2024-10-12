@@ -11,13 +11,9 @@ describe('test parsing and minifying', () => {
     { in: 'wHatEveR' },
     { in: 'rGb( 50   100 ,   150 )', minified: '#326496' },
     { in: 'rgb( 49.5%, 33.49% ,22.5% )', minified: 'rgb(49.5%,33.49%,22.5%)' },
+    { in: 'rgb(165,42,42)', minified: 'brown' },
+    { in: 'rgb( 50 100 150 /.1)', minified: 'rgb( 50 100 150 /.1)' },
   ];
-  // TODO:
-  // rgb values
-  // rgb pct.
-  // CASE SENSITIVITY
-  // INVALID VALUES
-  // alpha channel
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
       const attValue = ColorValue.getColorObj(testCase.in);

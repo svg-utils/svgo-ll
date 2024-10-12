@@ -4,11 +4,11 @@ import * as cleanupStyleAttributes from './cleanupStyleAttributes.js';
 import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
 import * as combineStyleElements from './combineStyleElements.js';
-import * as convertColors from './convertColors.js';
 import * as convertEllipseToCircle from './convertEllipseToCircle.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
+import * as minifyColors from './minifyColors.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
 import * as minifyTransforms from './minifyTransforms.js';
@@ -42,7 +42,7 @@ const presetNext = createPreset({
     inlineStyles,
     minifyStyles,
     cleanupIds,
-    convertColors,
+    minifyColors,
     removeUnknownsAndDefaults,
     removeNonInheritableGroupAttrs,
     removeUselessStrokeAndFill,

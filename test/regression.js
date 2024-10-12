@@ -176,13 +176,18 @@ async function performTests(options) {
       if (req.url === undefined) {
         throw new Error();
       }
-      const name = decodeURI(req.url.slice(req.url.indexOf('/', 1)));
+      const name = decodeURI(req.url.slice(req.url.indexOf('/', 1)))
+        .replaceAll('(', '%28')
+        .replaceAll(')', '%29');
       const statsName = name.substring(1);
       let file;
       try {
         file = await fs.readFile(path.join(fixturesDir, name), 'utf-8');
       } catch {
-        console.error(`error reading file ${name}`);
+        if (name.endsWith('.svg')) {
+          console.error(`error reading file ${name} (url=${req.url})`);
+          notOptimized.add(name.substring(1));
+        }
         res.statusCode = 404;
         res.end();
         return;
@@ -252,7 +257,7 @@ program
   .option(
     '-b, --browser <chromium | firefox | webkit>',
     'Browser engine to use in testing',
-    'chromium',
+    'webkit',
   )
   .option(
     '-i, --inputdir <dir>',

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <g transform="translate(0,0)">
+    <rect y="0" width="3" height="2" fill="#abcdef"/>
+    <rect y="3" width="3" height="2" fill="#f00"/>
+    <rect y="6" width="3" height="2" fill="rgb( 50 100 150 )"/>
+    <rect y="9" width="3" height="2" fill="rgb( 50, 100 ,150 )"/>
+    <rect y="12" width="3" height="2" fill="rgb( 49.5%, 33.49% ,22.5% )"/>
+    <rect y="15" width="3" height="2" fill="rgb(50%33%23%)"/>
+  </g>
+  <g transform="translate(5,0)">
+    <rect y="0" width="3" height="2" style="fill:#abcdef"/>
+    <rect y="3" width="3" height="2" style="fill:#f00"/>
+    <rect y="6" width="3" height="2" style="fill:rgb( 50 100 150 )"/>
+    <rect y="9" width="3" height="2" style="fill:rgb( 50, 100 ,150 )"/>
+    <rect y="12" width="3" height="2" style="fill:rgb( 49.5%, 33.49% ,22.5% )"/>
+    <rect y="15" width="3" height="2" style="fill:rgb(50%33%23%)"/>
+  </g>
+</svg>

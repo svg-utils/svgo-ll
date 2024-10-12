@@ -184,9 +184,12 @@ async function performTests(options) {
       try {
         file = await fs.readFile(path.join(fixturesDir, name), 'utf-8');
       } catch {
-        if (name.endsWith('.svg')) {
+        if (
+          req.url.startsWith('/original/') ||
+          req.url.startsWith('/optimized/')
+        ) {
           console.error(`error reading file ${name} (url=${req.url})`);
-          notOptimized.add(name.substring(1));
+          notOptimized.add(statsName);
         }
         res.statusCode = 404;
         res.end();

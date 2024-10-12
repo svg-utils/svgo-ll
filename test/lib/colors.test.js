@@ -10,6 +10,7 @@ describe('test parsing and minifying', () => {
     { in: 'coRal', minified: 'coral' },
     { in: 'wHatEveR' },
     { in: 'rGb( 50   100 ,   150 )', minified: '#326496' },
+    { in: 'rgb( 49.5%, 33.49% ,22.5% )', minified: 'rgb(49.5%,33.49%,22.5%)' },
   ];
   // TODO:
   // rgb values

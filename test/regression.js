@@ -63,13 +63,6 @@ async function performTests(options) {
      * @param {string} name
      */
     const processFile = async (page, name) => {
-      const fileStats = {
-        lengthOrig: 0,
-        lengthOpt: 0,
-        pixels: -1,
-      };
-      stats.set(name.replace(/\\/g, '/'), fileStats);
-
       await page.goto(`http://localhost:5000/original/${name}`);
       const originalBuffer = await page.screenshot(screenshotOptions);
       await page.goto(`http://localhost:5000/optimized/${name}`);
@@ -90,6 +83,10 @@ async function performTests(options) {
         return;
       }
 
+      const fileStats = stats.get(name.replace(/\\/g, '/'));
+      if (!fileStats) {
+        throw new Error();
+      }
       fileStats.pixels = mismatchCount;
       totalPixelMismatches += mismatchCount;
       if (mismatchCount <= 0) {
@@ -176,13 +173,18 @@ async function performTests(options) {
       if (req.url === undefined) {
         throw new Error();
       }
-      const name = decodeURI(req.url.slice(req.url.indexOf('/', 1)));
+      const name = decodeURI(req.url.slice(req.url.indexOf('/', 1)))
+        .replaceAll('(', '%28')
+        .replaceAll(')', '%29');
       const statsName = name.substring(1);
       let file;
       try {
         file = await fs.readFile(path.join(fixturesDir, name), 'utf-8');
       } catch {
-        console.error(`error reading file ${name}`);
+        if (stats.has(statsName)) {
+          console.error(`error reading file ${name} (url=${req.url})`);
+          notOptimized.add(statsName);
+        }
         res.statusCode = 404;
         res.end();
         return;
@@ -218,6 +220,16 @@ async function performTests(options) {
       server.listen(5000, resolve);
     });
     const list = (await filesPromise).filter((name) => name.endsWith('.svg'));
+
+    // Initialize statistics array.
+    list.forEach((name) =>
+      stats.set(name, {
+        lengthOrig: 0,
+        lengthOpt: 0,
+        pixels: -1,
+      }),
+    );
+
     const passed = await runTests(list);
     server.close();
     const end = process.hrtime.bigint();
@@ -252,7 +264,7 @@ program
   .option(
     '-b, --browser <chromium | firefox | webkit>',
     'Browser engine to use in testing',
-    'chromium',
+    'webkit',
   )
   .option(
     '-i, --inputdir <dir>',

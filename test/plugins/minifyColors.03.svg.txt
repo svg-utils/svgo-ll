@@ -1,0 +1,35 @@
+Convert lighting-color values.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200">
+  <filter id="diffuseLighting1" x="0" y="0" width="100%" height="100%">
+    <feDiffuseLighting in="SourceGraphic" lighting-color="white">
+      <fePointLight x="60" y="60" z="20" />
+    </feDiffuseLighting>
+  </filter>
+  <filter id="diffuseLighting2" x="0" y="0" width="100%" height="100%">
+    <feDiffuseLighting in="SourceGraphic" lighting-color="blue">
+      <fePointLight x="60" y="60" z="20" />
+    </feDiffuseLighting>
+  </filter>
+  <rect width="200" height="200" style="filter: url(#diffuseLighting1);" />
+  <rect width="200" height="200" style="filter: url(#diffuseLighting2); transform: translateX(220px);" />
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200">
+    <filter id="diffuseLighting1" x="0" y="0" width="100%" height="100%">
+        <feDiffuseLighting in="SourceGraphic" lighting-color="#fff">
+            <fePointLight x="60" y="60" z="20"/>
+        </feDiffuseLighting>
+    </filter>
+    <filter id="diffuseLighting2" x="0" y="0" width="100%" height="100%">
+        <feDiffuseLighting in="SourceGraphic" lighting-color="blue">
+            <fePointLight x="60" y="60" z="20"/>
+        </feDiffuseLighting>
+    </filter>
+    <rect width="200" height="200" style="filter: url(#diffuseLighting1);"/>
+    <rect width="200" height="200" style="filter: url(#diffuseLighting2); transform: translateX(220px);"/>
+</svg>

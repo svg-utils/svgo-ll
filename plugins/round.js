@@ -58,12 +58,7 @@ export const fn = (root, params, info) => {
             case 'svg':
             case 'symbol':
             case 'view':
-              if (element.attributes.viewBox) {
-                // Generate width and height based on the viewBox.
-                coordContextStack.push(getCoordContext(element, coordDigits));
-              } else {
-                coordContextStack.push(NULL_COORD_CONTEXT);
-              }
+              coordContextStack.push(getCoordContext(element, coordDigits));
               break;
             default:
               // Copy the context from parent element.
@@ -172,6 +167,19 @@ function getCoordContext(element, digits) {
         height: height,
         xDigits: scaleDigits(width, digits),
         yDigits: scaleDigits(height, digits),
+      };
+    }
+  } else if (element.attributes.width && element.attributes.height) {
+    const width = LengthValue.getLengthObj(element.attributes.width);
+    const height = LengthValue.getLengthObj(element.attributes.height);
+    const x = width.getPixels();
+    const y = height.getPixels();
+    if (x !== null && y !== null) {
+      return {
+        width: x,
+        height: y,
+        xDigits: scaleDigits(x, digits),
+        yDigits: scaleDigits(y, digits),
       };
     }
   }

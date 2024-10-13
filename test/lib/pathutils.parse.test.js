@@ -1,7 +1,7 @@
 import {
   parsePathCommands,
   stringifyPathCommands,
-} from '../../plugins/minifyPathData.js';
+} from '../../lib/pathutils.js';
 
 describe('test parsing of path', function () {
   /** @type {{input:string,expected?:string}[]} */

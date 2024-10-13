@@ -1,0 +1,17 @@
+Round path coordinates.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <path d="M1.234567 2.345678h3.456789v4.567891H1.234567z"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <path d="M1.235 2.346h3.457v4.568H1.235z"/>
+</svg>
+
+@@@
+
+{"coordDigits":2}

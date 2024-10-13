@@ -1,0 +1,17 @@
+Round rectangle coordinates with no viewBox.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+  <rect x="1.234567" y="2.345678" width="123.456789" height="124.567891"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="500" height="500">
+    <rect x="1.23" y="2.35" width="123.46" height="124.57"/>
+</svg>
+
+@@@
+
+{"coordDigits":2}

@@ -1,6 +1,6 @@
+import { parsePathCommands, PathParseError } from '../lib/pathutils.js';
 import { getEllipseProperties } from '../lib/svgo/tools.js';
 import { elemsGroups } from './_collections.js';
-import { parsePathCommands, PathParseError } from './minifyPathData.js';
 
 export const name = 'removeHiddenElems';
 export const description =

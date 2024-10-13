@@ -1,0 +1,17 @@
+Don't round transformed elements.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <path d="M1.234567 2.345678h3.456789v4.567891H1.234567z" transform="rotate(30)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <path d="M1.234567 2.345678h3.456789v4.567891H1.234567z" transform="rotate(30)"/>
+</svg>
+
+@@@
+
+{"coordDigits":2}

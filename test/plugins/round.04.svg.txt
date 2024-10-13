@@ -1,15 +1,15 @@
-Round rectangle coordinates.
+Round path coordinates.
 
 ===
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
-  <rect x="1.234567" y="2.345678" width="3.456789" height="4.567891"/>
+  <path d="M1.234567 2.345678h3.456789v4.567891H1.234567z"/>
 </svg>
 
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
-    <rect x="1.235" y="2.346" width="3.457" height="4.568"/>
+    <path d="M1.235 2.346h3.457v4.568H1.235z"/>
 </svg>
 
 @@@

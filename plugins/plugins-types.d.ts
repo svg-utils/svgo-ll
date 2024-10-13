@@ -230,6 +230,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   removeXMLNS: void;
   reusePaths: void;
   round: {
+    coordDigits?: number;
     opacityDigits?: number;
   };
 };

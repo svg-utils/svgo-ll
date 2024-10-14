@@ -14,6 +14,8 @@ describe('test parsing and minifying', () => {
     { in: 'rgb( 49.5%, 33.49% ,22.5% )', minified: 'rgb(49.5%,33.49%,22.5%)' },
     { in: 'rgb(165,42,42)', minified: 'brown' },
     { in: 'rgb( 50 100 150 /.1)', minified: 'rgb( 50 100 150 /.1)' },
+    { in: 'rgb(100%,0%,0%)', minified: 'red' },
+    { in: 'rgb(100%,100%,100%)', minified: '#fff' },
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {

@@ -1,0 +1,17 @@
+Round <line> coordinates.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <line x1="1.234567" y1="2.345678" x2="6.456789" y2="8.567891" style="stroke:black"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <line x1="1.235" y1="2.346" x2="6.457" y2="8.568" style="stroke:black"/>
+</svg>
+
+@@@
+
+{"coordDigits":2}

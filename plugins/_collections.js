@@ -323,7 +323,6 @@ export const attrsGroupsDefaults = {
     'fill-opacity': '1',
     'fill-rule': 'nonzero',
     fill: '#000',
-    overflow: 'visible',
     stroke: 'none',
     'stroke-width': '1',
     'stroke-linecap': 'butt',

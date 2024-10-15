@@ -1,4 +1,5 @@
 import { OpacityValue } from '../lib/attvalue.js';
+import { ColorValue } from '../lib/color.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import { LengthValue } from '../lib/length.js';
@@ -83,6 +84,13 @@ export const fn = (root, params, info) => {
                 coordContext.yDigits,
               );
               break;
+            case 'fill':
+            case 'flood-color':
+            case 'lighting-color':
+            case 'stop-color':
+            case 'stroke':
+              newVal = roundColor(attValue);
+              break;
             case 'fill-opacity':
             case 'opacity':
               newVal = roundOpacity(attValue, opacityDigits);
@@ -117,6 +125,13 @@ export const fn = (root, params, info) => {
         for (const [propName, propValue] of props.entries()) {
           let newVal;
           switch (propName) {
+            case 'fill':
+            case 'flood-color':
+            case 'lighting-color':
+            case 'stop-color':
+            case 'stroke':
+              newVal = roundColor(propValue.value);
+              break;
             case 'fill-opacity':
             case 'opacity':
               newVal = roundOpacity(propValue.value, opacityDigits);
@@ -196,6 +211,15 @@ function isTranslation(transform) {
   }
   const transforms = svgParseTransform(transform);
   return transforms.length === 1 && transforms[0].name === 'translate';
+}
+
+/**
+ * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @returns {ColorValue|null}
+ */
+function roundColor(attValue) {
+  const value = ColorValue.getColorObj(attValue);
+  return value.round();
 }
 
 /**

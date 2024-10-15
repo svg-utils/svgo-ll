@@ -26,6 +26,14 @@ const NULL_COORD_CONTEXT = {
   yDigits: null,
 };
 
+/** @type {Object<string,Set<string>>} */
+const ROUNDABLE_XY_ELEMENTS = {
+  x1: new Set(['line']),
+  y1: new Set(['line']),
+  x2: new Set(['line']),
+  y2: new Set(['line']),
+};
+
 /**
  * @type {import('./plugins-types.js').Plugin<'round'>}
  */
@@ -103,12 +111,26 @@ export const fn = (root, params, info) => {
               );
               break;
             case 'x':
+            case 'x1':
+            case 'x2':
             case 'width':
-              newVal = roundCoord(attValue, coordContext.xDigits);
+              if (
+                !ROUNDABLE_XY_ELEMENTS[attName] ||
+                ROUNDABLE_XY_ELEMENTS[attName].has(element.name)
+              ) {
+                newVal = roundCoord(attValue, coordContext.xDigits);
+              }
               break;
             case 'y':
+            case 'y1':
+            case 'y2':
             case 'height':
-              newVal = roundCoord(attValue, coordContext.yDigits);
+              if (
+                !ROUNDABLE_XY_ELEMENTS[attName] ||
+                ROUNDABLE_XY_ELEMENTS[attName].has(element.name)
+              ) {
+                newVal = roundCoord(attValue, coordContext.yDigits);
+              }
               break;
           }
           if (newVal) {

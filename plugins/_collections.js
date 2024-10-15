@@ -375,26 +375,6 @@ export const attrsGroupsDefaults = {
 };
 
 /**
- * @type {Record<string, { safe?: Set<string>, unsafe?: Set<string> }>}
- * @see https://www.w3.org/TR/SVG11/intro.html#Definitions
- */
-export const attrsGroupsDeprecated = {
-  animationAttributeTarget: { unsafe: new Set(['attributeType']) },
-  conditionalProcessing: { unsafe: new Set(['requiredFeatures']) },
-  core: { unsafe: new Set(['xml:base', 'xml:lang', 'xml:space']) },
-  presentation: {
-    unsafe: new Set([
-      'clip',
-      'color-profile',
-      'enable-background',
-      'glyph-orientation-horizontal',
-      'glyph-orientation-vertical',
-      'kerning',
-    ]),
-  },
-};
-
-/**
  * @type {Record<string, {
  *   attrsGroups: Set<string>,
  *   attrs?: Set<string>,
@@ -2472,7 +2452,6 @@ export default {
   pathElems,
   attrsGroups,
   attrsGroupsDefaults,
-  attrsGroupsDeprecated,
   elems,
   editorNamespaces,
   referencesProps,

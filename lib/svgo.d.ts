@@ -103,12 +103,6 @@ export declare const _collections: {
   attrsGroups: Readonly<Record<string, Set<string>>>;
   attrsGroupsDefaults: Readonly<Record<string, Record<string, string>>>;
   /**
-   * @see https://www.w3.org/TR/SVG11/intro.html#Definitions
-   */
-  attrsGroupsDeprecated: Readonly<
-    Record<string, { safe?: Set<string>; unsafe?: Set<string> }>
-  >;
-  /**
    * @see https://www.w3.org/TR/SVG11/eltindex.html
    */
   elems: Readonly<

@@ -1,0 +1,21 @@
+Round rgb % colors.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="0" width="3" height="2" stroke="rgb(40%,57.254902%,85.490196%)"/>
+  <rect y="3" width="3" height="2" style="stroke:rgb(40%,57.254902%,85.490196%)"/>
+  <rect y="6" width="3" height="2" style="stroke:rgb(0%,50.196078%,0%)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+    <rect y="0" width="3" height="2" stroke="#6692da"/>
+    <rect y="3" width="3" height="2" style="stroke:#6692da"/>
+    <rect y="6" width="3" height="2" style="stroke:green"/>
+</svg>
+
+@@@
+
+

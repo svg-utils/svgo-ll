@@ -25,14 +25,6 @@ type DefaultPlugins = {
   cleanupStyleElements: void;
   collapseGroups: void;
   combinePaths: void;
-  convertColors: {
-    currentColor?: boolean | string | RegExp;
-    names2hex?: boolean;
-    rgb2hex?: boolean;
-    convertCase?: false | 'lower' | 'upper';
-    shorthex?: boolean;
-    shortname?: boolean;
-  };
   convertEllipseToCircle: void;
   convertPathData: {
     applyTransforms?: boolean;

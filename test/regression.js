@@ -11,6 +11,7 @@ import playwright from 'playwright';
 import { PNG } from 'pngjs';
 import { optimize } from '../lib/svgo.js';
 import { toFixed } from '../lib/svgo/tools.js';
+import { readJSONFile } from '../lib/svgo/tools-node.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -49,6 +50,7 @@ async function performTests(options) {
   const config = {
     preset: options.preset,
     enable: options.enable,
+    options: options.options ? readJSONFile(options.options) : undefined,
     disable: options.disable,
   };
 
@@ -256,6 +258,10 @@ program
   .option(
     '--enable <plugin...>',
     'Specify one or more builtin plugins to run in addition to those in the preset or config',
+  )
+  .option(
+    '--options <FILENAME>',
+    'Path to a JSON file containing configuration parameters for enabled plugins',
   )
   .option(
     '--disable <plugin...>',

@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { Command } from 'commander';
 import { fileURLToPath } from 'url';
 import svgo from '../../lib/svgo/coa.js';
 
@@ -13,8 +12,7 @@ const tempFolder = 'temp' + Math.random();
  * @param {string[]} args
  */
 function runProgram(args) {
-  const program = new Command();
-  svgo(program);
+  const program = svgo();
   // prevent running process.exit
   program.exitOverride(() => {});
   // parser skips first two arguments

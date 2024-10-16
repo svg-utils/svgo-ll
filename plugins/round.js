@@ -194,7 +194,7 @@ function getCoordContext(element, digits) {
   }
 
   const viewBox = element.attributes.viewBox;
-  if (viewBox) {
+  if (typeof viewBox === 'string' && viewBox) {
     const vbParsed = viewBox.trim().split(/\s+/);
     if (vbParsed.length === 4) {
       const width = parseFloat(vbParsed[2]);
@@ -275,13 +275,13 @@ function roundOpacity(attValue, digits) {
 }
 
 /**
- * @param {string} attValue
+ * @param {import('../lib/types.js').SVGAttValue} attValue
  * @param {number|null} xDigits
  * @param {number|null} yDigits
  * @returns {string|null}
  */
 function roundPath(attValue, xDigits, yDigits) {
-  if (xDigits === null || yDigits === null) {
+  if (typeof attValue !== 'string' || xDigits === null || yDigits === null) {
     return null;
   }
   const commands = parsePathCommands(attValue);

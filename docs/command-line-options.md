@@ -24,8 +24,13 @@ Specify which set of predefined plugins to use. If this option is not used, and 
 `--config <CONFIG>`  
 Custom configuration file.
 
+<a id="enable"></a>
 `--enable <plugin...>`  
 Specify one or more builtin plugins to run in addition to those specified by `--preset` or `--config`.
+
+<a id="options"></a>
+` --options <FILENAME>`  
+Path to a [JSON file](https://www.json.org) containing configuration parameters for enabled plugins. The JSON file should contain an object whose keys are the names of plugins, and whose values are the parameters to pass to that plugin.
 
 `--disable <plugin...>`  
 Specify one or more plugins specified by `--preset` or `--config` which should not be run.

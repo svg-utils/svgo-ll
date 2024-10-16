@@ -4,10 +4,21 @@ Compression
 
 - [Just remove whitespace from a file](#comp-ws)
 - [Run a single plugin](#comp-1plugin)
+- [Disable one or more default plugins](#comp-disable)
 - [Round decimal values](#comp-round)
-- Change the default options for a plugin
+- [Change the default options for a plugin](#comp-defaults)
 
 ## Compression
+
+<a id="comp-ws"></a>
+
+### Just remove whitespace from a file
+
+Use `preset-none`. For example:
+
+```
+npx svgo-ll --preset none -i test.svg
+```
 
 <a id="comp-1plugin"></a>
 
@@ -19,14 +30,14 @@ Use `preset-none` and `--enable`. For example:
 npx svgo-ll --preset none --enable minifyPathData -i test.svg
 ```
 
-<a id="comp-ws"></a>
+<a id="comp-disable"></a>
 
-### Just remove whitespace from a file
+### Disable one or more default plugins
 
-Use `preset-none`. For example:
+Use the `--disable` command line option. For example:
 
 ```
-npx svgo-ll --preset none -i test.svg
+npx svgo-ll --disable minifyPathData cleanupIds -i test.svg
 ```
 
 <a id="comp-round"></a>

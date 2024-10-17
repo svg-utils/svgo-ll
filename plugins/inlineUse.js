@@ -1,7 +1,6 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
-import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { getHrefId, getReferencedIds } from '../lib/svgo/tools.js';
+import { getPresentationProperties } from './_styles.js';
 
 export const name = 'inlineUse';
 export const description = 'move <defs> inline when <use> only once';
@@ -104,23 +103,35 @@ export const fn = (root, params, info) => {
  * @returns {boolean}
  */
 function inlineUse(use, def) {
+  // Don't inline if <use> has children.
   if (use.children.length > 0) {
     return false;
+  }
+
+  // Check referenced element.
+  switch (def.name) {
+    case 'symbol':
+      break;
+    default:
+      return false;
+  }
+
+  const defProperties = getPresentationProperties(def);
+  // Don't convert <symbol> unless overflow is visible.
+  if (def.name === 'symbol') {
+    const overflow = defProperties.get('overflow');
+    if (!overflow || overflow.value !== 'visible') {
+      return false;
+    }
+    // Remove overflow since there is no need to carry it over to <use>.
+    defProperties.delete('overflow');
   }
 
   // Convert the <use> to <g>.
   use.name = 'g';
 
-  // Update properties.
-  const useProperties = getStyleDeclarations(use) ?? new Map();
-  const defProperties = getStyleDeclarations(def);
+  const useProperties = getPresentationProperties(use);
 
-  // Remove any <use> properties that are def attributes.
-  for (const propName of useProperties.keys()) {
-    if (def.attributes[propName]) {
-      useProperties.delete(propName);
-    }
-  }
   // Overwrite <use> properties with def properties.
   if (defProperties) {
     for (const [propName, propValue] of defProperties.entries()) {
@@ -141,18 +152,6 @@ function inlineUse(use, def) {
         break;
     }
     delete use.attributes[attName];
-  }
-
-  // Overwrite attributes with those from <use>d element.
-  for (const [attName, attValue] of Object.entries(def.attributes)) {
-    switch (attName) {
-      case 'id':
-      case 'style':
-        continue;
-      default:
-        svgSetAttValue(use, attName, attValue);
-        break;
-    }
   }
 
   // Add translation if necessary.

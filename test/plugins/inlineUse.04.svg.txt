@@ -1,10 +1,10 @@
-Inline symbol.
+Don't inline symbol unless overflow="visible".
 
 ===
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
   <defs>
-    <symbol id="a" style="fill:red" overflow="visible">
+    <symbol id="a" style="fill:red">
       <rect x="2" width="2" height="3"/>
     </symbol>
   </defs>
@@ -14,8 +14,10 @@ Inline symbol.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
-    <defs/>
-    <g transform="translate(5,5)" style="fill:red">
-        <rect x="2" width="2" height="3"/>
-    </g>
+    <defs>
+        <symbol id="a" style="fill:red">
+            <rect x="2" width="2" height="3"/>
+        </symbol>
+    </defs>
+    <use x="5" y="5" href="#a" style="fill:green"/>
 </svg>

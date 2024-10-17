@@ -4,6 +4,7 @@ import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
   geometryProperties,
+  presentationProperties,
   uselessShapeProperties,
 } from './_collections.js';
 
@@ -11,74 +12,6 @@ export const name = 'cleanupStyleAttributes';
 export const description = 'removes invalid properties from style attributes';
 
 const CLASS_SPLITTER = /\s/;
-
-/**
- * See https://www.w3.org/TR/SVG2/styling.html#PresentationAttributes.
- * The list below also includes the shorthand property "font".
- */
-const presentationProperties = new Set([
-  'alignment-baseline',
-  'baseline-shift',
-  'clip-path',
-  'clip-rule',
-  'color',
-  'color-interpolation',
-  'color-interpolation-filters',
-  'color-rendering',
-  'cursor',
-  'direction',
-  'display',
-  'dominant-baseline',
-  'fill',
-  'fill-opacity',
-  'fill-rule',
-  'filter',
-  'flood-color',
-  'flood-opacity',
-  'font',
-  'font-family',
-  'font-size',
-  'font-size-adjust',
-  'font-stretch',
-  'font-style',
-  'font-variant',
-  'font-weight',
-  'glyph-orientation-horizontal',
-  'glyph-orientation-vertical',
-  'image-rendering',
-  'letter-spacing',
-  'lighting-color',
-  'marker-end',
-  'marker-mid',
-  'marker-start',
-  'mask',
-  'opacity',
-  'overflow',
-  'paint-order',
-  'pointer-events',
-  'shape-rendering',
-  'stop-color',
-  'stop-opacity',
-  'stroke',
-  'stroke-dasharray',
-  'stroke-dashoffset',
-  'stroke-linecap',
-  'stroke-linejoin',
-  'stroke-miterlimit',
-  'stroke-opacity',
-  'stroke-width',
-  'text-anchor',
-  'text-decoration',
-  'text-overflow',
-  'text-rendering',
-  'transform',
-  'unicode-bidi',
-  'vector-effect',
-  'visibility',
-  'white-space',
-  'word-spacing',
-  'writing-mode',
-]);
 
 /**
  * @type {import('./plugins-types.js').Plugin<'cleanupStyleAttributes'>}

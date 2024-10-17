@@ -1,4 +1,5 @@
 import { writeStyleAttribute } from '../lib/css.js';
+import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { getHrefId, getReferencedIds } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -123,12 +124,11 @@ function inlineUse(use, def) {
     if (!overflow || overflow.value !== 'visible') {
       return false;
     }
-    // Remove overflow since there is no need to carry it over to <use>.
-    defProperties.delete('overflow');
+    // Remove overflow since there is no need to carry it over to <use>; remove transform properties since they are ignored.
+    ['overflow', 'transform', 'transform-origin'].forEach((name) =>
+      defProperties.delete(name),
+    );
   }
-
-  // Convert the <use> to <g>.
-  use.name = 'g';
 
   const useProperties = getPresentationProperties(use);
 
@@ -138,6 +138,21 @@ function inlineUse(use, def) {
       useProperties.set(propName, propValue);
     }
   }
+
+  // If there is a transform property, convert to an attribute.
+  let transform = '';
+  const cssTransform = useProperties.get('transform');
+  if (cssTransform) {
+    const svgTransform = cssTransformToSVGAtt(cssTransform);
+    if (!svgTransform) {
+      return false;
+    }
+    transform = svgTransform.toString();
+    useProperties.delete('transform');
+  }
+
+  // Convert the <use> to <g>.
+  use.name = 'g';
 
   // Update attributes.
   let tx = '0';
@@ -156,7 +171,10 @@ function inlineUse(use, def) {
 
   // Add translation if necessary.
   if (tx !== '0' || ty !== '0') {
-    use.attributes.transform = `translate(${tx},${ty})`;
+    transform = transform + `translate(${tx},${ty})`;
+  }
+  if (transform !== '') {
+    use.attributes.transform = transform;
   }
   writeStyleAttribute(use, useProperties);
 

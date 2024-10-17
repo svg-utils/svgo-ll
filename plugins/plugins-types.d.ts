@@ -190,6 +190,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   convertStyleToAttrs: {
     keepImportant?: boolean;
   };
+  inlineUse: void;
   prefixIds: {
     prefix?:
       | boolean

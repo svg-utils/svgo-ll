@@ -1,10 +1,10 @@
-Inline path element.
+Inline path element with transform.
 
 ===
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
   <defs>
-    <path id="a" d="M1 1L3 3" style="stroke:black"/>
+    <path id="a" d="M1 1L3 3" transform="scale(2)" style="stroke:black"/>
   </defs>
   <use x="2" y="2" href="#a"/>
 </svg>
@@ -13,5 +13,5 @@ Inline path element.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
     <defs/>
-    <path d="M1 1L3 3" transform="translate(2,2)" style="stroke:black"/>
+    <path d="M1 1L3 3" transform="translate(2,2)scale(2)" style="stroke:black"/>
 </svg>

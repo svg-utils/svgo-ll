@@ -143,7 +143,7 @@ function inlineUse(use, def) {
   const useProperties = getPresentationProperties(use);
 
   // Overwrite <use> properties with def properties.
-  if (defProperties && isContainer) {
+  if (defProperties) {
     for (const [propName, propValue] of defProperties.entries()) {
       useProperties.set(propName, propValue);
     }
@@ -161,8 +161,8 @@ function inlineUse(use, def) {
     useProperties.delete('transform');
   }
 
-  // Convert the <use> to <g>.
-  use.name = 'g';
+  // Convert the <use>.
+  use.name = isContainer ? 'g' : def.name;
 
   // Update attributes.
   let tx = '0';
@@ -179,16 +179,34 @@ function inlineUse(use, def) {
     delete use.attributes[attName];
   }
 
+  // Copy any non-presentation properties from def.
+  for (const [attName, attValue] of Object.entries(def.attributes)) {
+    switch (attName) {
+      case 'id':
+      case 'overflow':
+      case 'style':
+      case 'transform':
+      case 'transform-origin':
+        continue;
+      default:
+        if (!useProperties.has(attName)) {
+          use.attributes[attName] = attValue.toString();
+        }
+        break;
+    }
+  }
+
   // Add translation if necessary.
   if (tx !== '0' || ty !== '0') {
-    transform = transform + `translate(${tx},${ty})`;
+    const translate = `translate(${tx},${ty})`;
+    transform = isContainer ? transform + translate : translate + transform;
   }
   if (transform !== '') {
     use.attributes.transform = transform;
   }
   writeStyleAttribute(use, useProperties);
 
-  use.children = isContainer ? def.children : [def];
+  use.children = def.children;
   use.children.forEach((c) => (c.parentNode = use));
 
   return true;

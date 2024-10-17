@@ -1,5 +1,6 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
+import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { getHrefId, getReferencedIds } from '../lib/svgo/tools.js';
 
 export const name = 'inlineUse';
@@ -114,7 +115,13 @@ function inlineUse(use, def) {
   const useProperties = getStyleDeclarations(use) ?? new Map();
   const defProperties = getStyleDeclarations(def);
 
-  // Overwrite <use> properties with def.
+  // Remove any <use> properties that are def attributes.
+  for (const propName of useProperties.keys()) {
+    if (def.attributes[propName]) {
+      useProperties.delete(propName);
+    }
+  }
+  // Overwrite <use> properties with def properties.
   if (defProperties) {
     for (const [propName, propValue] of defProperties.entries()) {
       useProperties.set(propName, propValue);
@@ -134,6 +141,18 @@ function inlineUse(use, def) {
         break;
     }
     delete use.attributes[attName];
+  }
+
+  // Overwrite attributes with those from <use>d element.
+  for (const [attName, attValue] of Object.entries(def.attributes)) {
+    switch (attName) {
+      case 'id':
+      case 'style':
+        continue;
+      default:
+        svgSetAttValue(use, attName, attValue);
+        break;
+    }
   }
 
   // Add translation if necessary.

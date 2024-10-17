@@ -73,12 +73,14 @@ export const fn = (root, params, info) => {
           if (usingEls && usingEls.length === 1) {
             const referencingEls = referencedIds.get(id);
             if (referencingEls && referencingEls.length === 1) {
+              // Record parent in case it is changed by inlining.
+              const parent = def.parentNode;
               if (inlineUse(usingEls[0], def)) {
                 // Add def to list to be deleted.
-                let defsChildren = defsToDelete.get(def.parentNode);
+                let defsChildren = defsToDelete.get(parent);
                 if (!defsChildren) {
                   defsChildren = new Set();
-                  defsToDelete.set(def.parentNode, defsChildren);
+                  defsToDelete.set(parent, defsChildren);
                 }
                 defsChildren.add(def);
               }
@@ -110,8 +112,12 @@ function inlineUse(use, def) {
   }
 
   // Check referenced element.
+  let isContainer = false;
   switch (def.name) {
+    case 'path':
+      break;
     case 'symbol':
+      isContainer = true;
       break;
     default:
       return false;
@@ -133,7 +139,7 @@ function inlineUse(use, def) {
   const useProperties = getPresentationProperties(use);
 
   // Overwrite <use> properties with def properties.
-  if (defProperties) {
+  if (defProperties && isContainer) {
     for (const [propName, propValue] of defProperties.entries()) {
       useProperties.set(propName, propValue);
     }
@@ -178,7 +184,7 @@ function inlineUse(use, def) {
   }
   writeStyleAttribute(use, useProperties);
 
-  use.children = def.children;
+  use.children = isContainer ? def.children : [def];
   use.children.forEach((c) => (c.parentNode = use));
 
   return true;

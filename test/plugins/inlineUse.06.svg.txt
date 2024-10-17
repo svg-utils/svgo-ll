@@ -1,0 +1,19 @@
+Inline path element.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <defs>
+    <path id="a" d="M1 1L3 3" style="stroke:black"/>
+  </defs>
+  <use x="2" y="2" href="#a"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <defs/>
+    <g transform="translate(2,2)">
+        <path id="a" d="M1 1L3 3" style="stroke:black"/>
+    </g>
+</svg>

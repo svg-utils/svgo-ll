@@ -106,8 +106,12 @@ export const fn = (root, params, info) => {
  * @returns {boolean}
  */
 function inlineUse(use, def) {
-  // Don't inline if <use> has children.
-  if (use.children.length > 0) {
+  // Don't inline if <use> has children, or has a width or height attribute.
+  if (
+    use.children.length > 0 ||
+    use.attributes.width ||
+    use.attributes.height
+  ) {
     return false;
   }
 

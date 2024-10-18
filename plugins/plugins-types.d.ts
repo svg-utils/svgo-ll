@@ -86,6 +86,7 @@ type DefaultPlugins = {
     noSpaceAfterFlags?: boolean;
   };
   minifyColors: void;
+  minifyGradients: void;
   minifyPathData: void;
   minifyStyles: void;
   minifyTransforms: void;

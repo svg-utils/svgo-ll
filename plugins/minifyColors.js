@@ -9,7 +9,6 @@ export const description =
 
 /**
  * @type {import('./plugins-types.js').Plugin<'minifyColors'>};
-'>}
  */
 export const fn = (root, params, info) => {
   const styleData = info.docData.getStyles();

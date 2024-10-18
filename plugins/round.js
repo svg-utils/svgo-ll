@@ -101,6 +101,7 @@ export const fn = (root, params, info) => {
               break;
             case 'fill-opacity':
             case 'opacity':
+            case 'stop-opacity':
               newVal = roundOpacity(attValue, opacityDigits);
               break;
             case 'transform':

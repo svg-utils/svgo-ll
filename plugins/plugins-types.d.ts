@@ -223,6 +223,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   round: {
     coordDigits?: number;
     opacityDigits?: number;
+    stopOffsetDigits?: number;
   };
 };
 

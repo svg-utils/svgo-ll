@@ -23,3 +23,19 @@ describe('test parsing and minifying', () => {
     });
   }
 });
+
+describe('test rounding', () => {
+  /** @type {{in:string,digits:number,minified:string}[]} */
+  const testCases = [
+    { in: '.0123', digits: 3, minified: '.012' },
+    { in: '.0123', digits: 2, minified: '1%' },
+    { in: '1.23%', digits: 3, minified: '.012' },
+  ];
+  for (const testCase of testCases) {
+    it(`${testCase.in}`, () => {
+      const attValue = StopOffsetValue.getStopOffsetObj(testCase.in);
+      const rounded = attValue.round(testCase.digits);
+      expect(rounded.toString()).toBe(testCase.minified);
+    });
+  }
+});

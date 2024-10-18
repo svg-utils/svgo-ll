@@ -4,6 +4,7 @@ import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import { LengthValue } from '../lib/length.js';
 import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
+import { StopOffsetValue } from '../lib/stop-offset.js';
 import {
   svgParseTransform,
   svgSetAttValue,
@@ -47,7 +48,7 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  const { coordDigits = 4, opacityDigits = 3 } = params;
+  const { coordDigits = 4, opacityDigits = 3, stopOffsetDigits = 2 } = params;
 
   /**
    * @type {CoordRoundingContext[]}
@@ -103,6 +104,12 @@ export const fn = (root, params, info) => {
             case 'opacity':
             case 'stop-opacity':
               newVal = roundOpacity(attValue, opacityDigits);
+              break;
+            case 'offset':
+              if (element.name === 'stop') {
+                const stopOffset = StopOffsetValue.getStopOffsetObj(attValue);
+                newVal = stopOffset.round(stopOffsetDigits);
+              }
               break;
             case 'transform':
               newVal = roundTransform(

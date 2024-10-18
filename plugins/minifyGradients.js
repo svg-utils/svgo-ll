@@ -29,7 +29,7 @@ export const fn = (root, params, info) => {
   /** @type {Map<string,ColorData>} */
   const solidGradients = new Map();
 
-  /** @type {Map<string,{referencingEl:import('../lib/types.js').XastElement,referencingAtt:string}[]>} */
+  /** @type {import('../lib/svgo/tools.js').IdReferenceMap} */
   const allReferencedIds = new Map();
 
   return {
@@ -72,43 +72,7 @@ export const fn = (root, params, info) => {
     root: {
       exit: () => {
         // Replace any solid-color gradients.
-        for (const [id, colorData] of solidGradients.entries()) {
-          const referencingEls = allReferencedIds.get(id);
-          if (!referencingEls) {
-            continue;
-          }
-          for (const { referencingEl, referencingAtt } of referencingEls) {
-            switch (referencingAtt) {
-              case 'fill':
-              case 'stroke':
-                referencingEl.attributes[referencingAtt] = colorData.color;
-                break;
-              case 'style':
-                {
-                  const props = getStyleDeclarations(referencingEl);
-                  if (!props) {
-                    continue;
-                  }
-                  for (const [propName, decl] of props.entries()) {
-                    if (propName !== 'fill' && propName !== 'stroke') {
-                      continue;
-                    }
-                    const value = cssPropToString(decl);
-                    const idInfo = getReferencedIdInStyleProperty(value);
-                    if (!idInfo || idInfo.id !== id) {
-                      continue;
-                    }
-                    props.set(propName, {
-                      value: colorData.color,
-                      important: decl.important,
-                    });
-                  }
-                  writeStyleAttribute(referencingEl, props);
-                }
-                break;
-            }
-          }
-        }
+        updateSolidGradients(solidGradients, allReferencedIds);
       },
     },
   };
@@ -148,4 +112,70 @@ function checkStops(element, styleData) {
     }
   }
   return colorData;
+}
+
+/**
+ * @param {Map<string,ColorData>} solidGradients
+ * @param {import('../lib/svgo/tools.js').IdReferenceMap} allReferencedIds
+ */
+function updateSolidGradients(solidGradients, allReferencedIds) {
+  /** @type {Map<string,ColorData>} */
+  const gradientRefs = new Map();
+
+  for (const [id, colorData] of solidGradients.entries()) {
+    const referencingEls = allReferencedIds.get(id);
+    if (!referencingEls) {
+      continue;
+    }
+    for (const { referencingEl, referencingAtt } of referencingEls) {
+      switch (referencingAtt) {
+        case 'fill':
+        case 'stroke':
+          referencingEl.attributes[referencingAtt] = colorData.color;
+          break;
+        case 'style':
+          {
+            const props = getStyleDeclarations(referencingEl);
+            if (!props) {
+              continue;
+            }
+            for (const [propName, decl] of props.entries()) {
+              if (propName !== 'fill' && propName !== 'stroke') {
+                continue;
+              }
+              const value = cssPropToString(decl);
+              const idInfo = getReferencedIdInStyleProperty(value);
+              if (!idInfo || idInfo.id !== id) {
+                continue;
+              }
+              props.set(propName, {
+                value: colorData.color,
+                important: decl.important,
+              });
+            }
+            writeStyleAttribute(referencingEl, props);
+          }
+          break;
+        case 'href':
+        case 'xlink:href':
+          if (
+            referencingEl.name === 'linearGradient' ||
+            referencingEl.name === 'radialGradient'
+          ) {
+            // If the solid color is being used as a template by another gradient, update any references to the referencing gradient.
+            if (
+              referencingEl.children.length === 0 &&
+              referencingEl.attributes.id
+            ) {
+              gradientRefs.set(referencingEl.attributes.id, colorData);
+            }
+          }
+          break;
+      }
+    }
+  }
+
+  if (gradientRefs.size > 0) {
+    updateSolidGradients(gradientRefs, allReferencedIds);
+  }
 }

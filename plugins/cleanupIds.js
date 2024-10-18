@@ -1,13 +1,9 @@
-/**
- * @typedef {import('../lib/types.js').XastElement} XastElement
- */
-
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import {
   generateId,
-  getReferencedIds,
   getReferencedIdsInAttribute,
+  recordReferencedIds,
   SVGOError,
   updateReferencedDeclarationIds,
 } from '../lib/svgo/tools.js';
@@ -18,7 +14,7 @@ export const name = 'cleanupIds';
 export const description = 'removes unused IDs and minifies used';
 
 /**
- * @param {XastElement} element
+ * @param {import('../lib/types.js').XastElement} element
  * @param {string} attName
  * @param {Map<string,string>} idMap
  */
@@ -44,7 +40,7 @@ function updateReferencedId(element, attName, idMap) {
 }
 
 /**
- * @param {XastElement} element
+ * @param {import('../lib/types.js').XastElement} element
  * @param {Map<string,string>} idMap
  */
 function updateReferencedStyleId(element, idMap) {
@@ -133,9 +129,9 @@ export const fn = (_root, params, info) => {
     return idMap;
   }
 
-  /** @type {Map<string,XastElement>} */
+  /** @type {Map<string,import('../lib/types.js').XastElement>} */
   const foundIds = new Map();
-  /** @type {Map<string,{referencingEl:XastElement,referencingAtt:string}[]>} */
+  /** @type {import('../lib/svgo/tools.js').IdReferenceMap} */
   const allReferencedIds = new Map();
 
   const preserveIds = new Set(
@@ -170,15 +166,7 @@ export const fn = (_root, params, info) => {
           foundIds.set(element.attributes.id, element);
         }
 
-        const referencedIds = getReferencedIds(element);
-        for (const { id, attName } of referencedIds) {
-          let references = allReferencedIds.get(id);
-          if (!references) {
-            references = [];
-            allReferencedIds.set(id, references);
-          }
-          references.push({ referencingEl: element, referencingAtt: attName });
-        }
+        recordReferencedIds(element, allReferencedIds);
       },
     },
 

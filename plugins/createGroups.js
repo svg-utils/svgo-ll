@@ -62,7 +62,7 @@ export const fn = (root, params, info) => {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {Set<string>} usedIds
- * @param {Set<import('./cleanupIds.js').XastElement>} elementsToCheck
+ * @param {Set<import('../lib/types.js').XastElement>} elementsToCheck
  */
 function createGroups(element, usedIds, elementsToCheck) {
   if (element.children.length < 2) {

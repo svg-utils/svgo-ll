@@ -48,7 +48,7 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  const { coordDigits = 4, opacityDigits = 3, stopOffsetDigits = 2 } = params;
+  const { coordDigits = 4, opacityDigits = 3, stopOffsetDigits = 3 } = params;
 
   /**
    * @type {CoordRoundingContext[]}

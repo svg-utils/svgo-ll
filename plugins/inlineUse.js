@@ -106,11 +106,15 @@ export const fn = (root, params, info) => {
  * @returns {boolean}
  */
 function inlineUse(use, def) {
-  // Don't inline if <use> has children, or has a width or height attribute.
+  // Don't inline if <use> has children.
+  if (use.children.length > 0) {
+    return false;
+  }
+
+  // Don't inline symbols that are <use>d with a width/height.
   if (
-    use.children.length > 0 ||
-    use.attributes.width ||
-    use.attributes.height
+    (use.attributes.width || use.attributes.height) &&
+    def.name === 'symbol'
   ) {
     return false;
   }

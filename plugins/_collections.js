@@ -1744,6 +1744,7 @@ export const elems = {
     attrsGroups: new Set(['core', 'presentation']),
     attrs: new Set(['class', 'style', 'offset', 'path']),
     content: new Set(['animate', 'animateColor', 'set']),
+    defaults: { offset: '0' },
   },
   style: {
     attrsGroups: new Set(['core']),

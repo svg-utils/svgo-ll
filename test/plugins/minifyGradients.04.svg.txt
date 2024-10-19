@@ -1,0 +1,27 @@
+Merge template gradient that is only used once.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <defs>
+    <linearGradient id="a" x1="2" x2="3" gradientUnits="userSpaceOnUse">
+      <stop offset="5%" stop-color="gold" />
+      <stop offset="95%" stop-color="red" />
+    </linearGradient>
+    <linearGradient href="#a" id="b" x1="1"/>
+  </defs>
+  <rect width="3" height="4" fill="url(#b)" stroke="black" stroke-width=".01"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <defs>
+        <linearGradient id="b" x1="1" x2="3" gradientUnits="userSpaceOnUse">
+            <stop offset="5%" stop-color="gold"/>
+            <stop offset=".95" stop-color="red"/>
+        </linearGradient>
+        <linearGradient/>
+    </defs>
+    <rect width="3" height="4" fill="url(#b)" stroke="black" stroke-width=".01"/>
+</svg>

@@ -9,6 +9,7 @@ import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
 import * as minifyColors from './minifyColors.js';
+import * as minifyGradients from './minifyGradients.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
 import * as minifyTransforms from './minifyTransforms.js';
@@ -43,6 +44,7 @@ const presetNext = createPreset({
     minifyStyles,
     cleanupIds,
     minifyColors,
+    minifyGradients,
     removeUnknownsAndDefaults,
     removeNonInheritableGroupAttrs,
     removeUselessStrokeAndFill,

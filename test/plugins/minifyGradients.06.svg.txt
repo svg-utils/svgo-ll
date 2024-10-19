@@ -1,0 +1,29 @@
+Merge chained template gradients in different order.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <defs>
+    <linearGradient href="#b" id="c" x2="2.5"/>
+    <linearGradient href="#a" id="b" x1="1"/>
+    <linearGradient id="a" x1="2" x2="3" gradientUnits="userSpaceOnUse">
+      <stop offset="5%" stop-color="gold" />
+      <stop offset="95%" stop-color="red" />
+    </linearGradient>
+  </defs>
+  <rect width="3" height="4" fill="url(#c)" stroke="black" stroke-width=".01"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+    <defs>
+        <linearGradient/>
+        <linearGradient/>
+        <linearGradient id="c" x1="1" x2="2.5" gradientUnits="userSpaceOnUse">
+            <stop offset="5%" stop-color="gold"/>
+            <stop offset=".95" stop-color="red"/>
+        </linearGradient>
+    </defs>
+    <rect width="3" height="4" fill="url(#c)" stroke="black" stroke-width=".01"/>
+</svg>

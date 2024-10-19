@@ -225,7 +225,7 @@ async function performTests(options) {
 
     // Initialize statistics array.
     list.forEach((name) =>
-      stats.set(name, {
+      stats.set(name.replace(/\\/g, '/'), {
         lengthOrig: 0,
         lengthOpt: 0,
         pixels: -1,

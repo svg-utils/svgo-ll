@@ -86,6 +86,7 @@ type DefaultPlugins = {
     noSpaceAfterFlags?: boolean;
   };
   minifyColors: void;
+  minifyGradients: void;
   minifyPathData: void;
   minifyStyles: void;
   minifyTransforms: void;
@@ -186,7 +187,6 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
     convertToPx?: boolean;
   };
   cleanupXlink: void;
-  convertOneStopGradients: void;
   convertStyleToAttrs: {
     keepImportant?: boolean;
   };
@@ -222,6 +222,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   round: {
     coordDigits?: number;
     opacityDigits?: number;
+    stopOffsetDigits?: number;
   };
 };
 

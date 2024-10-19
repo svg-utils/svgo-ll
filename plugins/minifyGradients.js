@@ -89,8 +89,9 @@ export const fn = (root, params, info) => {
           if (templateRefs && templateRefs.length === 1) {
             const referencingEl = templateRefs[0].referencingEl;
             if (
-              referencingEl.name === 'linearGradient' ||
-              referencingEl.name === 'radialGradient'
+              (referencingEl.name === 'linearGradient' ||
+                referencingEl.name === 'radialGradient') &&
+              referencingEl.name === referencedGradient.name
             ) {
               if (referencingEl.children.length === 0) {
                 inlineGradient(

@@ -24,13 +24,19 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  const checkForSolidColors = !styleData.hasStyles();
+  const inlineGradients = !styleData.hasStyles();
 
-  /** @type {Map<string,ColorData>} */
+  /** Map gradient id to ColorData.
+   * @type {Map<string,ColorData>} */
   const solidGradients = new Map();
 
   /** @type {import('../lib/svgo/tools.js').IdReferenceMap} */
   const allReferencedIds = new Map();
+
+  /**
+   * Maps ids to linearGradient/radialGradient elements
+   * @type {Map<string,import('../lib/types.js').XastElement>} */
+  const gradientMap = new Map();
 
   return {
     element: {
@@ -41,9 +47,11 @@ export const fn = (root, params, info) => {
         switch (element.name) {
           case 'linearGradient':
           case 'radialGradient':
-            if (checkForSolidColors) {
+            if (inlineGradients) {
               const id = element.attributes.id;
               if (id) {
+                gradientMap.set(id, element);
+
                 const colorData = checkStops(element, styleData);
                 if (
                   colorData &&
@@ -71,6 +79,31 @@ export const fn = (root, params, info) => {
     },
     root: {
       exit: () => {
+        // See if any template references can be inlined.
+        for (const [templateId, referencedGradient] of gradientMap.entries()) {
+          if (referencedGradient.attributes.id !== templateId) {
+            // This has already been merged, skip it.
+            continue;
+          }
+          const templateRefs = allReferencedIds.get(templateId);
+          if (templateRefs && templateRefs.length === 1) {
+            const referencingEl = templateRefs[0].referencingEl;
+            if (
+              referencingEl.name === 'linearGradient' ||
+              referencingEl.name === 'radialGradient'
+            ) {
+              if (referencingEl.children.length === 0) {
+                inlineGradient(
+                  referencingEl,
+                  referencedGradient,
+                  gradientMap,
+                  solidGradients,
+                );
+              }
+            }
+          }
+        }
+
         // Replace any solid-color gradients.
         updateSolidGradients(solidGradients, allReferencedIds);
       },
@@ -112,6 +145,41 @@ function checkStops(element, styleData) {
     }
   }
   return colorData;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} outer
+ * @param {import('../lib/types.js').XastElement} inner
+ * @param {Map<string,import('../lib/types.js').XastElement>} gradientMap
+ * @param {Map<string,ColorData>} solidGradients
+ */
+function inlineGradient(outer, inner, gradientMap, solidGradients) {
+  const origInnerId = inner.attributes.id;
+
+  // Move all properties from outer gradient to the one it references.
+  for (const [attName, attValue] of Object.entries(outer.attributes)) {
+    switch (attName) {
+      case 'href':
+      case 'xlink:href':
+        // Don't move these, just delete them.
+        delete outer.attributes[attName];
+        break;
+      default:
+        inner.attributes[attName] = attValue;
+        delete outer.attributes[attName];
+        break;
+    }
+  }
+
+  // Update the gradient maps to reflect the moved id.
+  gradientMap.set(inner.attributes.id, inner);
+  if (origInnerId) {
+    const colorData = solidGradients.get(origInnerId);
+    if (colorData) {
+      solidGradients.set(inner.attributes.id, colorData);
+      solidGradients.delete(origInnerId);
+    }
+  }
 }
 
 /**

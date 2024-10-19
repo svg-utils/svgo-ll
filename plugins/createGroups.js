@@ -162,7 +162,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    if (usedIds.has(child.attributes.id)) {
+    if (usedIds.has(child.attributes.id?.toString())) {
       // If the element is <use>d, we can't move any properties to a group, so it needs to be on its own.
       writeGroup(index);
       sharedProps = new Map();

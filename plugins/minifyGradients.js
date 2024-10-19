@@ -2,9 +2,11 @@ import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
 import { svgSetAttValue } from '../lib/svg-parse-att.js';
+import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import {
   getReferencedIdInStyleProperty,
   recordReferencedIds,
+  SVGOError,
 } from '../lib/svgo/tools.js';
 
 export const name = 'minifyGradients';
@@ -48,7 +50,7 @@ export const fn = (root, params, info) => {
           case 'linearGradient':
           case 'radialGradient':
             if (inlineGradients) {
-              const id = element.attributes.id;
+              const id = element.attributes.id?.toString();
               if (id) {
                 gradientMap.set(id, element);
 
@@ -155,7 +157,7 @@ function checkStops(element, styleData) {
  * @param {Map<string,ColorData>} solidGradients
  */
 function inlineGradient(outer, inner, gradientMap, solidGradients) {
-  const origInnerId = inner.attributes.id;
+  const origInnerId = inner.attributes.id.toString();
 
   // Move all properties from outer gradient to the one it references.
   for (const [attName, attValue] of Object.entries(outer.attributes)) {
@@ -165,6 +167,10 @@ function inlineGradient(outer, inner, gradientMap, solidGradients) {
         // Don't move these, just delete them.
         delete outer.attributes[attName];
         break;
+      case 'gradientTransform':
+      case 'style':
+        // Skip these and handle them below.
+        break;
       default:
         inner.attributes[attName] = attValue;
         delete outer.attributes[attName];
@@ -172,12 +178,38 @@ function inlineGradient(outer, inner, gradientMap, solidGradients) {
     }
   }
 
+  // The only style property which may be relevant to a gradient is "transform". If it is there, convert it to gradientTransform
+  // attribute.
+  /** @type {import('../lib/types.js').SVGAttValue|undefined} */
+  let transform = outer.attributes.gradientTransform;
+  const props = getStyleDeclarations(outer);
+  if (props) {
+    const cssTransform = props.get('transform');
+    if (cssTransform) {
+      transform = cssTransformToSVGAtt(cssTransform);
+      if (transform === undefined) {
+        throw new SVGOError(
+          `unable to convert css transform "${cssTransform}"`,
+        );
+      }
+    }
+  }
+  if (transform) {
+    svgSetAttValue(inner, 'gradientTransform', transform);
+    delete outer.attributes.gradientTransform;
+    delete outer.attributes.style;
+
+    // Remove the style attribute on the referenced gradient; the only useful property it should have is transform.
+    delete inner.attributes.style;
+  }
+
   // Update the gradient maps to reflect the moved id.
-  gradientMap.set(inner.attributes.id, inner);
+  const innerId = inner.attributes.id.toString();
+  gradientMap.set(innerId, inner);
   if (origInnerId) {
     const colorData = solidGradients.get(origInnerId);
     if (colorData) {
-      solidGradients.set(inner.attributes.id, colorData);
+      solidGradients.set(innerId, colorData);
       solidGradients.delete(origInnerId);
     }
   }
@@ -236,7 +268,10 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
               referencingEl.children.length === 0 &&
               referencingEl.attributes.id
             ) {
-              gradientRefs.set(referencingEl.attributes.id, colorData);
+              gradientRefs.set(
+                referencingEl.attributes.id.toString(),
+                colorData,
+              );
             }
           }
           break;

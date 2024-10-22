@@ -1,5 +1,3 @@
-import type { AttValue } from './attvalue.js';
-
 export type XastDoctype = {
   type: 'doctype';
   parentNode: XastParent;
@@ -134,6 +132,8 @@ type CSSFeatures =
   | 'pseudos'
   | 'simple-selectors';
 
+export class AttValue {}
+
 export class StyleData {
   computeOwnStyle(node: XastElement): Map<string, string | null>;
   computeParentStyle(
@@ -184,7 +184,7 @@ export type CSSParsedTransform = {
 };
 
 export type CSSPropertyValue = {
-  value: string | AttValue;
+  value: SVGAttValue;
   important: boolean;
 };
 

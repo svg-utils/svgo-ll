@@ -11,6 +11,7 @@ export const elemsGroups = {
     'animateTransform',
     'set',
   ]),
+  characterData: new Set(['desc', 'script', 'style', 'text', 'title', 'tspan']),
   descriptive: new Set(['desc', 'metadata', 'title']),
   shape: new Set([
     'circle',
@@ -54,18 +55,6 @@ export const elemsGroups = {
     'switch',
     'symbol',
   ]),
-  textContent: new Set([
-    'a',
-    'altGlyph',
-    'altGlyphDef',
-    'altGlyphItem',
-    'glyph',
-    'glyphRef',
-    'text',
-    'textPath',
-    'tref',
-    'tspan',
-  ]),
   textContentChild: new Set(['altGlyph', 'textPath', 'tref', 'tspan']),
   lightSource: new Set([
     'feDiffuseLighting',
@@ -99,12 +88,6 @@ export const elemsGroups = {
     'feTurbulence',
   ]),
 };
-
-/**
- * Elements where adding or removing whitespace may effect rendering, metadata,
- * or semantic meaning.
- */
-export const textElems = new Set([...elemsGroups.textContent, 'title']);
 
 export const pathElems = new Set(['glyph', 'missing-glyph', 'path']);
 
@@ -2517,7 +2500,6 @@ export const uselessShapeProperties = new Set([
 
 export default {
   elemsGroups,
-  textElems,
   pathElems,
   attrsGroups,
   attrsGroupsDefaults,

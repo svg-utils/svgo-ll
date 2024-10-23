@@ -18,11 +18,11 @@ Don't merge paths with pathLength attribute.
 
 <svg viewBox="0 0 100 60" xmlns="http://www.w3.org/2000/svg">
     <style>
-        path {
+    path {
       stroke: black;
       stroke-dasharray: 10;
     }
-    </style>
+  </style>
     <path d="M 0,30 h100" pathLength="50"/>
     <path d="M 0,40 h100" pathLength="50"/>
 </svg>

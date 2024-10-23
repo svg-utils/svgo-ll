@@ -20,10 +20,10 @@ Don't merge paths with pseudo-classes.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
     <style>
-        path:first-child {stroke:yellow}
+  path:first-child {stroke:yellow}
   path {stroke:red}
   path.a {stroke:green}
-    </style>
+  </style>
     <g>
         <path d="M1 3h10"/>
         <path d="M1 5h10"/>

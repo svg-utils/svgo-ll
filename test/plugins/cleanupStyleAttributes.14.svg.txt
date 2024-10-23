@@ -15,9 +15,9 @@ Don't modify class attribute if there are attribute selectors on "class".
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
     <style>
-        rect[class] {fill:green}
+    rect[class] {fill:green}
     rect.blue {fill:blue}
-    </style>
+  </style>
     <rect width="2" height="3" class="red"/>
 </svg>
 

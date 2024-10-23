@@ -16,8 +16,8 @@ Disable if there is an attribute selector on "style".
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
     <style>
-        rect[style] {fill:blue}
-    </style>
+    rect[style] {fill:blue}
+  </style>
     <circle r="1" style="cx:2;cy:2"/>
     <ellipse rx="1" ry="2" style="cx:2;cy:6"/>
     <rect x="2" y="10" width="3" height="2" style="cx:2;cy:6"/>

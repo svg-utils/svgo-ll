@@ -5,12 +5,6 @@ import type {
 } from '../lib/types.js';
 
 type DefaultPlugins = {
-  cleanupAttrs: {
-    newlines?: boolean;
-    trim?: boolean;
-    spaces?: boolean;
-  };
-  cleanupEnableBackground: void;
   cleanupIds: {
     preserve?: string[];
     preservePrefixes?: string[];
@@ -166,26 +160,12 @@ type PresetDefaultOverrides = {
 export type BuiltinsWithOptionalParams = DefaultPlugins & {
   'preset-default': {
     floatPrecision?: number;
-    /**
-     * All default plugins can be customized or disabled here
-     * for example
-     * {
-     *   sortAttrs: { xmlnsOrder: "alphabetical" },
-     *   cleanupAttrs: false,
-     * }
-     */
     overrides?: PresetDefaultOverrides;
   };
   'preset-next': {
     overrides?: PresetDefaultOverrides;
   };
   'preset-none': {};
-  cleanupListOfValues: {
-    floatPrecision?: number;
-    leadingZero?: boolean;
-    defaultPx?: boolean;
-    convertToPx?: boolean;
-  };
   cleanupXlink: void;
   convertStyleToAttrs: {
     keepImportant?: boolean;

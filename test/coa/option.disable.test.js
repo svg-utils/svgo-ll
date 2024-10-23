@@ -46,7 +46,7 @@ describe('test --disable option', function () {
     expect(opt).toBe(EXPECT_TRANS);
   });
 
-  it('should run multiple plugins with --preset=default and --disable minifyTransforms convertShapeToPath cleanupAttrs', async () => {
+  it('should run multiple plugins with --preset=default and --disable minifyTransforms convertShapeToPath minifyColors', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
@@ -56,7 +56,7 @@ describe('test --disable option', function () {
       '--disable',
       'minifyTransforms',
       'convertShapeToPath',
-      'cleanupAttrs',
+      'minifyColors',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
     expect(opt).toBe(EXPECT_NO_CHANGE);

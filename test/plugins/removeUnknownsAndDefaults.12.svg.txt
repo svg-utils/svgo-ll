@@ -13,9 +13,7 @@
     <title id="title">
         Title
     </title>
-    <g>
-        test
-    </g>
+    <g/>
 </svg>
 
 @@@

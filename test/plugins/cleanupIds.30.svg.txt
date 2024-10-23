@@ -20,9 +20,7 @@ Update ids in <style> elements.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg">
-    <style>
-        #c{fill-opacity:.3}#d{fill:url(#b)}
-    </style>
+    <style>#c{fill-opacity:.3}#d{fill:url(#b)}</style>
     <linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop stop-color="#5a2100"/>
     </linearGradient>

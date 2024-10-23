@@ -8,9 +8,7 @@ Should add class when passed as a className String
 
 @@@
 
-<svg xmlns="http://www.w3.org/2000/svg" class="mySvg">
-    test
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" class="mySvg"/>
 
 @@@
 

@@ -15,9 +15,7 @@
     <title id="title">
         Title
     </title>
-    <g aria-label="foo">
-        test
-    </g>
+    <g aria-label="foo"/>
     <path id="t" d="M10 10h10L10 20"/>
     <use href="#t"/>
 </svg>

@@ -16,5 +16,5 @@ Remove xml:space when not needed.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
     <text xml:space="preserve" x="35" y="45"><tspan x="35" y="45">      Here is some text</tspan><tspan x="35" y="55">And Here is some more</tspan></text>
-    <text x="105" y="185"><tspan x="105" y="185">Also down here</tspan></text>
+    <text x="105" y="185">Also down here</text>
 </svg>

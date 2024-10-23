@@ -16,7 +16,7 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (element) => {
+      exit: (element) => {
         if (element.name !== 'text') {
           return;
         }
@@ -44,6 +44,21 @@ export const fn = (root, params, info) => {
           element.children = element.children.filter(
             (c) => !childrenToDelete.has(c),
           );
+        }
+
+        // If there is a single child whose content can be hosted, do so.
+        const hoistableChild = getHoistableChild(element);
+        if (hoistableChild) {
+          element.children = hoistableChild.children;
+          for (const child of element.children) {
+            child.parentNode = element;
+          }
+          for (const attributeName of ['x', 'y']) {
+            if (hoistableChild.attributes[attributeName] !== undefined) {
+              element.attributes[attributeName] =
+                hoistableChild.attributes[attributeName];
+            }
+          }
         }
       },
     },
@@ -77,6 +92,36 @@ function canRemovePreserve(element) {
     }
   }
   return true;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {import('../lib/types.js').XastElement|undefined}
+ */
+function getHoistableChild(element) {
+  if (element.children.length !== 1) {
+    return;
+  }
+  const child = element.children[0];
+  if (child.type !== 'element') {
+    return;
+  }
+  if (element.children.length !== 1) {
+    return;
+  }
+  if (child.children[0].type !== 'text') {
+    return;
+  }
+  for (const attributeName of Object.keys(child.attributes)) {
+    switch (attributeName) {
+      case 'x':
+      case 'y':
+        break;
+      default:
+        return;
+    }
+  }
+  return child;
 }
 
 /**

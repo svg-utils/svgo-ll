@@ -11,7 +11,15 @@ export const elemsGroups = {
     'animateTransform',
     'set',
   ]),
-  characterData: new Set(['desc', 'script', 'style', 'text', 'title', 'tspan']),
+  characterData: new Set([
+    'desc',
+    'script',
+    'style',
+    'text',
+    'textPath',
+    'title',
+    'tspan',
+  ]),
   descriptive: new Set(['desc', 'metadata', 'title']),
   shape: new Set([
     'circle',

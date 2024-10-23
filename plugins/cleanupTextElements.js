@@ -46,7 +46,7 @@ export const fn = (root, params, info) => {
           );
         }
 
-        // If there is a single child whose content can be hosted, do so.
+        // If there is a single child whose content can be hoisted, do so.
         const hoistableChild = getHoistableChild(element);
         if (hoistableChild) {
           element.children = hoistableChild.children;
@@ -59,6 +59,16 @@ export const fn = (root, params, info) => {
                 hoistableChild.attributes[attributeName];
             }
           }
+        }
+
+        // If the <text> element has x/y, and so do all children, remove x/y from <text>.
+        if (
+          element.attributes.x !== undefined &&
+          element.attributes.y !== undefined &&
+          childrenAllHaveXY(element)
+        ) {
+          delete element.attributes.x;
+          delete element.attributes.y;
         }
       },
     },
@@ -89,6 +99,25 @@ function canRemovePreserve(element) {
             return false;
         }
         break;
+    }
+  }
+  return true;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {boolean}
+ */
+function childrenAllHaveXY(element) {
+  for (const child of element.children) {
+    if (child.type !== 'element') {
+      return false;
+    }
+    if (child.name !== 'tspan') {
+      return false;
+    }
+    if (child.attributes.x === undefined || child.attributes.y === undefined) {
+      return false;
     }
   }
   return true;

@@ -16,7 +16,5 @@
     <test:test>
         test
     </test:test>
-    <g>
-        test
-    </g>
+    <g/>
 </svg>

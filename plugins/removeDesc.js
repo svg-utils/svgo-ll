@@ -3,7 +3,7 @@ import { detachNodeFromParent } from '../lib/xast.js';
 export const name = 'removeDesc';
 export const description = 'removes <desc>';
 
-const standardDescs = /^(Created with|Created using)/;
+const standardDescs = /^\s*(Created with|Created using)/;
 
 /**
  * Removes <desc>.

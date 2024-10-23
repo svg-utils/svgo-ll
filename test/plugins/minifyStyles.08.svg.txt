@@ -15,7 +15,5 @@
         .used { p: 1 }
         .unused { p: 2 }
     </style>
-    <g class="used" onclick="/* on* attributes prevents removing unused styles */">
-        test
-    </g>
+    <g class="used" onclick="/* on* attributes prevents removing unused styles */"/>
 </svg>

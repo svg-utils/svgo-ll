@@ -22,6 +22,6 @@ Skip styles inside foreignObject element
     </style>
   </foreignObject>
     <style>
-        .st1 { fill: red; }
-    </style>
+    .st1 { fill: red; }
+  </style>
 </svg>

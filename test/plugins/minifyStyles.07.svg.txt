@@ -21,7 +21,5 @@
     <script>
         /* script element prevents removing unused styles */
     </script>
-    <g class="used">
-        test
-    </g>
+    <g class="used"/>
 </svg>

@@ -19,8 +19,8 @@ Don't remove nodes that have children with referenced IDs.
 
 <svg viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
     <style>
-        .mid{marker-mid: url(#markerTest);}
-    </style>
+  .mid{marker-mid: url(#markerTest);}
+  </style>
     <defs>
         <marker id="markerTest" markerWidth="100" markerHeight="100" fill="blue">
             <rect width="50" height="55"/>

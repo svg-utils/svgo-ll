@@ -69,12 +69,12 @@ Test with ellipses.
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40">
 <!-- Test ellipse rx/ry defaults.  -->
     <style>
-        .e1{rx:2;ry:2}
+      .e1{rx:2;ry:2}
       .e2{rx:2;ry:0}
       .e3{rx:2}
       .e4{}
       .e5{ry:2}
-    </style>
+  </style>
     <g>
         <g transform="translate(0,0)">
             <ellipse cx="1" cy="2" rx="2" ry="2"/>

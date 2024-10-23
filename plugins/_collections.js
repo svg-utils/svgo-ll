@@ -12,6 +12,8 @@ export const elemsGroups = {
     'set',
   ]),
   characterData: new Set([
+    // <a> can only contain character data when it is a child of <text> - see https://svgwg.org/svg2-draft/linking.html#AElement
+    'a',
     'desc',
     'script',
     'style',
@@ -391,6 +393,7 @@ export const elems = {
     attrs: new Set([
       'class',
       'externalResourcesRequired',
+      'href',
       'style',
       'target',
       'transform',

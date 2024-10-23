@@ -1,0 +1,17 @@
+Preserve href on <a>.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
+  <text xml:space="preserve" x="20" y="180" font-family="Verdana" font-size="64" fill="blue">
+    Hello, out there! <a href="https://svgwg.org/svg2-draft/text.html#TextElement">   link text</a>
+  </text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
+    <text xml:space="preserve" x="20" y="180" font-family="Verdana" font-size="64" fill="blue">
+    Hello, out there! <a href="https://svgwg.org/svg2-draft/text.html#TextElement">   link text</a>
+  </text>
+</svg>

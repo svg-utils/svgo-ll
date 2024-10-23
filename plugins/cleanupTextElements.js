@@ -27,6 +27,24 @@ export const fn = (root, params, info) => {
             delete element.attributes['xml:space'];
           }
         }
+
+        // Remove any pure whitespace children.
+        const childrenToDelete = new Set();
+        for (const child of element.children) {
+          switch (child.type) {
+            case 'cdata':
+            case 'text':
+              if (isOnlyWhiteSpace(child.value)) {
+                childrenToDelete.add(child);
+              }
+              break;
+          }
+        }
+        if (childrenToDelete.size > 0) {
+          element.children = element.children.filter(
+            (c) => !childrenToDelete.has(c),
+          );
+        }
       },
     },
   };

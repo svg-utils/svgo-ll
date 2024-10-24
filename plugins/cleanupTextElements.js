@@ -14,6 +14,9 @@ export const fn = (root, params, info) => {
     return;
   }
 
+  /** @type {Map<import('./inlineStyles.js').XastParent,Set<import('./collapseGroups.js').XastElement>>} */
+  const textElsToHoist = new Map();
+
   return {
     element: {
       exit: (element) => {
@@ -69,6 +72,52 @@ export const fn = (root, params, info) => {
         ) {
           delete element.attributes.x;
           delete element.attributes.y;
+        }
+
+        // If the <text> has no attributes, and all of the children can be hoisted, add this element to the list to be updated
+        // at the end.
+        if (Object.keys(element.attributes).length === 0) {
+          if (
+            element.parentNode.type === 'element' &&
+            element.parentNode.name !== 'switch'
+          ) {
+            if (
+              element.children.every(
+                (child) => isHoistable(child) !== undefined,
+              )
+            ) {
+              let textEls = textElsToHoist.get(element.parentNode);
+              if (!textEls) {
+                textEls = new Set();
+                textElsToHoist.set(element.parentNode, textEls);
+              }
+              textEls.add(element);
+            }
+          }
+        }
+      },
+    },
+    root: {
+      exit: () => {
+        for (const [parent, textEls] of textElsToHoist.entries()) {
+          /** @type {import('../lib/types.js').XastChild[]} */
+          const newChildren = [];
+          for (const child of parent.children) {
+            if (child.type !== 'element' || !textEls.has(child)) {
+              newChildren.push(child);
+              continue;
+            }
+            // Promote all children to <text> elements.
+            for (const textChild of child.children) {
+              if (textChild.type !== 'element') {
+                throw new Error();
+              }
+              textChild.parentNode = parent;
+              textChild.name = 'text';
+              newChildren.push(textChild);
+            }
+          }
+          parent.children = newChildren;
         }
       },
     },
@@ -132,25 +181,7 @@ function getHoistableChild(element) {
     return;
   }
   const child = element.children[0];
-  if (child.type !== 'element') {
-    return;
-  }
-  if (element.children.length !== 1) {
-    return;
-  }
-  if (child.children[0].type !== 'text') {
-    return;
-  }
-  for (const attributeName of Object.keys(child.attributes)) {
-    switch (attributeName) {
-      case 'x':
-      case 'y':
-        break;
-      default:
-        return;
-    }
-  }
-  return child;
+  return isHoistable(child);
 }
 
 /**
@@ -189,6 +220,32 @@ export function hasSignificantWhiteSpace(str) {
     return false;
   }
   return lastIsSpace;
+}
+
+/**
+ * @param {import('../lib/types.js').XastChild} child
+ * @returns {import('./collapseGroups.js').XastElement|undefined}
+ */
+function isHoistable(child) {
+  if (child.type !== 'element') {
+    return;
+  }
+  if (child.children.length !== 1) {
+    return;
+  }
+  if (child.children[0].type !== 'text') {
+    return;
+  }
+  for (const attributeName of Object.keys(child.attributes)) {
+    switch (attributeName) {
+      case 'x':
+      case 'y':
+        break;
+      default:
+        return;
+    }
+  }
+  return child;
 }
 
 /**

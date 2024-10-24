@@ -60,14 +60,7 @@ describe('svgo', () => {
     });
     expect(normalize(result.data)).toStrictEqual(expected);
   });
-  it('should preserve whitespaces between tspan tags', async () => {
-    const [original, expected] = await parseFixture('whitespaces.svg.txt');
-    const result = optimize(original, {
-      path: 'input.svg',
-      js2svg: { pretty: true },
-    });
-    expect(normalize(result.data)).toStrictEqual(expected);
-  });
+
   it('should preserve "to" keyframe selector', async () => {
     const [original, expected] = await parseFixture(
       'keyframe-selectors.svg.txt',

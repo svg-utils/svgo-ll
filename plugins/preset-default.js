@@ -1,6 +1,7 @@
 import { createPreset } from '../lib/svgo/plugins.js';
 import * as cleanupIds from './cleanupIds.js';
 import * as cleanupStyleAttributes from './cleanupStyleAttributes.js';
+import * as cleanupTextElements from './cleanupTextElements.js';
 import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
 import * as combineStyleElements from './combineStyleElements.js';
@@ -59,6 +60,7 @@ const presetDefault = createPreset({
     removeEmptyContainers,
     removeUnusedNS,
     createGroups,
+    cleanupTextElements,
   ],
 });
 

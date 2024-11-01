@@ -17,6 +17,7 @@ type DefaultPlugins = {
   };
   cleanupStyleAttributes: void;
   cleanupStyleElements: void;
+  cleanupTextElements: void;
   collapseGroups: void;
   combinePaths: void;
   convertEllipseToCircle: void;

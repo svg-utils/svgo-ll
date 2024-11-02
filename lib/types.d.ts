@@ -243,3 +243,12 @@ export type PathDataItem = {
 };
 
 export type DataUri = 'base64' | 'enc' | 'unenc';
+
+export type ExactNum = {
+  clone(): ExactNum;
+  getMinifiedString(): string;
+  isEqualTo(n: ExactNum): boolean;
+  isZero(): boolean;
+  negate(): ExactNum;
+  setNumberOfDigits(d: number): void;
+};

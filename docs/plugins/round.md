@@ -6,6 +6,7 @@ Rounds numbers to a shorter form.
 
 - `coordDigits`: **number** - the number of digits after the decimal place to round x/y coordinates and width/height values (default: **4**)
 - `opacityDigits`: **number** - the number of digits after the decimal place to round opacity values (default: **3**)
+- `stopOffsetDigits`: **number** - the number of digits after the decimal place to round stop offset values (default: **3**)
 
 ## Details
 
@@ -30,8 +31,12 @@ If the dimension of the element or its ancestors cannot be determined, or if the
 
 ### Opacities
 
-`opacity` and `fill-opacity` values are rounded to the number of digits specified by the `opacityDigits` parameter.
+`opacity`, `fill-opacity`, and `stop-opacity` values are rounded to the number of digits specified by the `opacityDigits` parameter.
 
 ### Colors
 
 Any colors specified using RGB percentages are converted to integer RGB values, and minified as they are in the [minifyColors](./minifyColors.md) plugin.
+
+### Stop Offsets
+
+The `offset` attribute of `<stop>` elements is rounded to the number of digits specified by the `stopOffsetDigits` parameter.

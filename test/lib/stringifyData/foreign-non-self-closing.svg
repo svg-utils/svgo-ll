@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px" viewBox="0 0 10 10">
+  <foreignObject x="0" y="0" width="10" height="10" style="font-size:2px">
+    <p style="margin-top:0">
+      <span style="height:4px;display:inline-block"></span>
+      Some text.
+    </p>
+  </foreignObject>
+</svg>

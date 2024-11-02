@@ -28,11 +28,11 @@ Hoist children of <defs> so all children have id attributes.
     <rect fill="url(#a)" width="2" height="2"/>
     <rect fill="url(#b)" width="2" height="2" y="5"/>
     <defs>
-<!-- comment should be preserved -->
+        <!-- comment should be preserved -->
         <linearGradient id="a">
             <stop offset="5%" stop-color="gold"/>
         </linearGradient>
-<!-- text should not be preserved -->
+        <!-- text should not be preserved -->
         <linearGradient id="b">
             <stop offset="5%" stop-color="red"/>
         </linearGradient>

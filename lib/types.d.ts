@@ -39,6 +39,7 @@ export type XastElement = {
   name: string;
   attributes: Record<string, string>;
   children: XastChild[];
+  isSelfClosing?: boolean;
 };
 
 export type ParentList = {
@@ -63,30 +64,8 @@ export type XastParent = XastRoot | XastElement;
 export type XastNode = XastRoot | XastChild;
 
 export type StringifyOptions = {
-  doctypeStart?: string;
-  doctypeEnd?: string;
-  procInstStart?: string;
-  procInstEnd?: string;
-  tagOpenStart?: string;
-  tagOpenEnd?: string;
-  tagCloseStart?: string;
-  tagCloseEnd?: string;
-  tagShortStart?: string;
-  tagShortEnd?: string;
-  attrStart?: string;
-  attrEnd?: string;
-  commentStart?: string;
-  commentEnd?: string;
-  cdataStart?: string;
-  cdataEnd?: string;
-  textStart?: string;
-  textEnd?: string;
   indent?: number | string;
-  regEntities?: RegExp;
-  regValEntities?: RegExp;
-  encodeEntity?: (char: string) => string;
   pretty?: boolean;
-  useShortTags?: boolean;
   eol?: 'lf' | 'crlf';
   finalNewline?: boolean;
 };

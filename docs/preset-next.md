@@ -18,6 +18,7 @@ The following plugins are included in `preset-next`, in the order that they are 
 - minifyStyles
 - [cleanupIds](./plugins/cleanupIds.md)
 - [minifyColors](./plugins/minifyColors.md)
+- [minifyGradients](./plugins/minifyGradients.md)
 - [removeUnknownsAndDefaults](./plugins/removeUnknownsAndDefaults.md)
 - removeNonInheritableGroupAttrs
 - removeUselessStrokeAndFill
@@ -32,3 +33,4 @@ The following plugins are included in `preset-next`, in the order that they are 
 - removeEmptyContainers
 - removeUnusedNS
 - [createGroups](./plugins/createGroups.md)
+- [cleanupTextElements](./plugins/cleanupTextElements.md)

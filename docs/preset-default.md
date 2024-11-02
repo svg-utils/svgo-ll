@@ -17,6 +17,7 @@ The following plugins are included in `preset-default`, in the order that they a
 - minifyStyles
 - [cleanupIds](./plugins/cleanupIds.md)
 - [minifyColors](./plugins/minifyColors.md)
+- [minifyGradients](./plugins/minifyGradients.md)
 - [removeUnknownsAndDefaults](./plugins/removeUnknownsAndDefaults.md)
 - removeNonInheritableGroupAttrs
 - removeUselessStrokeAndFill
@@ -31,3 +32,4 @@ The following plugins are included in `preset-default`, in the order that they a
 - removeEmptyContainers
 - removeUnusedNS
 - [createGroups](./plugins/createGroups.md)
+- [cleanupTextElements](./plugins/cleanupTextElements.md)

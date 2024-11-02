@@ -1,4 +1,4 @@
-import type { ExactNum } from './exactnum.js';
+import type { ExactNum } from './types.js';
 
 export type SVGTransFnMatrix = {
   name: 'matrix';

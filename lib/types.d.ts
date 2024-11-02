@@ -39,6 +39,7 @@ export type XastElement = {
   name: string;
   attributes: Record<string, string>;
   children: XastChild[];
+  isSelfClosing?: boolean;
 };
 
 export type ParentList = {

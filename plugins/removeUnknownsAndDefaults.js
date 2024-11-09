@@ -158,21 +158,27 @@ export const fn = (root, params, info) => {
       },
     },
     element: {
-      enter: (node, parentNode, parentInfo) => {
+      enter: (element, parentNode, parentInfo) => {
         // skip namespaced elements
-        if (node.name.includes(':')) {
+        if (element.name.includes(':')) {
           return;
         }
         // skip visiting foreignObject subtree
-        if (node.name === 'foreignObject') {
+        if (element.name === 'foreignObject') {
           return visitSkip;
         }
 
-        if (node.name === 'use') {
-          const id = getHrefId(node);
+        if (element.name === 'use') {
+          const id = getHrefId(element);
           if (id) {
             usedIDs.add(id);
           }
+          // x="0" and y="0" can be removed; otherwise leave attributes alone.
+          ['x', 'y'].forEach((attName) => {
+            if (element.attributes[attName] === '0') {
+              delete element.attributes[attName];
+            }
+          });
           return;
         }
 
@@ -184,31 +190,33 @@ export const fn = (root, params, info) => {
           if (!allowedChildren || allowedChildren.size === 0) {
             // TODO: DO WE NEED THIS CHECK? SHOULDN'T IT HAVE BEEN HANDLED BY THE PARENT IN THE ELSE BLOCK BELOW?
             // remove unknown elements
-            if (allowedChildrenPerElement.get(node.name) == null) {
-              detachNodeFromParent(node, parentNode);
+            if (allowedChildrenPerElement.get(element.name) == null) {
+              detachNodeFromParent(element);
               return;
             }
           } else {
             // remove not allowed children
-            if (allowedChildren.has(node.name) === false) {
-              detachNodeFromParent(node, parentNode);
+            if (allowedChildren.has(element.name) === false) {
+              detachNodeFromParent(element);
               return;
             }
           }
         }
 
-        const allowedAttributes = allowedAttributesPerElement.get(node.name);
-        const attributesDefaults = attributesDefaultsPerElement.get(node.name);
+        const allowedAttributes = allowedAttributesPerElement.get(element.name);
+        const attributesDefaults = attributesDefaultsPerElement.get(
+          element.name,
+        );
         /** @type {Map<string, string | null>} */
-        const computedStyle = styleData.computeStyle(node, parentInfo);
+        const computedStyle = styleData.computeStyle(element, parentInfo);
 
         // Remove any unnecessary style properties.
-        const styleProperties = getStyleDeclarations(node);
+        const styleProperties = getStyleDeclarations(element);
         if (styleProperties) {
           // Delete the associated attributes, since they will always be overridden by the style property.
           for (let p of styleProperties.keys()) {
             if (p === 'transform') {
-              switch (node.name) {
+              switch (element.name) {
                 case 'linearGradient':
                 case 'radialGradient':
                   p = 'gradientTransform';
@@ -218,12 +226,12 @@ export const fn = (root, params, info) => {
                   break;
               }
             }
-            delete node.attributes[p];
+            delete element.attributes[p];
           }
 
           // Calculate the style if we remove all properties.
           const newComputedStyle = styleData.computeStyle(
-            node,
+            element,
             parentInfo,
             new Map(),
           );
@@ -243,13 +251,13 @@ export const fn = (root, params, info) => {
             }
           }
           if (propsToDelete.length > 0) {
-            propsToDeleteIfUnused.set(node, propsToDelete);
+            propsToDeleteIfUnused.set(element, propsToDelete);
           }
         }
 
         // remove element's unknown attrs and attrs with default values
         const attsToDelete = [];
-        for (const [name, value] of Object.entries(node.attributes)) {
+        for (const [name, value] of Object.entries(element.attributes)) {
           if (keepDataAttrs && name.startsWith('data-')) {
             continue;
           }
@@ -276,7 +284,7 @@ export const fn = (root, params, info) => {
             allowedAttributes &&
             !allowedAttributes.has(name)
           ) {
-            delete node.attributes[name];
+            delete element.attributes[name];
             continue;
           }
 
@@ -304,7 +312,7 @@ export const fn = (root, params, info) => {
           }
         }
         if (attsToDelete.length > 0) {
-          attsToDeleteIfUnused.set(node, attsToDelete);
+          attsToDeleteIfUnused.set(element, attsToDelete);
         }
       },
     },

@@ -85,6 +85,7 @@ export type Config = {
 
 type Output = {
   data: string;
+  passes: number;
   ast?: XastRoot;
   error?: unknown;
 };

@@ -18,7 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const width = 960;
 const height = 720;
 
-/** @type {Map<string,{lengthOrig:number,lengthOpt:number,pixels:number}>} */
+/** @type {Map<string,{lengthOrig:number,lengthOpt:number,passes:number,pixels:number}>} */
 const stats = new Map();
 
 /** @type {import('playwright').PageScreenshotOptions} */
@@ -35,6 +35,7 @@ async function performTests(options) {
   let mismatched = 0;
   let passed = 0;
   const notOptimized = new Set();
+  let totalPasses = 0;
   let totalInputSize = 0;
   let totalCompression = 0;
   let totalPixelMismatches = 0;
@@ -135,10 +136,15 @@ async function performTests(options) {
       `Total Compression: ${totalCompression} bytes (${toFixed((totalCompression / totalInputSize) * 100, 2)}%)`,
     );
     console.info(`Total Pixel Mismatches: ${totalPixelMismatches}`);
+    console.info(
+      `Total Passes: ${totalPasses} (${toFixed(totalPasses / (mismatched + passed), 2)} average)`,
+    );
 
     // Write statistics.
     const statArray = [
-      ['Name', 'Orig Len', 'Opt Len', 'Reduction', 'Pixels'].join('\t'),
+      ['Name', 'Orig Len', 'Opt Len', 'Passes', 'Reduction', 'Pixels'].join(
+        '\t',
+      ),
     ];
     const sortedKeys = [];
     for (const key of stats.keys()) {
@@ -152,7 +158,11 @@ async function performTests(options) {
       const orig = fileStats.lengthOrig;
       const opt = fileStats.lengthOpt;
       const reduction = orig - opt;
-      statArray.push([name, orig, opt, reduction, fileStats.pixels].join('\t'));
+      statArray.push(
+        [name, orig, opt, fileStats.passes, reduction, fileStats.pixels].join(
+          '\t',
+        ),
+      );
     }
 
     if (options.log) {
@@ -209,6 +219,8 @@ async function performTests(options) {
         if (optimized.error) {
           notOptimized.add(name.substring(1));
         }
+        fileStats.passes = optimized.passes;
+        totalPasses += optimized.passes;
         totalInputSize += file.length;
         totalCompression += file.length - optimized.data.length;
         res.setHeader('Content-Type', 'image/svg+xml');
@@ -228,6 +240,7 @@ async function performTests(options) {
       stats.set(name.replace(/\\/g, '/'), {
         lengthOrig: 0,
         lengthOpt: 0,
+        passes: 0,
         pixels: -1,
       }),
     );

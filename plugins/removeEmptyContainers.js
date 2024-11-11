@@ -1,40 +1,41 @@
-import { elemsGroups } from './_collections.js';
 import { detachNodeFromParent } from '../lib/xast.js';
 import { findReferences } from '../lib/svgo/tools.js';
-
-/**
- * @typedef {import('../lib/types.js').XastElement} XastElement
- * @typedef {import('../lib/types.js').XastParent} XastParent
- */
 
 export const name = 'removeEmptyContainers';
 export const description = 'removes empty container elements';
 
+const removableEls = new Set([
+  'a',
+  'defs',
+  'foreignObject',
+  'g',
+  'marker',
+  'mask',
+  'missing-glyph',
+  'pattern',
+  'switch',
+  'symbol',
+  'text',
+  'tspan',
+]);
+
 /**
- * Remove empty containers.
+ * Remove empty containers and text elements.
  *
  * @see https://www.w3.org/TR/SVG11/intro.html#TermContainerElement
- *
- * @example
- * <defs/>
- *
- * @example
- * <g><marker><a/></marker></g>
- *
- * @author Kir Belevich
  *
  * @type {import('./plugins-types.js').Plugin<'removeEmptyContainers'>}
  */
 export const fn = () => {
   const removedIds = new Set();
   /**
-   * @type {Map<string, {node:XastElement,parent:XastParent}[]>}
+   * @type {Map<string, import('../lib/types.js').XastElement[]>}
    */
   const usesById = new Map();
 
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         if (node.name === 'use') {
           // Record uses so those referencing empty containers can be removed.
           for (const [name, value] of Object.entries(node.attributes)) {
@@ -45,18 +46,14 @@ export const fn = () => {
                 references = [];
                 usesById.set(id, references);
               }
-              references.push({ node: node, parent: parentNode });
+              references.push(node);
             }
           }
         }
       },
       exit: (node, parentNode) => {
         // remove only empty non-svg containers
-        if (
-          node.name === 'svg' ||
-          !elemsGroups.container.has(node.name) ||
-          node.children.length !== 0
-        ) {
+        if (!removableEls.has(node.name) || node.children.length !== 0) {
           return;
         }
         // empty patterns may contain reusable configuration
@@ -89,10 +86,10 @@ export const fn = () => {
       exit: () => {
         // Remove any <use> elements that referenced an empty container.
         for (const id of removedIds) {
-          const uses = usesById.get(id);
-          if (uses) {
-            for (const use of uses) {
-              detachNodeFromParent(use.node, use.parent);
+          const usingEls = usesById.get(id);
+          if (usingEls) {
+            for (const element of usingEls) {
+              detachNodeFromParent(element);
             }
           }
         }

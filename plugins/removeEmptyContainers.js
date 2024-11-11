@@ -1,5 +1,5 @@
+import { getHrefId } from '../lib/svgo/tools.js';
 import { detachNodeFromParent } from '../lib/xast.js';
-import { findReferences } from '../lib/svgo/tools.js';
 
 export const name = 'removeEmptyContainers';
 export const description = 'removes empty container elements';
@@ -35,19 +35,17 @@ export const fn = () => {
 
   return {
     element: {
-      enter: (node) => {
-        if (node.name === 'use') {
+      enter: (element) => {
+        if (element.name === 'use') {
           // Record uses so those referencing empty containers can be removed.
-          for (const [name, value] of Object.entries(node.attributes)) {
-            const ids = findReferences(name, value);
-            for (const id of ids) {
-              let references = usesById.get(id);
-              if (references === undefined) {
-                references = [];
-                usesById.set(id, references);
-              }
-              references.push(node);
+          const id = getHrefId(element);
+          if (id) {
+            let references = usesById.get(id);
+            if (references === undefined) {
+              references = [];
+              usesById.set(id, references);
             }
+            references.push(element);
           }
         }
       },

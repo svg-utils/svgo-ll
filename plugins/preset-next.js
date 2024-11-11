@@ -54,12 +54,12 @@ const presetNext = createPreset({
     minifyTransforms,
     convertEllipseToCircle,
     moveElemsStylesToGroup,
-    collapseGroups,
     convertShapeToPath,
     minifyPathData,
     removeEmptyContainers,
     removeUnusedNS,
     createGroups,
+    collapseGroups,
     cleanupTextElements,
   ],
 });

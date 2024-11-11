@@ -100,11 +100,6 @@ type DefaultPlugins = {
   };
   removeEmptyAttrs: void;
   removeEmptyContainers: void;
-  removeEmptyText: {
-    text?: boolean;
-    tspan?: boolean;
-    tref?: boolean;
-  };
   removeHiddenElems: {
     isHidden?: boolean;
     displayNone?: boolean;

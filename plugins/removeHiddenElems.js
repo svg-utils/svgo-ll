@@ -1,5 +1,9 @@
 import { parsePathCommands, PathParseError } from '../lib/pathutils.js';
-import { getEllipseProperties } from '../lib/svgo/tools.js';
+import {
+  addChildToDelete,
+  deleteChildren,
+  getEllipseProperties,
+} from '../lib/svgo/tools.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeHiddenElems';
@@ -44,12 +48,7 @@ export const fn = (root, params, info) => {
    * @param {import('../lib/types.js').XastElement} element
    */
   function removeElement(element) {
-    let childrenToDelete = childrenToDeleteByParent.get(element.parentNode);
-    if (!childrenToDelete) {
-      childrenToDelete = new Set();
-      childrenToDeleteByParent.set(element.parentNode, childrenToDelete);
-    }
-    childrenToDelete.add(element);
+    addChildToDelete(childrenToDeleteByParent, element);
   }
 
   /**
@@ -200,12 +199,7 @@ export const fn = (root, params, info) => {
     },
     root: {
       exit: () => {
-        // For each parent, delete no longer needed children.
-        for (const [parent, childrenToDelete] of childrenToDeleteByParent) {
-          parent.children = parent.children.filter(
-            (c) => !childrenToDelete.has(c),
-          );
-        }
+        deleteChildren(childrenToDeleteByParent);
       },
     },
   };

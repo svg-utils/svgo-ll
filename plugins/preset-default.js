@@ -20,7 +20,6 @@ import * as removeDesc from './removeDesc.js';
 import * as removeDoctype from './removeDoctype.js';
 import * as removeEditorsNSData from './removeEditorsNSData.js';
 import * as removeEmptyContainers from './removeEmptyContainers.js';
-import * as removeEmptyText from './removeEmptyText.js';
 import * as removeHiddenElems from './removeHiddenElems.js';
 import * as removeMetadata from './removeMetadata.js';
 import * as removeNonInheritableGroupAttrs from './removeNonInheritableGroupAttrs.js';
@@ -50,7 +49,6 @@ const presetDefault = createPreset({
     removeNonInheritableGroupAttrs,
     removeUselessStrokeAndFill,
     removeHiddenElems,
-    removeEmptyText,
     minifyTransforms,
     convertEllipseToCircle,
     moveElemsStylesToGroup,

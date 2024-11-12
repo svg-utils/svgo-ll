@@ -1,3 +1,6 @@
+import { getStyleDeclarations } from '../lib/css-tools.js';
+import { writeStyleAttribute } from '../lib/css.js';
+
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
 
@@ -60,6 +63,19 @@ export const fn = (root, params, info) => {
             if (hoistableChild.attributes[attributeName] !== undefined) {
               element.attributes[attributeName] =
                 hoistableChild.attributes[attributeName];
+            }
+          }
+          // Update style attribute.
+          const childDeclarations = getStyleDeclarations(hoistableChild);
+          if (childDeclarations) {
+            const parentDeclarations = getStyleDeclarations(element);
+            if (parentDeclarations) {
+              for (const [k, v] of childDeclarations) {
+                parentDeclarations.set(k, v);
+              }
+              writeStyleAttribute(element, parentDeclarations);
+            } else {
+              writeStyleAttribute(element, childDeclarations);
             }
           }
         }
@@ -238,6 +254,7 @@ function isHoistable(child) {
   }
   for (const attributeName of Object.keys(child.attributes)) {
     switch (attributeName) {
+      case 'style':
       case 'x':
       case 'y':
         break;

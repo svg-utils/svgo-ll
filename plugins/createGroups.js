@@ -73,8 +73,41 @@ function createGroups(element, usedIds, elementsToCheck) {
    * @param {number} index
    */
   function writeGroup(index) {
+    /**
+     * @param {number} numSharedProps
+     */
+    function getDeletedStyleAttSavings(numSharedProps) {
+      // For any elements where we are moving all properties, ' style=""' will be removed.
+      let savings = 0;
+      for (let i = sharedPropStart; i < index; i++) {
+        const child = element.children[i];
+        if (inheritablePropCounts.get(child) === numSharedProps) {
+          savings += 9;
+        }
+      }
+      return savings;
+    }
+
+    /**
+     * @param {import('../lib/types.js').CSSDeclarationMap} props
+     */
+    function getPropSize(props) {
+      let size = 0;
+      for (const [k, v] of props.entries()) {
+        size += k.length + v.value.toString().length + 2; // Add 2 for ":", ";"
+      }
+      return size;
+    }
     const groupSize = index - sharedPropStart;
-    const shouldCreateGroup = sharedProps.size > 0 && groupSize > 1;
+    const propSize = getPropSize(sharedProps);
+    const cost =
+      16 + // for <g style=""></g>
+      propSize -
+      1; // subract 1 for last ";"
+    const savings =
+      propSize * groupSize + getDeletedStyleAttSavings(sharedProps.size);
+    const shouldCreateGroup =
+      sharedProps.size > 0 && groupSize > 1 && cost < savings;
     if (newChildren.length === 0 && !shouldCreateGroup) {
       // No groups have been written yet, and there is no reason to write one here.
       return;
@@ -153,6 +186,8 @@ function createGroups(element, usedIds, elementsToCheck) {
   let transformProps = new Set();
   let sharedPropStart = 0;
   let ungroupedStart = 0;
+  /** @type {Map<import('../lib/types.js').XastChild,number>} */
+  let inheritablePropCounts = new Map();
 
   let index = 0;
   for (; index < element.children.length; index++) {
@@ -172,6 +207,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     }
 
     const currentChildProps = getInheritableProperties(child);
+    inheritablePropCounts.set(child, currentChildProps.size);
     // Record which transform properties are present.
     TRANSFORM_PROP_NAMES.forEach((name) => {
       if (currentChildProps.has(name)) {

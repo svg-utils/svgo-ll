@@ -1,0 +1,15 @@
+Don't create group if it won't make things shorter.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <rect y="6" width="2" height="1.5" style="fill:green;stroke:red"/>
+  <rect y="9" width="2" height="1.5" style="fill:blue;stroke:red"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+    <rect y="6" width="2" height="1.5" style="fill:green;stroke:red"/>
+    <rect y="9" width="2" height="1.5" style="fill:blue;stroke:red"/>
+</svg>

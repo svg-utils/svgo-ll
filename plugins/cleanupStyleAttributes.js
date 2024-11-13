@@ -1,5 +1,6 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
+import { LengthOrPctValue } from '../lib/lengthOrPct.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -118,7 +119,18 @@ export const fn = (root, params, info) => {
           if (isShapeGroup && uselessShapeProperties.has(p)) {
             continue;
           }
-          newProperties.set(p, v);
+          let newValue = v;
+          switch (p) {
+            case 'stroke-dashoffset':
+            case 'stroke-width':
+              {
+                const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
+                const minified = parsedValue.getMinifiedValue();
+                newValue.value = minified;
+              }
+              break;
+          }
+          newProperties.set(p, newValue);
         }
         writeStyleAttribute(node, newProperties);
       },

@@ -1,0 +1,15 @@
+Hoist children with style attributes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <text style="fill:red">
+    <tspan y="20" style="font-weight:bold">This is a test</tspan>
+  </text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <text style="fill:red;font-weight:bold" y="20">This is a test</text>
+</svg>

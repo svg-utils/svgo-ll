@@ -1,8 +1,8 @@
-import { OpacityValue } from '../lib/attvalue.js';
 import { ColorValue } from '../lib/color.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { writeStyleAttribute } from '../lib/css.js';
 import { LengthValue } from '../lib/length.js';
+import { OpacityValue } from '../lib/opacity.js';
 import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
 import {

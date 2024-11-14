@@ -1,6 +1,6 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
 import { LengthOrPctValue } from '../lib/lengthOrPct.js';
+import { writeStyleAttribute } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,

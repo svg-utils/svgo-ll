@@ -1,6 +1,9 @@
-import { writeStyleAttribute } from '../lib/css.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
-import { getHrefId, getReferencedIds } from '../lib/svgo/tools.js';
+import {
+  getHrefId,
+  getReferencedIds,
+  writeStyleAttribute,
+} from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'inlineUse';

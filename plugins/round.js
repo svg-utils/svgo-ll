@@ -1,6 +1,5 @@
 import { ColorValue } from '../lib/color.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
 import { LengthValue } from '../lib/length.js';
 import { OpacityValue } from '../lib/opacity.js';
 import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
@@ -10,7 +9,7 @@ import {
   svgSetAttValue,
   SVGTransformValue,
 } from '../lib/svg-parse-att.js';
-import { toFixed } from '../lib/svgo/tools.js';
+import { toFixed, writeStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';

@@ -1,5 +1,4 @@
 import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
 import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
@@ -7,6 +6,7 @@ import {
   getReferencedIdInStyleProperty,
   recordReferencedIds,
   SVGOError,
+  writeStyleAttribute,
 } from '../lib/svgo/tools.js';
 
 export const name = 'minifyGradients';

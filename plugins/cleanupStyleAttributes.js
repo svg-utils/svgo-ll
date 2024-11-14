@@ -121,6 +121,7 @@ export const fn = (root, params, info) => {
           }
           let newValue = v;
           switch (p) {
+            case 'font-size':
             case 'stroke-dashoffset':
             case 'stroke-width':
               {

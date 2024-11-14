@@ -32,7 +32,7 @@ export const fn = (root, params, info) => {
       return;
     }
 
-    const classes = classStr.split(CLASS_SPLITTER);
+    const classes = classStr.toString().split(CLASS_SPLITTER);
     const newClasses = classes.filter((c) => styleData.hasClassReference(c));
     if (newClasses.length === 0) {
       delete element.attributes.class;

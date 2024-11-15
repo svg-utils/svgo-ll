@@ -50,6 +50,11 @@ export const fn = (root, params, info) => {
           return;
         }
 
+        if (styleData.hasIdSelector(gradientId)) {
+          // Don't merge gradients that are referenced by a selector.
+          return;
+        }
+
         const key = getGradientKey(element);
         if (!key) {
           return;
@@ -86,6 +91,9 @@ export const fn = (root, params, info) => {
             );
           }
         }
+
+        // Update any ids referenced by <style> properties.
+        styleData.updateReferencedIds(styleData.getReferencedIds(), idMap);
 
         // Delete merged nodes.
         deleteChildren(childrenToDelete);

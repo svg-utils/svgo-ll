@@ -1,0 +1,33 @@
+Merge gradients that are referenced in a <style> property.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <style>#c{fill:url(#b)}</style>
+  <defs>
+    <linearGradient id="a">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="b">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect id="c" y="15" width="20" height="10"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+    <style>#c{fill:url(#a)}</style>
+    <defs>
+        <linearGradient id="a">
+            <stop style="stop-color:#aaa"/>
+            <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+        </linearGradient>
+    </defs>
+    <rect width="20" height="10" fill="url(#a)"/>
+    <rect id="c" y="15" width="20" height="10"/>
+</svg>

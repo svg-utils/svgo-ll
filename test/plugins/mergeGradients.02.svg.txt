@@ -1,0 +1,39 @@
+Don't merge gradients that are referenced in a <style> selector.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <style>
+      #b stop {stop-opacity:.5}
+  </style>
+  <defs>
+    <linearGradient id="a">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="b">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#b)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+    <style>#b stop{stop-opacity:.5}</style>
+    <defs>
+        <linearGradient id="a">
+            <stop style="stop-color:#aaa"/>
+            <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+        </linearGradient>
+        <linearGradient id="b">
+            <stop style="stop-color:#aaa"/>
+            <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+        </linearGradient>
+    </defs>
+    <rect width="20" height="10" fill="url(#a)"/>
+    <rect y="15" width="20" height="10" fill="url(#b)"/>
+</svg>

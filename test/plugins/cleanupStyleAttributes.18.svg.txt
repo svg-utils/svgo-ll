@@ -1,0 +1,21 @@
+Minify opacities.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect width="20" height="6" style="fill:blue;fill-opacity:0.5"/>
+  <rect y="8" width="20" height="6" style="stroke:blue;stroke-opacity:0.2"/>
+  <g style="opacity:0.1">
+    <rect y="16" width="20" height="6"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+    <rect width="20" height="6" style="fill:blue;fill-opacity:.5"/>
+    <rect y="8" width="20" height="6" style="stroke:blue;stroke-opacity:.2"/>
+    <g style="opacity:.1">
+        <rect y="16" width="20" height="6"/>
+    </g>
+</svg>

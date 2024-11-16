@@ -45,7 +45,7 @@ export const fn = (root, params, info) => {
             return;
         }
 
-        const gradientId = element.attributes.id;
+        const gradientId = element.attributes.id.toString();
         if (!gradientId) {
           return;
         }
@@ -78,7 +78,7 @@ export const fn = (root, params, info) => {
           // Update all references.
 
           addChildToDelete(childrenToDelete, duplicate);
-          const dupId = duplicate.attributes.id;
+          const dupId = duplicate.attributes.id.toString();
           const dupReferencingEls = referencedIds.get(dupId);
           if (!dupReferencingEls) {
             continue;

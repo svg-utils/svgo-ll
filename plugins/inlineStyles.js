@@ -1,10 +1,9 @@
-import { writeStyleAttribute } from '../lib/css.js';
-
 /**
- * @typedef {import('../lib/types.js').XastElement} XastElement
  * @typedef {import('../lib/types.js').XastParent} XastParent
  * @typedef {import('../lib/types.js').CSSRule} CSSRule
  */
+
+import { writeStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'inlineStyles';
 export const description =
@@ -23,14 +22,14 @@ export const fn = (root, params, info) => {
     return;
   }
 
-  /** @type {Map<CSSRule,XastElement[]>} */
+  /** @type {Map<CSSRule,import('../lib/types.js').XastElement[]>} */
   const elementsPerRule = new Map();
-  /** @type {Map<XastElement,CSSRule[]>} */
+  /** @type {Map<import('../lib/types.js').XastElement,CSSRule[]>} */
   const rulesPerElement = new Map();
 
   /**
    * @param {CSSRule} rule
-   * @param {XastElement} element
+   * @param {import('../lib/types.js').XastElement} element
    */
   function addElementToRule(rule, element) {
     if (rule.isInMediaQuery() || rule.hasPseudos()) {
@@ -47,7 +46,7 @@ export const fn = (root, params, info) => {
 
   /**
    * @param {CSSRule} rule
-   * @param {XastElement} element
+   * @param {import('../lib/types.js').XastElement} element
    */
   function addRuleToElement(rule, element) {
     const rules = rulesPerElement.get(element);

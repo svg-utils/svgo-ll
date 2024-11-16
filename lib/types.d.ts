@@ -131,6 +131,7 @@ export class StyleData {
   getReferencedIds(): Map<string, CSSRule[]>;
   hasAttributeSelector(attName?: string): boolean;
   hasClassReference(className: string): boolean;
+  hasIdSelector(id: string): boolean;
   hasOnlyFeatures(features: CSSFeatures[]): boolean;
   hasStyles(): boolean;
   mergeStyles(): void;

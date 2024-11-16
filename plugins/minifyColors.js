@@ -1,7 +1,7 @@
 import { ColorValue } from '../lib/color.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
 import { svgSetAttValue } from '../lib/svg-parse-att.js';
+import { writeStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'minifyColors';
 export const description =

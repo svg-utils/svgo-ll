@@ -1,8 +1,7 @@
 import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
 import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
-import { getHrefId } from '../lib/svgo/tools.js';
+import { getHrefId, writeStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties } from './_styles.js';
 
 export const name = 'createGroups';

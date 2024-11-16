@@ -75,6 +75,7 @@ type DefaultPlugins = {
      */
     usePseudos?: string[];
   };
+  mergeGradients: void;
   mergePaths: {
     force?: boolean;
     floatPrecision?: number;

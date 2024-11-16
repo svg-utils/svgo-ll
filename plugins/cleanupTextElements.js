@@ -1,5 +1,5 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
+import { writeStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';

@@ -1,56 +1,14 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/css.js';
 import {
   generateId,
-  getReferencedIdsInAttribute,
   recordReferencedIds,
   SVGOError,
-  updateReferencedDeclarationIds,
+  updateReferencedId,
 } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'cleanupIds';
 export const description = 'removes unused IDs and minifies used';
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} attName
- * @param {Map<string,string>} idMap
- */
-function updateReferencedId(element, attName, idMap) {
-  if (attName === 'style') {
-    updateReferencedStyleId(element, idMap);
-    return;
-  }
-
-  const attValue = element.attributes[attName];
-  const ids = getReferencedIdsInAttribute(attName, attValue);
-  if (ids.length !== 1) {
-    throw new Error();
-  }
-  const newId = idMap.get(ids[0].id);
-  if (newId === undefined) {
-    throw new Error();
-  }
-  element.attributes[attName] = attValue.replace(
-    '#' + ids[0].literalString,
-    '#' + newId,
-  );
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {Map<string,string>} idMap
- */
-function updateReferencedStyleId(element, idMap) {
-  const decls = getStyleDeclarations(element);
-  if (decls === undefined) {
-    throw new Error();
-  }
-  updateReferencedDeclarationIds(decls, idMap);
-  writeStyleAttribute(element, decls);
-}
 
 /**
  * Remove unused and minify used IDs

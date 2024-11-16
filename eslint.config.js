@@ -1,23 +1,10 @@
 import js from '@eslint/js';
 import globals from 'globals';
 
-/**
- * @typedef {import('eslint').Linter.FlatConfig} FlatConfig
- */
-
-/** @type {FlatConfig[]} */
 export default [
+  js.configs.recommended,
   {
-    ignores: [
-      '.yarn/**',
-      '.yarnrc.yml',
-      'node_modules/**',
-      'dist/**',
-      'test/regression-fixtures/**',
-      'test/regression-diffs/**',
-      'test/cli/output/**',
-      'coverage/**',
-    ],
+    ignores: ['dist/**'],
   },
   {
     languageOptions: {
@@ -29,10 +16,7 @@ export default [
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
     },
-  },
-  js.configs.recommended,
-  {
-    files: ['**/*.js', '**/*.mjs'],
+    files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
     rules: {
       strict: 'error',
     },

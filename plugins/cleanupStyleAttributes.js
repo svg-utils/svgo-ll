@@ -1,5 +1,6 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
 import { LengthOrPctValue } from '../lib/lengthOrPct.js';
+import { OpacityValue } from '../lib/opacity.js';
 import { writeStyleAttribute } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {
@@ -128,6 +129,14 @@ export const fn = (root, params, info) => {
                 const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
                 const minified = parsedValue.getMinifiedValue();
                 newValue.value = minified;
+              }
+              break;
+            case 'fill-opacity':
+            case 'opacity':
+            case 'stop-opacity':
+            case 'stroke-opacity':
+              {
+                newValue.value = OpacityValue.getOpacityObj(v.value);
               }
               break;
           }

@@ -290,6 +290,25 @@ export const fn = (root, params, info) => {
             continue;
           }
 
+          // Remove rx/ry = 0 from <rect>.
+          if (element.name === 'rect') {
+            switch (name) {
+              case 'rx':
+              case 'ry':
+                if (value.toString() === '0') {
+                  const otherValue =
+                    element.attributes[name === 'rx' ? 'ry' : 'rx'];
+                  if (
+                    otherValue === undefined ||
+                    otherValue.toString() === '0'
+                  ) {
+                    delete element.attributes[name];
+                    continue;
+                  }
+                }
+            }
+          }
+
           // Only remove it if it is either
           // (a) inheritable, and either
           // -- a default value, and is not overriding the parent value, or

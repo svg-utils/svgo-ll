@@ -116,7 +116,10 @@ export const fn = (root, params, info) => {
     }
     // See if the element or any of its parents are used.
     while (true) {
-      if (element.attributes.id && usedIDs.has(element.attributes.id)) {
+      if (
+        element.attributes.id &&
+        usedIDs.has(element.attributes.id.toString())
+      ) {
         return true;
       }
       const parent = element.parentNode;
@@ -294,7 +297,7 @@ export const fn = (root, params, info) => {
           // (b) not inheritable, and a default value.
           const isDefault = isDefaultPropertyValue(
             name,
-            value,
+            value.toString(),
             attributesDefaults,
           );
           if (inheritableAttrs.has(name)) {

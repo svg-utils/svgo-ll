@@ -27,6 +27,15 @@ const allowedAttributesPerElement = new Map();
  * @type {Map<string, Map<string, string>>}
  */
 const attributesDefaultsPerElement = new Map();
+const preserveOverflowElements = new Set([
+  'foreignObject',
+  'image',
+  'marker',
+  'pattern',
+  'svg',
+  'symbol',
+  'text',
+]);
 
 for (const [name, config] of Object.entries(elems)) {
   /**
@@ -86,17 +95,28 @@ for (const [name, config] of Object.entries(elems)) {
 }
 
 /**
- * @param {string} name
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} propName
  * @param {string|undefined} value
  * @param {Map<string,string>|undefined} defaults
  * @returns {boolean}
  */
-function isDefaultPropertyValue(name, value, defaults) {
+function isDefaultPropertyValue(element, propName, value, defaults) {
   if (defaults === undefined) {
     return false;
   }
-  const defaultVals = defaults.get(name);
-  return value === defaultVals;
+  const defaultVals = defaults.get(propName);
+  if (value === defaultVals) {
+    return true;
+  }
+  if (
+    propName === 'overflow' &&
+    value === 'visible' &&
+    !preserveOverflowElements.has(element.name)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -247,7 +267,12 @@ export const fn = (root, params, info) => {
               origVal !== null &&
               (origVal === newVal ||
                 (newVal === undefined &&
-                  isDefaultPropertyValue(p, origVal, attributesDefaults)))
+                  isDefaultPropertyValue(
+                    element,
+                    p,
+                    origVal,
+                    attributesDefaults,
+                  )))
             ) {
               propsToDelete.push(p);
             }
@@ -315,6 +340,7 @@ export const fn = (root, params, info) => {
           // -- has the same value as the parent.
           // (b) not inheritable, and a default value.
           const isDefault = isDefaultPropertyValue(
+            element,
             name,
             value.toString(),
             attributesDefaults,

@@ -1,0 +1,13 @@
+Remove overflow:visible where possible.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path style="overflow:visible;opacity:.5" d="m1 8v64h64v-64h-64zm1 1h62v62h-62v-62z"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+    <path style="opacity:.5" d="m1 8v64h64v-64h-64zm1 1h62v62h-62v-62z"/>
+</svg>

@@ -30,7 +30,12 @@ const removableEls = new Set([
  *
  * @type {import('./plugins-types.js').Plugin<'removeEmptyContainers'>}
  */
-export const fn = () => {
+export const fn = (root, params, info) => {
+  const styleData = info.docData.getStyles();
+  if (info.docData.hasScripts() || styleData === null) {
+    return;
+  }
+
   const removedIds = new Set();
   /** @type {Map<string, import('../lib/types.js').XastElement[]>} */
   const usesById = new Map();
@@ -51,7 +56,7 @@ export const fn = () => {
           }
         }
       },
-      exit: (element, parentNode) => {
+      exit: (element, parentNode, parentInfo) => {
         // remove only empty non-svg containers
         if (!removableEls.has(element.name) || element.children.length !== 0) {
           return;
@@ -65,7 +70,8 @@ export const fn = () => {
         }
         // The <g> may not have content, but the filter may cause a rectangle
         // to be created and filled with pattern.
-        if (element.name === 'g' && element.attributes.filter != null) {
+        const props = styleData.computeStyle(element, parentInfo);
+        if (element.name === 'g' && props.get('filter') !== undefined) {
           return;
         }
         // empty <mask> hides masked element

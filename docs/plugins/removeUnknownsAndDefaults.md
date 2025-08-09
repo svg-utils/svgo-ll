@@ -37,7 +37,6 @@ Attributes are removed if they are not valid for the element.
 Otherwise attributes are removed if both:
 
 - They are either
-
   - not inheritable, and are set to a default value, or
   - inheritable, and either have the same value as the parent element, or have a default value, and are not overriding the value of the parent element
 

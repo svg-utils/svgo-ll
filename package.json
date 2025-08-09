@@ -97,7 +97,7 @@
     "rimraf": "^6.0.1",
     "rollup": "^4.24.3",
     "tar-stream": "^3.1.7",
-    "typescript": "^5.6.2"
+    "typescript": "^5.9.2"
   },
   "resolutions": {
     "sax@^1.4.1": "patch:sax@npm%3A1.4.1#./.yarn/patches/sax-npm-1.4.1-503b1923cb.patch"

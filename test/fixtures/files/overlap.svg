@@ -1,0 +1,6 @@
+<svg viewBox="0 0 10 10"
+  xmlns="http://www.w3.org/2000/svg">
+  <!-- Rectangle coordinates do not overlap, but borders do. -->
+  <path d="M 1 1 h8 v2 h-8 z" style="stroke:black;fill:none;opacity:.5" />
+  <path d="M 1 3.5 h8 v2 h-8 z" style="stroke:black;fill:none;opacity:.5" />
+</svg>

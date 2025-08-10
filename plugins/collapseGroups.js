@@ -118,9 +118,13 @@ export const fn = (root, params, info) => {
               return;
             }
           }
-          // replace current node with all its children
+
+          // Replace current node with all its children. Don't use splice(); if the child array is very large, it can trigger the
+          // "RangeError: Maximum call stack size exceeded" error.
           const index = parentNode.children.indexOf(node);
-          parentNode.children.splice(index, 1, ...node.children);
+          parentNode.children = parentNode.children
+            .slice(0, index)
+            .concat(node.children, parentNode.children.slice(index + 1));
           for (const child of node.children) {
             child.parentNode = parentNode;
           }

@@ -1,6 +1,6 @@
 # Differences Between **svgo-ll** and SVGO version 4
 
-**svgo-ll** originated as a clone of an [SVGO](https://github.com/svg/svgo) version 4 release candidate. Since then, numerous changes have been made to prioritize lossless compression, fix bugs, and improve performance.
+**svgo-ll** originated as a clone of an [SVGO](https://github.com/svg/svgo) version 4 release candidate. Since then, numerous changes have been made to prioritize lossless compression, fix bugs, and improve performance. Some of these changes are discussed below.
 
 ## Rounding and Precision
 
@@ -8,7 +8,7 @@ In SVGO, rounding of decimal values is enabled by default and integrated into ma
 
 ## Plugins
 
-The following SVGO plugins have been removed from **svgo-ll**:
+The following SVGO default plugins have been removed from **svgo-ll**:
 
 - **cleanupAttrs**
 - **cleanupEnableBackground**
@@ -26,7 +26,7 @@ The following SVGO plugins have been removed from **svgo-ll**:
 - **sortAttrs**
 - **sortDefsChildren**
 
-The following new plugins have been added to **svgo-ll**:
+The following new default plugins have been added to **svgo-ll**:
 
 - **[cleanupStyleAttributes](./plugins/cleanupStyleAttributes.md)**
 - **[cleanupTextElements](./plugins/cleanupTextElements.md)**

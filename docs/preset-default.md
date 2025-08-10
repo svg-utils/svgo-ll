@@ -29,7 +29,7 @@ The following plugins are included in `preset-default`, in the order that they a
 - collapseGroups
 - convertShapeToPath
 - [minifyPathData](./plugins/minifyPathData.md)
-- removeEmptyContainers
+- [removeEmptyContainers](./plugins/removeEmptyContainers.md)
 - removeUnusedNS
 - [createGroups](./plugins/createGroups.md)
 - [cleanupTextElements](./plugins/cleanupTextElements.md)

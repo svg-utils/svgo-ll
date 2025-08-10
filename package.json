@@ -67,7 +67,7 @@
     ]
   },
   "dependencies": {
-    "commander": "^12.1.0",
+    "commander": "^14.0.0",
     "css-select": "^5.1.0",
     "css-tree": "^3.0.1",
     "csso": "^5.0.5",

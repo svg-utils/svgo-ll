@@ -42,6 +42,19 @@ The following new plugins have been added to **svgo-ll**:
 
 ## CSS
 
+In SVGO, many plugins do not account for the impact of CSS. Many transformations are not safe when styles are used; when `<style>` elements are present, it can be difficult to determine whether a transformation is safe. All **svgo-ll** plugins check for the presence of `<style>` elements and the types of selectors they use; depending on whether `<style>` elements are present and the complexity of selectors, they may disable all or part of their functionality. For more details, see the [scalability](#scalability) section.
+
+## Configuration
+
+Plugins can be [enabled, disabled, and configured](./command-line-options.md#plugins) from the command line without writing code.
+
+The `--multipass` option has been deprecated and replaced by [`--max-passes`](./command-line-options.md#max-passes). By default **svgo-ll** will make up to 10 passes, the equivalent of using the `--multipass` option in SVGO.
+
+<a id="scalability"></a>
+
 ## Scalability
 
-caching, list of issues
+A number of architectural changes have been made to improve performance and scalability. These include:
+
+- Deprecating `detachNodeFromParent()` - see discussion in SVGO issues [1969](https://github.com/svg/svgo/issues/1969) and [2080](https://github.com/svg/svgo/issues/2080).
+- Recording data which is expensive to calculate outside of the optimization loop (particularly `<style>` data) and passing this data to each plugin. Plugins which modify the data (e.g. `inlineStyles`) are responsible for updating the data.

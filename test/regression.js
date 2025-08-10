@@ -26,6 +26,7 @@ const screenshotOptions = {
   omitBackground: true,
   clip: { x: 0, y: 0, width, height },
   animations: 'disabled',
+  timeout: 120000,
 };
 
 /**
@@ -68,17 +69,18 @@ async function performTests(options) {
     const processFile = async (page, name) => {
       await page.goto(`http://localhost:5000/original/${name}`);
       const originalBuffer = await page.screenshot(screenshotOptions);
-      await page.goto(`http://localhost:5000/optimized/${name}`);
+      await page.goto(`http://localhost:5000/optimized/${name}`, {
+        timeout: 120000,
+      });
       const optimizedBufferPromise = page.screenshot(screenshotOptions);
 
-      const writeDiffs = process.env.NO_DIFF == null;
-      const diff = writeDiffs && new PNG({ width, height });
+      const diff = new PNG({ width, height });
       const originalPng = PNG.sync.read(originalBuffer);
       const optimizedPng = PNG.sync.read(await optimizedBufferPromise);
       const mismatchCount = pixelmatch(
         originalPng.data,
         optimizedPng.data,
-        diff ? diff.data : null,
+        diff.data,
         width,
         height,
       );

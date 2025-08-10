@@ -3889,14 +3889,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pixelmatch@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "pixelmatch@npm:6.0.0"
+"pixelmatch@npm:^7.1.0":
+  version: 7.1.0
+  resolution: "pixelmatch@npm:7.1.0"
   dependencies:
     pngjs: ^7.0.0
   bin:
     pixelmatch: bin/pixelmatch
-  checksum: 89066e7904083f6e7de86afd26a51ec63fa311f51ee2ca2019eb2284e2b25d84f826da3f86699f857f4e13633dcc7e55912d5de2698f3128b63c14a633f85dcf
+  checksum: 0ad2e863e0e87ae52289c4366860a4040712a30a1e19c606745b9750b3ecda6f587dc959ce452818c50c7753ef6916f23026c14ef4d5f6c3b13c8205d61b923d
   languageName: node
   linkType: hard
 
@@ -4532,7 +4532,7 @@ __metadata:
     globals: ^15.9.0
     jest: ^29.7.0
     picocolors: ^1.1.1
-    pixelmatch: ^6.0.0
+    pixelmatch: ^7.1.0
     playwright: ^1.54.2
     pngjs: ^7.0.0
     prettier: ^3.6.2

@@ -74,14 +74,13 @@ async function performTests(options) {
       });
       const optimizedBufferPromise = page.screenshot(screenshotOptions);
 
-      const writeDiffs = process.env.NO_DIFF == null;
-      const diff = writeDiffs && new PNG({ width, height });
+      const diff = new PNG({ width, height });
       const originalPng = PNG.sync.read(originalBuffer);
       const optimizedPng = PNG.sync.read(await optimizedBufferPromise);
       const mismatchCount = pixelmatch(
         originalPng.data,
         optimizedPng.data,
-        diff ? diff.data : null,
+        diff.data,
         width,
         height,
       );

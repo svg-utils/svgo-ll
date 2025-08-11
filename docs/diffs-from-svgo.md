@@ -15,7 +15,7 @@ The following SVGO default plugins have been removed from **svgo-ll**:
 - **cleanupNumericValues**
 - **convertColors** - similar functionality is in the new **[minifyColors](./plugins/minifyColors.md)** plugin
 - **convertPathData** - most of the lossless functionality of this plugin has been preserved in the new **[minifyPathData](./plugins/minifyPathData.md)** plugin
-- **convertTransform**
+- **convertTransform** - some of the benefits of this plugin are achieved with the new **[minifyTransforms](./plugins/minifyTransforms.md)** plugin
 - **mergePaths** - some of the benefits of **mergePaths** are achieved with the new **[createGroups](./plugins/createGroups.md)** plugin
 - **mergeStyles**
 - **moveElemsAttrsToGroup**
@@ -37,7 +37,7 @@ The following new default plugins have been added to **svgo-ll**:
 - **[minifyColors](./plugins/minifyColors.md)**
 - **[minifyGradients](./plugins/minifyGradients.md)**
 - **[minifyPathData](./plugins/minifyPathData.md)**
-- **minifyTransforms**
+- **[minifyTransforms](./plugins/minifyTransforms.md)**
 - **moveElemsStylesToGroup**
 
 ## CSS

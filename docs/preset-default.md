@@ -22,7 +22,7 @@ The following plugins are included in `preset-default`, in the order that they a
 - removeNonInheritableGroupAttrs
 - removeUselessStrokeAndFill
 - [removeHiddenElems](./plugins/removeHiddenElems.md)
-- minifyTransforms
+- [minifyTransforms](./plugins/minifyTransforms.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
 - convertShapeToPath

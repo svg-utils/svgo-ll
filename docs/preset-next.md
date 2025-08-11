@@ -23,7 +23,7 @@ The following plugins are included in `preset-next`, in the order that they are 
 - removeNonInheritableGroupAttrs
 - removeUselessStrokeAndFill
 - [removeHiddenElems](./plugins/removeHiddenElems.md)
-- minifyTransforms
+- [minifyTransforms](./plugins/minifyTransforms.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
 - convertShapeToPath

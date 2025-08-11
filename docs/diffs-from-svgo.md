@@ -22,7 +22,7 @@ The following SVGO default plugins have been removed from **svgo-ll**:
 - **moveGroupAttrsToElems**
 - **removeDeprecatedAttrs**
 - **removeEmptyAttrs**
-- **removeEmptyText**
+- **removeEmptyText** - now handled by [removeEmptyContainers](./plugins/removeEmptyContainers.md)
 - **sortAttrs**
 - **sortDefsChildren**
 

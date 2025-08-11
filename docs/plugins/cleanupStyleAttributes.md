@@ -21,6 +21,8 @@ The list of allowable properties comes from https://www.w3.org/TR/SVG2/styling.h
 
 Empty `style` attributes are removed.
 
+Numeric values in style properties are written in the most compact form.
+
 Style attributes are not changed if the document has attribute selectors on the `style` attribute.
 
 ### `class` Attributes

@@ -77,7 +77,6 @@ function normalize(transforms) {
    */
   function mergeAdjacentScaleRotate(transforms) {
     /**
-     *
      * @param {TransformItem} origRotate
      * @param {TransformItem} origScale
      */

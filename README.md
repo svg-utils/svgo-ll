@@ -1,6 +1,6 @@
 # svgo-ll [![npm](https://img.shields.io/npm/v/svgo-ll)](https://npmjs.org/package/svgo-ll)
 
-**svgo-ll** is a Node.js library and command-line application for optimizing SVG files, evolved from the [SVGO](https://www.npmjs.com/package/svgo) package. **svgo-ll** is focused on lossless optimization and compression.
+**svgo-ll** is a Node.js library and command-line application for optimizing SVG files, evolved from the [SVGO](https://www.npmjs.com/package/svgo) package. **svgo-ll** is focused on lossless optimization and compression. See the [summary of differences between **svgo-ll** and SVGO](https://github.com/svg-utils/svgo-ll/blob/main/docs/diffs-from-svgo.md) for more details.
 
 ## Why?
 

@@ -33,7 +33,7 @@ The following new default plugins have been added to **svgo-ll**:
 - **[cleanupXlink](./plugins/cleanupXlink.md)**
 - **combineStyleElements**
 - **[createGroups](./plugins/createGroups.md)**
-- **mergeGradients**
+- **[mergeGradients](./plugins/mergeGradients.md)**
 - **[minifyColors](./plugins/minifyColors.md)**
 - **[minifyGradients](./plugins/minifyGradients.md)**
 - **[minifyPathData](./plugins/minifyPathData.md)**

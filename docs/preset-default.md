@@ -22,14 +22,14 @@ The following plugins are included in `preset-default`, in the order that they a
 - removeNonInheritableGroupAttrs
 - removeUselessStrokeAndFill
 - [removeHiddenElems](./plugins/removeHiddenElems.md)
-- removeEmptyText
 - minifyTransforms
 - convertEllipseToCircle
 - moveElemsStylesToGroup
-- collapseGroups
 - convertShapeToPath
 - [minifyPathData](./plugins/minifyPathData.md)
+- [mergeGradients](./plugins/mergeGradients.md)
 - [removeEmptyContainers](./plugins/removeEmptyContainers.md)
 - removeUnusedNS
 - [createGroups](./plugins/createGroups.md)
+- collapseGroups
 - [cleanupTextElements](./plugins/cleanupTextElements.md)

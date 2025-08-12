@@ -47,11 +47,6 @@ type DefaultPlugins = {
     usePseudos?: string[];
   };
   mergeGradients: void;
-  mergePaths: {
-    force?: boolean;
-    floatPrecision?: number;
-    noSpaceAfterFlags?: boolean;
-  };
   minifyColors: void;
   minifyGradients: void;
   minifyPathData: void;

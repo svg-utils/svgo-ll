@@ -10,10 +10,5 @@
     "resolveJsonModule": true
   },
   "include": ["**/*.js"],
-  "exclude": [
-    "coverage/**/*",
-    "dist/**/*",
-    "rollup.config.js",
-    "test/regression-extract.js"
-  ]
+  "exclude": ["coverage/**/*", "dist/**/*", "rollup.config.js"]
 }

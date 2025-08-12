@@ -21,29 +21,6 @@ type DefaultPlugins = {
   collapseGroups: void;
   combinePaths: void;
   convertEllipseToCircle: void;
-  convertPathData: {
-    applyTransforms?: boolean;
-    applyTransformsStroked?: boolean;
-    makeArcs?: {
-      threshold: number;
-      tolerance: number;
-    };
-    straightCurves?: boolean;
-    convertToQ?: boolean;
-    lineShorthands?: boolean;
-    convertToZ?: boolean;
-    curveSmoothShorthands?: boolean;
-    floatPrecision?: number | false;
-    transformPrecision?: number;
-    smartArcRounding?: boolean;
-    removeUseless?: boolean;
-    collapseRepeated?: boolean;
-    utilizeAbsolute?: boolean;
-    leadingZero?: boolean;
-    negativeExtraSpace?: boolean;
-    noSpaceAfterFlags?: boolean;
-    forceAbsolutePath?: boolean;
-  };
   convertShapeToPath: {
     convertArcs?: boolean;
     floatPrecision?: number;

@@ -102,7 +102,6 @@ type DefaultPlugins = {
     keepRoleAttr?: boolean;
   };
   removeUnusedNS: void;
-  removeUselessDefs: void;
   removeUselessStrokeAndFill: {
     stroke?: boolean;
     fill?: boolean;

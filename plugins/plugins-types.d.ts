@@ -16,7 +16,6 @@ type DefaultPlugins = {
   convertEllipseToCircle: void;
   convertShapeToPath: {
     convertArcs?: boolean;
-    floatPrecision?: number;
   };
   createGroups: void;
   inlineStyles: {
@@ -120,7 +119,6 @@ type PresetDefaultOverrides = {
 
 export type BuiltinsWithOptionalParams = DefaultPlugins & {
   'preset-default': {
-    floatPrecision?: number;
     overrides?: PresetDefaultOverrides;
   };
   'preset-next': {

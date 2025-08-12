@@ -1,12 +1,9 @@
-import { toFixed } from '../lib/svgo/tools.js';
-
 /**
  * @deprecated
  * @typedef {{ name: string, data: number[] }} TransformItem
  * @typedef {{
  *   convertToShorts: boolean,
  *   degPrecision?: number,
- *   floatPrecision: number,
  *   transformPrecision: number,
  *   matrixToTransform: boolean,
  *   shortTranslate: boolean,
@@ -123,15 +120,6 @@ const mth = {
   },
 
   /**
-   * @param {number} val
-   * @param {number} floatPrecision
-   * @returns {number}
-   */
-  acos: (val, floatPrecision) => {
-    return toFixed(mth.deg(Math.acos(val)), floatPrecision);
-  },
-
-  /**
    * @param {number} deg
    * @returns {number}
    */
@@ -140,29 +128,11 @@ const mth = {
   },
 
   /**
-   * @param {number} val
-   * @param {number} floatPrecision
-   * @returns {number}
-   */
-  asin: (val, floatPrecision) => {
-    return toFixed(mth.deg(Math.asin(val)), floatPrecision);
-  },
-
-  /**
    * @param {number} deg
    * @returns {number}
    */
   tan: (deg) => {
     return Math.tan(mth.rad(deg));
-  },
-
-  /**
-   * @param {number} val
-   * @param {number} floatPrecision
-   * @returns {number}
-   */
-  atan: (val, floatPrecision) => {
-    return toFixed(mth.deg(Math.atan(val)), floatPrecision);
   },
 };
 

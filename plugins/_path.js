@@ -145,7 +145,7 @@ const convertRelativeToAbsolute = (data) => {
 };
 
 /**
- * @typedef {{ floatPrecision?: number, noSpaceAfterFlags?: boolean }} Js2PathParams
+ * @typedef {{ noSpaceAfterFlags?: boolean }} Js2PathParams
  */
 
 /**
@@ -177,7 +177,6 @@ export const js2path = function (path, data, params) {
 
   path.attributes.d = stringifyPathData({
     pathData,
-    precision: params.floatPrecision,
     disableSpaceAfterFlags: params.noSpaceAfterFlags,
   });
 };

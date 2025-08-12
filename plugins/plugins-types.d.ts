@@ -149,7 +149,6 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
     prefixClassNames?: boolean;
   };
   removeDimensions: void;
-  removeOffCanvasPaths: void;
   removeRasterImages: void;
   removeScripts: void;
   removeStyleElement: void;

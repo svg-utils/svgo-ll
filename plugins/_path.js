@@ -1,4 +1,4 @@
-import { parsePathData, stringifyPathData } from '../lib/path.js';
+import { stringifyPathData } from '../lib/path.js';
 
 /**
  * @typedef {import('../lib/types.js').XastElement} XastElement
@@ -9,38 +9,6 @@ import { parsePathData, stringifyPathData } from '../lib/path.js';
  * @type {[number, number]}
  */
 var prevCtrlPoint;
-
-/**
- * Convert path string to JS representation.
- *
- * @type {(path: XastElement) => PathDataItem[]}
- * @deprecated
- */
-export const path2js = (path) => {
-  // @ts-ignore legacy
-  if (path.pathJS) {
-    // @ts-ignore legacy
-    return path.pathJS;
-  }
-
-  if (path.attributes.d === undefined) {
-    return [];
-  }
-
-  const pathData = []; // JS representation of the path data
-  // Note: seems like this copying is only necessary because of the use of path.pathJS
-  const newPathData = parsePathData(path.attributes.d);
-  for (const { command, args } of newPathData) {
-    pathData.push({ command, args });
-  }
-  // First moveto is actually absolute. Subsequent coordinates were separated above.
-  if (pathData.length && pathData[0].command == 'm') {
-    pathData[0].command = 'M';
-  }
-  // @ts-ignore legacy
-  path.pathJS = pathData;
-  return pathData;
-};
 
 /**
  * Convert relative Path data to absolute.

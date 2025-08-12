@@ -13,7 +13,6 @@ type DefaultPlugins = {
   cleanupStyleElements: void;
   cleanupTextElements: void;
   collapseGroups: void;
-  combinePaths: void;
   convertEllipseToCircle: void;
   convertShapeToPath: {
     convertArcs?: boolean;

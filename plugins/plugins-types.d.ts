@@ -130,15 +130,6 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
     keepImportant?: boolean;
   };
   inlineUse: void;
-  prefixIds: {
-    prefix?:
-      | boolean
-      | string
-      | ((node: XastElement, info: PluginInfo) => string);
-    delim?: string;
-    prefixIds?: boolean;
-    prefixClassNames?: boolean;
-  };
   removeDimensions: void;
   removeRasterImages: void;
   removeScripts: void;

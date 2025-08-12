@@ -9,12 +9,6 @@ type DefaultPlugins = {
     preserve?: string[];
     preservePrefixes?: string[];
   };
-  cleanupNumericValues: {
-    floatPrecision?: number;
-    leadingZero?: boolean;
-    defaultPx?: boolean;
-    convertToPx?: boolean;
-  };
   cleanupStyleAttributes: void;
   cleanupStyleElements: void;
   cleanupTextElements: void;

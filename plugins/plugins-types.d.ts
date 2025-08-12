@@ -177,7 +177,6 @@ export type BuiltinsWithRequiredParams = {
       string | ((node: XastElement, info: PluginInfo) => string)
     >;
   };
-  removeAttributesBySelector: any;
   removeAttrs: {
     elemSeparator?: string;
     preserveCurrentColor?: boolean;

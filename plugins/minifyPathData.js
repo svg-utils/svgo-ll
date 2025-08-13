@@ -33,7 +33,7 @@ export const fn = (root, params, info) => {
         if (pathElems.has(element.name) && element.attributes.d !== undefined) {
           let data;
           try {
-            data = parsePathCommands(element.attributes.d);
+            data = parsePathCommands(element.attributes.d.toString());
           } catch (error) {
             if (error instanceof PathParseError) {
               console.warn(error.message);

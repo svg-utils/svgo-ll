@@ -118,10 +118,10 @@ export const fn = (_root, params, info) => {
         }
 
         if (element.attributes.id) {
-          if (foundIds.has(element.attributes.id)) {
+          if (foundIds.has(element.attributes.id.toString())) {
             throw new SVGOError(`Duplicate id "${element.attributes.id}"`);
           }
-          foundIds.set(element.attributes.id, element);
+          foundIds.set(element.attributes.id.toString(), element);
         }
 
         recordReferencedIds(element, allReferencedIds);

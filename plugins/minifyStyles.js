@@ -47,10 +47,12 @@ export const fn = (root, params, info) => {
         // collect tags, ids and classes usage
         tagsUsage.add(node.name);
         if (node.attributes.id != null) {
-          idsUsage.add(node.attributes.id);
+          idsUsage.add(node.attributes.id.toString());
         }
         if (node.attributes.class != null) {
-          for (const className of node.attributes.class.split(/\s+/)) {
+          for (const className of node.attributes.class
+            .toString()
+            .split(/\s+/)) {
             classesUsage.add(className);
           }
         }
@@ -61,7 +63,7 @@ export const fn = (root, params, info) => {
 
         if (node.attributes.style) {
           node.attributes.style = csso.minifyBlock(
-            node.attributes.style,
+            node.attributes.style.toString(),
             {},
           ).css;
         }

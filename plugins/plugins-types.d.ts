@@ -143,11 +143,6 @@ export type BuiltinsWithRequiredParams = {
     attribute?: string | Record<string, null | string>;
     attributes?: Array<string | Record<string, null | string>>;
   };
-  removeAttrs: {
-    elemSeparator?: string;
-    preserveCurrentColor?: boolean;
-    attrs: string | string[];
-  };
 };
 
 export type PluginsParams = BuiltinsWithOptionalParams &

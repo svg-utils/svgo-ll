@@ -50,7 +50,6 @@ type DefaultPlugins = {
   minifyPathData: void;
   minifyStyles: void;
   minifyTransforms: void;
-  moveElemsAttrsToGroup: void;
   moveElemsStylesToGroup: void;
   moveGroupAttrsToElems: void;
   removeComments: {

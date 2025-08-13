@@ -51,7 +51,6 @@ type DefaultPlugins = {
   minifyStyles: void;
   minifyTransforms: void;
   moveElemsStylesToGroup: void;
-  moveGroupAttrsToElems: void;
   removeComments: {
     preservePatterns: Array<RegExp | string> | false;
   };

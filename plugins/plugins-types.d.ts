@@ -126,9 +126,6 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   };
   'preset-none': {};
   cleanupXlink: void;
-  convertStyleToAttrs: {
-    keepImportant?: boolean;
-  };
   inlineUse: void;
   removeDimensions: void;
   removeScripts: void;

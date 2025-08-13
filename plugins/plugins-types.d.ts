@@ -128,7 +128,6 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   cleanupXlink: void;
   inlineUse: void;
   removeDimensions: void;
-  removeScripts: void;
   removeStyleElement: void;
   removeTitle: void;
   removeXMLNS: void;

@@ -148,10 +148,6 @@ export type BuiltinsWithRequiredParams = {
     preserveCurrentColor?: boolean;
     attrs: string | string[];
   };
-  removeElementsByAttr: {
-    id?: string | string[];
-    class?: string | string[];
-  };
 };
 
 export type PluginsParams = BuiltinsWithOptionalParams &

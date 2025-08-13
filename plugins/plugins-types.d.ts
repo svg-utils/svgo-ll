@@ -61,7 +61,6 @@ type DefaultPlugins = {
   removeEditorsNSData: {
     additionalNamespaces?: string[];
   };
-  removeEmptyAttrs: void;
   removeEmptyContainers: void;
   removeHiddenElems: {
     isHidden?: boolean;

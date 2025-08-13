@@ -67,7 +67,9 @@ async function performTests(options) {
      * @param {string} name
      */
     const processFile = async (page, name) => {
-      await page.goto(`http://localhost:5000/original/${name}`);
+      await page.goto(`http://localhost:5000/original/${name}`, {
+        timeout: 120000,
+      });
       const originalBuffer = await page.screenshot(screenshotOptions);
       await page.goto(`http://localhost:5000/optimized/${name}`, {
         timeout: 120000,

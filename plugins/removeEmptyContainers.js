@@ -56,7 +56,7 @@ export const fn = (root, params, info) => {
           }
         }
       },
-      exit: (element, parentNode, parentInfo) => {
+      exit: (element, parentList) => {
         // remove only empty non-svg containers
         if (!removableEls.has(element.name) || element.children.length !== 0) {
           return;
@@ -70,7 +70,7 @@ export const fn = (root, params, info) => {
         }
         // The <g> may not have content, but the filter may cause a rectangle
         // to be created and filled with pattern.
-        const props = styleData.computeStyle(element, parentInfo);
+        const props = styleData.computeStyle(element, parentList);
         if (element.name === 'g' && props.get('filter') !== undefined) {
           return;
         }
@@ -78,6 +78,7 @@ export const fn = (root, params, info) => {
         if (element.name === 'mask' && element.attributes.id != null) {
           return;
         }
+        const parentNode = parentList[parentList.length - 1].element;
         if (parentNode.type === 'element' && parentNode.name === 'switch') {
           return;
         }
@@ -85,7 +86,7 @@ export const fn = (root, params, info) => {
         // TODO: Change the way this works so that parent removes empty children. We can't queue them for deletion in
         // root exit; this is running in element exit so that nested empty elements are removed from bottom up, the nesting
         // would be hard to detect in root exit.
-        detachNodeFromParent(element, parentNode);
+        detachNodeFromParent(element);
         if (element.attributes.id) {
           removedIds.add(element.attributes.id);
         }

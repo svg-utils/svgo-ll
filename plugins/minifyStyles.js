@@ -43,7 +43,7 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node, parentList) => {
         // collect tags, ids and classes usage
         tagsUsage.add(node.name);
         if (node.attributes.id != null) {
@@ -58,7 +58,7 @@ export const fn = (root, params, info) => {
         }
         // collect style elements or elements with style attribute
         if (node.name === 'style' && node.children.length !== 0) {
-          styleElements.set(node, parentNode);
+          styleElements.set(node, parentList[parentList.length - 1].element);
         }
 
         if (node.attributes.style) {

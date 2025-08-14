@@ -24,7 +24,7 @@ export function fn(root, params, info) {
   const { removeAny = false } = params;
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         if (node.name === 'desc') {
           if (
             removeAny ||
@@ -32,7 +32,7 @@ export function fn(root, params, info) {
             (node.children[0].type === 'text' &&
               standardDescs.test(node.children[0].value))
           ) {
-            detachNodeFromParent(node, parentNode);
+            detachNodeFromParent(node);
           }
         }
       },

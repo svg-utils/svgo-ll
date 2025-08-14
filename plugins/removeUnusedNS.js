@@ -16,7 +16,8 @@ export const fn = () => {
   const unusedNamespaces = new Set();
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node, parentList) => {
+        const parentNode = parentList[parentList.length - 1].element;
         // collect all namespaces from svg element
         // (such as xmlns:xlink="http://www.w3.org/1999/xlink")
         if (node.name === 'svg' && parentNode.type === 'root') {
@@ -44,7 +45,8 @@ export const fn = () => {
           }
         }
       },
-      exit: (node, parentNode) => {
+      exit: (node, parentList) => {
+        const parentNode = parentList[parentList.length - 1].element;
         // remove unused namespace attributes from svg element
         if (node.name === 'svg' && parentNode.type === 'root') {
           for (const name of unusedNamespaces) {

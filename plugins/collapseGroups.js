@@ -56,7 +56,8 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      exit: (node, parentNode, parentInfo) => {
+      exit: (node, parentList) => {
+        const parentNode = parentList[parentList.length - 1].element;
         if (parentNode.type === 'root' || parentNode.name === 'switch') {
           return;
         }
@@ -75,7 +76,7 @@ export const fn = (root, params, info) => {
           if (
             firstChild.type === 'element' &&
             firstChild.attributes.id == null &&
-            !elementHasUnmovableProperties(node, parentInfo) &&
+            !elementHasUnmovableProperties(node, parentList) &&
             (node.attributes.class == null ||
               firstChild.attributes.class == null)
           ) {

@@ -71,16 +71,8 @@ export type StringifyOptions = {
 };
 
 type VisitorNode<Node> = {
-  enter?: (
-    node: Node,
-    parentNode: XastParent,
-    parentInfo: Readonly<ParentList>,
-  ) => void | symbol;
-  exit?: (
-    node: Node,
-    parentNode: XastParent,
-    parentInfo: Readonly<ParentList>,
-  ) => void;
+  enter?: (node: Node, parentInfo: Readonly<ParentList>) => void | symbol;
+  exit?: (node: Node, parentInfo: Readonly<ParentList>) => void;
 };
 
 type VisitorRoot = {

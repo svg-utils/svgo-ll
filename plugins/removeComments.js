@@ -29,7 +29,7 @@ export const fn = (_root, params, info) => {
 
   return {
     comment: {
-      enter: (node, parentNode) => {
+      enter: (node, parentList) => {
         if (preservePatterns) {
           if (!Array.isArray(preservePatterns)) {
             throw Error(
@@ -46,7 +46,7 @@ export const fn = (_root, params, info) => {
           }
         }
 
-        detachNodeFromParent(node, parentNode);
+        detachNodeFromParent(node, parentList[parentList.length - 1].element);
       },
     },
   };

@@ -139,7 +139,7 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (element, parentNode, parentInfo) => {
+      enter: (element, parentList) => {
         if (element.name === 'defs') {
           processDefsChildren(element);
           return;
@@ -161,7 +161,7 @@ export const fn = (root, params, info) => {
           return;
         }
 
-        const properties = styleData.computeStyle(element, parentInfo);
+        const properties = styleData.computeStyle(element, parentList);
         if (!properties) {
           return;
         }

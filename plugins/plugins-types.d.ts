@@ -135,12 +135,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   };
 };
 
-export type BuiltinsWithRequiredParams = {
-  addAttributesToSVGElement: {
-    attribute?: string | Record<string, null | string>;
-    attributes?: Array<string | Record<string, null | string>>;
-  };
-};
+export type BuiltinsWithRequiredParams = {};
 
 export type PluginsParams = BuiltinsWithOptionalParams &
   BuiltinsWithRequiredParams;

@@ -29,7 +29,7 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (node, parentNode, parentInfo) => {
+      enter: (node, parentList) => {
         // id attribute deoptimise the whole subtree
         if (node.attributes.id) {
           return visitSkip;
@@ -37,16 +37,17 @@ export const fn = (root, params, info) => {
         if (!elemsGroups.shape.has(node.name)) {
           return;
         }
-        const computedStyle = styleData.computeStyle(node, parentInfo);
+        const computedStyle = styleData.computeStyle(node, parentList);
         const stroke = computedStyle.get('stroke');
         const strokeOpacity = computedStyle.get('stroke-opacity');
         const strokeWidth = computedStyle.get('stroke-width');
         const markerEnd = computedStyle.get('marker-end');
         const fill = computedStyle.get('fill');
         const fillOpacity = computedStyle.get('fill-opacity');
+        const parentNode = parentList[parentList.length - 1].element;
         const computedParentStyle =
           parentNode.type === 'element'
-            ? styleData.computeStyle(parentNode, parentInfo.slice(0, -1))
+            ? styleData.computeStyle(parentNode, parentList.slice(0, -1))
             : null;
         const parentStroke =
           computedParentStyle === null
@@ -103,7 +104,7 @@ export const fn = (root, params, info) => {
             ((fill !== undefined && fill === 'none') ||
               node.attributes.fill === 'none')
           ) {
-            detachNodeFromParent(node, parentNode);
+            detachNodeFromParent(node);
           }
         }
       },

@@ -56,7 +56,7 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (element, parentNode, parentInfo) => {
+      enter: (element, parentInfo) => {
         const properties = styleData.computeStyle(element, parentInfo);
         const transform = properties.get('transform');
         if (transform === undefined || isTranslation(transform)) {

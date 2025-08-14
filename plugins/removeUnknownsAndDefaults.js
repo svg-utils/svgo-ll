@@ -180,7 +180,7 @@ export const fn = (root, params, info) => {
       },
     },
     element: {
-      enter: (element, parentNode, parentInfo) => {
+      enter: (element, parentList) => {
         // skip namespaced elements
         if (element.name.includes(':')) {
           return;
@@ -205,6 +205,7 @@ export const fn = (root, params, info) => {
         }
 
         // remove unknown element's content
+        const parentNode = parentList[parentList.length - 1].element;
         if (unknownContent && parentNode.type === 'element') {
           const allowedChildren = allowedChildrenPerElement.get(
             parentNode.name,
@@ -230,7 +231,7 @@ export const fn = (root, params, info) => {
           element.name,
         );
         /** @type {Map<string, import('../lib/types.js').SVGAttValue | null>} */
-        const computedStyle = styleData.computeStyle(element, parentInfo);
+        const computedStyle = styleData.computeStyle(element, parentList);
 
         // Remove any unnecessary style properties.
         const styleProperties = getStyleDeclarations(element);
@@ -254,7 +255,7 @@ export const fn = (root, params, info) => {
           // Calculate the style if we remove all properties.
           const newComputedStyle = styleData.computeStyle(
             element,
-            parentInfo,
+            parentList,
             new Map(),
           );
 
@@ -346,7 +347,7 @@ export const fn = (root, params, info) => {
             attributesDefaults,
           );
           if (inheritableAttrs.has(name)) {
-            const parentProperties = styleData.computeParentStyle(parentInfo);
+            const parentProperties = styleData.computeParentStyle(parentList);
             const parentValue = parentProperties.get(name);
             if (
               (isDefault && parentValue === undefined) ||

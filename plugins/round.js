@@ -231,14 +231,14 @@ function getCoordContext(element, digits) {
 }
 
 /**
- * @param {string|null} transform
+ * @param {import('../lib/types.js').SVGAttValue|null} transform
  * @returns {boolean}
  */
 function isTranslation(transform) {
   if (transform === null) {
     return false;
   }
-  const transforms = svgParseTransform(transform);
+  const transforms = svgParseTransform(transform.toString());
   return transforms.length === 1 && transforms[0].name === 'translate';
 }
 

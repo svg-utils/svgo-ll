@@ -37,7 +37,7 @@ export type XastElement = {
   type: 'element';
   parentNode: XastParent;
   name: string;
-  attributes: Record<string, string>;
+  attributes: Record<string, SVGAttValue>;
   children: XastChild[];
   isSelfClosing?: boolean;
 };
@@ -111,18 +111,20 @@ type CSSFeatures =
   | 'pseudos'
   | 'simple-selectors';
 
-export class AttValue {}
+export class AttValue {
+  toString(): string;
+}
 
 export class StyleData {
-  computeOwnStyle(node: XastElement): Map<string, string | null>;
+  computeOwnStyle(node: XastElement): Map<string, SVGAttValue | null>;
   computeParentStyle(
     parentInfo: Readonly<ParentList>,
-  ): Map<string, string | null>;
+  ): Map<string, SVGAttValue | null>;
   computeStyle(
     node: XastElement,
     parentInfo: Readonly<ParentList>,
     declarations?: CSSDeclarationMap,
-  ): Map<string, string | null>;
+  ): Map<string, SVGAttValue | null>;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
   getFirstStyleElement(): XastElement | undefined;

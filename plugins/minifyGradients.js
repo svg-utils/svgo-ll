@@ -14,7 +14,7 @@ export const description =
   'minify stop offsets and remove stops where possible';
 
 /**
- * @typedef {{color:string,opacity:string|undefined}} ColorData
+ * @typedef {{color:import('../lib/types.js').SVGAttValue,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
  */
 
 /**

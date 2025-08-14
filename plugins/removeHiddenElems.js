@@ -65,7 +65,7 @@ export const fn = (root, params, info) => {
 
   /**
    * @param {import('../lib/types.js').XastElement} element
-   * @param {Map<string,string|null>} properties
+   * @param {Map<string,import('../lib/types.js').SVGAttValue|null>} properties
    * @returns {boolean}
    */
   function removeEmptyShapes(element, properties) {
@@ -102,7 +102,7 @@ export const fn = (root, params, info) => {
           return true;
         }
         try {
-          const commands = parsePathCommands(d, 2);
+          const commands = parsePathCommands(d.toString(), 2);
           if (commands.length === 1) {
             if (properties.get('marker-end') !== undefined) {
               return false;

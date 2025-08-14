@@ -97,7 +97,7 @@ for (const [name, config] of Object.entries(elems)) {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {string} propName
- * @param {string|undefined} value
+ * @param {import('../lib/types.js').SVGAttValue|undefined} value
  * @param {Map<string,string>|undefined} defaults
  * @returns {boolean}
  */
@@ -229,7 +229,7 @@ export const fn = (root, params, info) => {
         const attributesDefaults = attributesDefaultsPerElement.get(
           element.name,
         );
-        /** @type {Map<string, string | null>} */
+        /** @type {Map<string, import('../lib/types.js').SVGAttValue | null>} */
         const computedStyle = styleData.computeStyle(element, parentInfo);
 
         // Remove any unnecessary style properties.

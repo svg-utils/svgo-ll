@@ -37,7 +37,7 @@ export type XastElement = {
   type: 'element';
   parentNode: XastParent;
   name: string;
-  attributes: Record<string, string>;
+  attributes: Record<string, SVGAttValue>;
   children: XastChild[];
   isSelfClosing?: boolean;
 };
@@ -71,16 +71,8 @@ export type StringifyOptions = {
 };
 
 type VisitorNode<Node> = {
-  enter?: (
-    node: Node,
-    parentNode: XastParent,
-    parentInfo: Readonly<ParentList>,
-  ) => void | symbol;
-  exit?: (
-    node: Node,
-    parentNode: XastParent,
-    parentInfo: Readonly<ParentList>,
-  ) => void;
+  enter?: (node: Node, parentList: Readonly<ParentList>) => void | symbol;
+  exit?: (node: Node, parentList: Readonly<ParentList>) => void;
 };
 
 type VisitorRoot = {
@@ -111,16 +103,18 @@ type CSSFeatures =
   | 'pseudos'
   | 'simple-selectors';
 
-export class AttValue {}
+export class AttValue {
+  toString(): string;
+}
 
 export class StyleData {
   computeOwnStyle(node: XastElement): Map<string, string | null>;
   computeParentStyle(
-    parentInfo: Readonly<ParentList>,
+    parentList: Readonly<ParentList>,
   ): Map<string, string | null>;
   computeStyle(
     node: XastElement,
-    parentInfo: Readonly<ParentList>,
+    parentList: Readonly<ParentList>,
     declarations?: CSSDeclarationMap,
   ): Map<string, string | null>;
   deleteRules(rules: Set<CSSRule>): void;

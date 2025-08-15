@@ -35,9 +35,8 @@ describe('plugins tests', function () {
           };
           let lastResultData = original;
           // test plugins idempotence
-          const exclude = ['addAttributesToSVGElement'];
-          const multipass = exclude.includes(name) ? 1 : 2;
-          for (let i = 0; i < multipass; i += 1) {
+          const passes = 2;
+          for (let i = 0; i < passes; i += 1) {
             const result = optimize(lastResultData, {
               path: file,
               // @ts-ignore

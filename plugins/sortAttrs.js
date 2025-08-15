@@ -55,7 +55,7 @@ export const fn = (_root, params) => {
   };
 
   /**
-   * @type {(a: [string, string], b: [string, string]) => number}
+   * @type {(a: [string, import('../lib/types.js').SVGAttValue], b: [string, import('../lib/types.js').SVGAttValue]) => number}
    */
   const compareAttrs = ([aName], [bName]) => {
     // sort namespaces
@@ -92,9 +92,7 @@ export const fn = (_root, params) => {
       enter: (node) => {
         const attrs = Object.entries(node.attributes);
         attrs.sort(compareAttrs);
-        /**
-         * @type {Record<string, string>}
-         */
+        /** @type {Record<string, import('../lib/types.js').SVGAttValue>} */
         const sortedAttributes = {};
         for (const [name, value] of attrs) {
           sortedAttributes[name] = value;

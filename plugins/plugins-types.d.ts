@@ -9,44 +9,13 @@ type DefaultPlugins = {
     preserve?: string[];
     preservePrefixes?: string[];
   };
-  cleanupNumericValues: {
-    floatPrecision?: number;
-    leadingZero?: boolean;
-    defaultPx?: boolean;
-    convertToPx?: boolean;
-  };
   cleanupStyleAttributes: void;
   cleanupStyleElements: void;
   cleanupTextElements: void;
   collapseGroups: void;
-  combinePaths: void;
   convertEllipseToCircle: void;
-  convertPathData: {
-    applyTransforms?: boolean;
-    applyTransformsStroked?: boolean;
-    makeArcs?: {
-      threshold: number;
-      tolerance: number;
-    };
-    straightCurves?: boolean;
-    convertToQ?: boolean;
-    lineShorthands?: boolean;
-    convertToZ?: boolean;
-    curveSmoothShorthands?: boolean;
-    floatPrecision?: number | false;
-    transformPrecision?: number;
-    smartArcRounding?: boolean;
-    removeUseless?: boolean;
-    collapseRepeated?: boolean;
-    utilizeAbsolute?: boolean;
-    leadingZero?: boolean;
-    negativeExtraSpace?: boolean;
-    noSpaceAfterFlags?: boolean;
-    forceAbsolutePath?: boolean;
-  };
   convertShapeToPath: {
     convertArcs?: boolean;
-    floatPrecision?: number;
   };
   createGroups: void;
   inlineStyles: {
@@ -76,19 +45,12 @@ type DefaultPlugins = {
     usePseudos?: string[];
   };
   mergeGradients: void;
-  mergePaths: {
-    force?: boolean;
-    floatPrecision?: number;
-    noSpaceAfterFlags?: boolean;
-  };
   minifyColors: void;
   minifyGradients: void;
   minifyPathData: void;
   minifyStyles: void;
   minifyTransforms: void;
-  moveElemsAttrsToGroup: void;
   moveElemsStylesToGroup: void;
-  moveGroupAttrsToElems: void;
   removeComments: {
     preservePatterns: Array<RegExp | string> | false;
   };
@@ -99,7 +61,6 @@ type DefaultPlugins = {
   removeEditorsNSData: {
     additionalNamespaces?: string[];
   };
-  removeEmptyAttrs: void;
   removeEmptyContainers: void;
   removeHiddenElems: {
     isHidden?: boolean;
@@ -136,7 +97,6 @@ type DefaultPlugins = {
     keepRoleAttr?: boolean;
   };
   removeUnusedNS: void;
-  removeUselessDefs: void;
   removeUselessStrokeAndFill: {
     stroke?: boolean;
     fill?: boolean;
@@ -156,7 +116,6 @@ type PresetDefaultOverrides = {
 
 export type BuiltinsWithOptionalParams = DefaultPlugins & {
   'preset-default': {
-    floatPrecision?: number;
     overrides?: PresetDefaultOverrides;
   };
   'preset-next': {
@@ -164,38 +123,11 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   };
   'preset-none': {};
   cleanupXlink: void;
-  convertStyleToAttrs: {
-    keepImportant?: boolean;
-  };
   inlineUse: void;
-  prefixIds: {
-    prefix?:
-      | boolean
-      | string
-      | ((node: XastElement, info: PluginInfo) => string);
-    delim?: string;
-    prefixIds?: boolean;
-    prefixClassNames?: boolean;
-  };
   removeDimensions: void;
-  removeOffCanvasPaths: void;
-  removeRasterImages: void;
-  removeScripts: void;
   removeStyleElement: void;
   removeTitle: void;
-  removeViewBox: void;
-  removeXlink: {
-    /**
-     * By default this plugin ignores legacy elements that were deprecated or
-     * removed in SVG 2. Set to true to force performing operations on those
-     * too.
-     *
-     * @default false
-     */
-    includeLegacy: boolean;
-  };
   removeXMLNS: void;
-  reusePaths: void;
   round: {
     coordDigits?: number;
     opacityDigits?: number;
@@ -203,28 +135,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   };
 };
 
-export type BuiltinsWithRequiredParams = {
-  addAttributesToSVGElement: {
-    attribute?: string | Record<string, null | string>;
-    attributes?: Array<string | Record<string, null | string>>;
-  };
-  addClassesToSVGElement: {
-    className?: string | ((node: XastElement, info: PluginInfo) => string);
-    classNames?: Array<
-      string | ((node: XastElement, info: PluginInfo) => string)
-    >;
-  };
-  removeAttributesBySelector: any;
-  removeAttrs: {
-    elemSeparator?: string;
-    preserveCurrentColor?: boolean;
-    attrs: string | string[];
-  };
-  removeElementsByAttr: {
-    id?: string | string[];
-    class?: string | string[];
-  };
-};
+export type BuiltinsWithRequiredParams = {};
 
 export type PluginsParams = BuiltinsWithOptionalParams &
   BuiltinsWithRequiredParams;

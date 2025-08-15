@@ -29,24 +29,25 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (node, parentNode, parentInfo) => {
+      enter: (element, parentList) => {
         // id attribute deoptimise the whole subtree
-        if (node.attributes.id) {
+        if (element.attributes.id) {
           return visitSkip;
         }
-        if (!elemsGroups.shape.has(node.name)) {
+        if (!elemsGroups.shape.has(element.name)) {
           return;
         }
-        const computedStyle = styleData.computeStyle(node, parentInfo);
+        const computedStyle = styleData.computeStyle(element, parentList);
         const stroke = computedStyle.get('stroke');
         const strokeOpacity = computedStyle.get('stroke-opacity');
         const strokeWidth = computedStyle.get('stroke-width');
         const markerEnd = computedStyle.get('marker-end');
         const fill = computedStyle.get('fill');
         const fillOpacity = computedStyle.get('fill-opacity');
+        const parentNode = element.parentNode;
         const computedParentStyle =
           parentNode.type === 'element'
-            ? styleData.computeStyle(parentNode, parentInfo.slice(0, -1))
+            ? styleData.computeStyle(parentNode, parentList.slice(0, -1))
             : null;
         const parentStroke =
           computedParentStyle === null
@@ -67,14 +68,14 @@ export const fn = (root, params, info) => {
               (strokeWidth !== undefined && strokeWidth === '0') ||
               markerEnd === undefined
             ) {
-              for (const name of Object.keys(node.attributes)) {
+              for (const name of Object.keys(element.attributes)) {
                 if (name.startsWith('stroke')) {
-                  delete node.attributes[name];
+                  delete element.attributes[name];
                 }
               }
               // set explicit none to not inherit from parent
               if (parentStroke !== undefined && parentStroke !== 'none') {
-                node.attributes.stroke = 'none';
+                element.attributes.stroke = 'none';
               }
             }
           }
@@ -86,24 +87,25 @@ export const fn = (root, params, info) => {
             (fill !== undefined && fill === 'none') ||
             (fillOpacity !== undefined && fillOpacity === '0')
           ) {
-            for (const name of Object.keys(node.attributes)) {
+            for (const name of Object.keys(element.attributes)) {
               if (name.startsWith('fill-')) {
-                delete node.attributes[name];
+                delete element.attributes[name];
               }
             }
             if (fill === undefined || fill !== 'none') {
-              node.attributes.fill = 'none';
+              element.attributes.fill = 'none';
             }
           }
         }
 
         if (removeNone) {
           if (
-            (stroke === undefined || node.attributes.stroke === 'none') &&
+            (stroke === undefined ||
+              element.attributes.stroke.toString() === 'none') &&
             ((fill !== undefined && fill === 'none') ||
-              node.attributes.fill === 'none')
+              element.attributes.fill.toString() === 'none')
           ) {
-            detachNodeFromParent(node, parentNode);
+            detachNodeFromParent(element);
           }
         }
       },

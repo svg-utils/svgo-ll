@@ -48,7 +48,7 @@ In SVGO, many plugins do not account for the impact of CSS. Many transformations
 
 Plugins can be [enabled, disabled, and configured](./command-line-options.md#plugins) from the command line without writing code.
 
-The `--multipass` option has been deprecated and replaced by [`--max-passes`](./command-line-options.md#max-passes). By default **svgo-ll** will make up to 10 passes, the equivalent of using the `--multipass` option in SVGO.
+The `--multipass` option has been removed and replaced by [`--max-passes`](./command-line-options.md#max-passes). By default **svgo-ll** will make up to 10 passes, the equivalent of using the `--multipass` option in SVGO.
 
 <a id="scalability"></a>
 

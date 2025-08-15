@@ -15,9 +15,9 @@ export const description = 'removes <style> element (disabled by default)';
 export const fn = () => {
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         if (node.name === 'style') {
-          detachNodeFromParent(node, parentNode);
+          detachNodeFromParent(node);
         }
       },
     },

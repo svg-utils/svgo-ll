@@ -15,9 +15,9 @@ export const description = 'removes <title>';
 export const fn = () => {
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         if (node.name === 'title') {
-          detachNodeFromParent(node, parentNode);
+          detachNodeFromParent(node);
         }
       },
     },

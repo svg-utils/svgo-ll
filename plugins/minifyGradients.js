@@ -1,6 +1,5 @@
 import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
-import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import {
   getReferencedIdInStyleProperty,
@@ -14,7 +13,7 @@ export const description =
   'minify stop offsets and remove stops where possible';
 
 /**
- * @typedef {{color:string,opacity:string|undefined}} ColorData
+ * @typedef {{color:import('../lib/types.js').SVGAttValue,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
  */
 
 /**
@@ -71,7 +70,7 @@ export const fn = (root, params, info) => {
                 const value = StopOffsetValue.getStopOffsetObj(offset);
                 const min = value.getMinifiedValue();
                 if (min) {
-                  svgSetAttValue(element, 'offset', min);
+                  element.attributes['offset'] = min;
                 }
               }
             }
@@ -195,7 +194,7 @@ function inlineGradient(outer, inner, gradientMap, solidGradients) {
     }
   }
   if (transform) {
-    svgSetAttValue(inner, 'gradientTransform', transform);
+    inner.attributes['gradientTransform'] = transform;
     delete outer.attributes.gradientTransform;
     delete outer.attributes.style;
 

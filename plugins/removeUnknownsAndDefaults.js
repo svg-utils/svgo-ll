@@ -180,7 +180,7 @@ export const fn = (root, params, info) => {
       },
     },
     element: {
-      enter: (element, parentNode, parentInfo) => {
+      enter: (element, parentList) => {
         // skip namespaced elements
         if (element.name.includes(':')) {
           return;
@@ -205,6 +205,7 @@ export const fn = (root, params, info) => {
         }
 
         // remove unknown element's content
+        const parentNode = element.parentNode;
         if (unknownContent && parentNode.type === 'element') {
           const allowedChildren = allowedChildrenPerElement.get(
             parentNode.name,
@@ -230,7 +231,7 @@ export const fn = (root, params, info) => {
           element.name,
         );
         /** @type {Map<string, string | null>} */
-        const computedStyle = styleData.computeStyle(element, parentInfo);
+        const computedStyle = styleData.computeStyle(element, parentList);
 
         // Remove any unnecessary style properties.
         const styleProperties = getStyleDeclarations(element);
@@ -254,7 +255,7 @@ export const fn = (root, params, info) => {
           // Calculate the style if we remove all properties.
           const newComputedStyle = styleData.computeStyle(
             element,
-            parentInfo,
+            parentList,
             new Map(),
           );
 
@@ -284,7 +285,7 @@ export const fn = (root, params, info) => {
 
         // remove element's unknown attrs and attrs with default values
         const attsToDelete = [];
-        for (const [name, value] of Object.entries(element.attributes)) {
+        for (const [name, attValue] of Object.entries(element.attributes)) {
           if (keepDataAttrs && name.startsWith('data-')) {
             continue;
           }
@@ -315,12 +316,13 @@ export const fn = (root, params, info) => {
             continue;
           }
 
+          const strValue = attValue.toString();
           // Remove rx/ry = 0 from <rect>.
           if (element.name === 'rect') {
             switch (name) {
               case 'rx':
               case 'ry':
-                if (value.toString() === '0') {
+                if (strValue === '0') {
                   const otherValue =
                     element.attributes[name === 'rx' ? 'ry' : 'rx'];
                   if (
@@ -342,15 +344,15 @@ export const fn = (root, params, info) => {
           const isDefault = isDefaultPropertyValue(
             element,
             name,
-            value.toString(),
+            strValue,
             attributesDefaults,
           );
           if (inheritableAttrs.has(name)) {
-            const parentProperties = styleData.computeParentStyle(parentInfo);
+            const parentProperties = styleData.computeParentStyle(parentList);
             const parentValue = parentProperties.get(name);
             if (
               (isDefault && parentValue === undefined) ||
-              value === parentValue
+              strValue === parentValue
             ) {
               attsToDelete.push(name);
             }

@@ -1,5 +1,4 @@
 import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
-import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { getHrefId, writeStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties } from './_styles.js';
@@ -169,7 +168,7 @@ function createGroups(element, usedIds, elementsToCheck) {
 
     // Add transform attribute.
     if (attTransform) {
-      svgSetAttValue(groupElement, 'transform', attTransform);
+      groupElement.attributes['transform'] = attTransform;
     }
     newChildren.push(groupElement);
 

@@ -1,7 +1,7 @@
 {
   "packageManager": "yarn@3.8.2",
   "name": "svgo-ll",
-  "version": "5.7.0",
+  "version": "5.8.0-alpha.1",
   "description": "svgo-ll is a Node.js library and command-line application for optimizing SVG images.",
   "license": "MIT",
   "type": "module",
@@ -52,7 +52,7 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=4 --coverage",
     "test:bundles": "yarn build && node ./test/svgo.cjs && node ./test/browser.js",
     "test:regression": "node ./test/regression-extract.js && cross-env NO_DIFF=1 node ./test/regression.js",
-    "test:regress": "cross-env NO_DIFF=1 node ./test/regression.js --preset next -i ./test/fixtures/files",
+    "test:regress": "cross-env NO_DIFF=1 node ./test/regression.js --preset next -i ./test/fixtures/files && cross-env NO_DIFF=1 node ./test/regression.js --enable round --preset next -i ./test/fixtures/files",
     "qa": "yarn typecheck && yarn lint && yarn test && yarn test:bundles && yarn test:regress",
     "prepublishOnly": "rimraf dist && yarn build"
   },

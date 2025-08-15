@@ -18,9 +18,9 @@ export function fn(root, params, info) {
   }
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         if (node.name === 'metadata') {
-          detachNodeFromParent(node, parentNode);
+          detachNodeFromParent(node);
         }
       },
     },

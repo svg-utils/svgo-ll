@@ -95,9 +95,9 @@ export const fn = (root, params, info) => {
           (node.name === 'polyline' || node.name === 'polygon') &&
           node.attributes.points != null
         ) {
-          const coords = (node.attributes.points.match(regNumber) || []).map(
-            Number,
-          );
+          const coords = (
+            node.attributes.points.toString().match(regNumber) || []
+          ).map(Number);
           if (coords.length < 4) {
             return;
           }

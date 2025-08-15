@@ -61,8 +61,6 @@ export type Config = {
   /** Can be used by plugins, for example prefixids */
   path?: string;
   maxPasses?: number;
-  /** Precision of floating point numbers. Will be passed to each plugin that supports this param. */
-  floatPrecision?: number;
   /**
    * Plugins configuration
    * ['preset-default'] is default

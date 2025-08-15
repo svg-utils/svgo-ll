@@ -30,8 +30,8 @@ export const description = 'removes doctype declaration';
 export const fn = () => {
   return {
     doctype: {
-      enter: (node, parentNode) => {
-        detachNodeFromParent(node, parentNode);
+      enter: (node) => {
+        detachNodeFromParent(node);
       },
     },
     element: { enter: () => visitSkip },

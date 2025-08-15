@@ -23,7 +23,7 @@ export const fn = () => {
           if (input === undefined) {
             return;
           }
-          const output = minifyTransforms(input);
+          const output = minifyTransforms(input.toString());
           if (output) {
             node.attributes[attName] = output;
           } else {

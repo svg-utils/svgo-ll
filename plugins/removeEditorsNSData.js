@@ -32,11 +32,14 @@ export function fn(root, params, info) {
   const prefixes = [];
   return {
     element: {
-      enter: (node, parentNode) => {
+      enter: (node) => {
         // collect namespace prefixes from svg element
         if (node.name === 'svg') {
           for (const [name, value] of Object.entries(node.attributes)) {
-            if (name.startsWith('xmlns:') && namespaces.includes(value)) {
+            if (
+              name.startsWith('xmlns:') &&
+              namespaces.includes(value.toString())
+            ) {
               prefixes.push(name.slice('xmlns:'.length));
               // <svg xmlns:sodipodi="">
               delete node.attributes[name];
@@ -58,7 +61,7 @@ export function fn(root, params, info) {
         if (node.name.includes(':')) {
           const [prefix] = node.name.split(':');
           if (prefixes.includes(prefix)) {
-            detachNodeFromParent(node, parentNode);
+            detachNodeFromParent(node);
           }
         }
       },

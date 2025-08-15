@@ -16,12 +16,12 @@ export const fn = () => {
   const unusedNamespaces = new Set();
   return {
     element: {
-      enter: (node, parentList) => {
-        const parentNode = parentList[parentList.length - 1].element;
+      enter: (element) => {
+        const parentNode = element.parentNode;
         // collect all namespaces from svg element
         // (such as xmlns:xlink="http://www.w3.org/1999/xlink")
-        if (node.name === 'svg' && parentNode.type === 'root') {
-          for (const name of Object.keys(node.attributes)) {
+        if (element.name === 'svg' && parentNode.type === 'root') {
+          for (const name of Object.keys(element.attributes)) {
             if (name.startsWith('xmlns:')) {
               const local = name.slice('xmlns:'.length);
               unusedNamespaces.add(local);
@@ -30,14 +30,14 @@ export const fn = () => {
         }
         if (unusedNamespaces.size !== 0) {
           // preserve namespace used in nested elements names
-          if (node.name.includes(':')) {
-            const [ns] = node.name.split(':');
+          if (element.name.includes(':')) {
+            const [ns] = element.name.split(':');
             if (unusedNamespaces.has(ns)) {
               unusedNamespaces.delete(ns);
             }
           }
           // preserve namespace used in nested elements attributes
-          for (const name of Object.keys(node.attributes)) {
+          for (const name of Object.keys(element.attributes)) {
             if (name.includes(':')) {
               const [ns] = name.split(':');
               unusedNamespaces.delete(ns);
@@ -45,12 +45,11 @@ export const fn = () => {
           }
         }
       },
-      exit: (node, parentList) => {
-        const parentNode = parentList[parentList.length - 1].element;
+      exit: (element) => {
         // remove unused namespace attributes from svg element
-        if (node.name === 'svg' && parentNode.type === 'root') {
+        if (element.name === 'svg' && element.parentNode.type === 'root') {
           for (const name of unusedNamespaces) {
-            delete node.attributes[`xmlns:${name}`];
+            delete element.attributes[`xmlns:${name}`];
           }
         }
       },

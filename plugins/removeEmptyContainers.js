@@ -78,7 +78,7 @@ export const fn = (root, params, info) => {
         if (element.name === 'mask' && element.attributes.id != null) {
           return;
         }
-        const parentNode = parentList[parentList.length - 1].element;
+        const parentNode = element.parentNode;
         if (parentNode.type === 'element' && parentNode.name === 'switch') {
           return;
         }

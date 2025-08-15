@@ -44,11 +44,11 @@ export const fn = (root, params, info) => {
 
   /**
    * @param {XastElement} element
-   * @param {Readonly<import('../lib/types.js').ParentList>} parentInfo,
+   * @param {Readonly<import('../lib/types.js').ParentList>} parentList,
    */
-  function elementHasUnmovableProperties(element, parentInfo) {
+  function elementHasUnmovableProperties(element, parentList) {
     // @ts-ignore - styles is no null
-    const properties = styles.computeStyle(element, parentInfo);
+    const properties = styles.computeStyle(element, parentList);
     return ['clip-path', 'filter', 'mask'].some(
       (propName) => properties.get(propName) !== undefined,
     );

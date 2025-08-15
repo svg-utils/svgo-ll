@@ -16,9 +16,9 @@ export const description = 'removes XML processing instructions';
 export const fn = () => {
   return {
     instruction: {
-      enter: (node, parentList) => {
-        if (node.name === 'xml') {
-          detachNodeFromParent(node, parentList[parentList.length - 1].element);
+      enter: (instruction) => {
+        if (instruction.name === 'xml') {
+          detachNodeFromParent(instruction);
         }
       },
     },

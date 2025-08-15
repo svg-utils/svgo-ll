@@ -28,7 +28,7 @@ import * as removeUnusedNS from './removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 
-/** @type {import('../lib/svgo.js').PluginConfig[]} */
+/** @type {import('../lib/svgo.js').CustomPlugin[]} */
 export const defaultPlugins = [
   removeDoctype,
   removeXMLProcInst,

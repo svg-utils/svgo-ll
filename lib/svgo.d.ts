@@ -1,31 +1,11 @@
 import type { StringifyOptions, DataUri, Plugin, XastRoot } from './types.js';
-import type {
-  BuiltinsWithOptionalParams,
-  BuiltinsWithRequiredParams,
-  PluginsParams,
-} from '../plugins/plugins-types.js';
+import type { PluginsParams } from '../plugins/plugins-types.js';
 
 type CustomPlugin<T = any> = {
   name: string;
   fn: Plugin<T>;
   params?: T;
 };
-
-type PluginConfig =
-  | keyof BuiltinsWithOptionalParams
-  | {
-      [Name in keyof BuiltinsWithOptionalParams]: {
-        name: Name;
-        params?: BuiltinsWithOptionalParams[Name];
-      };
-    }[keyof BuiltinsWithOptionalParams]
-  | {
-      [Name in keyof BuiltinsWithRequiredParams]: {
-        name: Name;
-        params: BuiltinsWithRequiredParams[Name];
-      };
-    }[keyof BuiltinsWithRequiredParams]
-  | CustomPlugin;
 
 type BuiltinPlugin<Name, Params> = {
   /** Name of the plugin, also known as the plugin ID. */
@@ -61,15 +41,7 @@ export type Config = {
   /** Can be used by plugins, for example prefixids */
   path?: string;
   maxPasses?: number;
-  /**
-   * Plugins configuration
-   * ['preset-default'] is default
-   * Can also specify any builtin plugin
-   * ['sortAttrs', { name: 'prefixIds', params: { prefix: 'my-prefix' } }]
-   * Or custom
-   * [{ name: 'myPlugin', fn: () => ({}) }]
-   */
-  plugins?: PluginConfig[];
+  plugins?: CustomPlugin[];
   pluginNames?: string[];
   enable?: string[];
   disable?: string[];

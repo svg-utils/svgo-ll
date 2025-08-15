@@ -131,10 +131,7 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   };
 };
 
-export type BuiltinsWithRequiredParams = {};
-
-export type PluginsParams = BuiltinsWithOptionalParams &
-  BuiltinsWithRequiredParams;
+export type PluginsParams = BuiltinsWithOptionalParams;
 
 export type Plugin<Name extends keyof PluginsParams> = PluginDef<
   PluginsParams[Name]

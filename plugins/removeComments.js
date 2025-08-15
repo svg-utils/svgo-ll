@@ -29,7 +29,7 @@ export const fn = (_root, params, info) => {
 
   return {
     comment: {
-      enter: (node, parentList) => {
+      enter: (element) => {
         if (preservePatterns) {
           if (!Array.isArray(preservePatterns)) {
             throw Error(
@@ -38,7 +38,7 @@ export const fn = (_root, params, info) => {
           }
 
           const matches = preservePatterns.some((pattern) => {
-            return new RegExp(pattern).test(node.value);
+            return new RegExp(pattern).test(element.value);
           });
 
           if (matches) {
@@ -46,7 +46,7 @@ export const fn = (_root, params, info) => {
           }
         }
 
-        detachNodeFromParent(node, parentList[parentList.length - 1].element);
+        detachNodeFromParent(element);
       },
     },
   };

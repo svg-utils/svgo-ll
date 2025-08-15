@@ -14,9 +14,6 @@ export const description = 'minifies styles and removes unused styles';
  * @type {import('./plugins-types.js').Plugin<'minifyStyles'>}
  */
 export const fn = (root, params, info) => {
-  /** @type {Map<XastElement, XastParent>} */
-  const styleElements = new Map();
-
   /** @type {Set<string>} */
   const tagsUsage = new Set();
 
@@ -43,27 +40,23 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (node, parentList) => {
+      enter: (element) => {
         // collect tags, ids and classes usage
-        tagsUsage.add(node.name);
-        if (node.attributes.id != null) {
-          idsUsage.add(node.attributes.id.toString());
+        tagsUsage.add(element.name);
+        if (element.attributes.id != null) {
+          idsUsage.add(element.attributes.id.toString());
         }
-        if (node.attributes.class != null) {
-          for (const className of node.attributes.class
+        if (element.attributes.class != null) {
+          for (const className of element.attributes.class
             .toString()
             .split(/\s+/)) {
             classesUsage.add(className);
           }
         }
-        // collect style elements or elements with style attribute
-        if (node.name === 'style' && node.children.length !== 0) {
-          styleElements.set(node, parentList[parentList.length - 1].element);
-        }
 
-        if (node.attributes.style) {
-          node.attributes.style = csso.minifyBlock(
-            node.attributes.style.toString(),
+        if (element.attributes.style) {
+          element.attributes.style = csso.minifyBlock(
+            element.attributes.style.toString(),
             {},
           ).css;
         }

@@ -4,11 +4,7 @@ import { LengthValue } from '../lib/length.js';
 import { OpacityValue } from '../lib/opacity.js';
 import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
-import {
-  svgParseTransform,
-  svgSetAttValue,
-  SVGTransformValue,
-} from '../lib/svg-parse-att.js';
+import { svgParseTransform, SVGTransformValue } from '../lib/svg-parse-att.js';
 import { toFixed, writeStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'round';
@@ -56,8 +52,8 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      enter: (element, parentInfo) => {
-        const properties = styleData.computeStyle(element, parentInfo);
+      enter: (element, parentList) => {
+        const properties = styleData.computeStyle(element, parentList);
         const transform = properties.get('transform');
         if (transform === undefined || isTranslation(transform)) {
           // Generate the coordinate rounding context.
@@ -141,7 +137,7 @@ export const fn = (root, params, info) => {
               break;
           }
           if (newVal) {
-            svgSetAttValue(element, attName, newVal);
+            element.attributes[attName] = newVal;
           }
         }
 

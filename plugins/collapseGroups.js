@@ -56,33 +56,33 @@ export const fn = (root, params, info) => {
 
   return {
     element: {
-      exit: (node, parentList) => {
-        const parentNode = parentList[parentList.length - 1].element;
+      exit: (element, parentList) => {
+        const parentNode = element.parentNode;
         if (parentNode.type === 'root' || parentNode.name === 'switch') {
           return;
         }
         // non-empty groups
-        if (node.name !== 'g' || node.children.length === 0) {
+        if (element.name !== 'g' || element.children.length === 0) {
           return;
         }
 
         // move group attributes to the single child element
         if (
-          Object.keys(node.attributes).length !== 0 &&
-          node.children.length === 1
+          Object.keys(element.attributes).length !== 0 &&
+          element.children.length === 1
         ) {
-          const firstChild = node.children[0];
+          const firstChild = element.children[0];
           // TODO untangle this mess
           if (
             firstChild.type === 'element' &&
             firstChild.attributes.id == null &&
-            !elementHasUnmovableProperties(node, parentList) &&
-            (node.attributes.class == null ||
+            !elementHasUnmovableProperties(element, parentList) &&
+            (element.attributes.class == null ||
               firstChild.attributes.class == null)
           ) {
             const newChildElemAttrs = { ...firstChild.attributes };
 
-            for (const [name, value] of Object.entries(node.attributes)) {
+            for (const [name, value] of Object.entries(element.attributes)) {
               // avoid copying to not conflict with animated attribute
               if (hasAnimatedAttr(firstChild, name)) {
                 return;
@@ -102,16 +102,16 @@ export const fn = (root, params, info) => {
               }
             }
 
-            node.attributes = {};
+            element.attributes = {};
             firstChild.attributes = newChildElemAttrs;
           }
         }
 
         // collapse groups without attributes
-        if (Object.keys(node.attributes).length === 0) {
+        if (Object.keys(element.attributes).length === 0) {
           // animation elements "add" attributes to group
           // group should be preserved
-          for (const child of node.children) {
+          for (const child of element.children) {
             if (
               child.type === 'element' &&
               elemsGroups.animation.has(child.name)
@@ -122,11 +122,11 @@ export const fn = (root, params, info) => {
 
           // Replace current node with all its children. Don't use splice(); if the child array is very large, it can trigger the
           // "RangeError: Maximum call stack size exceeded" error.
-          const index = parentNode.children.indexOf(node);
+          const index = parentNode.children.indexOf(element);
           parentNode.children = parentNode.children
             .slice(0, index)
-            .concat(node.children, parentNode.children.slice(index + 1));
-          for (const child of node.children) {
+            .concat(element.children, parentNode.children.slice(index + 1));
+          for (const child of element.children) {
             child.parentNode = parentNode;
           }
         }

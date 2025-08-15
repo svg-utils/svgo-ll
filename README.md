@@ -23,12 +23,6 @@ To process a single file with the default settings for **svgo-ll** version 5:
 svgo-ll -i one.svg -o one.min.svg
 ```
 
-To process a single file with the latest settings (which will become the defaults for **svgo-ll** version 6):
-
-```sh
-svgo-ll --preset next -i one.svg -o one.min.svg
-```
-
 For more detailed options, see the [command line option documentation](https://github.com/svg-utils/svgo-ll/blob/main/docs/command-line-options.md) or [FAQ](https://github.com/svg-utils/svgo-ll/blob/main/docs/faq.md).
 
 ## License and Copyright

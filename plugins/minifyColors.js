@@ -1,6 +1,5 @@
 import { ColorValue } from '../lib/color.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
-import { svgSetAttValue } from '../lib/svg-parse-att.js';
 import { writeStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'minifyColors';
@@ -35,7 +34,7 @@ export const fn = (root, params, info) => {
                 const value = ColorValue.getColorObj(attVal);
                 const min = value.getMinifiedValue();
                 if (min) {
-                  svgSetAttValue(element, attName, min);
+                  element.attributes[attName] = min;
                 }
               }
               break;

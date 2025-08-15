@@ -108,15 +108,15 @@ export class AttValue {
 }
 
 export class StyleData {
-  computeOwnStyle(node: XastElement): Map<string, SVGAttValue | null>;
+  computeOwnStyle(node: XastElement): Map<string, string | null>;
   computeParentStyle(
     parentInfo: Readonly<ParentList>,
-  ): Map<string, SVGAttValue | null>;
+  ): Map<string, string | null>;
   computeStyle(
     node: XastElement,
     parentInfo: Readonly<ParentList>,
     declarations?: CSSDeclarationMap,
-  ): Map<string, SVGAttValue | null>;
+  ): Map<string, string | null>;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
   getFirstStyleElement(): XastElement | undefined;

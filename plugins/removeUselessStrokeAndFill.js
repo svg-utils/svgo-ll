@@ -100,9 +100,10 @@ export const fn = (root, params, info) => {
 
         if (removeNone) {
           if (
-            (stroke === undefined || node.attributes.stroke === 'none') &&
+            (stroke === undefined ||
+              node.attributes.stroke.toString() === 'none') &&
             ((fill !== undefined && fill === 'none') ||
-              node.attributes.fill === 'none')
+              node.attributes.fill.toString() === 'none')
           ) {
             detachNodeFromParent(node);
           }

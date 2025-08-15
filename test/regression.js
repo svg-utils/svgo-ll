@@ -50,7 +50,7 @@ async function performTests(options) {
 
   /** @type {import('../lib/svgo.js').Config} */
   const config = {
-    preset: options.preset,
+    pluginNames: options.plugins,
     enable: options.enable,
     options: options.options ? readJSONFile(options.options) : undefined,
     disable: options.disable,
@@ -268,13 +268,12 @@ async function performTests(options) {
 
 program
   .option(
-    '--preset <default | none>',
-    'Specify which set of predefined plugins to use',
-    'default',
+    '--plugins [pluginNames...]',
+    'Run the specified plugins rather than default plugins',
   )
   .option(
     '--enable <plugin...>',
-    'Specify one or more builtin plugins to run in addition to those in the preset or config',
+    'Specify one or more builtin plugins to run in addition to those in those default plugins or plugins in --config',
   )
   .option(
     '--options <FILENAME>',

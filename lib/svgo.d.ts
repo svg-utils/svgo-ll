@@ -70,7 +70,7 @@ export type Config = {
    * [{ name: 'myPlugin', fn: () => ({}) }]
    */
   plugins?: PluginConfig[];
-  preset?: 'default' | 'none';
+  pluginNames?: string[];
   enable?: string[];
   disable?: string[];
   // Configuration parameters for plugins.

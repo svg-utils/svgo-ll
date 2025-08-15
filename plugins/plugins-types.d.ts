@@ -118,7 +118,6 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   'preset-default': {
     overrides?: PresetDefaultOverrides;
   };
-  'preset-none': {};
   cleanupXlink: void;
   inlineUse: void;
   removeDimensions: void;

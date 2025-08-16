@@ -95,5 +95,9 @@ export declare const _collections: {
 /** Installed version of SVGO. */
 export declare const VERSION: string;
 
+export declare const builtinPlugins: Map<string, CustomPlugin>;
+
+export declare const defaultPlugins: CustomPlugin[];
+
 /** The core of SVGO */
 export declare function optimize(input: string, config?: Config): Output;

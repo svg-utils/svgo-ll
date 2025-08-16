@@ -1,8 +1,4 @@
-import type {
-  Plugin as PluginDef,
-  PluginInfo,
-  XastElement,
-} from '../lib/types.js';
+import type { Plugin as PluginDef } from '../lib/types.js';
 
 type DefaultPlugins = {
   cleanupIds: {
@@ -110,14 +106,7 @@ type DefaultPlugins = {
   sortDefsChildren: void;
 };
 
-type PresetDefaultOverrides = {
-  [Name in keyof DefaultPlugins]?: DefaultPlugins[Name] | false;
-};
-
 export type BuiltinsWithOptionalParams = DefaultPlugins & {
-  'preset-default': {
-    overrides?: PresetDefaultOverrides;
-  };
   cleanupXlink: void;
   inlineUse: void;
   removeDimensions: void;

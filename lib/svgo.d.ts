@@ -3,6 +3,7 @@ import type { PluginsParams } from '../plugins/plugins-types.js';
 
 type CustomPlugin<T = any> = {
   name: string;
+  description?: string;
   fn: Plugin<T>;
   params?: T;
 };

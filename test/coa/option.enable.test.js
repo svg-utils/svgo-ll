@@ -100,7 +100,7 @@ describe('test --enable option', function () {
     expect(opt).toBe(EXPECT_TRANS_PATH);
   });
 
-  it('should work with preset-default', async () => {
+  it('should work with default plugins', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,

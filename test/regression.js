@@ -281,7 +281,7 @@ program
   )
   .option(
     '--disable <plugin...>',
-    'Specify one or more plugins from the preset or config which should not be run ',
+    'Specify one or more plugins which should not be run ',
   )
   .option(
     '-b, --browser <chromium | firefox | webkit>',

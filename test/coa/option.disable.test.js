@@ -35,7 +35,7 @@ describe('test --disable option', function () {
     fs.rmSync(tempFolder, { force: true, recursive: true });
   });
 
-  it('should not run convertShapeToPath with --preset=default and --disable=convertShapeToPath', async () => {
+  it('should not run convertShapeToPath with default plugins and --disable=convertShapeToPath', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,

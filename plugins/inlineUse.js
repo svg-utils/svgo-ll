@@ -13,7 +13,7 @@ export const description = 'move <defs> inline when <use> only once';
  * @type {import('./plugins-types.js').Plugin<'inlineUse'>};
 '>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||

@@ -125,7 +125,7 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
  *
  * @type {import('./plugins-types.js').Plugin<'removeUnknownsAndDefaults'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info, params) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
    * @returns {boolean}

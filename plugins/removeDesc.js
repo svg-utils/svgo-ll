@@ -16,7 +16,7 @@ const standardDescs = /^\s*(Created with|Created using)/;
  *
  * @type {import('./plugins-types.js').Plugin<'removeDesc'>}
  */
-export function fn(root, params, info) {
+export function fn(info, params) {
   if (info.passNumber > 0) {
     return;
   }

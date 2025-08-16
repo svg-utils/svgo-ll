@@ -11,7 +11,7 @@ export const description = 'merge identical gradients';
 /**
  * @type {import('./plugins-types.js').Plugin<'mergeGradients'>};
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (info.docData.hasScripts() || styleData === null) {
     return;

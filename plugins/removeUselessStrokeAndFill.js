@@ -11,7 +11,7 @@ export const description = 'removes useless stroke and fill attributes';
  *
  * @type {import('./plugins-types.js').Plugin<'removeUselessStrokeAndFill'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info, params) => {
   const {
     stroke: removeStroke = true,
     fill: removeFill = true,

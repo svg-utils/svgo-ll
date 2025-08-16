@@ -12,7 +12,7 @@ const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
 /**
  * @type {import('./plugins-types.js').Plugin<'createGroups'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||

@@ -24,6 +24,8 @@ const PLUGINOPT_FILE1 = path.resolve(PLUGINOPT_DIR, 'test1.svg');
 const PLUGINOPT_FILE1_OPT = path.resolve(tempFolder, 'test1.svg');
 
 const EXPECT_NO_CHANGE =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" id="abc" transform="matrix(1 0 0 1 10 20) "/></svg>';
+const EXPECT_NO_ID =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="matrix(1 0 0 1 10 20) "/></svg>';
 const EXPECT_TRANS =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="translate(10 20)"/></svg>';
@@ -33,7 +35,7 @@ describe('test --disable option', function () {
     fs.rmSync(tempFolder, { force: true, recursive: true });
   });
 
-  it('should not run convertShapeToPath with --preset=default and --disable=convertShapeToPath', async () => {
+  it('should not run convertShapeToPath with default plugins and --disable=convertShapeToPath', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
@@ -46,7 +48,7 @@ describe('test --disable option', function () {
     expect(opt).toBe(EXPECT_TRANS);
   });
 
-  it('should run multiple plugins with --preset=default and --disable minifyTransforms convertShapeToPath minifyColors', async () => {
+  it('should run multiple plugins with default plugins and --disable minifyTransforms convertShapeToPath minifyColors', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
@@ -59,7 +61,7 @@ describe('test --disable option', function () {
       'minifyColors',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
-    expect(opt).toBe(EXPECT_NO_CHANGE);
+    expect(opt).toBe(EXPECT_NO_ID);
   });
 
   it('should ignore invalid plugin names', async () => {

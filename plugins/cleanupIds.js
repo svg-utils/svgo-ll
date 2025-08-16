@@ -15,7 +15,7 @@ export const description = 'removes unused IDs and minifies used';
  *
  * @type {import('./plugins-types.js').Plugin<'cleanupIds'>}
  */
-export const fn = (_root, params, info) => {
+export const fn = (info, params) => {
   const { preserve = [], preservePrefixes = [] } = params;
 
   const styleData = info.docData.getStyles();

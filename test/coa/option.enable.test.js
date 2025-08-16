@@ -24,9 +24,9 @@ const PLUGINOPT_FILE1 = path.resolve(PLUGINOPT_DIR, 'test1.svg');
 const PLUGINOPT_FILE1_OPT = path.resolve(tempFolder, 'test1.svg');
 
 const EXPECT_TRANS =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="translate(10 20)"/></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" id="abc" transform="translate(10 20)"/></svg>';
 const EXPECT_TRANS_PATH =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path id="abc" transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>';
 const EXPECT_TRANS_PATH_SORTED =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h10v20H10z" transform="translate(10 20)"/></svg>';
 
@@ -100,7 +100,7 @@ describe('test --enable option', function () {
     expect(opt).toBe(EXPECT_TRANS_PATH);
   });
 
-  it('should work with preset-default', async () => {
+  it('should work with default plugins', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,

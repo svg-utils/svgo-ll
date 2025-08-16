@@ -4,7 +4,7 @@ export const description = 'merge multiple style elements';
 /**
  * @type {import('./plugins-types.js').Plugin<'cleanupStyleElements'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   if (info.docData.hasScripts()) {
     return;
   }

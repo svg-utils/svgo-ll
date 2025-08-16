@@ -1,6 +1,10 @@
 # FAQ
 
-Compression
+Enabling Specific Plugins
+
+- [How command line options interact](#option-combos)
+
+Examples
 
 - [Just remove whitespace from a file](#comp-ws)
 - [Run a single plugin](#comp-1plugin)
@@ -8,7 +12,15 @@ Compression
 - [Round decimal values](#comp-round)
 - [Change the default options for a plugin](#comp-defaults)
 
-## Compression
+## Enabling Specific Plugins
+
+### How command line options interact
+
+| --plugins   | Result                                                                                     |
+| ----------- | ------------------------------------------------------------------------------------------ |
+| **present** | Plugins are enabled in the order specified. If no plugins are specified, none are enabled. |
+
+## Examples
 
 <a id="comp-ws"></a>
 

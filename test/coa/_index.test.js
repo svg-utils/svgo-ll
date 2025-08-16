@@ -204,15 +204,14 @@ describe('test preset option', function () {
     expect(opt).toBe(EXPECT_TRANS_PATH);
   });
 
-  it('should only remove whitespace when "none" specified', async () => {
+  it('should only remove whitespace when no plugins specified', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
-      '--preset',
-      'none',
+      '--plugins',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
     expect(opt).toBe(
@@ -220,15 +219,14 @@ describe('test preset option', function () {
     );
   });
 
-  it('should only minify transform when "none" specified, but custom config is used', async () => {
+  it('should only minify transform when no plugins specified, but custom config is used', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
-      '--preset',
-      'none',
+      '--plugins',
       '--config',
       path.resolve(PLUGINOPT_DIR, 'config1.js'),
     ]);

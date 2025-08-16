@@ -4,6 +4,7 @@ import { EOL } from 'os';
 import { fileURLToPath } from 'url';
 import { optimize } from '../../lib/svgo.js';
 import { validateParentNodes } from '../utils.js';
+import { builtinPlugins } from '../../lib/builtin.js';
 
 const regEOL = new RegExp(EOL, 'g');
 const regFilename = /^(.*)\.(\d+)\.svg\.txt$/;
@@ -29,8 +30,15 @@ describe('plugins tests', function () {
           const test = items.length === 2 ? items[1] : items[0];
           // extract test case
           const [original, should, params] = test.split(/\s*@@@\s*/);
+
+          const fn = builtinPlugins.get(name)?.fn;
+          if (!fn) {
+            throw new Error();
+          }
+          /** @type {import('../../lib/svgo.js').CustomPlugin} */
           const plugin = {
-            name,
+            name: name,
+            fn: fn,
             params: params ? JSON.parse(params) : {},
           };
           let lastResultData = original;
@@ -39,7 +47,6 @@ describe('plugins tests', function () {
           for (let i = 0; i < passes; i += 1) {
             const result = optimize(lastResultData, {
               path: file,
-              // @ts-ignore
               plugins: [plugin],
               js2svg: { pretty: true },
               maxPasses: 1,

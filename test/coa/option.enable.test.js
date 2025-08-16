@@ -35,28 +35,28 @@ describe('test --enable option', function () {
     fs.rmSync(tempFolder, { force: true, recursive: true });
   });
 
-  it('should only run one plugin with --preset=none and --enable=minifyTransforms', async () => {
+  it('should only run one plugin with --plugins and --enable=minifyTransforms', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
-      '--preset=none',
+      '--plugins',
       '--enable=minifyTransforms',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
     expect(opt).toBe(EXPECT_TRANS);
   });
 
-  it('should run two plugins with --preset=none and --enable minifyTransforms convertShapeToPath minifyPathData', async () => {
+  it('should run two plugins with --plugins and --enable minifyTransforms convertShapeToPath minifyPathData', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
-      '--preset=none',
+      '--plugins',
       '--enable',
       'minifyTransforms',
       'convertShapeToPath',
@@ -73,7 +73,7 @@ describe('test --enable option', function () {
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
-      '--preset=none',
+      '--plugins',
       '--enable',
       'x',
       'minifyTransforms',
@@ -89,7 +89,7 @@ describe('test --enable option', function () {
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
-      '--preset=none',
+      '--plugins',
       '--enable',
       'convertShapeToPath',
       'minifyPathData',

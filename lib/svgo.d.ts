@@ -1,76 +1,18 @@
 import type { StringifyOptions, DataUri, Plugin, XastRoot } from './types.js';
-import type {
-  BuiltinsWithOptionalParams,
-  BuiltinsWithRequiredParams,
-  PluginsParams,
-} from '../plugins/plugins-types.js';
 
 type CustomPlugin<T = any> = {
   name: string;
+  description?: string;
   fn: Plugin<T>;
   params?: T;
 };
-
-type PluginConfig =
-  | keyof BuiltinsWithOptionalParams
-  | {
-      [Name in keyof BuiltinsWithOptionalParams]: {
-        name: Name;
-        params?: BuiltinsWithOptionalParams[Name];
-      };
-    }[keyof BuiltinsWithOptionalParams]
-  | {
-      [Name in keyof BuiltinsWithRequiredParams]: {
-        name: Name;
-        params: BuiltinsWithRequiredParams[Name];
-      };
-    }[keyof BuiltinsWithRequiredParams]
-  | CustomPlugin;
-
-type BuiltinPlugin<Name, Params> = {
-  /** Name of the plugin, also known as the plugin ID. */
-  name: Name;
-  description?: string;
-  fn: Plugin<Params>;
-};
-
-type BuiltinPluginOrPreset<Name, Params> = BuiltinPlugin<Name, Params> & {
-  /** If the plugin is itself a preset that invokes other plugins. */
-  isPreset: true | undefined;
-  /**
-   * If the plugin is a preset that invokes other plugins, this returns an
-   * array of the plugins in the preset in the order that they are invoked.
-   */
-  plugins?: Readonly<BuiltinPlugin<string, Object>[]>;
-};
-
-/**
- * Plugins that are bundled with SVGO. This includes plugin presets, and plugins
- * that are not enabled by default.
- */
-export declare const builtinPlugins: Array<
-  {
-    [Name in keyof PluginsParams]: BuiltinPluginOrPreset<
-      Name,
-      PluginsParams[Name]
-    >;
-  }[keyof PluginsParams]
->;
 
 export type Config = {
   /** Can be used by plugins, for example prefixids */
   path?: string;
   maxPasses?: number;
-  /**
-   * Plugins configuration
-   * ['preset-default'] is default
-   * Can also specify any builtin plugin
-   * ['sortAttrs', { name: 'prefixIds', params: { prefix: 'my-prefix' } }]
-   * Or custom
-   * [{ name: 'myPlugin', fn: () => ({}) }]
-   */
-  plugins?: PluginConfig[];
-  preset?: 'default' | 'next' | 'none';
+  plugins?: CustomPlugin[];
+  pluginNames?: string[];
   enable?: string[];
   disable?: string[];
   // Configuration parameters for plugins.

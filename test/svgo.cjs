@@ -1,12 +1,7 @@
 'use strict';
 
 const assert = require('assert');
-const {
-  VERSION,
-  optimize,
-  builtinPlugins,
-  loadConfig,
-} = require('../dist/svgo-node.cjs');
+const { VERSION, optimize, loadConfig } = require('../dist/svgo-node.cjs');
 const PKG = require('../package.json');
 
 const fixture = `<svg xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +32,6 @@ const runTest = () => {
 
   assert.strictEqual(VERSION, PKG.version);
   assert.equal(actual, expected);
-  assert.notEqual(builtinPlugins, undefined);
   assert.notEqual(loadConfig, undefined);
 };
 

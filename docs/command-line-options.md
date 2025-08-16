@@ -24,7 +24,7 @@ If `--folder` is specified, exclude files matching any of the specified regular 
 ## Plugin and Compression Options
 
 <a id="preset"></a>
-`--preset <default | next | none>`  
+`--preset <default | none>`  
 Specify which set of predefined plugins to use. If this option is not used, and no plugins are define by the `--config` option,
 [preset-default](./preset-default.md) is used.
 

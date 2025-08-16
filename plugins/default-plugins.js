@@ -1,4 +1,3 @@
-import { createPreset } from '../lib/svgo/plugins.js';
 import * as cleanupIds from './cleanupIds.js';
 import * as cleanupStyleAttributes from './cleanupStyleAttributes.js';
 import * as cleanupTextElements from './cleanupTextElements.js';
@@ -29,39 +28,35 @@ import * as removeUnusedNS from './removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 
-const presetNext = createPreset({
-  name: 'preset-next',
-  plugins: [
-    removeDoctype,
-    removeXMLProcInst,
-    removeComments,
-    removeMetadata,
-    removeEditorsNSData,
-    removeDesc,
-    cleanupXlink,
-    cleanupStyleAttributes,
-    combineStyleElements,
-    inlineStyles,
-    minifyStyles,
-    cleanupIds,
-    minifyColors,
-    minifyGradients,
-    removeUnknownsAndDefaults,
-    removeNonInheritableGroupAttrs,
-    removeUselessStrokeAndFill,
-    removeHiddenElems,
-    minifyTransforms,
-    convertEllipseToCircle,
-    moveElemsStylesToGroup,
-    convertShapeToPath,
-    minifyPathData,
-    mergeGradients,
-    removeEmptyContainers,
-    removeUnusedNS,
-    createGroups,
-    collapseGroups,
-    cleanupTextElements,
-  ],
-});
-
-export default presetNext;
+/** @type {import('../lib/svgo.js').CustomPlugin[]} */
+export const defaultPlugins = [
+  removeDoctype,
+  removeXMLProcInst,
+  removeComments,
+  removeMetadata,
+  removeEditorsNSData,
+  removeDesc,
+  cleanupXlink,
+  cleanupStyleAttributes,
+  combineStyleElements,
+  inlineStyles,
+  minifyStyles,
+  cleanupIds,
+  minifyColors,
+  minifyGradients,
+  removeUnknownsAndDefaults,
+  removeNonInheritableGroupAttrs,
+  removeUselessStrokeAndFill,
+  removeHiddenElems,
+  minifyTransforms,
+  convertEllipseToCircle,
+  moveElemsStylesToGroup,
+  convertShapeToPath,
+  minifyPathData,
+  mergeGradients,
+  removeEmptyContainers,
+  removeUnusedNS,
+  createGroups,
+  collapseGroups,
+  cleanupTextElements,
+];

@@ -14,20 +14,20 @@ Examples
 
 ### Just remove whitespace from a file
 
-Use `preset-none`. For example:
+Use `--plugins` and do not specify any plugins. For example:
 
 ```
-npx svgo-ll --preset none -i test.svg
+npx svgo-ll --plugins -i test.svg
 ```
 
 <a id="comp-1plugin"></a>
 
 ### Run a single plugin
 
-Use `preset-none` and `--enable`. For example:
+Use `--plugins`. For example:
 
 ```
-npx svgo-ll --preset none --enable minifyPathData -i test.svg
+npx svgo-ll --plugins minifyPathData -i test.svg
 ```
 
 <a id="comp-disable"></a>

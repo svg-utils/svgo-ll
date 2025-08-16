@@ -33,7 +33,7 @@ const ROUNDABLE_XY_ELEMENTS = {
 /**
  * @type {import('./plugins-types.js').Plugin<'round'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info, params) => {
   const styleData = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||

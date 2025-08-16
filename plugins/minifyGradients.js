@@ -19,7 +19,7 @@ export const description =
 /**
  * @type {import('./plugins-types.js').Plugin<'minifyGradients'>};
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (info.docData.hasScripts() || styleData === null) {
     return;

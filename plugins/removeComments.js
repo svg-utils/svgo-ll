@@ -20,7 +20,7 @@ const DEFAULT_PRESERVE_PATTERNS = [/^!/];
  *
  * @type {import('./plugins-types.js').Plugin<'removeComments'>}
  */
-export const fn = (_root, params, info) => {
+export const fn = (info, params) => {
   if (info.passNumber > 0) {
     return;
   }

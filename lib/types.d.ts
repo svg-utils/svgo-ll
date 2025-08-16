@@ -171,9 +171,8 @@ export type PluginInfo = {
 };
 
 export type Plugin<Params> = (
-  root: XastRoot,
-  params: Params,
   info: PluginInfo,
+  params: Params,
 ) => Visitor | null | void;
 
 export type Specificity = [number, number, number];

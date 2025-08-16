@@ -17,7 +17,7 @@ export const description =
  *
  * @type {import('./plugins-types.js').Plugin<'removeEditorsNSData'>}
  */
-export function fn(root, params, info) {
+export function fn(info, params) {
   if (info.passNumber > 0) {
     return;
   }

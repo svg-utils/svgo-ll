@@ -32,7 +32,7 @@ const hasAnimatedAttr = (node, name) => {
  * Collapse useless groups.
  * @type {import('./plugins-types.js').Plugin<'collapseGroups'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styles = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||

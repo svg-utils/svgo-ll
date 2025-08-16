@@ -30,7 +30,7 @@ const removableEls = new Set([
  *
  * @type {import('./plugins-types.js').Plugin<'removeEmptyContainers'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (info.docData.hasScripts() || styleData === null) {
     return;

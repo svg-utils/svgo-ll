@@ -4,7 +4,7 @@ export const description = 'replaces xlink:href with href';
 /**
  * @type {import('./plugins-types.js').Plugin<'cleanupXlink'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||

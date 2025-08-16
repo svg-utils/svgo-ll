@@ -13,7 +13,7 @@ export const description = 'minifies styles and removes unused styles';
  *
  * @type {import('./plugins-types.js').Plugin<'minifyStyles'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   /** @type {Set<string>} */
   const tagsUsage = new Set();
 

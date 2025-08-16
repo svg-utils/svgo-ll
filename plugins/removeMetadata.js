@@ -12,15 +12,15 @@ export const description = 'removes <metadata>';
  *
  * @type {import('./plugins-types.js').Plugin<'removeMetadata'>}
  */
-export function fn(root, params, info) {
+export function fn(info) {
   if (info.passNumber > 0) {
     return;
   }
   return {
     element: {
-      enter: (node) => {
-        if (node.name === 'metadata') {
-          detachNodeFromParent(node);
+      enter: (element) => {
+        if (element.name === 'metadata') {
+          detachNodeFromParent(element);
         }
       },
     },

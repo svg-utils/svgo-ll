@@ -21,7 +21,7 @@ const regNumber = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
  *
  * @type {import('./plugins-types.js').Plugin<'convertShapeToPath'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info, params) => {
   const styles = info.docData.getStyles();
   if (info.docData.hasScripts() || styles === null || styles.hasStyles()) {
     return;

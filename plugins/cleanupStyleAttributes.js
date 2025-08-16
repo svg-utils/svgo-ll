@@ -18,7 +18,7 @@ const CLASS_SPLITTER = /\s/;
 /**
  * @type {import('./plugins-types.js').Plugin<'cleanupStyleAttributes'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
    * @param {import('../lib/types.js').StyleData} styleData

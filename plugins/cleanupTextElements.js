@@ -7,7 +7,7 @@ export const description = 'simplify <text> elements and content';
 /**
  * @type {import('./plugins-types.js').Plugin<'cleanupTextElements'>}
  */
-export const fn = (root, params, info) => {
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||

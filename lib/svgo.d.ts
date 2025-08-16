@@ -1,5 +1,4 @@
 import type { StringifyOptions, DataUri, Plugin, XastRoot } from './types.js';
-import type { PluginsParams } from '../plugins/plugins-types.js';
 
 type CustomPlugin<T = any> = {
   name: string;

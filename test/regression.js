@@ -223,8 +223,8 @@ async function performTests(options) {
         if (optimized.error) {
           notOptimized.add(name.substring(1));
         }
-        fileStats.passes = optimized.passes;
-        totalPasses += optimized.passes;
+        fileStats.passes = optimized.passes ?? 0;
+        totalPasses += optimized.passes ?? 0;
         totalInputSize += file.length;
         totalCompression += file.length - optimized.data.length;
         res.setHeader('Content-Type', 'image/svg+xml');

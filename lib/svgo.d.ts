@@ -25,7 +25,8 @@ export type Config = {
 
 type Output = {
   data: string;
-  passes: number;
+  passes?: number;
+  time?: number;
   ast?: XastRoot;
   error?: unknown;
 };

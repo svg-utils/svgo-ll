@@ -25,7 +25,9 @@ export type Config = {
 
 type Output = {
   data: string;
-  passes: number;
+  passes?: number;
+  time?: number;
+  parseTime?: number;
   ast?: XastRoot;
   error?: unknown;
 };
@@ -92,8 +94,22 @@ export declare const _collections: {
   pseudoClasses: Readonly<Record<string, Set<string>>>;
 };
 
-/** Installed version of SVGO. */
 export declare const VERSION: string;
 
-/** The core of SVGO */
-export declare function optimize(input: string, config?: Config): Output;
+export declare const builtinPlugins: Map<string, CustomPlugin>;
+
+export declare const defaultPlugins: CustomPlugin[];
+
+export type OptimizationCallbackInfo = {
+  type: 'plugin';
+  pluginName: string;
+  event: 'begin' | 'end';
+  passNumber: number;
+};
+export type OptimizationCallback = (info: OptimizationCallbackInfo) => void;
+
+export declare function optimize(
+  input: string,
+  config?: Config,
+  callback?: OptimizationCallback,
+): Output;

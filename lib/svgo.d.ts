@@ -93,12 +93,20 @@ export declare const _collections: {
   pseudoClasses: Readonly<Record<string, Set<string>>>;
 };
 
-/** Installed version of SVGO. */
 export declare const VERSION: string;
 
 export declare const builtinPlugins: Map<string, CustomPlugin>;
 
 export declare const defaultPlugins: CustomPlugin[];
 
-/** The core of SVGO */
-export declare function optimize(input: string, config?: Config): Output;
+export type OptimizationCallback = (
+  pluginName: string,
+  event: 'plugin begin' | 'plugin end',
+  passNumber: number,
+) => void;
+
+export declare function optimize(
+  input: string,
+  config?: Config,
+  callback?: OptimizationCallback,
+): Output;

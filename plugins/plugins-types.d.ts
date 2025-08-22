@@ -103,16 +103,12 @@ type DefaultPlugins = {
     order?: string[];
     xmlnsOrder?: 'front' | 'alphabetical';
   };
-  sortDefsChildren: void;
 };
 
 export type BuiltinsWithOptionalParams = DefaultPlugins & {
   cleanupXlink: void;
   inlineUse: void;
   removeDimensions: void;
-  removeStyleElement: void;
-  removeTitle: void;
-  removeXMLNS: void;
   round: {
     coordDigits?: number;
     opacityDigits?: number;

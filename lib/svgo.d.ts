@@ -27,6 +27,7 @@ type Output = {
   data: string;
   passes?: number;
   time?: number;
+  parseTime?: number;
   ast?: XastRoot;
   error?: unknown;
 };

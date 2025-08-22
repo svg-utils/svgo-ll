@@ -111,7 +111,6 @@ export type BuiltinsWithOptionalParams = DefaultPlugins & {
   inlineUse: void;
   removeDimensions: void;
   removeStyleElement: void;
-  removeTitle: void;
   removeXMLNS: void;
   round: {
     coordDigits?: number;

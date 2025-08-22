@@ -23,14 +23,9 @@ If `--folder` is specified, exclude files matching any of the specified regular 
 
 ## Plugin and Compression Options
 
-<a id="preset"></a>
-`--preset <default | none>`  
-Specify which set of predefined plugins to use. If this option is not used, and no plugins are define by the `--config` option,
-[preset-default](./preset-default.md) is used.
-
 <a id="enable"></a>
 `--enable <plugin...>`  
-Specify one or more builtin plugins to run in addition to those specified by `--preset` or `--config`.
+Specify one or more builtin plugins to run in addition to the default plugins.
 
 <a id="options"></a>
 ` --options <FILENAME>`  
@@ -38,7 +33,7 @@ Path to a [JSON file](https://www.json.org) containing configuration parameters 
 
 <a id="disable"></a>
 `--disable <plugin...>`  
-Specify one or more plugins specified by `--preset` or `--config` which should not be run.
+Specify one or more plugins which should not be run.
 
 <a id="config"></a>
 `--config <FILENAME>`  

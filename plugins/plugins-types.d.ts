@@ -103,7 +103,6 @@ type DefaultPlugins = {
     order?: string[];
     xmlnsOrder?: 'front' | 'alphabetical';
   };
-  sortDefsChildren: void;
 };
 
 export type BuiltinsWithOptionalParams = DefaultPlugins & {

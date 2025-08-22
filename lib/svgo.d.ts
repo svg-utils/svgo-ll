@@ -99,11 +99,13 @@ export declare const builtinPlugins: Map<string, CustomPlugin>;
 
 export declare const defaultPlugins: CustomPlugin[];
 
-export type OptimizationCallback = (
-  pluginName: string,
-  event: 'plugin begin' | 'plugin end',
-  passNumber: number,
-) => void;
+export type OptimizationCallbackInfo = {
+  type: 'plugin';
+  pluginName: string;
+  event: 'begin' | 'end';
+  passNumber: number;
+};
+export type OptimizationCallback = (info: OptimizationCallbackInfo) => void;
 
 export declare function optimize(
   input: string,

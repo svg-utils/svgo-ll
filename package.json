@@ -10,14 +10,14 @@
     "type": "git",
     "url": "https://github.com/svg-utils/svgo-ll"
   },
-  "main": "./lib/svgo-node.js",
+  "main": "./lib/svgo.js",
   "bin": "./bin/svgo.js",
   "types": "./lib/svgo-node.d.ts",
   "exports": {
     ".": {
-      "import": "./lib/svgo-node.js",
+      "import": "./lib/svgo.js",
       "require": "./dist/svgo-node.cjs",
-      "types": "./lib/svgo-node.d.ts"
+      "types": "./lib/svgo.d.ts"
     },
     "./browser": {
       "import": "./dist/svgo.browser.js",

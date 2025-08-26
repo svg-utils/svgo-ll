@@ -1,4 +1,5 @@
 import { ExactNum } from '../lib/exactnum.js';
+import { PathAttValue } from '../lib/pathAttValue.js';
 import {
   getCmdArgs,
   parsePathCommands,
@@ -31,6 +32,10 @@ export const fn = (info) => {
     element: {
       enter: (element) => {
         if (pathElems.has(element.name) && element.attributes.d !== undefined) {
+          if (PathAttValue.isMinified(element.attributes.d)) {
+            return;
+          }
+
           let data;
           try {
             data = parsePathCommands(element.attributes.d.toString());
@@ -42,7 +47,10 @@ export const fn = (info) => {
             throw error;
           }
           data = optimize(data);
-          element.attributes.d = stringifyPathCommands(data);
+          element.attributes.d = new PathAttValue(
+            stringifyPathCommands(data),
+            true,
+          );
         }
       },
     },

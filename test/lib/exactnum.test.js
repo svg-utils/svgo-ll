@@ -44,3 +44,32 @@ it('trim trailing zeros in ExactNum constructor', () => {
   const e = new ExactNum('1.30');
   expect(e.getNumberOfDigits()).toBe(1);
 });
+
+describe('test incr', () => {
+  it('.2+.1+.7', () => {
+    const n1 = new ExactNum('.2');
+    const n2 = new ExactNum('.1');
+    const n3 = new ExactNum('.7');
+    expect(n1.getNumberOfDigits()).toBe(1);
+    n1.incr(n2);
+    expect(n1.getNumberOfDigits()).toBe(1);
+    n1.incr(n3);
+    expect(n1.getNumberOfDigits()).toBe(0);
+    expect(n1.getMinifiedString()).toBe('1');
+  });
+
+  it('.3+.3+.3+.1', () => {
+    const n1 = new ExactNum('.3');
+    const n2 = new ExactNum('.3');
+    const n3 = new ExactNum('.3');
+    const n4 = new ExactNum('.1');
+    expect(n1.getNumberOfDigits()).toBe(1);
+    n1.incr(n2);
+    expect(n1.getNumberOfDigits()).toBe(1);
+    n1.incr(n3);
+    expect(n1.getNumberOfDigits()).toBe(1);
+    n1.incr(n4);
+    expect(n1.getNumberOfDigits()).toBe(0);
+    expect(n1.getMinifiedString()).toBe('1');
+  });
+});

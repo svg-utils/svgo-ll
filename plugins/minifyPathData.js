@@ -1,4 +1,5 @@
 import { ExactNum } from '../lib/exactnum.js';
+import { PathAttValue } from '../lib/pathAttValue.js';
 import {
   getCmdArgs,
   parsePathCommands,
@@ -31,6 +32,10 @@ export const fn = (info) => {
     element: {
       enter: (element) => {
         if (pathElems.has(element.name) && element.attributes.d !== undefined) {
+          if (PathAttValue.isMinified(element.attributes.d)) {
+            return;
+          }
+
           let data;
           try {
             data = parsePathCommands(element.attributes.d.toString());
@@ -42,7 +47,12 @@ export const fn = (info) => {
             throw error;
           }
           data = optimize(data);
-          element.attributes.d = stringifyPathCommands(data);
+          if (data) {
+            element.attributes.d = new PathAttValue(
+              stringifyPathCommands(data),
+              true,
+            );
+          }
         }
       },
     },
@@ -56,7 +66,12 @@ export const fn = (info) => {
  */
 function getAlternateCmd(cmd, currentPoint) {
   switch (cmd.command) {
-    case 'A':
+    case 'A': {
+      const dx = cmd.x.sub(currentPoint.getX());
+      const dy = cmd.y.sub(currentPoint.getY());
+      if (dx === undefined || dy === undefined) {
+        return;
+      }
       return {
         command: 'a',
         rx: cmd.rx,
@@ -64,72 +79,148 @@ function getAlternateCmd(cmd, currentPoint) {
         angle: cmd.angle,
         flagLgArc: cmd.flagLgArc,
         flagSweep: cmd.flagSweep,
-        dx: cmd.x.sub(currentPoint.getX()),
-        dy: cmd.y.sub(currentPoint.getY()),
+        dx: dx,
+        dy: dy,
       };
-    case 'C':
+    }
+    case 'C': {
+      const cp1x = cmd.cp1x.sub(currentPoint.getX());
+      const cp1y = cmd.cp1y.sub(currentPoint.getY());
+      const cp2x = cmd.cp2x.sub(currentPoint.getX());
+      const cp2y = cmd.cp2y.sub(currentPoint.getY());
+      const dx = cmd.x.sub(currentPoint.getX());
+      const dy = cmd.y.sub(currentPoint.getY());
+      if (
+        cp1x === undefined ||
+        cp1y === undefined ||
+        cp2x === undefined ||
+        cp2y === undefined ||
+        dx === undefined ||
+        dy === undefined
+      ) {
+        return;
+      }
       return {
         command: 'c',
-        cp1x: cmd.cp1x.sub(currentPoint.getX()),
-        cp1y: cmd.cp1y.sub(currentPoint.getY()),
-        cp2x: cmd.cp2x.sub(currentPoint.getX()),
-        cp2y: cmd.cp2y.sub(currentPoint.getY()),
-        dx: cmd.x.sub(currentPoint.getX()),
-        dy: cmd.y.sub(currentPoint.getY()),
+        cp1x: cp1x,
+        cp1y: cp1y,
+        cp2x: cp2x,
+        cp2y: cp2y,
+        dx: dx,
+        dy: dy,
       };
-    case 'h':
-      return { command: 'H', x: cmd.dx.add(currentPoint.getX()) };
-    case 'H':
-      return { command: 'h', dx: cmd.x.sub(currentPoint.getX()) };
+    }
+    case 'h': {
+      const x = cmd.dx.add(currentPoint.getX());
+      return x === undefined ? undefined : { command: 'H', x: x };
+    }
+    case 'H': {
+      const dx = cmd.x.sub(currentPoint.getX());
+      if (dx === undefined) {
+        return;
+      }
+      return { command: 'h', dx: dx };
+    }
     case 'l':
-    case 'm':
+    case 'm': {
+      /** @type {'L'|'M'} */
+      // @ts-ignore
+      const altCmd = cmd.command.toUpperCase();
+      const x = cmd.dx.add(currentPoint.getX());
+      const y = cmd.dy.add(currentPoint.getY());
+      if (x === undefined || y === undefined) {
+        return;
+      }
       return {
-        // @ts-ignore
-        command: cmd.command.toUpperCase(),
-        x: cmd.dx.add(currentPoint.getX()),
-        y: cmd.dy.add(currentPoint.getY()),
+        command: altCmd,
+        x: x,
+        y: y,
       };
+    }
     case 'L':
     case 'M':
-    case 'T':
+    case 'T': {
+      /** @type {'l'|'m'|'t'} */
+      // @ts-ignore
+      const altCmd = cmd.command.toLowerCase();
+      const dx = cmd.x.sub(currentPoint.getX());
+      const dy = cmd.y.sub(currentPoint.getY());
+      if (dx === undefined || dy === undefined) {
+        return;
+      }
       return {
-        // @ts-ignore
-        command: cmd.command.toLowerCase(),
-        dx: cmd.x.sub(currentPoint.getX()),
-        dy: cmd.y.sub(currentPoint.getY()),
+        command: altCmd,
+        dx: dx,
+        dy: dy,
       };
-    case 'Q':
+    }
+    case 'Q': {
+      const cp1x = cmd.cp1x.sub(currentPoint.getX());
+      const cp1y = cmd.cp1y.sub(currentPoint.getY());
+      const dx = cmd.x.sub(currentPoint.getX());
+      const dy = cmd.y.sub(currentPoint.getY());
+      if (
+        cp1x === undefined ||
+        cp1y === undefined ||
+        dx === undefined ||
+        dy === undefined
+      ) {
+        return;
+      }
       return {
         command: 'q',
-        cp1x: cmd.cp1x.sub(currentPoint.getX()),
-        cp1y: cmd.cp1y.sub(currentPoint.getY()),
-        dx: cmd.x.sub(currentPoint.getX()),
-        dy: cmd.y.sub(currentPoint.getY()),
+        cp1x: cp1x,
+        cp1y: cp1y,
+        dx: dx,
+        dy: dy,
       };
-    case 'S':
+    }
+    case 'S': {
+      const cp2x = cmd.cp2x.sub(currentPoint.getX());
+      const cp2y = cmd.cp2y.sub(currentPoint.getY());
+      const dx = cmd.x.sub(currentPoint.getX());
+      const dy = cmd.y.sub(currentPoint.getY());
+      if (
+        cp2x === undefined ||
+        cp2y === undefined ||
+        dx === undefined ||
+        dy === undefined
+      ) {
+        return;
+      }
       return {
         command: 's',
-        cp2x: cmd.cp2x.sub(currentPoint.getX()),
-        cp2y: cmd.cp2y.sub(currentPoint.getY()),
-        dx: cmd.x.sub(currentPoint.getX()),
-        dy: cmd.y.sub(currentPoint.getY()),
+        cp2x: cp2x,
+        cp2y: cp2y,
+        dx: dx,
+        dy: dy,
       };
-    case 'v':
-      return {
-        command: 'V',
-        y: cmd.dy.add(currentPoint.getY()),
-      };
-    case 'V':
+    }
+    case 'v': {
+      const y = cmd.dy.add(currentPoint.getY());
+      return y === undefined
+        ? undefined
+        : {
+            command: 'V',
+            y: y,
+          };
+    }
+    case 'V': {
+      const dy = cmd.y.sub(currentPoint.getY());
+      if (dy === undefined) {
+        return;
+      }
       return {
         command: 'v',
-        dy: cmd.y.sub(currentPoint.getY()),
+        dy: dy,
       };
+    }
   }
 }
 
 /**
  * @param {import('../lib/pathutils.js').PathCommand[]} commands
- * @returns {import('../lib/pathutils.js').PathCommand[]}
+ * @returns {import('../lib/pathutils.js').PathCommand[]|undefined}
  */
 function optimize(commands) {
   if (commands.length > 0) {
@@ -193,16 +284,25 @@ function optimize(commands) {
                 /** @type {import('../lib/pathutils.js').MoveRel} */
                 // @ts-ignore
                 const cmd = commands[index + 1];
-                cmd.dx = cmd.dx.add(command.dx);
-                cmd.dy = cmd.dy.add(command.dy);
+                const dx = cmd.dx.add(command.dx);
+                const dy = cmd.dy.add(command.dy);
+                if (dx === undefined || dy === undefined) {
+                  return;
+                }
+                cmd.dx = dx;
+                cmd.dy = dy;
               }
               continue;
             default:
-              // Otherwise update the start point.
-              subpathStartPoint = new ExactPoint(
-                currentPoint.getX().add(command.dx),
-                currentPoint.getY().add(command.dy),
-              );
+              {
+                const x = currentPoint.getX().add(command.dx);
+                const y = currentPoint.getY().add(command.dy);
+                if (x === undefined || y === undefined) {
+                  return;
+                }
+                // Otherwise update the start point.
+                subpathStartPoint = new ExactPoint(x, y);
+              }
               break;
           }
         }
@@ -267,13 +367,19 @@ function optimize(commands) {
       case 'q':
       case 's':
       case 't':
-        currentPoint.incr(command.dx, command.dy);
+        if (!currentPoint.incr(command.dx, command.dy)) {
+          return;
+        }
         break;
       case 'h':
-        currentPoint.incr(command.dx);
+        if (!currentPoint.incr(command.dx)) {
+          return;
+        }
         break;
       case 'v':
-        currentPoint.incr(undefined, command.dy);
+        if (!currentPoint.incr(undefined, command.dy)) {
+          return;
+        }
         break;
       case 'H':
         currentPoint.setX(command.x.clone());
@@ -324,14 +430,20 @@ class ExactPoint {
   /**
    * @param {ExactNum|undefined} dx
    * @param {ExactNum} [dy]
+   * @return {boolean}
    */
   incr(dx, dy) {
     if (dx) {
-      this.#x.incr(dx);
+      if (!this.#x.incr(dx)) {
+        return false;
+      }
     }
     if (dy) {
-      this.#y.incr(dy);
+      if (!this.#y.incr(dy)) {
+        return false;
+      }
     }
+    return true;
   }
 
   /**

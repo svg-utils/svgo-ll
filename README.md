@@ -2,6 +2,8 @@
 
 **svgo-ll** is a Node.js library and command-line application for optimizing SVG files, evolved from the [SVGO](https://www.npmjs.com/package/svgo) package. **svgo-ll** is focused on lossless optimization and compression. See the [summary of differences between **svgo-ll** and SVGO](https://github.com/svg-utils/svgo-ll/blob/main/docs/diffs-from-svgo.md) for more details.
 
+To experiment with **svgo-ll** and its options without installing it, you can use the **[webopt](https://svg-utils.github.io/webopt/)** website to optimize files in your browser.
+
 ## Why?
 
 SVG files, especially those exported from vector editors, usually contain a lot of redundant information. This includes editor metadata, comments, hidden elements, default or suboptimal values, and other stuff that can be safely removed or converted without impacting rendering.

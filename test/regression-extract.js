@@ -166,6 +166,7 @@ const extractTarGz = async (url, baseDir) => {
 
     try {
       if (
+        !header.name.includes('..') &&
         name.endsWith('.svg') &&
         !exclude.includes(name) &&
         !name.startsWith('svgs/W3C_SVG_11_TestSuite/svg/animate-')

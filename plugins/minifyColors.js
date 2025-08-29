@@ -25,6 +25,7 @@ export const fn = (info) => {
         // Minify attribute values.
         for (const [attName, attVal] of Object.entries(element.attributes)) {
           switch (attName) {
+            case 'color':
             case 'fill':
             case 'flood-color':
             case 'lighting-color':
@@ -49,6 +50,7 @@ export const fn = (info) => {
         let propChanged = false;
         for (const [propName, propValue] of props.entries()) {
           switch (propName) {
+            case 'color':
             case 'fill':
             case 'flood-color':
             case 'lighting-color':

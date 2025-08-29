@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises';
+import fsXXX from 'node:fs/promises';
 import { cwd } from 'node:process';
 import { fileURLToPath } from 'node:url';
 import http from 'http';
@@ -12,6 +12,12 @@ import { PNG } from 'pngjs';
 import { optimize } from '../lib/svgo.js';
 import { toFixed } from '../lib/svgo/tools.js';
 import { readJSONFile } from '../lib/svgo/tools-node.js';
+import fs from 'node:fs';
+
+/**
+ * @typedef {{plugins?:string[],enable?:string[],disable?:string[],options?:string,inputdir:string,log:boolean}} CmdLineOptions
+ * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
+ */
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -19,7 +25,7 @@ const width = 960;
 const height = 720;
 
 /** @type {Map<string,{lengthOrig:number,lengthOpt:number,passes:number,time:number,pixels:number}>} */
-const stats = new Map();
+const globalStats = new Map();
 
 /** @type {import('playwright').PageScreenshotOptions} */
 const screenshotOptions = {
@@ -28,6 +34,103 @@ const screenshotOptions = {
   animations: 'disabled',
   timeout: 0,
 };
+
+/**
+ * @param {CmdLineOptions} options
+ */
+async function performRegression(options) {
+  const inputDir = path.join(cwd(), options.inputdir);
+  const outputDir = path.join(cwd(), './ignored/regression/output-files');
+  fs.rmSync(outputDir, { force: true, recursive: true });
+
+  const inputDirEntries = fs.readdirSync(inputDir, {
+    recursive: true,
+    encoding: 'utf8',
+  });
+  const relativeFilePaths = inputDirEntries
+    .filter((name) => name.endsWith('.svg'))
+    .map((name) => name.replaceAll('\\', '/'));
+
+  // Initialize statistics array.
+  /** @type {StatisticsMap} */
+  const stats = new Map();
+
+  relativeFilePaths.forEach((name) => stats.set(name, {}));
+
+  const start = process.hrtime.bigint();
+
+  await optimizeFiles(inputDir, outputDir, relativeFilePaths, options, stats);
+
+  const time = (process.hrtime.bigint() - start) / BigInt(1e6);
+  showStats(stats, time);
+
+  if (options.log) {
+    writeLog(stats);
+  }
+}
+
+/**
+ * @param {string} inputDir
+ * @param {string} outputDir
+ * @param {string[]} relativeFilePaths
+ * @param {CmdLineOptions} options
+ * @param {StatisticsMap} statsMap
+ */
+async function optimizeFiles(
+  inputDir,
+  outputDir,
+  relativeFilePaths,
+  options,
+  statsMap,
+) {
+  /** @type {import('../lib/svgo.js').Config} */
+  const config = {
+    pluginNames: options.plugins,
+    enable: options.enable,
+    options: options.options ? readJSONFile(options.options) : undefined,
+    disable: options.disable,
+  };
+
+  for (const filePath of relativeFilePaths) {
+    await optimizeFile(inputDir, outputDir, filePath, config, statsMap);
+  }
+}
+
+/**
+ * @param {string} inputDirRoot
+ * @param {string} outputDirRoot
+ * @param {string} relativePath
+ * @param {import('../lib/svgo.js').Config} config
+ * @param {StatisticsMap} statsMap
+ */
+async function optimizeFile(
+  inputDirRoot,
+  outputDirRoot,
+  relativePath,
+  config,
+  statsMap,
+) {
+  const inputPath = path.join(inputDirRoot, relativePath);
+  const input = fs.readFileSync(inputPath, 'utf8');
+
+  const stats = statsMap.get(relativePath);
+  if (!stats) {
+    throw new Error(`no statistics for ${relativePath}`);
+  }
+  stats.lengthOrig = input.length;
+
+  const optimizedData = optimize(input, config);
+  if (!optimizedData.error) {
+    stats.lengthOpt = optimizedData.data.length;
+    stats.passes = optimizedData.passes;
+    stats.time = optimizedData.time;
+  }
+
+  const outputPath = path.join(outputDirRoot, relativePath);
+  const outputDir = path.dirname(outputPath);
+  fs.mkdirSync(outputDir, { recursive: true });
+  fs.writeFileSync(outputPath, optimizedData.data);
+}
 
 /**
  * @param {import('commander').OptionValues} options
@@ -87,7 +190,7 @@ async function performTests(options) {
         return;
       }
 
-      const fileStats = stats.get(name.replace(/\\/g, '/'));
+      const fileStats = globalStats.get(name.replace(/\\/g, '/'));
       if (!fileStats) {
         throw new Error();
       }
@@ -106,8 +209,8 @@ async function performTests(options) {
             'regression-diffs',
             `${name}.diff.png`,
           );
-          await fs.mkdir(path.dirname(file), { recursive: true });
-          await fs.writeFile(file, PNG.sync.write(diff));
+          await fsXXX.mkdir(path.dirname(file), { recursive: true });
+          await fsXXX.writeFile(file, PNG.sync.write(diff));
         }
       }
     };
@@ -159,11 +262,11 @@ async function performTests(options) {
       ].join('\t'),
     ];
     const sortedKeys = [];
-    for (const key of stats.keys()) {
+    for (const key of globalStats.keys()) {
       sortedKeys.push(key);
     }
     for (const name of sortedKeys.sort()) {
-      const fileStats = stats.get(name);
+      const fileStats = globalStats.get(name);
       if (!fileStats) {
         throw new Error();
       }
@@ -188,8 +291,8 @@ async function performTests(options) {
         .toISOString()
         .replace(/:/g, '')
         .substring(0, 17)}.tsv`;
-      await fs.mkdir(path.dirname(statsFileName), { recursive: true });
-      await fs.writeFile(statsFileName, statArray.join('\n'));
+      await fsXXX.mkdir(path.dirname(statsFileName), { recursive: true });
+      await fsXXX.writeFile(statsFileName, statArray.join('\n'));
     }
 
     return mismatched === 0;
@@ -198,7 +301,7 @@ async function performTests(options) {
   try {
     const start = process.hrtime.bigint();
     const fixturesDir = path.join(cwd(), options.inputdir);
-    const filesPromise = fs.readdir(fixturesDir, { recursive: true });
+    const filesPromise = fsXXX.readdir(fixturesDir, { recursive: true });
     const server = http.createServer(async (req, res) => {
       if (req.url === undefined) {
         throw new Error();
@@ -209,9 +312,9 @@ async function performTests(options) {
       const statsName = name.substring(1);
       let file;
       try {
-        file = await fs.readFile(path.join(fixturesDir, name), 'utf-8');
+        file = await fsXXX.readFile(path.join(fixturesDir, name), 'utf-8');
       } catch {
-        if (stats.has(statsName)) {
+        if (globalStats.has(statsName)) {
           console.error(`error reading file ${name} (url=${req.url})`);
           notOptimized.add(statsName);
         }
@@ -220,7 +323,7 @@ async function performTests(options) {
         return;
       }
 
-      const fileStats = stats.get(statsName);
+      const fileStats = globalStats.get(statsName);
       if (!fileStats) {
         throw new Error();
       }
@@ -256,7 +359,7 @@ async function performTests(options) {
 
     // Initialize statistics array.
     list.forEach((name) =>
-      stats.set(name.replace(/\\/g, '/'), {
+      globalStats.set(name.replace(/\\/g, '/'), {
         lengthOrig: 0,
         lengthOpt: 0,
         passes: 0,
@@ -271,7 +374,7 @@ async function performTests(options) {
     const diff = (end - start) / BigInt(1e6);
 
     let optTime = 0;
-    stats.forEach((value) => {
+    globalStats.forEach((value) => {
       if (value.time > 0) {
         optTime = optTime + value.time;
       }
@@ -293,6 +396,95 @@ async function performTests(options) {
     console.error(error);
     process.exit(1);
   }
+}
+
+/**
+ * @param {StatisticsMap} stats
+ * @param {bigint} time
+ */
+function showStats(stats, time) {
+  const statsArray = Array.from(stats.values());
+
+  const notOptimized = statsArray.reduce(
+    (count, entry) => (entry.lengthOpt === undefined ? count + 1 : count),
+    0,
+  );
+  const optTime = statsArray.reduce(
+    (time, entry) => (entry.time === undefined ? time : time + entry.time),
+    0,
+  );
+  const totalInputSize = statsArray.reduce(
+    (size, entry) =>
+      entry.lengthOrig === undefined ? size : size + entry.lengthOrig,
+    0,
+  );
+  const totalCompression = statsArray.reduce(
+    (compression, entry) =>
+      entry.lengthOpt === undefined || entry.lengthOrig === undefined
+        ? compression
+        : compression + (entry.lengthOrig - entry.lengthOpt),
+    0,
+  );
+
+  // console.info(`Mismatched: ${mismatched}`);
+  console.info(`Not Optimized: ${notOptimized}`);
+  // console.info(`Passed: ${passed}`);
+  console.info(
+    `Total Compression: ${totalCompression} bytes (${toFixed((totalCompression / totalInputSize) * 100, 2)}%)`,
+  );
+  // console.info(`Total Pixel Mismatches: ${totalPixelMismatches}`);
+  // console.info(
+  //   `Total Passes: ${totalPasses} (${toFixed(totalPasses / (mismatched + passed), 2)} average)`,
+  // );
+  console.info(`Regression tests completed in ${time}ms (opt time=${optTime})`);
+}
+
+/**
+ * @param {StatisticsMap} statsMap
+ */
+function writeLog(statsMap) {
+  const statArray = [
+    [
+      'Name',
+      'Orig Len',
+      'Opt Len',
+      'Passes',
+      'Time (ms)',
+      'Reduction',
+      'Pixels',
+    ].join('\t'),
+  ];
+  const sortedKeys = [];
+  for (const key of statsMap.keys()) {
+    sortedKeys.push(key);
+  }
+  for (const name of sortedKeys.sort()) {
+    const fileStats = statsMap.get(name);
+    if (!fileStats) {
+      throw new Error();
+    }
+    const orig = fileStats.lengthOrig;
+    const opt = fileStats.lengthOpt;
+    const reduction = orig === undefined || opt === undefined ? '' : orig - opt;
+    statArray.push(
+      [
+        name,
+        orig,
+        opt,
+        fileStats.passes,
+        fileStats.time,
+        reduction,
+        fileStats.pixels,
+      ].join('\t'),
+    );
+  }
+
+  const statsFileName = `./ignored/logs/regression-stats-${new Date()
+    .toISOString()
+    .replace(/:/g, '')
+    .substring(0, 17)}.tsv`;
+  fs.mkdirSync(path.dirname(statsFileName), { recursive: true });
+  fs.writeFileSync(statsFileName, statArray.join('\n'));
 }
 
 program
@@ -320,10 +512,10 @@ program
   .option(
     '-i, --inputdir <dir>',
     'Location of input files',
-    './test/regression-fixtures',
+    './ignored/regression/input-raw',
   )
   .option('-l, --log', 'Write statistics log file to ./tmp directory')
   .option('--workers [number of workers]', 'number of workers to use')
-  .action(performTests);
+  .action(performRegression);
 
 program.parseAsync();

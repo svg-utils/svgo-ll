@@ -6,6 +6,7 @@ import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
 import { svgParseTransform, SVGTransformValue } from '../lib/svg-parse-att.js';
 import { toFixed, writeStyleAttribute } from '../lib/svgo/tools.js';
+import { PathAttValue } from '../lib/pathAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -278,16 +279,31 @@ function roundOpacity(attValue, digits) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {import('../lib/types.js').SVGAttValue} attValueIn
  * @param {number|null} xDigits
  * @param {number|null} yDigits
- * @returns {string|null}
+ * @returns {import('../lib/types.js').SVGAttValue|null}
  */
-function roundPath(attValue, xDigits, yDigits) {
-  if (typeof attValue !== 'string' || xDigits === null || yDigits === null) {
+function roundPath(attValueIn, xDigits, yDigits) {
+  if (xDigits === null || yDigits === null) {
     return null;
   }
-  const commands = parsePathCommands(attValue);
+
+  const inputIsString = typeof attValueIn === 'string';
+
+  let strAttValue;
+  if (inputIsString) {
+    strAttValue = attValueIn;
+  } else if (attValueIn instanceof PathAttValue) {
+    if (attValueIn.isRounded()) {
+      return null;
+    }
+    strAttValue = attValueIn.toString();
+  } else {
+    throw new Error();
+  }
+
+  const commands = parsePathCommands(strAttValue);
   for (const command of commands) {
     switch (command.command) {
       case 'l':
@@ -314,7 +330,16 @@ function roundPath(attValue, xDigits, yDigits) {
         break;
     }
   }
-  return stringifyPathCommands(commands);
+
+  const rounded = stringifyPathCommands(commands);
+
+  if (inputIsString || rounded !== strAttValue) {
+    return new PathAttValue(rounded, false, true);
+  }
+
+  // Value hasn't changed by rounding, just note that we've already rounded.
+  attValueIn.setRounded(true);
+  return null;
 }
 
 /**

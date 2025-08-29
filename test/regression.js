@@ -18,7 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const width = 960;
 const height = 720;
 
-/** @type {Map<string,{lengthOrig:number,lengthOpt:number,passes:number,pixels:number}>} */
+/** @type {Map<string,{lengthOrig:number,lengthOpt:number,passes:number,time:number,pixels:number}>} */
 const stats = new Map();
 
 /** @type {import('playwright').PageScreenshotOptions} */
@@ -26,7 +26,7 @@ const screenshotOptions = {
   omitBackground: true,
   clip: { x: 0, y: 0, width, height },
   animations: 'disabled',
-  timeout: 120000,
+  timeout: 0,
 };
 
 /**
@@ -67,18 +67,15 @@ async function performTests(options) {
      * @param {string} name
      */
     const processFile = async (page, name) => {
-      await page.goto(`http://localhost:5000/original/${name}`, {
-        timeout: 120000,
-      });
+      await page.goto(`http://localhost:5000/original/${name}`);
       const originalBuffer = await page.screenshot(screenshotOptions);
-      await page.goto(`http://localhost:5000/optimized/${name}`, {
-        timeout: 120000,
-      });
-      const optimizedBufferPromise = page.screenshot(screenshotOptions);
+
+      await page.goto(`http://localhost:5000/optimized/${name}`);
+      const optimizedBuffer = await page.screenshot(screenshotOptions);
 
       const diff = new PNG({ width, height });
       const originalPng = PNG.sync.read(originalBuffer);
-      const optimizedPng = PNG.sync.read(await optimizedBufferPromise);
+      const optimizedPng = PNG.sync.read(optimizedBuffer);
       const mismatchCount = pixelmatch(
         originalPng.data,
         optimizedPng.data,
@@ -118,6 +115,7 @@ async function performTests(options) {
     const worker = async () => {
       let item;
       const page = await context.newPage();
+      page.setDefaultNavigationTimeout(0);
       while ((item = list.pop())) {
         await processFile(page, item);
       }
@@ -129,9 +127,13 @@ async function performTests(options) {
       javaScriptEnabled: false,
       viewport: { width, height },
     });
-    await Promise.all(
-      Array.from(new Array(os.cpus().length * 2), () => worker()),
-    );
+
+    const numWorkers = options.workers
+      ? parseInt(options.workers)
+      : os.cpus().length * 2;
+
+    console.info(`Number of workers: ${numWorkers}`);
+    await Promise.all(Array.from(new Array(numWorkers), () => worker()));
     await browser.close();
     console.info(`Mismatched: ${mismatched}`);
     console.info(`Not Optimized: ${notOptimized.size}`);
@@ -146,9 +148,15 @@ async function performTests(options) {
 
     // Write statistics.
     const statArray = [
-      ['Name', 'Orig Len', 'Opt Len', 'Passes', 'Reduction', 'Pixels'].join(
-        '\t',
-      ),
+      [
+        'Name',
+        'Orig Len',
+        'Opt Len',
+        'Passes',
+        'Time (ms)',
+        'Reduction',
+        'Pixels',
+      ].join('\t'),
     ];
     const sortedKeys = [];
     for (const key of stats.keys()) {
@@ -163,9 +171,15 @@ async function performTests(options) {
       const opt = fileStats.lengthOpt;
       const reduction = orig - opt;
       statArray.push(
-        [name, orig, opt, fileStats.passes, reduction, fileStats.pixels].join(
-          '\t',
-        ),
+        [
+          name,
+          orig,
+          opt,
+          fileStats.passes,
+          fileStats.time,
+          reduction,
+          fileStats.pixels,
+        ].join('\t'),
       );
     }
 
@@ -219,6 +233,7 @@ async function performTests(options) {
       if (req.url.startsWith('/optimized/')) {
         const optimized = optimize(file, config);
         fileStats.lengthOpt = optimized.data.length;
+        fileStats.time = optimized.time ?? -2;
 
         if (optimized.error) {
           notOptimized.add(name.substring(1));
@@ -245,6 +260,7 @@ async function performTests(options) {
         lengthOrig: 0,
         lengthOpt: 0,
         passes: 0,
+        time: -1,
         pixels: -1,
       }),
     );
@@ -254,10 +270,23 @@ async function performTests(options) {
     const end = process.hrtime.bigint();
     const diff = (end - start) / BigInt(1e6);
 
+    let optTime = 0;
+    stats.forEach((value) => {
+      if (value.time > 0) {
+        optTime = optTime + value.time;
+      }
+    });
+
     if (passed) {
-      console.info(`Regression tests successfully completed in ${diff}ms`);
+      console.info(
+        `Regression tests successfully completed in ${diff}ms (opt time=${optTime})`,
+      );
     } else {
-      console.error(colors.red(`Regression tests failed in ${diff}ms`));
+      console.error(
+        colors.red(
+          `Regression tests failed in ${diff}ms (opt time=${optTime})`,
+        ),
+      );
       process.exit(1);
     }
   } catch (error) {
@@ -294,6 +323,7 @@ program
     './test/regression-fixtures',
   )
   .option('-l, --log', 'Write statistics log file to ./tmp directory')
+  .option('--workers [number of workers]', 'number of workers to use')
   .action(performTests);
 
 program.parseAsync();

@@ -9,6 +9,7 @@ import { readJSONFile } from '../lib/svgo/tools-node.js';
 import { pathToFileURL } from 'node:url';
 import { PNG } from 'pngjs';
 import Pixelmatch from 'pixelmatch';
+import { cpus } from 'node:os';
 
 /**
  * @typedef {{
@@ -68,6 +69,7 @@ async function performRegression(options) {
  * @param {import('playwright').Page} page
  * @param {string} inputRootDir
  * @param {string} outputRootDir
+ * @param {string} diffRootDir
  * @param {string} relativeFilePath
  * @param {StatisticsMap} statsMap
  */
@@ -75,9 +77,16 @@ async function compareFile(
   page,
   inputRootDir,
   outputRootDir,
+  diffRootDir,
   relativeFilePath,
   statsMap,
 ) {
+  const stats = getStats(statsMap, relativeFilePath);
+  if (stats.lengthOpt === undefined) {
+    // File was not optimized, don't compare.
+    return;
+  }
+
   const input = await getScreenShot(page, inputRootDir, relativeFilePath);
   const output = await getScreenShot(page, outputRootDir, relativeFilePath);
 
@@ -90,21 +99,27 @@ async function compareFile(
     BROWSER_HEIGHT,
   );
 
-  const stats = getStats(statsMap, relativeFilePath);
   stats.pixels = mismatchCount;
+
+  if (mismatchCount > 0) {
+    // Write the diff image.
+    const filePath = path.join(diffRootDir, relativeFilePath) + '.png';
+    fs.mkdirSync(path.dirname(filePath), { recursive: true });
+    fs.writeFileSync(filePath, PNG.sync.write(diff));
+  }
 }
 
 /**
  * @param {string} inputDir
  * @param {string} outputDir
- * @param {string[]} relativeFilePaths
+ * @param {string[]} relativeFilePathsIn
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
  */
 async function compareOutput(
   inputDir,
   outputDir,
-  relativeFilePaths,
+  relativeFilePathsIn,
   options,
   statsMap,
 ) {
@@ -120,13 +135,30 @@ async function compareOutput(
     javaScriptEnabled: false,
     viewport: { width: BROWSER_WIDTH, height: BROWSER_HEIGHT },
   });
-  const page = await context.newPage();
 
-  for (const filePath of relativeFilePaths) {
-    await compareFile(page, inputDir, outputDir, filePath, statsMap);
-  }
+  const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
+  fs.rmSync(diffRootDir, { force: true, recursive: true });
 
-  await page.close();
+  const relativeFilePaths = relativeFilePathsIn.slice();
+
+  const worker = async () => {
+    let filePath;
+    const page = await context.newPage();
+    while ((filePath = relativeFilePaths.pop())) {
+      await compareFile(
+        page,
+        inputDir,
+        outputDir,
+        diffRootDir,
+        filePath,
+        statsMap,
+      );
+    }
+    await page.close();
+  };
+
+  await Promise.all(Array.from(new Array(cpus().length * 2), () => worker()));
+
   await browser.close();
 }
 
@@ -159,14 +191,14 @@ function getStats(statsMap, relativeFilePath) {
 /**
  * @param {string} inputDir
  * @param {string} outputDir
- * @param {string[]} relativeFilePaths
+ * @param {string[]} relativeFilePathsIn
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
  */
 async function optimizeFiles(
   inputDir,
   outputDir,
-  relativeFilePaths,
+  relativeFilePathsIn,
   options,
   statsMap,
 ) {
@@ -178,11 +210,16 @@ async function optimizeFiles(
     disable: options.disable,
   };
 
-  await Promise.all(
-    relativeFilePaths.map((filePath) =>
-      optimizeFile(inputDir, outputDir, filePath, config, statsMap),
-    ),
-  );
+  const relativeFilePaths = relativeFilePathsIn.slice();
+
+  const worker = async () => {
+    let filePath;
+    while ((filePath = relativeFilePaths.pop())) {
+      await optimizeFile(inputDir, outputDir, filePath, config, statsMap);
+    }
+  };
+
+  await Promise.all(Array.from(new Array(cpus().length * 2), () => worker()));
 }
 
 /**

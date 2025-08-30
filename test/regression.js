@@ -14,7 +14,8 @@ import { cpus } from 'node:os';
 /**
  * @typedef {{
  * plugins?:string[],enable?:string[],disable?:string[],options?:string,inputdir:string,log:boolean,
- * browser:'chromium' | 'firefox' | 'webkit'
+ * browser:'chromium' | 'firefox' | 'webkit',
+ * workers?:string
  * }} CmdLineOptions
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
  */
@@ -45,20 +46,45 @@ async function performRegression(options) {
     .filter((name) => name.endsWith('.svg'))
     .map((name) => name.replaceAll('\\', '/'));
 
+  const numWorkers = options.workers
+    ? parseInt(options.workers)
+    : cpus().length * 2;
+
   // Initialize statistics array.
   /** @type {StatisticsMap} */
   const stats = new Map();
 
   relativeFilePaths.forEach((name) => stats.set(name, {}));
 
-  const start = process.hrtime.bigint();
+  const start = Date.now();
 
-  await optimizeFiles(inputDir, outputDir, relativeFilePaths, options, stats);
+  await optimizeFiles(
+    inputDir,
+    outputDir,
+    relativeFilePaths,
+    options,
+    stats,
+    numWorkers,
+  );
+  const optPhaseTime = Date.now() - start;
 
-  await compareOutput(inputDir, outputDir, relativeFilePaths, options, stats);
+  const compStart = Date.now();
+  await compareOutput(
+    inputDir,
+    outputDir,
+    relativeFilePaths,
+    options,
+    stats,
+    numWorkers,
+  );
 
-  const time = (process.hrtime.bigint() - start) / BigInt(1e6);
-  showStats(stats, time);
+  showStats(
+    stats,
+    Date.now() - start,
+    optPhaseTime,
+    Date.now() - compStart,
+    numWorkers,
+  );
 
   if (options.log) {
     writeLog(stats);
@@ -115,6 +141,7 @@ async function compareFile(
  * @param {string[]} relativeFilePathsIn
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
+ * @param {number} numWorkers
  */
 async function compareOutput(
   inputDir,
@@ -122,6 +149,7 @@ async function compareOutput(
   relativeFilePathsIn,
   options,
   statsMap,
+  numWorkers,
 ) {
   /** @type {'chromium' | 'firefox' | 'webkit'} */
   const browserStr = ['chromium', 'firefox', 'webkit'].includes(options.browser)
@@ -157,7 +185,7 @@ async function compareOutput(
     await page.close();
   };
 
-  await Promise.all(Array.from(new Array(cpus().length * 2), () => worker()));
+  await Promise.all(Array.from(new Array(numWorkers), () => worker()));
 
   await browser.close();
 }
@@ -194,6 +222,7 @@ function getStats(statsMap, relativeFilePath) {
  * @param {string[]} relativeFilePathsIn
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
+ * @param {number} numWorkers
  */
 async function optimizeFiles(
   inputDir,
@@ -201,6 +230,7 @@ async function optimizeFiles(
   relativeFilePathsIn,
   options,
   statsMap,
+  numWorkers,
 ) {
   /** @type {import('../lib/svgo.js').Config} */
   const config = {
@@ -219,7 +249,7 @@ async function optimizeFiles(
     }
   };
 
-  await Promise.all(Array.from(new Array(cpus().length * 2), () => worker()));
+  await Promise.all(Array.from(new Array(numWorkers), () => worker()));
 }
 
 /**
@@ -260,9 +290,12 @@ async function optimizeFile(
 
 /**
  * @param {StatisticsMap} stats
- * @param {bigint} time
+ * @param {number} totalTime
+ * @param {number} optPhaseTime
+ * @param {number} compPhaseTime
+ * @param {number} numWorkers
  */
-function showStats(stats, time) {
+function showStats(stats, totalTime, optPhaseTime, compPhaseTime, numWorkers) {
   const statsArray = Array.from(stats.values());
 
   const mismatched = statsArray.reduce(
@@ -313,7 +346,9 @@ function showStats(stats, time) {
   console.info(
     `Total Passes: ${totalPasses} (${toFixed(totalPasses / (mismatched + matched), 2)} average)`,
   );
-  console.info(`Regression tests completed in ${time}ms (opt time=${optTime})`);
+  console.info(
+    `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, ${numWorkers} workers)`,
+  );
 }
 
 /**

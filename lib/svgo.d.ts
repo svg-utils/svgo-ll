@@ -7,20 +7,20 @@ type CustomPlugin<T = any> = {
   params?: T;
 };
 
-export type Config = {
-  /** Can be used by plugins, for example prefixids */
+export type ResolvedConfig = {
   path?: string;
   maxPasses?: number;
+  js2svg?: import('./types.js').StringifyOptions;
+  datauri?: import('./types.js').DataUri;
+};
+
+export type Config = ResolvedConfig & {
   plugins?: CustomPlugin[];
   pluginNames?: string[];
   enable?: string[];
   disable?: string[];
   // Configuration parameters for plugins.
   options?: Record<string, {}>;
-  /** Options for rendering optimized SVG from AST. */
-  js2svg?: StringifyOptions;
-  /** Output as Data URI string. */
-  datauri?: DataUri;
 };
 
 type Output = {
@@ -108,8 +108,17 @@ export type OptimizationCallbackInfo = {
 };
 export type OptimizationCallback = (info: OptimizationCallbackInfo) => void;
 
+export declare function resolvePlugins(config: Config): CustomPlugin[];
+
 export declare function optimize(
   input: string,
   config?: Config,
+  callback?: OptimizationCallback,
+): Output;
+
+export declare function optimizeResolved(
+  input: string,
+  config: Config,
+  resolvedPlugins: CustomPlugin[],
   callback?: OptimizationCallback,
 ): Output;

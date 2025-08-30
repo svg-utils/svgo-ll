@@ -8,7 +8,6 @@
 node_modules
 ignored
 dist
-test/regression-diffs
 test/cli/output
 coverage
 .DS_Store

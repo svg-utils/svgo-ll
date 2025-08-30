@@ -3,13 +3,13 @@ import fs from 'node:fs';
 import path from 'path';
 import { program } from 'commander';
 import * as playwright from 'playwright';
-import { optimize } from '../lib/svgo.js';
 import { toFixed } from '../lib/svgo/tools.js';
 import { readJSONFile } from '../lib/svgo/tools-node.js';
 import { pathToFileURL } from 'node:url';
 import { PNG } from 'pngjs';
 import Pixelmatch from 'pixelmatch';
 import { cpus } from 'node:os';
+import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
 
 /**
  * @typedef {{
@@ -275,7 +275,7 @@ async function optimizeFile(
   }
   stats.lengthOrig = input.length;
 
-  const optimizedData = optimize(input, config);
+  const optimizedData = optimizeResolved(input, config, resolvePlugins(config));
   if (!optimizedData.error) {
     stats.lengthOpt = optimizedData.data.length;
     stats.passes = optimizedData.passes;

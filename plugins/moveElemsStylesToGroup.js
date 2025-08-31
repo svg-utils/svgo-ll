@@ -32,7 +32,7 @@ export const fn = (info) => {
 
         /**
          * Find common properties in group children.
-         * @type {import('../lib/types.js').CSSDeclarationMap}
+         * @type {Map<string,import('../lib/types.js').CSSPropertyValue>}
          */
         const commonProperties = new Map();
         /** @type {Set<string>} */
@@ -102,7 +102,7 @@ export const fn = (info) => {
         }
 
         // Add common child properties to group.
-        /** @type {import('../lib/types.js').CSSDeclarationMap} */
+        /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
         const groupProperties = getStyleDeclarations(node) ?? new Map();
 
         for (const [name, value] of commonProperties) {

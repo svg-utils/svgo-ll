@@ -178,7 +178,7 @@ function createGroups(element, usedIds, elementsToCheck) {
   /** @type {import('../lib/types.js').XastChild[]} */
   const newChildren = [];
 
-  /** @type {import('../lib/types.js').CSSDeclarationMap} */
+  /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
   let sharedProps = new Map();
   /** @type {Set<string>} */
   let transformProps = new Set();
@@ -219,7 +219,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    /** @type {import('../lib/types.js').CSSDeclarationMap} */
+    /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
     const newSharedProps = new Map();
 
     // Copy any common shared properties.

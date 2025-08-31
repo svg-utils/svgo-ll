@@ -107,7 +107,7 @@ export const fn = (info) => {
 
         const isShapeGroup =
           element.name === 'g' && hasOnlyShapeChildren(element);
-        for (const [p, v] of styleAttValue.properties()) {
+        for (const [p, v] of styleAttValue.entries()) {
           if (!elementCanHaveProperty(element.name, p)) {
             styleAttValue.removeProperty(p);
             continue;
@@ -123,7 +123,7 @@ export const fn = (info) => {
               {
                 const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
                 const minified = parsedValue.getMinifiedValue();
-                styleAttValue.setPropertyValue(p, {
+                styleAttValue.set(p, {
                   value: minified,
                   important: v.important,
                 });
@@ -133,7 +133,7 @@ export const fn = (info) => {
             case 'opacity':
             case 'stop-opacity':
             case 'stroke-opacity':
-              styleAttValue.setPropertyValue(p, {
+              styleAttValue.set(p, {
                 value: OpacityValue.getOpacityObj(v.value),
                 important: v.important,
               });

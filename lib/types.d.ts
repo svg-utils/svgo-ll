@@ -162,7 +162,11 @@ export type CSSPropertyValue = {
   important: boolean;
 };
 
-export type CSSDeclarationMap = Map<string, CSSPropertyValue>;
+export type CSSDeclarationMap = {
+  entries(): IterableIterator<[string, CSSPropertyValue]>;
+  set(name: string, value: CSSPropertyValue): void;
+  values(): IterableIterator<CSSPropertyValue>;
+};
 
 export type PluginInfo = {
   path?: string;

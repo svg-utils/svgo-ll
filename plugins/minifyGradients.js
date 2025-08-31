@@ -182,7 +182,7 @@ function inlineGradient(outer, inner, gradientMap, solidGradients) {
   let transform = outer.attributes.gradientTransform;
   const styleAttValue = StyleAttValue.getStyleAttValue(outer);
   if (styleAttValue) {
-    const cssTransform = styleAttValue.getProperty('transform');
+    const cssTransform = styleAttValue.get('transform');
     if (cssTransform) {
       transform = cssTransformToSVGAtt(cssTransform);
       if (transform === undefined) {
@@ -238,7 +238,7 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
             if (!styleAttValue) {
               continue;
             }
-            for (const [propName, decl] of styleAttValue.properties()) {
+            for (const [propName, decl] of styleAttValue.entries()) {
               if (propName !== 'fill' && propName !== 'stroke') {
                 continue;
               }
@@ -247,7 +247,7 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
               if (!idInfo || idInfo.id !== id) {
                 continue;
               }
-              styleAttValue.setPropertyValue(propName, {
+              styleAttValue.set(propName, {
                 value: colorData.color,
                 important: decl.important,
               });

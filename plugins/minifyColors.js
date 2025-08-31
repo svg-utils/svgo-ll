@@ -46,7 +46,7 @@ export const fn = (info) => {
         if (!styleAttValue) {
           return;
         }
-        for (const [propName, propValue] of styleAttValue.properties()) {
+        for (const [propName, propValue] of styleAttValue.entries()) {
           switch (propName) {
             case 'color':
             case 'fill':
@@ -58,7 +58,7 @@ export const fn = (info) => {
                 const value = ColorValue.getColorObj(propValue.value);
                 const min = value.getMinifiedValue();
                 if (min) {
-                  styleAttValue.setPropertyValue(propName, {
+                  styleAttValue.set(propName, {
                     value: min,
                     important: propValue.important,
                   });

@@ -1,7 +1,6 @@
 import { LengthOrPctValue } from '../lib/lengthOrPct.js';
 import { OpacityValue } from '../lib/opacity.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
-import { writeStyleAttribute } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -95,12 +94,10 @@ export const fn = (info) => {
           return;
         }
 
-        const attValue = StyleAttValue.getStyleAttValue(element);
-        if (attValue === undefined) {
+        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        if (styleAttValue === undefined) {
           return;
         }
-
-        const newProperties = new Map();
 
         if (elemsGroups.animation.has(element.name)) {
           // Style attributes have no effect on animation elements.
@@ -110,14 +107,15 @@ export const fn = (info) => {
 
         const isShapeGroup =
           element.name === 'g' && hasOnlyShapeChildren(element);
-        for (const [p, v] of attValue.propertyIterator()) {
+        for (const [p, v] of styleAttValue.propertyIterator()) {
           if (!elementCanHaveProperty(element.name, p)) {
+            styleAttValue.removeProperty(p);
             continue;
           }
           if (isShapeGroup && uselessShapeProperties.has(p)) {
+            styleAttValue.removeProperty(p);
             continue;
           }
-          let newValue = v;
           switch (p) {
             case 'font-size':
             case 'stroke-dashoffset':
@@ -125,21 +123,27 @@ export const fn = (info) => {
               {
                 const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
                 const minified = parsedValue.getMinifiedValue();
-                newValue.value = minified;
+                styleAttValue.setPropertyValue(p, {
+                  value: minified,
+                  important: v.important,
+                });
               }
               break;
             case 'fill-opacity':
             case 'opacity':
             case 'stop-opacity':
             case 'stroke-opacity':
-              {
-                newValue.value = OpacityValue.getOpacityObj(v.value);
-              }
+              styleAttValue.setPropertyValue(p, {
+                value: OpacityValue.getOpacityObj(v.value),
+                important: v.important,
+              });
               break;
           }
-          newProperties.set(p, newValue);
         }
-        writeStyleAttribute(element, newProperties);
+
+        if (styleAttValue.isEmpty()) {
+          delete element.attributes.style;
+        }
       },
     },
   };

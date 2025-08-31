@@ -107,7 +107,7 @@ export const fn = (info) => {
 
         const isShapeGroup =
           element.name === 'g' && hasOnlyShapeChildren(element);
-        for (const [p, v] of styleAttValue.propertyIterator()) {
+        for (const [p, v] of styleAttValue.properties()) {
           if (!elementCanHaveProperty(element.name, p)) {
             styleAttValue.removeProperty(p);
             continue;

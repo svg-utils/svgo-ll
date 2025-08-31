@@ -1,10 +1,6 @@
 import { StyleAttValue } from '../lib/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
-import {
-  getHrefId,
-  updateStyleAttribute,
-  writeStyleAttribute,
-} from '../lib/svgo/tools.js';
+import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties } from './_styles.js';
 
 export const name = 'createGroups';
@@ -143,7 +139,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       // Add transform as an attribute.
       sharedProps.delete('transform');
     }
-    writeStyleAttribute(groupElement, sharedProps);
+    updateStyleAttribute(groupElement, new StyleAttValue(sharedProps));
 
     // Remove properties from children.
     groupChildren.forEach((child) => {

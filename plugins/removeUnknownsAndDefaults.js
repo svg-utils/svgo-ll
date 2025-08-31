@@ -6,8 +6,7 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
-import { getHrefId, writeStyleAttribute } from '../lib/svgo/tools.js';
-import { getStyleDeclarations } from '../lib/css-tools.js';
+import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 
 export const name = 'removeUnknownsAndDefaults';
@@ -380,12 +379,12 @@ export const fn = (info, params) => {
           if (elementIsUsed(element)) {
             continue;
           }
-          const props = getStyleDeclarations(element);
-          if (props) {
+          const styleAttValue = StyleAttValue.getStyleAttValue(element);
+          if (styleAttValue) {
             for (const propName of propNames) {
-              props.delete(propName);
+              styleAttValue.delete(propName);
             }
-            writeStyleAttribute(element, props);
+            updateStyleAttribute(element, styleAttValue);
           }
         }
       },

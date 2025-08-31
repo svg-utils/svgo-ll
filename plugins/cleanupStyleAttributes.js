@@ -1,7 +1,6 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
 import { LengthOrPctValue } from '../lib/lengthOrPct.js';
 import { OpacityValue } from '../lib/opacity.js';
-import { writeStyleAttribute } from '../lib/svgo/tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -84,43 +83,39 @@ export const fn = (info) => {
 
   return {
     element: {
-      enter: (node) => {
-        if (node.name === 'foreignObject') {
+      enter: (element) => {
+        if (element.name === 'foreignObject') {
           return visitSkip;
         }
 
-        cleanupClassAttributes(node, styleData);
+        cleanupClassAttributes(element, styleData);
 
         if (hasStyleAttributeSelector) {
           return;
         }
 
-        if (node.attributes['style'] === '') {
-          delete node.attributes.style;
-        }
-
-        const origProperties = getStyleDeclarations(node);
-        if (!origProperties) {
+        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        if (styleAttValue === undefined) {
           return;
         }
 
-        const newProperties = new Map();
-
-        if (elemsGroups.animation.has(node.name)) {
+        if (elemsGroups.animation.has(element.name)) {
           // Style attributes have no effect on animation elements.
-          writeStyleAttribute(node, newProperties);
+          delete element.attributes.style;
           return;
         }
 
-        const isShapeGroup = node.name === 'g' && hasOnlyShapeChildren(node);
-        for (const [p, v] of origProperties.entries()) {
-          if (!elementCanHaveProperty(node.name, p)) {
+        const isShapeGroup =
+          element.name === 'g' && hasOnlyShapeChildren(element);
+        for (const [p, v] of styleAttValue.entries()) {
+          if (!elementCanHaveProperty(element.name, p)) {
+            styleAttValue.removeProperty(p);
             continue;
           }
           if (isShapeGroup && uselessShapeProperties.has(p)) {
+            styleAttValue.removeProperty(p);
             continue;
           }
-          let newValue = v;
           switch (p) {
             case 'font-size':
             case 'stroke-dashoffset':
@@ -128,21 +123,27 @@ export const fn = (info) => {
               {
                 const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
                 const minified = parsedValue.getMinifiedValue();
-                newValue.value = minified;
+                styleAttValue.set(p, {
+                  value: minified,
+                  important: v.important,
+                });
               }
               break;
             case 'fill-opacity':
             case 'opacity':
             case 'stop-opacity':
             case 'stroke-opacity':
-              {
-                newValue.value = OpacityValue.getOpacityObj(v.value);
-              }
+              styleAttValue.set(p, {
+                value: OpacityValue.getOpacityObj(v.value),
+                important: v.important,
+              });
               break;
           }
-          newProperties.set(p, newValue);
         }
-        writeStyleAttribute(node, newProperties);
+
+        if (styleAttValue.isEmpty()) {
+          delete element.attributes.style;
+        }
       },
     },
   };

@@ -1,6 +1,6 @@
-import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
-import { getHrefId, writeStyleAttribute } from '../lib/svgo/tools.js';
+import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties } from './_styles.js';
 
 export const name = 'createGroups';
@@ -139,30 +139,30 @@ function createGroups(element, usedIds, elementsToCheck) {
       // Add transform as an attribute.
       sharedProps.delete('transform');
     }
-    writeStyleAttribute(groupElement, sharedProps);
+    updateStyleAttribute(groupElement, new StyleAttValue(sharedProps));
 
     // Remove properties from children.
-    groupChildren.forEach((c) => {
-      c.parentNode = groupElement;
-      if (c.type !== 'element') {
+    groupChildren.forEach((child) => {
+      child.parentNode = groupElement;
+      if (child.type !== 'element') {
         return;
       }
-      const decls = getStyleDeclarations(c);
+      const styleAttValue = StyleAttValue.getStyleAttValue(child);
 
       for (const name of sharedProps.keys()) {
-        delete c.attributes[name];
-        if (decls) {
-          decls.delete(name);
+        delete child.attributes[name];
+        if (styleAttValue) {
+          styleAttValue.delete(name);
         }
       }
       if (attTransform) {
-        delete c.attributes['transform'];
-        if (decls) {
-          decls.delete('transform');
+        delete child.attributes['transform'];
+        if (styleAttValue) {
+          styleAttValue.delete('transform');
         }
       }
-      if (decls) {
-        writeStyleAttribute(c, decls);
+      if (styleAttValue) {
+        updateStyleAttribute(child, styleAttValue);
       }
     });
 
@@ -178,7 +178,7 @@ function createGroups(element, usedIds, elementsToCheck) {
   /** @type {import('../lib/types.js').XastChild[]} */
   const newChildren = [];
 
-  /** @type {import('../lib/types.js').CSSDeclarationMap} */
+  /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
   let sharedProps = new Map();
   /** @type {Set<string>} */
   let transformProps = new Set();
@@ -219,13 +219,13 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    /** @type {import('../lib/types.js').CSSDeclarationMap} */
+    /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
     const newSharedProps = new Map();
 
     // Copy any common shared properties.
     for (const [k, v] of sharedProps.entries()) {
       const currentProp = currentChildProps.get(k);
-      if (currentProp && cssPropToString(currentProp) === cssPropToString(v)) {
+      if (currentProp && currentProp.value.toString() === v.value.toString()) {
         newSharedProps.set(k, v);
       }
     }

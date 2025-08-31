@@ -1,4 +1,4 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 
@@ -6,7 +6,7 @@ export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @returns {import('../lib/types.js').CSSDeclarationMap}
+ * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
  */
 export function getInheritableProperties(element) {
   return _getProperties(
@@ -17,7 +17,7 @@ export function getInheritableProperties(element) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @returns {import('../lib/types.js').CSSDeclarationMap}
+ * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
  */
 export function getPresentationProperties(element) {
   return _getProperties(element, (name) => presentationProperties.has(name));
@@ -26,10 +26,10 @@ export function getPresentationProperties(element) {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {function(string):boolean} fnInclude
- * @returns {import('../lib/types.js').CSSDeclarationMap}
+ * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
  */
 function _getProperties(element, fnInclude) {
-  /** @type {import('../lib/types.js').CSSDeclarationMap} */
+  /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
   const props = new Map();
 
   // Gather all inheritable attributes.
@@ -50,17 +50,13 @@ function _getProperties(element, fnInclude) {
   }
 
   // Overwrite with inheritable properties.
-  const styleProps = getStyleDeclarations(element);
-  if (styleProps) {
-    styleProps.forEach((v, k) => {
-      if (fnInclude(k)) {
-        if (v === null) {
-          props.delete(k);
-        } else {
-          props.set(k, v);
-        }
+  const styleAttValue = StyleAttValue.getStyleAttValue(element);
+  if (styleAttValue) {
+    for (const [name, prop] of styleAttValue.entries()) {
+      if (fnInclude(name)) {
+        props.set(name, prop);
       }
-    });
+    }
   }
 
   return props;

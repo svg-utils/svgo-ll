@@ -1,5 +1,4 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/svgo/tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
@@ -17,7 +16,7 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<import('./inlineStyles.js').XastParent,Set<import('./collapseGroups.js').XastElement>>} */
+  /** @type {Map<import('../lib/types.js').XastParent,Set<import('./collapseGroups.js').XastElement>>} */
   const textElsToHoist = new Map();
 
   return {
@@ -66,16 +65,17 @@ export const fn = (info) => {
             }
           }
           // Update style attribute.
-          const childDeclarations = getStyleDeclarations(hoistableChild);
-          if (childDeclarations) {
-            const parentDeclarations = getStyleDeclarations(element);
-            if (parentDeclarations) {
-              for (const [k, v] of childDeclarations) {
-                parentDeclarations.set(k, v);
+          const childStyleAttValues =
+            StyleAttValue.getStyleAttValue(hoistableChild);
+          if (childStyleAttValues) {
+            const parentStyleAttValues =
+              StyleAttValue.getStyleAttValue(element);
+            if (parentStyleAttValues) {
+              for (const [k, v] of childStyleAttValues.entries()) {
+                parentStyleAttValues.set(k, v);
               }
-              writeStyleAttribute(element, parentDeclarations);
             } else {
-              writeStyleAttribute(element, childDeclarations);
+              element.attributes.style = childStyleAttValues;
             }
           }
         }

@@ -1,9 +1,5 @@
-/**
- * @typedef {import('../lib/types.js').XastParent} XastParent
- * @typedef {import('../lib/types.js').CSSRule} CSSRule
- */
-
-import { writeStyleAttribute } from '../lib/svgo/tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
+import { updateStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'inlineStyles';
 export const description =
@@ -22,13 +18,13 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<CSSRule,import('../lib/types.js').XastElement[]>} */
+  /** @type {Map<import('../lib/types.js').CSSRule,import('../lib/types.js').XastElement[]>} */
   const elementsPerRule = new Map();
-  /** @type {Map<import('../lib/types.js').XastElement,CSSRule[]>} */
+  /** @type {Map<import('../lib/types.js').XastElement,import('../lib/types.js').CSSRule[]>} */
   const rulesPerElement = new Map();
 
   /**
-   * @param {CSSRule} rule
+   * @param {import('../lib/types.js').CSSRule} rule
    * @param {import('../lib/types.js').XastElement} element
    */
   function addElementToRule(rule, element) {
@@ -45,7 +41,7 @@ export const fn = (info) => {
   }
 
   /**
-   * @param {CSSRule} rule
+   * @param {import('../lib/types.js').CSSRule} rule
    * @param {import('../lib/types.js').XastElement} element
    */
   function addRuleToElement(rule, element) {
@@ -81,7 +77,10 @@ export const fn = (info) => {
               // @ts-ignore - there should always be an entry in rulesPerElement
               rulesPerElement.get(element).length === 1
             ) {
-              writeStyleAttribute(element, rule.getDeclarations());
+              updateStyleAttribute(
+                element,
+                new StyleAttValue(rule.getDeclarations()),
+              );
               rulesToDelete.add(rule);
             }
           }

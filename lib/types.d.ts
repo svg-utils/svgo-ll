@@ -143,7 +143,7 @@ export class StyleData {
 
 export class CSSRule {
   addReferencedClasses(classes: Set<string>): void;
-  getDeclarations(): CSSDeclarationMap;
+  getDeclarations(): Map<string, CSSPropertyValue>;
   getFeatures(): Set<CSSFeatures>;
   getSpecificity(): [number, number, number];
   hasAttributeSelector(attName: string | undefined): boolean;
@@ -162,7 +162,13 @@ export type CSSPropertyValue = {
   important: boolean;
 };
 
-export type CSSDeclarationMap = Map<string, CSSPropertyValue>;
+export type CSSDeclarationMap = {
+  entries(): IterableIterator<[string, CSSPropertyValue]>;
+  delete(name: string): void;
+  get(name: string): CSSPropertyValue | undefined;
+  set(name: string, value: CSSPropertyValue): void;
+  values(): IterableIterator<CSSPropertyValue>;
+};
 
 export type PluginInfo = {
   path?: string;

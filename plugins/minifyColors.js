@@ -1,6 +1,5 @@
 import { ColorValue } from '../lib/color.js';
-import { getStyleDeclarations } from '../lib/css-tools.js';
-import { writeStyleAttribute } from '../lib/svgo/tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 
 export const name = 'minifyColors';
 export const description =
@@ -43,12 +42,11 @@ export const fn = (info) => {
         }
 
         // Minify style properties.
-        const props = getStyleDeclarations(element);
-        if (!props) {
+        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        if (!styleAttValue) {
           return;
         }
-        let propChanged = false;
-        for (const [propName, propValue] of props.entries()) {
+        for (const [propName, propValue] of styleAttValue.properties()) {
           switch (propName) {
             case 'color':
             case 'fill':
@@ -60,8 +58,7 @@ export const fn = (info) => {
                 const value = ColorValue.getColorObj(propValue.value);
                 const min = value.getMinifiedValue();
                 if (min) {
-                  propChanged = true;
-                  props.set(propName, {
+                  styleAttValue.setPropertyValue(propName, {
                     value: min,
                     important: propValue.important,
                   });
@@ -69,9 +66,6 @@ export const fn = (info) => {
               }
               break;
           }
-        }
-        if (propChanged) {
-          writeStyleAttribute(element, props);
         }
       },
     },

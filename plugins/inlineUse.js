@@ -8,7 +8,7 @@ import {
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'inlineUse';
-export const description = 'move <defs> inline when <use> only once';
+export const description = 'move <defs> inline when <use>d only once';
 
 /**
  * @type {import('./plugins-types.js').Plugin<'inlineUse'>};

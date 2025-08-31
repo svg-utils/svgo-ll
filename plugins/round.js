@@ -1,12 +1,12 @@
 import { ColorValue } from '../lib/color.js';
-import { getStyleDeclarations } from '../lib/css-tools.js';
 import { LengthValue } from '../lib/length.js';
 import { OpacityValue } from '../lib/opacity.js';
 import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
 import { svgParseTransform, SVGTransformValue } from '../lib/svg-parse-att.js';
-import { toFixed, writeStyleAttribute } from '../lib/svgo/tools.js';
+import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/pathAttValue.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -143,12 +143,11 @@ export const fn = (info, params) => {
         }
 
         // Round style attribute properties.
-        const props = getStyleDeclarations(element);
-        if (!props) {
+        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        if (!styleAttValue) {
           return;
         }
-        let propChanged = false;
-        for (const [propName, propValue] of props.entries()) {
+        for (const [propName, propValue] of styleAttValue.entries()) {
           let newVal;
           switch (propName) {
             case 'fill':
@@ -164,15 +163,11 @@ export const fn = (info, params) => {
               break;
           }
           if (newVal) {
-            propChanged = true;
-            props.set(propName, {
+            styleAttValue.set(propName, {
               value: newVal,
               important: propValue.important,
             });
           }
-        }
-        if (propChanged) {
-          writeStyleAttribute(element, props);
         }
       },
       exit: () => {

@@ -1,11 +1,10 @@
-import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
 import { StopOffsetValue } from '../lib/stop-offset.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import {
   getReferencedIdInStyleProperty,
   recordReferencedIds,
   SVGOError,
-  writeStyleAttribute,
 } from '../lib/svgo/tools.js';
 
 export const name = 'minifyGradients';
@@ -181,9 +180,9 @@ function inlineGradient(outer, inner, gradientMap, solidGradients) {
   // attribute.
   /** @type {import('../lib/types.js').SVGAttValue|undefined} */
   let transform = outer.attributes.gradientTransform;
-  const props = getStyleDeclarations(outer);
-  if (props) {
-    const cssTransform = props.get('transform');
+  const styleAttValue = StyleAttValue.getStyleAttValue(outer);
+  if (styleAttValue) {
+    const cssTransform = styleAttValue.getProperty('transform');
     if (cssTransform) {
       transform = cssTransformToSVGAtt(cssTransform);
       if (transform === undefined) {
@@ -235,25 +234,24 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
           break;
         case 'style':
           {
-            const props = getStyleDeclarations(referencingEl);
-            if (!props) {
+            const styleAttValue = StyleAttValue.getStyleAttValue(referencingEl);
+            if (!styleAttValue) {
               continue;
             }
-            for (const [propName, decl] of props.entries()) {
+            for (const [propName, decl] of styleAttValue.properties()) {
               if (propName !== 'fill' && propName !== 'stroke') {
                 continue;
               }
-              const value = cssPropToString(decl);
+              const value = decl.value.toString();
               const idInfo = getReferencedIdInStyleProperty(value);
               if (!idInfo || idInfo.id !== id) {
                 continue;
               }
-              props.set(propName, {
+              styleAttValue.setPropertyValue(propName, {
                 value: colorData.color,
                 important: decl.important,
               });
             }
-            writeStyleAttribute(referencingEl, props);
           }
           break;
         case 'href':

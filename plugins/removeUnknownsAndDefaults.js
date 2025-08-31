@@ -8,6 +8,7 @@ import {
 import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
 import { getHrefId, writeStyleAttribute } from '../lib/svgo/tools.js';
 import { getStyleDeclarations } from '../lib/css-tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -234,10 +235,10 @@ export const fn = (info, params) => {
         const computedStyle = styleData.computeStyle(element, parentList);
 
         // Remove any unnecessary style properties.
-        const styleProperties = getStyleDeclarations(element);
-        if (styleProperties) {
+        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        if (styleAttValue) {
           // Delete the associated attributes, since they will always be overridden by the style property.
-          for (let p of styleProperties.keys()) {
+          for (let p of styleAttValue.keys()) {
             if (p === 'transform') {
               switch (element.name) {
                 case 'linearGradient':
@@ -261,7 +262,7 @@ export const fn = (info, params) => {
 
           // For each of the properties, remove it if the result was unchanged.
           const propsToDelete = [];
-          for (const p of styleProperties.keys()) {
+          for (const p of styleAttValue.keys()) {
             const origVal = computedStyle.get(p);
             const newVal = newComputedStyle.get(p);
             if (

@@ -1,4 +1,4 @@
-import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { getHrefId, writeStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties } from './_styles.js';
@@ -225,7 +225,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     // Copy any common shared properties.
     for (const [k, v] of sharedProps.entries()) {
       const currentProp = currentChildProps.get(k);
-      if (currentProp && cssPropToString(currentProp) === cssPropToString(v)) {
+      if (currentProp && currentProp.value.toString() === v.value.toString()) {
         newSharedProps.set(k, v);
       }
     }

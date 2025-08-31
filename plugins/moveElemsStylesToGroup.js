@@ -1,4 +1,5 @@
 import { getStyleDeclarations } from '../lib/css-tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { writeStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
@@ -102,8 +103,9 @@ export const fn = (info) => {
         }
 
         // Add common child properties to group.
-        /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
-        const groupProperties = getStyleDeclarations(node) ?? new Map();
+        /** @type {import('../lib/types.js').CSSDeclarationMap} */
+        const groupProperties =
+          StyleAttValue.getStyleAttValue(node) ?? new Map();
 
         for (const [name, value] of commonProperties) {
           groupProperties.set(name, value);

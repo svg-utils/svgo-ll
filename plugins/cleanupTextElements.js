@@ -16,7 +16,7 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<import('./inlineStyles.js').XastParent,Set<import('./collapseGroups.js').XastElement>>} */
+  /** @type {Map<import('../lib/types.js').XastParent,Set<import('./collapseGroups.js').XastElement>>} */
   const textElsToHoist = new Map();
 
   return {

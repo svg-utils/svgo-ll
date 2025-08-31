@@ -143,7 +143,7 @@ export class StyleData {
 
 export class CSSRule {
   addReferencedClasses(classes: Set<string>): void;
-  getDeclarations(): CSSDeclarationMap;
+  getDeclarations(): Map<string, CSSPropertyValue>;
   getFeatures(): Set<CSSFeatures>;
   getSpecificity(): [number, number, number];
   hasAttributeSelector(attName: string | undefined): boolean;

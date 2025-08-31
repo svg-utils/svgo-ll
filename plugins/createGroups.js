@@ -1,6 +1,10 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
-import { getHrefId, writeStyleAttribute } from '../lib/svgo/tools.js';
+import {
+  getHrefId,
+  updateStyleAttribute,
+  writeStyleAttribute,
+} from '../lib/svgo/tools.js';
 import { getInheritableProperties } from './_styles.js';
 
 export const name = 'createGroups';
@@ -142,27 +146,27 @@ function createGroups(element, usedIds, elementsToCheck) {
     writeStyleAttribute(groupElement, sharedProps);
 
     // Remove properties from children.
-    groupChildren.forEach((c) => {
-      c.parentNode = groupElement;
-      if (c.type !== 'element') {
+    groupChildren.forEach((child) => {
+      child.parentNode = groupElement;
+      if (child.type !== 'element') {
         return;
       }
-      const decls = getStyleDeclarations(c);
+      const styleAttValue = StyleAttValue.getStyleAttValue(child);
 
       for (const name of sharedProps.keys()) {
-        delete c.attributes[name];
-        if (decls) {
-          decls.delete(name);
+        delete child.attributes[name];
+        if (styleAttValue) {
+          styleAttValue.delete(name);
         }
       }
       if (attTransform) {
-        delete c.attributes['transform'];
-        if (decls) {
-          decls.delete('transform');
+        delete child.attributes['transform'];
+        if (styleAttValue) {
+          styleAttValue.delete('transform');
         }
       }
-      if (decls) {
-        writeStyleAttribute(c, decls);
+      if (styleAttValue) {
+        updateStyleAttribute(child, styleAttValue);
       }
     });
 

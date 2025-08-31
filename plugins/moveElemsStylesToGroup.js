@@ -1,4 +1,4 @@
-import { cssPropToString, getStyleDeclarations } from '../lib/css-tools.js';
+import { getStyleDeclarations } from '../lib/css-tools.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { writeStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
@@ -61,8 +61,8 @@ export const fn = (info) => {
               const childProperty = childProperties.get(name);
               if (
                 !childProperty ||
-                cssPropToString(childProperty) !==
-                  cssPropToString(commonValue) ||
+                childProperty.value.toString() !==
+                  commonValue.value.toString() ||
                 childProperty.important !== commonValue.important
               ) {
                 commonProperties.delete(name);

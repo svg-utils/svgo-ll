@@ -1,4 +1,4 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 
@@ -50,17 +50,13 @@ function _getProperties(element, fnInclude) {
   }
 
   // Overwrite with inheritable properties.
-  const styleProps = getStyleDeclarations(element);
-  if (styleProps) {
-    styleProps.forEach((v, k) => {
-      if (fnInclude(k)) {
-        if (v === null) {
-          props.delete(k);
-        } else {
-          props.set(k, v);
-        }
+  const styleAttValue = StyleAttValue.getStyleAttValue(element);
+  if (styleAttValue) {
+    for (const [name, prop] of styleAttValue.properties()) {
+      if (fnInclude(name)) {
+        props.set(name, prop);
       }
-    });
+    }
   }
 
   return props;

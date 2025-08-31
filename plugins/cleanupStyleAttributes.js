@@ -1,6 +1,6 @@
-import { getStyleAttValue, getStyleDeclarations } from '../lib/css-tools.js';
 import { LengthOrPctValue } from '../lib/lengthOrPct.js';
 import { OpacityValue } from '../lib/opacity.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { writeStyleAttribute } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {
@@ -95,13 +95,8 @@ export const fn = (info) => {
           return;
         }
 
-        const attValue = getStyleAttValue(element);
+        const attValue = StyleAttValue.getStyleAttValue(element);
         if (attValue === undefined) {
-          return;
-        }
-
-        const origProperties = getStyleDeclarations(element);
-        if (!origProperties) {
           return;
         }
 
@@ -109,13 +104,13 @@ export const fn = (info) => {
 
         if (elemsGroups.animation.has(element.name)) {
           // Style attributes have no effect on animation elements.
-          writeStyleAttribute(element, newProperties);
+          delete element.attributes.style;
           return;
         }
 
         const isShapeGroup =
           element.name === 'g' && hasOnlyShapeChildren(element);
-        for (const [p, v] of origProperties.entries()) {
+        for (const [p, v] of attValue.propertyIterator()) {
           if (!elementCanHaveProperty(element.name, p)) {
             continue;
           }

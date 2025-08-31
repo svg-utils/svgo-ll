@@ -1,7 +1,6 @@
-import { getStyleDeclarations } from '../lib/css-tools.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
-import { writeStyleAttribute } from '../lib/svgo/tools.js';
+import { updateStyleAttribute } from '../lib/svgo/tools.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'moveElemsStylesToGroup';
@@ -23,11 +22,11 @@ export const fn = (info) => {
 
   return {
     element: {
-      exit: (node) => {
+      exit: (element) => {
         // Run on exit so children are processed first.
 
         // Process only groups with more than 1 child.
-        if (node.name !== 'g' || node.children.length <= 1) {
+        if (element.name !== 'g' || element.children.length <= 1) {
           return;
         }
 
@@ -40,7 +39,7 @@ export const fn = (info) => {
         const transformPropertiesFound = new Set();
         let initial = true;
 
-        for (const child of node.children) {
+        for (const child of element.children) {
           if (child.type !== 'element') {
             continue;
           }
@@ -83,7 +82,7 @@ export const fn = (info) => {
           }
         }
 
-        const groupOwnStyle = styleData.computeOwnStyle(node);
+        const groupOwnStyle = styleData.computeOwnStyle(element);
 
         // Don't move transform on children when group has filter or clip-path or mask, or if not all transform properties can
         // be moved.
@@ -103,9 +102,9 @@ export const fn = (info) => {
         }
 
         // Add common child properties to group.
-        /** @type {import('../lib/types.js').CSSDeclarationMap} */
+        /** @type {StyleAttValue} */
         const groupProperties =
-          StyleAttValue.getStyleAttValue(node) ?? new Map();
+          StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
 
         for (const [name, value] of commonProperties) {
           groupProperties.set(name, value);
@@ -118,8 +117,8 @@ export const fn = (info) => {
           if (attTransform) {
             // Add transform as an attribute.
             groupProperties.delete('transform');
-            const currentTransform = node.attributes.transform ?? '';
-            node.attributes.transform =
+            const currentTransform = element.attributes.transform ?? '';
+            element.attributes.transform =
               currentTransform + attTransform.toString();
           } else {
             // This shouldn't happen unless there's a CSS transform which can't be converted to an attribute; don't
@@ -128,21 +127,19 @@ export const fn = (info) => {
           }
         }
 
-        writeStyleAttribute(node, groupProperties);
+        updateStyleAttribute(element, groupProperties);
 
         // Delete common properties from children.
-        for (const child of node.children) {
+        for (const child of element.children) {
           if (child.type === 'element') {
-            const childProperties = getStyleDeclarations(child);
+            const childStyleAttValue = StyleAttValue.getStyleAttValue(child);
             for (const [name] of commonProperties) {
-              if (childProperties) {
-                childProperties.delete(name);
+              if (childStyleAttValue) {
+                childStyleAttValue.delete(name);
               }
               delete child.attributes[name];
             }
-            if (childProperties) {
-              writeStyleAttribute(child, childProperties);
-            }
+            updateStyleAttribute(child, childStyleAttValue);
           }
         }
       },

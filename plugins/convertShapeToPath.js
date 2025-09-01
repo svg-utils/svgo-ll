@@ -37,28 +37,9 @@ export const fn = function (info, params) {
           case 'rect':
             convertRect(element);
             return;
-        }
-
-        // convert line to path
-        if (element.name === 'line') {
-          const x1 = Number(element.attributes.x1 || '0');
-          const y1 = Number(element.attributes.y1 || '0');
-          const x2 = Number(element.attributes.x2 || '0');
-          const y2 = Number(element.attributes.y2 || '0');
-          if (Number.isNaN(x1 - y1 + x2 - y2)) return;
-          /**
-           * @type {PathDataItem[]}
-           */
-          const pathData = [
-            { command: 'M', args: [x1, y1] },
-            { command: 'L', args: [x2, y2] },
-          ];
-          element.name = 'path';
-          element.attributes.d = stringifyPathData({ pathData });
-          delete element.attributes.x1;
-          delete element.attributes.y1;
-          delete element.attributes.x2;
-          delete element.attributes.y2;
+          case 'line':
+            convertLine(element);
+            return;
         }
 
         // convert polyline and polygon to path
@@ -150,6 +131,32 @@ export const fn = function (info, params) {
  * @param {import('../lib/types.js').XastElement} element
  * @returns {void}
  */
+function convertLine(element) {
+  const x1 = getPixelsWithDefault(element, 'x1');
+  const x2 = getPixelsWithDefault(element, 'x2');
+  const y1 = getPixelsWithDefault(element, 'y1');
+  const y2 = getPixelsWithDefault(element, 'y2');
+  if (x1 === null || y1 === null || x2 === null || y2 === null) {
+    return;
+  }
+
+  /** @type {import('../lib/pathutils.js').PathCommand[]} */
+  const pathData = [
+    { command: 'M', x: new ExactNum(x1), y: new ExactNum(y1) },
+    { command: 'L', x: new ExactNum(x2), y: new ExactNum(y2) },
+  ];
+  element.name = 'path';
+  element.attributes.d = stringifyPathCommands(pathData);
+  delete element.attributes.x1;
+  delete element.attributes.y1;
+  delete element.attributes.x2;
+  delete element.attributes.y2;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {void}
+ */
 function convertRect(element) {
   if (
     element.attributes.width === undefined ||
@@ -160,14 +167,8 @@ function convertRect(element) {
     return;
   }
 
-  const x =
-    element.attributes.x === undefined
-      ? 0
-      : LengthValue.getLengthObj(element.attributes.x).getPixels();
-  const y =
-    element.attributes.y === undefined
-      ? 0
-      : LengthValue.getLengthObj(element.attributes.y).getPixels();
+  const x = getPixelsWithDefault(element, 'x');
+  const y = getPixelsWithDefault(element, 'y');
   const width = LengthValue.getLengthObj(element.attributes.width).getPixels();
   const height = LengthValue.getLengthObj(
     element.attributes.height,
@@ -209,4 +210,15 @@ function convertRect(element) {
   delete element.attributes.y;
   delete element.attributes.width;
   delete element.attributes.height;
+}
+
+/**
+ * @param {import('./collapseGroups.js').XastElement} element
+ * @param {string} attName
+ * @returns {number|null}
+ */
+function getPixelsWithDefault(element, attName) {
+  return element.attributes[attName] === undefined
+    ? 0
+    : LengthValue.getLengthObj(element.attributes[attName]).getPixels();
 }

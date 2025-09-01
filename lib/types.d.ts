@@ -236,12 +236,6 @@ export type PathDataCommand =
   | 'A'
   | 'a';
 
-/** @deprecated */
-export type PathDataItem = {
-  command: PathDataCommand;
-  args: number[];
-};
-
 export type DataUri = 'base64' | 'enc' | 'unenc';
 
 export type ExactNum = {

@@ -1,12 +1,7 @@
 import { ExactNum } from '../lib/exactnum.js';
 import { LengthValue } from '../lib/length.js';
-import { stringifyPathData } from '../lib/path.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
-import { exactAdd, isNumber } from '../lib/svgo/tools.js';
-
-/**
- * @typedef {import('../lib/types.js').PathDataItem} PathDataItem
- */
+import { isNumber } from '../lib/svgo/tools.js';
 
 export const name = 'convertShapeToPath';
 export const description = 'converts basic shapes to more compact path form';
@@ -22,13 +17,11 @@ const regNumber = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
  *
  * @type {import('./plugins-types.js').Plugin<'convertShapeToPath'>}
  */
-export const fn = function (info, params) {
+export const fn = function (info) {
   const styles = info.docData.getStyles();
   if (info.docData.hasScripts() || styles === null || styles.hasStyles()) {
     return;
   }
-
-  const { convertArcs = false } = params;
 
   return {
     element: {
@@ -44,58 +37,6 @@ export const fn = function (info, params) {
           case 'polyline':
             convertPolyline(element);
             return;
-        }
-
-        //  optionally convert circle
-        if (element.name === 'circle' && convertArcs) {
-          const cx = Number(element.attributes.cx || '0');
-          const cy = Number(element.attributes.cy || '0');
-          const r = Number(element.attributes.r || '0');
-          if (Number.isNaN(cx - cy + r)) {
-            return;
-          }
-          const cyMinusR = exactAdd(cy, -r);
-          /**
-           * @type {PathDataItem[]}
-           */
-          const pathData = [
-            { command: 'M', args: [cx, cyMinusR] },
-            { command: 'A', args: [r, r, 0, 1, 0, cx, exactAdd(cy, r)] },
-            { command: 'A', args: [r, r, 0, 1, 0, cx, cyMinusR] },
-            { command: 'z', args: [] },
-          ];
-          element.name = 'path';
-          element.attributes.d = stringifyPathData({ pathData });
-          delete element.attributes.cx;
-          delete element.attributes.cy;
-          delete element.attributes.r;
-        }
-
-        // optionally convert ellipse
-        if (element.name === 'ellipse' && convertArcs) {
-          const ecx = Number(element.attributes.cx || '0');
-          const ecy = Number(element.attributes.cy || '0');
-          const rx = Number(element.attributes.rx || '0');
-          const ry = Number(element.attributes.ry || '0');
-          if (Number.isNaN(ecx - ecy + rx - ry)) {
-            return;
-          }
-          const ecyMinusRy = exactAdd(ecy, -ry);
-          /**
-           * @type {PathDataItem[]}
-           */
-          const pathData = [
-            { command: 'M', args: [ecx, ecyMinusRy] },
-            { command: 'A', args: [rx, ry, 0, 1, 0, ecx, exactAdd(ecy, ry)] },
-            { command: 'A', args: [rx, ry, 0, 1, 0, ecx, ecyMinusRy] },
-            { command: 'z', args: [] },
-          ];
-          element.name = 'path';
-          element.attributes.d = stringifyPathData({ pathData });
-          delete element.attributes.cx;
-          delete element.attributes.cy;
-          delete element.attributes.rx;
-          delete element.attributes.ry;
         }
       },
     },

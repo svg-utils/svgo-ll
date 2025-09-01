@@ -1,4 +1,4 @@
-Don't covert <rect> with no width/height.
+Don't convert <rect> with no width/height.
 
 ===
 

@@ -48,7 +48,7 @@ describe('plugins tests', function () {
             const result = optimize(lastResultData, {
               path: file,
               plugins: [plugin],
-              js2svg: { pretty: true },
+              js2svg: { pretty: true, indent: getIndent(should) },
               maxPasses: 1,
             });
             lastResultData = result.data;
@@ -64,6 +64,19 @@ describe('plugins tests', function () {
     }
   });
 });
+
+/**
+ * @param {string} str
+ * @returns {number}
+ */
+function getIndent(str) {
+  let line2Pos = str.indexOf('\n');
+  let indent = 0;
+  while (str[++line2Pos] === ' ') {
+    indent++;
+  }
+  return indent === 2 ? 2 : 4;
+}
 
 /**
  * @param {string} file

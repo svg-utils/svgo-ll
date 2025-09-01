@@ -2,7 +2,7 @@ import { ExactNum } from '../lib/exactnum.js';
 import { LengthValue } from '../lib/length.js';
 import { stringifyPathData } from '../lib/path.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
-import { exactAdd } from '../lib/svgo/tools.js';
+import { exactAdd, isNumber } from '../lib/svgo/tools.js';
 
 /**
  * @typedef {import('../lib/types.js').PathDataItem} PathDataItem
@@ -40,35 +40,10 @@ export const fn = function (info, params) {
           case 'line':
             convertLine(element);
             return;
-        }
-
-        // convert polyline and polygon to path
-        if (
-          (element.name === 'polyline' || element.name === 'polygon') &&
-          element.attributes.points != null
-        ) {
-          const coords = (
-            element.attributes.points.toString().match(regNumber) || []
-          ).map(Number);
-          if (coords.length < 4) {
+          case 'polygon':
+          case 'polyline':
+            convertPolyline(element);
             return;
-          }
-          /**
-           * @type {PathDataItem[]}
-           */
-          const pathData = [];
-          for (let i = 0; i < coords.length; i += 2) {
-            pathData.push({
-              command: i === 0 ? 'M' : 'L',
-              args: coords.slice(i, i + 2),
-            });
-          }
-          if (element.name === 'polygon') {
-            pathData.push({ command: 'z', args: [] });
-          }
-          element.name = 'path';
-          element.attributes.d = stringifyPathData({ pathData });
-          delete element.attributes.points;
         }
 
         //  optionally convert circle
@@ -151,6 +126,42 @@ function convertLine(element) {
   delete element.attributes.y1;
   delete element.attributes.x2;
   delete element.attributes.y2;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {void}
+ */
+function convertPolyline(element) {
+  if (element.attributes.points === undefined) {
+    return;
+  }
+
+  const coords = element.attributes.points.toString().match(regNumber) || [];
+  if (coords.length < 4) {
+    return;
+  }
+
+  /** @type {import('../lib/pathutils.js').PathCommand[]} */
+  const pathData = [];
+  for (let i = 0; i < coords.length; i += 2) {
+    const x = coords[i];
+    const y = coords[i + 1];
+    if (!isNumber(x) || !isNumber(y)) {
+      return;
+    }
+    pathData.push({
+      command: i === 0 ? 'M' : 'L',
+      x: new ExactNum(x),
+      y: new ExactNum(y),
+    });
+  }
+  if (element.name === 'polygon') {
+    pathData.push({ command: 'z' });
+  }
+  element.name = 'path';
+  element.attributes.d = stringifyPathCommands(pathData);
+  delete element.attributes.points;
 }
 
 /**

@@ -79,7 +79,6 @@ type BuiltinPlugins = {
   removeMetadata: void;
   removeNonInheritableGroupAttrs: void;
   removeUnknownsAndDefaults: {
-    unknownContent?: boolean;
     unknownAttrs?: boolean;
     defaultAttrs?: boolean;
     /**

@@ -5,7 +5,7 @@ import {
   attrsGroupsDefaults,
   inheritableAttrs,
 } from './_collections.js';
-import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
+import { visitSkip } from '../lib/xast.js';
 import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 
@@ -151,7 +151,6 @@ export const fn = (info, params) => {
   }
 
   const {
-    unknownContent = true,
     unknownAttrs = true,
     defaultMarkupDeclarations = true,
     keepDataAttrs = true,
@@ -204,25 +203,23 @@ export const fn = (info, params) => {
           return;
         }
 
-        // remove unknown element's content
-        const parentNode = element.parentNode;
-        if (unknownContent && parentNode.type === 'element') {
-          const allowedChildren = allowedChildrenPerElement.get(
-            parentNode.name,
-          );
-          if (!allowedChildren || allowedChildren.size === 0) {
-            // TODO: DO WE NEED THIS CHECK? SHOULDN'T IT HAVE BEEN HANDLED BY THE PARENT IN THE ELSE BLOCK BELOW?
-            // remove unknown elements
-            if (allowedChildrenPerElement.get(element.name) == null) {
-              detachNodeFromParent(element);
-              return;
-            }
-          } else {
-            // remove not allowed children
-            if (allowedChildren.has(element.name) === false) {
-              detachNodeFromParent(element);
-              return;
-            }
+        const allowedChildren = allowedChildrenPerElement.get(element.name);
+        if (allowedChildren) {
+          // Remove any disallowed child elements.
+          if (
+            element.children.some(
+              (child) =>
+                child.type === 'element' &&
+                !allowedChildren.has(child.name) &&
+                !child.name.includes(':'),
+            )
+          ) {
+            element.children = element.children.filter(
+              (child) =>
+                child.type !== 'element' ||
+                allowedChildren.has(child.name) ||
+                child.name.includes(':'),
+            );
           }
         }
 

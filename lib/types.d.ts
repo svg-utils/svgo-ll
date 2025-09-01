@@ -128,6 +128,7 @@ export class StyleData {
   hasIdSelector(id: string): boolean;
   hasOnlyFeatures(features: CSSFeatures[]): boolean;
   hasStyles(): boolean;
+  hasTypeSelector(tagName: string): boolean;
   mergeStyles(): void;
   minifyStyles(usage: {
     tags: string[];

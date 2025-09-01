@@ -19,23 +19,40 @@ const regNumber = /[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?/g;
  */
 export const fn = function (info) {
   const styles = info.docData.getStyles();
-  if (info.docData.hasScripts() || styles === null || styles.hasStyles()) {
+  if (
+    info.docData.hasScripts() ||
+    styles === null ||
+    !styles.hasOnlyFeatures(['simple-selectors'])
+  ) {
     return;
   }
+
+  const stylesOK = {
+    rect: styles !== null && !styles.hasTypeSelector('rect'),
+    line: styles !== null && !styles.hasTypeSelector('line'),
+    polygon: styles !== null && !styles.hasTypeSelector('polygon'),
+    polyline: styles !== null && !styles.hasTypeSelector('polyline'),
+  };
 
   return {
     element: {
       enter: (element) => {
         switch (element.name) {
           case 'rect':
-            convertRect(element);
+            if (stylesOK.rect) {
+              convertRect(element);
+            }
             return;
           case 'line':
-            convertLine(element);
+            if (stylesOK.line) {
+              convertLine(element);
+            }
             return;
           case 'polygon':
           case 'polyline':
-            convertPolyline(element);
+            if (stylesOK[element.name]) {
+              convertPolyline(element);
+            }
             return;
         }
       },

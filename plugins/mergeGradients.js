@@ -116,7 +116,9 @@ function getGradientKey(element) {
    */
   function addParts(element, excludeId) {
     parts.push(element.name);
-    for (const [attName, attVal] of Object.entries(element.attributes)) {
+    for (const [attName, attVal] of Object.entries(element.attributes).sort(
+      (a, b) => a[0].localeCompare(b[0]),
+    )) {
       if (excludeId && attName === 'id') {
         continue;
       }

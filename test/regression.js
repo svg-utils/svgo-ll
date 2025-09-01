@@ -241,11 +241,19 @@ async function optimizeFiles(
   };
 
   const relativeFilePaths = relativeFilePathsIn.slice();
+  const resolvedPlugins = resolvePlugins(config);
 
   const worker = async () => {
     let filePath;
     while ((filePath = relativeFilePaths.pop())) {
-      await optimizeFile(inputDir, outputDir, filePath, config, statsMap);
+      await optimizeFile(
+        inputDir,
+        outputDir,
+        filePath,
+        config,
+        resolvedPlugins,
+        statsMap,
+      );
     }
   };
 
@@ -257,6 +265,7 @@ async function optimizeFiles(
  * @param {string} outputDirRoot
  * @param {string} relativePath
  * @param {import('../lib/svgo.js').Config} config
+ * @param {import('../lib/svgo.js').CustomPlugin[]} resolvedPlugins
  * @param {StatisticsMap} statsMap
  */
 async function optimizeFile(
@@ -264,6 +273,7 @@ async function optimizeFile(
   outputDirRoot,
   relativePath,
   config,
+  resolvedPlugins,
   statsMap,
 ) {
   const inputPath = path.join(inputDirRoot, relativePath);
@@ -275,7 +285,7 @@ async function optimizeFile(
   }
   stats.lengthOrig = input.length;
 
-  const optimizedData = optimizeResolved(input, config, resolvePlugins(config));
+  const optimizedData = optimizeResolved(input, config, resolvedPlugins);
   if (!optimizedData.error) {
     stats.lengthOpt = optimizedData.data.length;
     stats.passes = optimizedData.passes;

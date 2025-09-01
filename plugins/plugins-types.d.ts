@@ -1,6 +1,6 @@
 import type { Plugin as PluginDef } from '../lib/types.js';
 
-type DefaultPlugins = {
+type BuiltinPlugins = {
   cleanupIds: {
     preserve?: string[];
     preservePrefixes?: string[];
@@ -8,6 +8,7 @@ type DefaultPlugins = {
   cleanupStyleAttributes: void;
   cleanupStyleElements: void;
   cleanupTextElements: void;
+  cleanupXlink: void;
   collapseGroups: void;
   convertEllipseToCircle: void;
   convertShapeToPath: {
@@ -40,6 +41,7 @@ type DefaultPlugins = {
      */
     usePseudos?: string[];
   };
+  inlineUse: void;
   mergeGradients: void;
   minifyColors: void;
   minifyGradients: void;
@@ -53,6 +55,7 @@ type DefaultPlugins = {
   removeDesc: {
     removeAny?: boolean;
   };
+  removeDimensions: void;
   removeDoctype: void;
   removeEditorsNSData: {
     additionalNamespaces?: string[];
@@ -99,25 +102,17 @@ type DefaultPlugins = {
     removeNone?: boolean;
   };
   removeXMLProcInst: void;
+  round: {
+    coordDigits?: number;
+    opacityDigits?: number;
+    stopOffsetDigits?: number;
+  };
   sortAttrs: {
     order?: string[];
     xmlnsOrder?: 'front' | 'alphabetical';
   };
 };
 
-export type BuiltinsWithOptionalParams = DefaultPlugins & {
-  cleanupXlink: void;
-  inlineUse: void;
-  removeDimensions: void;
-  round: {
-    coordDigits?: number;
-    opacityDigits?: number;
-    stopOffsetDigits?: number;
-  };
-};
-
-export type PluginsParams = BuiltinsWithOptionalParams;
-
-export type Plugin<Name extends keyof PluginsParams> = PluginDef<
-  PluginsParams[Name]
+export type Plugin<Name extends keyof BuiltinPlugins> = PluginDef<
+  BuiltinPlugins[Name]
 >;

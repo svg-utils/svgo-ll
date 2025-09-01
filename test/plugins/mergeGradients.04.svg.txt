@@ -1,0 +1,31 @@
+Order of attributes should not matter in determining whether they are identical.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="a">
+      <stop style="stop-color:#aaa"/>
+      <stop offset="1" style="stop-color:#aaa;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="b">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#b)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+    <defs>
+        <linearGradient id="a">
+            <stop style="stop-color:#aaa"/>
+            <stop offset="1" style="stop-color:#aaa;stop-opacity:0"/>
+        </linearGradient>
+    </defs>
+    <rect width="20" height="10" fill="url(#a)"/>
+    <rect y="15" width="20" height="10" fill="url(#a)"/>
+</svg>

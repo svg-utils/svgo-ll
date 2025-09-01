@@ -128,6 +128,7 @@ export class StyleData {
   hasIdSelector(id: string): boolean;
   hasOnlyFeatures(features: CSSFeatures[]): boolean;
   hasStyles(): boolean;
+  hasTypeSelector(tagName: string): boolean;
   mergeStyles(): void;
   minifyStyles(usage: {
     tags: string[];
@@ -235,12 +236,6 @@ export type PathDataCommand =
   | 't'
   | 'A'
   | 'a';
-
-/** @deprecated */
-export type PathDataItem = {
-  command: PathDataCommand;
-  args: number[];
-};
 
 export type DataUri = 'base64' | 'enc' | 'unenc';
 

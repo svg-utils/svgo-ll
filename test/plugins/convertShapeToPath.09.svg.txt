@@ -1,0 +1,23 @@
+Convert <rect> if there is no type selector.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>
+  .r {stroke:red}
+  line {stroke:green}
+  </style>
+  <rect class="r" x="1" y="2" width="2" height="1.5"/>
+  <line x1="3" y1="4" x2="10" y2="11"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>
+  .r {stroke:red}
+  line {stroke:green}
+  </style>
+  <path class="r" d="M1 2H3V3.5H1z"/>
+  <line x1="3" y1="4" x2="10" y2="11"/>
+</svg>

@@ -11,9 +11,7 @@ type BuiltinPlugins = {
   cleanupXlink: void;
   collapseGroups: void;
   convertEllipseToCircle: void;
-  convertShapeToPath: {
-    convertArcs?: boolean;
-  };
+  convertShapeToPath: void;
   createGroups: void;
   inlineStyles: {
     /** If true, do not inline styles if any CSS at rules are present. */

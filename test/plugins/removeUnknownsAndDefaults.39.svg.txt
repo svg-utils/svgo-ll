@@ -1,0 +1,16 @@
+Preserve transform in <use>.
+
+===
+
+<svg viewBox="0 0 40 10"
+  xmlns="http://www.w3.org/2000/svg">
+  <rect id="c1" width="10" height="8" fill="red"/>
+  <use href="#c1" x="15" transform="rotate(10)"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 40 10" xmlns="http://www.w3.org/2000/svg">
+  <rect id="c1" width="10" height="8" fill="red"/>
+  <use href="#c1" x="15" transform="rotate(10)"/>
+</svg>

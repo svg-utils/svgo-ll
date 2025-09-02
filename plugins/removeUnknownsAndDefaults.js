@@ -169,6 +169,10 @@ export const fn = (info, params) => {
   const propsToDeleteIfUnused = new Map();
   /** @type {Set<string>} */
   const usedIDs = new Set();
+  /** @type {Map<string,import('../lib/types.js').XastElement>} */
+  const elementsById = new Map();
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const useElements = new Set();
 
   return {
     instruction: {
@@ -189,6 +193,10 @@ export const fn = (info, params) => {
           return visitSkip;
         }
 
+        if (element.attributes.id) {
+          elementsById.set(element.attributes.id.toString(), element);
+        }
+
         if (element.name === 'use') {
           const id = getHrefId(element);
           if (id) {
@@ -200,6 +208,7 @@ export const fn = (info, params) => {
               delete element.attributes[attName];
             }
           });
+          useElements.add(element);
           return;
         }
 
@@ -380,6 +389,54 @@ export const fn = (info, params) => {
           if (styleAttValue) {
             for (const propName of propNames) {
               styleAttValue.delete(propName);
+            }
+            updateStyleAttribute(element, styleAttValue);
+          }
+        }
+
+        for (const element of useElements) {
+          // If the element has attributes which are present in the referenced element, delete them.
+          const referencedId = getHrefId(element);
+          if (referencedId === undefined) {
+            throw new Error();
+          }
+          const referencedElement = elementsById.get(referencedId);
+          if (!referencedElement) {
+            continue;
+          }
+
+          // Build the parent list for the referenced element.
+          /** @type {{element:import('../lib/types.js').XastParent}[]} */
+          const parentList = [];
+          let p = referencedElement.parentNode;
+          while (true) {
+            parentList.unshift({ element: p });
+            if (p.type === 'root') {
+              break;
+            }
+            p = p.parentNode;
+          }
+          const referencedElementProps = styleData.computeStyle(
+            referencedElement,
+            parentList,
+          );
+
+          for (const attName of Object.keys(element.attributes)) {
+            if (attrsGroups.presentation.has(attName)) {
+              if (attName === 'transform') {
+                continue;
+              }
+              if (referencedElementProps.has(attName)) {
+                delete element.attributes[attName];
+              }
+            }
+          }
+          const styleAttValue = StyleAttValue.getStyleAttValue(element);
+          if (styleAttValue) {
+            for (const propName of styleAttValue.keys()) {
+              if (referencedElementProps.has(propName)) {
+                styleAttValue.delete(propName);
+              }
             }
             updateStyleAttribute(element, styleAttValue);
           }

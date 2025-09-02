@@ -1,0 +1,19 @@
+Remove attributes from <use> if they are defined in referenced element.
+
+===
+
+<svg viewBox="0 0 40 10"
+  xmlns="http://www.w3.org/2000/svg">
+  <circle id="c1" cx="5" cy="5" r="4" fill="red"/>
+  <use href="#c1" x="10" fill="blue"/>
+  <use href="#c1" x="20" fill-opacity=".3"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 40 10" xmlns="http://www.w3.org/2000/svg">
+  <circle id="c1" cx="5" cy="5" r="4" fill="red"/>
+  <use href="#c1" x="10"/>
+  <use href="#c1" x="20" fill-opacity=".3"/>
+</svg>
+

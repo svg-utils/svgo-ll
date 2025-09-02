@@ -5,8 +5,13 @@ import {
   attrsGroupsDefaults,
   inheritableAttrs,
 } from './_collections.js';
-import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
-import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
+import { visitSkip } from '../lib/xast.js';
+import {
+  addChildToDelete,
+  deleteChildren,
+  getHrefId,
+  updateStyleAttribute,
+} from '../lib/svgo/tools.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 
 export const name = 'removeUnknownsAndDefaults';
@@ -66,9 +71,7 @@ for (const [name, config] of Object.entries(elems)) {
       allowedAttributes.add(attrName);
     }
   }
-  /**
-   * @type {Map<string, string>}
-   */
+  /** @type {Map<string, string>} */
   const attributesDefaults = new Map();
   if (config.defaults) {
     for (const [attrName, defaultValue] of Object.entries(config.defaults)) {
@@ -151,7 +154,6 @@ export const fn = (info, params) => {
   }
 
   const {
-    unknownContent = true,
     unknownAttrs = true,
     defaultMarkupDeclarations = true,
     keepDataAttrs = true,
@@ -170,6 +172,10 @@ export const fn = (info, params) => {
   const propsToDeleteIfUnused = new Map();
   /** @type {Set<string>} */
   const usedIDs = new Set();
+  /** @type {Map<string,import('../lib/types.js').XastElement>} */
+  const elementsById = new Map();
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const useElements = new Set();
 
   return {
     instruction: {
@@ -190,6 +196,10 @@ export const fn = (info, params) => {
           return visitSkip;
         }
 
+        if (element.attributes.id) {
+          elementsById.set(element.attributes.id.toString(), element);
+        }
+
         if (element.name === 'use') {
           const id = getHrefId(element);
           if (id) {
@@ -201,28 +211,27 @@ export const fn = (info, params) => {
               delete element.attributes[attName];
             }
           });
+          useElements.add(element);
           return;
         }
 
-        // remove unknown element's content
-        const parentNode = element.parentNode;
-        if (unknownContent && parentNode.type === 'element') {
-          const allowedChildren = allowedChildrenPerElement.get(
-            parentNode.name,
-          );
-          if (!allowedChildren || allowedChildren.size === 0) {
-            // TODO: DO WE NEED THIS CHECK? SHOULDN'T IT HAVE BEEN HANDLED BY THE PARENT IN THE ELSE BLOCK BELOW?
-            // remove unknown elements
-            if (allowedChildrenPerElement.get(element.name) == null) {
-              detachNodeFromParent(element);
-              return;
-            }
-          } else {
-            // remove not allowed children
-            if (allowedChildren.has(element.name) === false) {
-              detachNodeFromParent(element);
-              return;
-            }
+        const allowedChildren = allowedChildrenPerElement.get(element.name);
+        if (allowedChildren) {
+          // Remove any disallowed child elements.
+          if (
+            element.children.some(
+              (child) =>
+                child.type === 'element' &&
+                !allowedChildren.has(child.name) &&
+                !child.name.includes(':'),
+            )
+          ) {
+            element.children = element.children.filter(
+              (child) =>
+                child.type !== 'element' ||
+                allowedChildren.has(child.name) ||
+                child.name.includes(':'),
+            );
           }
         }
 
@@ -387,6 +396,66 @@ export const fn = (info, params) => {
             updateStyleAttribute(element, styleAttValue);
           }
         }
+
+        const childrenToDeleteByParent = new Map();
+        for (const element of useElements) {
+          // If the element has attributes which are present in the referenced element, delete them.
+          const referencedId = getHrefId(element);
+          if (referencedId === undefined) {
+            throw new Error();
+          }
+          const referencedElement = elementsById.get(referencedId);
+          if (!referencedElement) {
+            addChildToDelete(childrenToDeleteByParent, element);
+            continue;
+          }
+
+          // Build the parent list for the referenced element.
+          /** @type {{element:import('../lib/types.js').XastParent}[]} */
+          const parentList = [];
+          let p = referencedElement.parentNode;
+          while (true) {
+            parentList.unshift({ element: p });
+            if (p.type === 'root') {
+              break;
+            }
+            p = p.parentNode;
+          }
+          const referencedElementProps = styleData.computeStyle(
+            referencedElement,
+            parentList,
+          );
+
+          for (const attName of Object.keys(element.attributes)) {
+            if (attrsGroups.presentation.has(attName)) {
+              if (attName === 'transform') {
+                continue;
+              }
+              if (referencedElementProps.has(attName)) {
+                delete element.attributes[attName];
+              }
+            }
+          }
+          const styleAttValue = StyleAttValue.getStyleAttValue(element);
+          if (styleAttValue) {
+            for (const [propName, propValue] of styleAttValue.entries()) {
+              if (
+                referencedElementProps.has(propName) ||
+                isDefaultPropertyValue(
+                  element,
+                  propName,
+                  propValue.value.toString(),
+                  attributesDefaultsPerElement.get(element.name),
+                )
+              ) {
+                styleAttValue.delete(propName);
+              }
+            }
+            updateStyleAttribute(element, styleAttValue);
+          }
+        }
+
+        deleteChildren(childrenToDeleteByParent);
       },
     },
   };

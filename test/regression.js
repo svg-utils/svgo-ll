@@ -58,14 +58,7 @@ async function performRegression(options) {
 
   const start = Date.now();
 
-  await optimizeFiles(
-    inputDir,
-    outputDir,
-    relativeFilePaths,
-    options,
-    stats,
-    numWorkers,
-  );
+  await optimizeFiles(inputDir, outputDir, relativeFilePaths, options, stats);
   const optPhaseTime = Date.now() - start;
 
   const compStart = Date.now();
@@ -222,7 +215,7 @@ function getStats(statsMap, relativeFilePath) {
  * @param {string[]} relativeFilePathsIn
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
- * @param {number} numWorkers
+ * @returns {Promise<void[]>}
  */
 async function optimizeFiles(
   inputDir,
@@ -230,7 +223,6 @@ async function optimizeFiles(
   relativeFilePathsIn,
   options,
   statsMap,
-  numWorkers,
 ) {
   /** @type {import('../lib/svgo.js').Config} */
   const config = {
@@ -240,24 +232,20 @@ async function optimizeFiles(
     disable: options.disable,
   };
 
-  const relativeFilePaths = relativeFilePathsIn.slice();
   const resolvedPlugins = resolvePlugins(config);
 
-  const worker = async () => {
-    let filePath;
-    while ((filePath = relativeFilePaths.pop())) {
-      await optimizeFile(
+  return Promise.all(
+    relativeFilePathsIn.map((filePath) =>
+      optimizeFile(
         inputDir,
         outputDir,
         filePath,
         config,
         resolvedPlugins,
         statsMap,
-      );
-    }
-  };
-
-  await Promise.all(Array.from(new Array(numWorkers), () => worker()));
+      ),
+    ),
+  );
 }
 
 /**
@@ -267,6 +255,7 @@ async function optimizeFiles(
  * @param {import('../lib/svgo.js').Config} config
  * @param {import('../lib/svgo.js').CustomPlugin[]} resolvedPlugins
  * @param {StatisticsMap} statsMap
+ * @returns {Promise<void>}
  */
 async function optimizeFile(
   inputDirRoot,
@@ -277,25 +266,30 @@ async function optimizeFile(
   statsMap,
 ) {
   const inputPath = path.join(inputDirRoot, relativePath);
-  const input = fs.readFileSync(inputPath, 'utf8');
-
-  const stats = getStats(statsMap, relativePath);
-  if (!stats) {
-    throw new Error(`no statistics for ${relativePath}`);
-  }
-  stats.lengthOrig = input.length;
-
-  const optimizedData = optimizeResolved(input, config, resolvedPlugins);
-  if (!optimizedData.error) {
-    stats.lengthOpt = optimizedData.data.length;
-    stats.passes = optimizedData.passes;
-    stats.time = optimizedData.time;
-  }
-
   const outputPath = path.join(outputDirRoot, relativePath);
   const outputDir = path.dirname(outputPath);
-  fs.mkdirSync(outputDir, { recursive: true });
-  fs.writeFileSync(outputPath, optimizedData.data);
+
+  return fs.promises
+    .mkdir(outputDir, { recursive: true })
+    .then(() => fs.promises.readFile(inputPath, 'utf8'))
+    .then((input) => {
+      const stats = getStats(statsMap, relativePath);
+      if (!stats) {
+        throw new Error(`no statistics for ${relativePath}`);
+      }
+      stats.lengthOrig = input.length;
+
+      const optimizedData = optimizeResolved(input, config, resolvedPlugins);
+      if (!optimizedData.error) {
+        stats.lengthOpt = optimizedData.data.length;
+        stats.passes = optimizedData.passes;
+        stats.time = optimizedData.time;
+      }
+      return optimizedData;
+    })
+    .then((optimizedData) =>
+      fs.promises.writeFile(outputPath, optimizedData.data),
+    );
 }
 
 /**

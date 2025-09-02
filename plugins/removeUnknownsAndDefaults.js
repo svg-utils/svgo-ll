@@ -6,7 +6,12 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
-import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
+import {
+  addChildToDelete,
+  deleteChildren,
+  getHrefId,
+  updateStyleAttribute,
+} from '../lib/svgo/tools.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 
 export const name = 'removeUnknownsAndDefaults';
@@ -392,6 +397,7 @@ export const fn = (info, params) => {
           }
         }
 
+        const childrenToDeleteByParent = new Map();
         for (const element of useElements) {
           // If the element has attributes which are present in the referenced element, delete them.
           const referencedId = getHrefId(element);
@@ -400,6 +406,7 @@ export const fn = (info, params) => {
           }
           const referencedElement = elementsById.get(referencedId);
           if (!referencedElement) {
+            addChildToDelete(childrenToDeleteByParent, element);
             continue;
           }
 
@@ -447,6 +454,8 @@ export const fn = (info, params) => {
             updateStyleAttribute(element, styleAttValue);
           }
         }
+
+        deleteChildren(childrenToDeleteByParent);
       },
     },
   };

@@ -1,0 +1,14 @@
+Remove <use> without a valid reference.
+
+===
+
+<svg viewBox="0 0 40 10"
+  xmlns="http://www.w3.org/2000/svg">
+  <use href="#c1" x="20" style="fill-opacity:.3"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 40 10" xmlns="http://www.w3.org/2000/svg"/>
+
+

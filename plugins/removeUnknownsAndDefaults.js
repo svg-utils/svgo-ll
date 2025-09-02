@@ -66,9 +66,7 @@ for (const [name, config] of Object.entries(elems)) {
       allowedAttributes.add(attrName);
     }
   }
-  /**
-   * @type {Map<string, string>}
-   */
+  /** @type {Map<string, string>} */
   const attributesDefaults = new Map();
   if (config.defaults) {
     for (const [attrName, defaultValue] of Object.entries(config.defaults)) {
@@ -433,8 +431,16 @@ export const fn = (info, params) => {
           }
           const styleAttValue = StyleAttValue.getStyleAttValue(element);
           if (styleAttValue) {
-            for (const propName of styleAttValue.keys()) {
-              if (referencedElementProps.has(propName)) {
+            for (const [propName, propValue] of styleAttValue.entries()) {
+              if (
+                referencedElementProps.has(propName) ||
+                isDefaultPropertyValue(
+                  element,
+                  propName,
+                  propValue.value.toString(),
+                  attributesDefaultsPerElement.get(element.name),
+                )
+              ) {
                 styleAttValue.delete(propName);
               }
             }

@@ -22,14 +22,14 @@ import { getHeapStatistics } from 'node:v8';
  */
 
 class BrowserPages {
-  /** @type {import('playwright').Page[]} */
+  /** @type {Promise<import('playwright').Page>[]} */
   #pages;
   /** @type {function[]} */
   #pendingPromises = [];
   #browser;
 
   /**
-   * @param {import('playwright').Page[]} pages
+   * @param {Promise<import('playwright').Page>[]} pages
    * @param {import('playwright').Browser} browser
    */
   constructor(pages, browser) {
@@ -56,8 +56,8 @@ class BrowserPages {
     });
     browserContext.setDefaultNavigationTimeout(0);
 
-    const pageArray = await Promise.all(
-      Array.from(Array(numPages), () => browserContext.newPage()),
+    const pageArray = Array.from(Array(numPages), () =>
+      browserContext.newPage(),
     );
     return new BrowserPages(pageArray, browser);
   }
@@ -91,7 +91,7 @@ class BrowserPages {
     if (pending) {
       pending(page);
     } else {
-      this.#pages.push(page);
+      this.#pages.push(Promise.resolve(page));
     }
   }
 }

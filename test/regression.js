@@ -84,9 +84,9 @@ class BrowserPages {
 
   /**
    * @param {import('playwright').Page} page
-   * @returns {void}
+   * @returns {Promise<void>}
    */
-  releasePage(page) {
+  async releasePage(page) {
     const pending = this.#pendingPromises.shift();
     if (pending) {
       pending(page);

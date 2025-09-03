@@ -24,12 +24,47 @@ class Pages {
   #pages;
   /** @type {function[]} */
   #pendingPromises = [];
+  #browser;
 
   /**
    * @param {import('playwright').Page[]} pages
+   * @param {import('playwright').Browser} browser
    */
-  constructor(pages) {
+  constructor(pages, browser) {
     this.#pages = pages;
+    this.#browser = browser;
+  }
+
+  async close() {
+    this.#browser.close();
+  }
+
+  /**
+   * @param {number} numPages
+   * @param {CmdLineOptions} options
+   * @returns {Promise<Pages>}
+   */
+  static async createPages(numPages, options) {
+    /** @type {'chromium' | 'firefox' | 'webkit'} */
+    const browserStr = ['chromium', 'firefox', 'webkit'].includes(
+      options.browser,
+    )
+      ? options.browser
+      : // Default to webkit since that shows fewer false positives.
+        'webkit';
+    const browserType = playwright[browserStr];
+
+    const browser = await browserType.launch();
+    const browserContext = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: { width: BROWSER_WIDTH, height: BROWSER_HEIGHT },
+    });
+    browserContext.setDefaultNavigationTimeout(0);
+
+    const pageArray = await Promise.all(
+      Array.from(Array(numPages), () => browserContext.newPage()),
+    );
+    return new Pages(pageArray, browser);
   }
 
   /**
@@ -40,7 +75,14 @@ class Pages {
     if (page) {
       return page;
     }
-    const { promise, resolve } = Promise.withResolvers();
+
+    let resolve;
+    const promise = new Promise((res) => {
+      resolve = res;
+    });
+
+    // const { promise, resolve } = Promise.withResolvers();
+    // @ts-ignore - replace with Promise.withResolvers() when that is supported by all Node versions
     this.#pendingPromises.push(resolve);
     return promise;
   }
@@ -185,36 +227,16 @@ async function compareOutput(
   statsMap,
   numBrowserPages,
 ) {
-  /** @type {'chromium' | 'firefox' | 'webkit'} */
-  const browserStr = ['chromium', 'firefox', 'webkit'].includes(options.browser)
-    ? options.browser
-    : // Default to webkit since that shows fewer false positives.
-      'webkit';
-  const browserType = playwright[browserStr];
-
-  const browser = await browserType.launch();
-  const context = await browser.newContext({
-    javaScriptEnabled: false,
-    viewport: { width: BROWSER_WIDTH, height: BROWSER_HEIGHT },
-  });
-  context.setDefaultNavigationTimeout(0);
-
   const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
   fs.rmSync(diffRootDir, { force: true, recursive: true });
 
-  const pages = new Pages(
-    await Promise.all(
-      Array.from(Array(numBrowserPages), () => context.newPage()),
-    ),
-  );
+  const pages = await Pages.createPages(numBrowserPages, options);
 
   return Promise.all(
     relativeFilePaths.map((filePath) =>
       compareFile(pages, inputDir, outputDir, diffRootDir, filePath, statsMap),
     ),
-  ).finally(() => {
-    browser.close();
-  });
+  ).finally(() => pages.close());
 }
 
 /**
@@ -480,7 +502,7 @@ program
   )
   .option('-l, --log', 'Write statistics log file to ./tmp directory')
   .option(
-    '--browser-pages [number]',
+    '-p, --browser-pages [number]',
     'number of browser pages to use for diff',
     '2',
   )

@@ -5,20 +5,137 @@ import { program } from 'commander';
 import * as playwright from 'playwright';
 import { toFixed } from '../lib/svgo/tools.js';
 import { readJSONFile } from '../lib/svgo/tools-node.js';
-import { pathToFileURL } from 'node:url';
 import { PNG } from 'pngjs';
 import Pixelmatch from 'pixelmatch';
-import { cpus } from 'node:os';
 import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
+import { getHeapStatistics } from 'node:v8';
+import { pathToFileURL } from 'node:url';
 
 /**
+ * @typedef {'chromium' | 'firefox' | 'webkit'} BrowserID
  * @typedef {{
  * plugins?:string[],enable?:string[],disable?:string[],options?:string,inputdir:string,log:boolean,
- * browser:'chromium' | 'firefox' | 'webkit',
- * workers?:string
+ * browser:BrowserID,
+ * browserPages:string,
+ * reusePages:boolean,
+ * writeOutput:boolean
  * }} CmdLineOptions
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
  */
+
+class BrowserPages {
+  /** @type {Promise<import('playwright').Page>[]} */
+  #pages;
+  /** @type {function[]} */
+  #pendingPromises = [];
+  #browser;
+  #browserContext;
+
+  /**
+   * @param {Promise<import('playwright').Page>[]} pages
+   * @param {import('playwright').Browser} browser
+   * @param {import('playwright').BrowserContext} browserContext
+   */
+  constructor(pages, browser, browserContext) {
+    this.#pages = pages;
+    this.#browser = browser;
+    this.#browserContext = browserContext;
+  }
+
+  async close() {
+    await Promise.all(this.#pages);
+    this.#browser.close();
+  }
+
+  /**
+   * @param {number} numPages
+   * @param {BrowserID} browserName
+   * @param {boolean} reusePages
+   * @returns {Promise<BrowserPages>}
+   */
+  static async createPages(numPages, browserName, reusePages) {
+    const browserType = playwright[browserName];
+
+    const browser = await browserType.launch();
+    const browserContext = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: { width: BROWSER_WIDTH, height: BROWSER_HEIGHT },
+    });
+    browserContext.setDefaultNavigationTimeout(0);
+
+    const pageArray = Array.from(Array(numPages), () =>
+      browserContext.newPage(),
+    );
+    return reusePages
+      ? new BrowserPagesReuse(pageArray, browser, browserContext)
+      : new BrowserPages(pageArray, browser, browserContext);
+  }
+
+  /**
+   * @param {Promise<import('playwright').Page>} page
+   */
+  addAvailablePage(page) {
+    this.#pages.push(Promise.resolve(page));
+  }
+
+  /**
+   * @returns {Function|undefined}
+   */
+  getNextPendingRequest() {
+    return this.#pendingPromises.shift();
+  }
+
+  /**
+   * @returns {Promise<import('playwright').Page>}
+   */
+  async newPage() {
+    const page = this.#pages.pop();
+    if (page) {
+      return page;
+    }
+
+    let resolve;
+    const promise = new Promise((res) => {
+      resolve = res;
+    });
+
+    // const { promise, resolve } = Promise.withResolvers();
+    // @ts-ignore - replace with Promise.withResolvers() when that is supported by all Node versions
+    this.#pendingPromises.push(resolve);
+    return promise;
+  }
+
+  /**
+   * @param {import('playwright').Page} page
+   * @returns {Promise<void>}
+   */
+  async releasePage(page) {
+    const newPage = this.#browserContext.newPage();
+    const pending = this.getNextPendingRequest();
+    return page.close().then(() => {
+      if (pending) {
+        pending(newPage);
+      } else {
+        this.addAvailablePage(Promise.resolve(newPage));
+      }
+    });
+  }
+}
+
+class BrowserPagesReuse extends BrowserPages {
+  /**
+   * @param {import('playwright').Page} page
+   * @returns {Promise<void>}
+   */
+  async releasePage(page) {
+    const pending = this.getNextPendingRequest();
+    if (pending) {
+      pending(page);
+    } else {
+      this.addAvailablePage(Promise.resolve(page));
+    }
+  }
+}
 
 const BROWSER_WIDTH = 960;
 const BROWSER_HEIGHT = 720;
@@ -28,6 +145,7 @@ const screenshotOptions = {
   omitBackground: true,
   clip: { x: 0, y: 0, width: BROWSER_WIDTH, height: BROWSER_HEIGHT },
   animations: 'disabled',
+  timeout: 0,
 };
 
 /**
@@ -35,6 +153,7 @@ const screenshotOptions = {
  */
 async function performRegression(options) {
   const inputDir = path.join(cwd(), options.inputdir);
+
   const outputDir = path.join(cwd(), './ignored/regression/output-files');
   fs.rmSync(outputDir, { force: true, recursive: true });
 
@@ -46,9 +165,24 @@ async function performRegression(options) {
     .filter((name) => name.endsWith('.svg'))
     .map((name) => name.replaceAll('\\', '/'));
 
-  const numWorkers = options.workers
-    ? parseInt(options.workers)
-    : cpus().length * 2;
+  /** @type {BrowserID} */
+  const browserName = ['chromium', 'firefox', 'webkit'].includes(
+    options.browser,
+  )
+    ? options.browser
+    : // Default to webkit since that shows fewer false positives.
+      'webkit';
+
+  const numBrowserPages = parseInt(options.browserPages);
+
+  const browserPages = await BrowserPages.createPages(
+    numBrowserPages,
+    browserName,
+    options.reusePages,
+  );
+
+  const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
+  fs.rmSync(diffRootDir, { force: true, recursive: true });
 
   // Initialize statistics array.
   /** @type {StatisticsMap} */
@@ -61,48 +195,45 @@ async function performRegression(options) {
   await optimizeFiles(
     inputDir,
     outputDir,
+    diffRootDir,
     relativeFilePaths,
     options,
     stats,
-    numWorkers,
+    browserPages,
   );
   const optPhaseTime = Date.now() - start;
 
   const compStart = Date.now();
-  await compareOutput(
-    inputDir,
-    outputDir,
-    relativeFilePaths,
-    options,
-    stats,
-    numWorkers,
-  );
 
   showStats(
     stats,
     Date.now() - start,
     optPhaseTime,
     Date.now() - compStart,
-    numWorkers,
+    browserName,
+    numBrowserPages,
   );
 
   if (options.log) {
     writeLog(stats);
   }
+
+  await browserPages.close();
 }
 
 /**
- * @param {import('playwright').Page} page
- * @param {string} inputRootDir
- * @param {string} outputRootDir
+ * @param {BrowserPages} pages
+ * @param {string} inputDirRoot
+ * @param {string} outputDirRoot
  * @param {string} diffRootDir
  * @param {string} relativeFilePath
  * @param {StatisticsMap} statsMap
+ * @returns {Promise<void>}
  */
 async function compareFile(
-  page,
-  inputRootDir,
-  outputRootDir,
+  pages,
+  inputDirRoot,
+  outputDirRoot,
   diffRootDir,
   relativeFilePath,
   statsMap,
@@ -113,96 +244,76 @@ async function compareFile(
     return;
   }
 
-  const input = await getScreenShot(page, inputRootDir, relativeFilePath);
-  const output = await getScreenShot(page, outputRootDir, relativeFilePath);
+  const screenshots = Promise.all([
+    getScreenShotFromFile(pages, inputDirRoot, relativeFilePath),
+    getScreenShotFromFile(pages, outputDirRoot, relativeFilePath),
+  ]);
 
-  const diff = new PNG({ width: BROWSER_WIDTH, height: BROWSER_HEIGHT });
-  const mismatchCount = Pixelmatch(
-    input.data,
-    output.data,
-    diff.data,
-    BROWSER_WIDTH,
-    BROWSER_HEIGHT,
-  );
+  return screenshots.then((screenshots) => {
+    const diff = new PNG({ width: BROWSER_WIDTH, height: BROWSER_HEIGHT });
+    const mismatchCount = Pixelmatch(
+      screenshots[0].data,
+      screenshots[1].data,
+      diff.data,
+      BROWSER_WIDTH,
+      BROWSER_HEIGHT,
+    );
 
-  stats.pixels = mismatchCount;
+    stats.pixels = mismatchCount;
 
-  if (mismatchCount > 0) {
-    // Write the diff image.
-    const filePath = path.join(diffRootDir, relativeFilePath) + '.png';
-    fs.mkdirSync(path.dirname(filePath), { recursive: true });
-    fs.writeFileSync(filePath, PNG.sync.write(diff));
-  }
-}
-
-/**
- * @param {string} inputDir
- * @param {string} outputDir
- * @param {string[]} relativeFilePathsIn
- * @param {CmdLineOptions} options
- * @param {StatisticsMap} statsMap
- * @param {number} numWorkers
- */
-async function compareOutput(
-  inputDir,
-  outputDir,
-  relativeFilePathsIn,
-  options,
-  statsMap,
-  numWorkers,
-) {
-  /** @type {'chromium' | 'firefox' | 'webkit'} */
-  const browserStr = ['chromium', 'firefox', 'webkit'].includes(options.browser)
-    ? options.browser
-    : // Default to webkit since that shows fewer false positives.
-      'webkit';
-  const browserType = playwright[browserStr];
-
-  const browser = await browserType.launch();
-  const context = await browser.newContext({
-    javaScriptEnabled: false,
-    viewport: { width: BROWSER_WIDTH, height: BROWSER_HEIGHT },
+    return mismatchCount > 0
+      ? writeDiff(diffRootDir, relativeFilePath, diff)
+      : undefined;
   });
-
-  const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
-  fs.rmSync(diffRootDir, { force: true, recursive: true });
-
-  const relativeFilePaths = relativeFilePathsIn.slice();
-
-  const worker = async () => {
-    let filePath;
-    const page = await context.newPage();
-    while ((filePath = relativeFilePaths.pop())) {
-      await compareFile(
-        page,
-        inputDir,
-        outputDir,
-        diffRootDir,
-        filePath,
-        statsMap,
-      );
-    }
-    await page.close();
-  };
-
-  await Promise.all(Array.from(new Array(numWorkers), () => worker()));
-
-  await browser.close();
 }
 
 /**
- *
+ * @param {BrowserPages} pages
  * @param {import('playwright').Page} page
+ * @returns {Promise<import('pngjs').PNGWithMetadata>}
+ */
+async function getScreenShot(pages, page) {
+  return page
+    .screenshot(screenshotOptions)
+    .then((result) => {
+      return Promise.all([PNG.sync.read(result), pages.releasePage(page)]);
+    })
+    .then((result) => result[0]);
+}
+
+/**
+ * @param {BrowserPages} pages
  * @param {string} rootDir
  * @param {string} relativeFilePath
  * @returns {Promise<import('pngjs').PNGWithMetadata>}
  */
-async function getScreenShot(page, rootDir, relativeFilePath) {
+async function getScreenShotFromFile(pages, rootDir, relativeFilePath) {
   const url = pathToFileURL(path.join(rootDir, relativeFilePath));
-  await page.goto(url.toString());
-  const buffer = await page.screenshot(screenshotOptions);
-  return PNG.sync.read(buffer);
+  return pages
+    .newPage()
+    .then((page) => {
+      return Promise.all([page, page.goto(url.toString())]);
+    })
+    .then((result) => {
+      return getScreenShot(pages, result[0]);
+    });
 }
+
+// /**
+//  * @param {BrowserPages} pages
+//  * @param {string} strContent
+//  * @returns {Promise<import('pngjs').PNGWithMetadata>}
+//  */
+// async function getScreenShotFromString(pages, strContent) {
+//   return pages
+//     .newPage()
+//     .then((page) => {
+//       return Promise.all([page, page.setContent(strContent)]);
+//     })
+//     .then((result) => {
+//       return getScreenShot(pages, result[0]);
+//     });
+// }
 
 /**
  * @param {StatisticsMap} statsMap
@@ -219,18 +330,21 @@ function getStats(statsMap, relativeFilePath) {
 /**
  * @param {string} inputDir
  * @param {string} outputDir
- * @param {string[]} relativeFilePathsIn
+ * @param {string} diffDir
+ * @param {string[]} relativeFilePaths
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
- * @param {number} numWorkers
+ * @param {BrowserPages} browserPages
+ * @returns {Promise<void[]>}
  */
 async function optimizeFiles(
   inputDir,
   outputDir,
-  relativeFilePathsIn,
+  diffDir,
+  relativeFilePaths,
   options,
   statsMap,
-  numWorkers,
+  browserPages,
 ) {
   /** @type {import('../lib/svgo.js').Config} */
   const config = {
@@ -240,62 +354,74 @@ async function optimizeFiles(
     disable: options.disable,
   };
 
-  const relativeFilePaths = relativeFilePathsIn.slice();
   const resolvedPlugins = resolvePlugins(config);
 
-  const worker = async () => {
-    let filePath;
-    while ((filePath = relativeFilePaths.pop())) {
-      await optimizeFile(
+  return Promise.all(
+    relativeFilePaths.map((filePath) =>
+      optimizeFile(
         inputDir,
         outputDir,
+        diffDir,
         filePath,
         config,
         resolvedPlugins,
         statsMap,
-      );
-    }
-  };
-
-  await Promise.all(Array.from(new Array(numWorkers), () => worker()));
+        browserPages,
+      ),
+    ),
+  );
 }
 
 /**
  * @param {string} inputDirRoot
  * @param {string} outputDirRoot
+ * @param {string} diffDirRoot
  * @param {string} relativePath
  * @param {import('../lib/svgo.js').Config} config
  * @param {import('../lib/svgo.js').CustomPlugin[]} resolvedPlugins
  * @param {StatisticsMap} statsMap
+ * @param {BrowserPages} browserPages
+ * @returns {Promise<void>}
  */
 async function optimizeFile(
   inputDirRoot,
   outputDirRoot,
+  diffDirRoot,
   relativePath,
   config,
   resolvedPlugins,
   statsMap,
+  browserPages,
 ) {
   const inputPath = path.join(inputDirRoot, relativePath);
-  const input = fs.readFileSync(inputPath, 'utf8');
 
-  const stats = getStats(statsMap, relativePath);
-  if (!stats) {
-    throw new Error(`no statistics for ${relativePath}`);
-  }
-  stats.lengthOrig = input.length;
+  return fs.promises
+    .readFile(inputPath, 'utf8')
+    .then((input) => {
+      const stats = getStats(statsMap, relativePath);
+      if (!stats) {
+        throw new Error(`no statistics for ${relativePath}`);
+      }
+      stats.lengthOrig = input.length;
 
-  const optimizedData = optimizeResolved(input, config, resolvedPlugins);
-  if (!optimizedData.error) {
-    stats.lengthOpt = optimizedData.data.length;
-    stats.passes = optimizedData.passes;
-    stats.time = optimizedData.time;
-  }
-
-  const outputPath = path.join(outputDirRoot, relativePath);
-  const outputDir = path.dirname(outputPath);
-  fs.mkdirSync(outputDir, { recursive: true });
-  fs.writeFileSync(outputPath, optimizedData.data);
+      const optimizedData = optimizeResolved(input, config, resolvedPlugins);
+      if (!optimizedData.error) {
+        stats.lengthOpt = optimizedData.data.length;
+        stats.passes = optimizedData.passes;
+        stats.time = optimizedData.time;
+      }
+      return writeOutputFile(outputDirRoot, relativePath, optimizedData.data);
+    })
+    .then(() =>
+      compareFile(
+        browserPages,
+        inputDirRoot,
+        outputDirRoot,
+        diffDirRoot,
+        relativePath,
+        statsMap,
+      ),
+    );
 }
 
 /**
@@ -303,9 +429,17 @@ async function optimizeFile(
  * @param {number} totalTime
  * @param {number} optPhaseTime
  * @param {number} compPhaseTime
- * @param {number} numWorkers
+ * @param {string} browserName
+ * @param {number} numBrowserPages
  */
-function showStats(stats, totalTime, optPhaseTime, compPhaseTime, numWorkers) {
+function showStats(
+  stats,
+  totalTime,
+  optPhaseTime,
+  compPhaseTime,
+  browserName,
+  numBrowserPages,
+) {
   const statsArray = Array.from(stats.values());
 
   const mismatched = statsArray.reduce(
@@ -357,8 +491,27 @@ function showStats(stats, totalTime, optPhaseTime, compPhaseTime, numWorkers) {
     `Total Passes: ${totalPasses} (${toFixed(totalPasses / (mismatched + matched), 2)} average)`,
   );
   console.info(
-    `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, ${numWorkers} workers)`,
+    `Peak Memory: ${(
+      getHeapStatistics().peak_malloced_memory /
+      (1024 * 1024)
+    ).toLocaleString(undefined, { maximumFractionDigits: 2 })}Mb`,
   );
+  console.info(
+    `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, browser=${browserName}, ${numBrowserPages} browser pages)`,
+  );
+}
+
+/**
+ * @param {string} diffRootDir
+ * @param {string} relativeFilePath
+ * @param {PNG} diff
+ */
+async function writeDiff(diffRootDir, relativeFilePath, diff) {
+  // Write the diff image.
+  const filePath = path.join(diffRootDir, relativeFilePath) + '.png';
+  fs.promises
+    .mkdir(path.dirname(filePath), { recursive: true })
+    .then(() => fs.promises.writeFile(filePath, PNG.sync.write(diff)));
 }
 
 /**
@@ -409,6 +562,24 @@ function writeLog(statsMap) {
   fs.writeFileSync(statsFileName, statArray.join('\n'));
 }
 
+/**
+ * @param {string|undefined} outputDirRoot
+ * @param {string} relativeFilePath
+ * @param {string} output
+ * @returns {Promise<void>}
+ */
+async function writeOutputFile(outputDirRoot, relativeFilePath, output) {
+  if (outputDirRoot === undefined) {
+    return;
+  }
+  const outputPath = path.join(outputDirRoot, relativeFilePath);
+  const outputDir = path.dirname(outputPath);
+
+  return fs.promises
+    .mkdir(outputDir, { recursive: true })
+    .then(() => fs.promises.writeFile(outputPath, output));
+}
+
 program
   .option(
     '--plugins [pluginNames...]',
@@ -437,7 +608,16 @@ program
     './ignored/regression/input-raw',
   )
   .option('-l, --log', 'Write statistics log file to ./tmp directory')
-  .option('--workers [number of workers]', 'number of workers to use')
+  .option(
+    '-p, --browser-pages [number]',
+    'number of browser pages to use for diff',
+    '16',
+  )
+  .option(
+    '--no-reuse-pages',
+    'create new browser pages rather than reusing existing pages',
+  )
+  .option('--write-output', 'write output files to disk')
   .action(performRegression);
 
 program.parseAsync();

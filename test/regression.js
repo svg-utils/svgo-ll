@@ -8,6 +8,7 @@ import { readJSONFile } from '../lib/svgo/tools-node.js';
 import { PNG } from 'pngjs';
 import Pixelmatch from 'pixelmatch';
 import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
+import { getHeapStatistics } from 'node:v8';
 
 /**
  * @typedef {'chromium' | 'firefox' | 'webkit'} BrowserID
@@ -422,6 +423,12 @@ function showStats(
   console.info(`Total Pixel Mismatches: ${totalPixelMismatches}`);
   console.info(
     `Total Passes: ${totalPasses} (${toFixed(totalPasses / (mismatched + matched), 2)} average)`,
+  );
+  console.info(
+    `Peak Memory: ${(
+      getHeapStatistics().peak_malloced_memory /
+      (1024 * 1024)
+    ).toLocaleString(undefined, { maximumFractionDigits: 2 })}Mb`,
   );
   console.info(
     `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, browser=${browserName}, ${numBrowserPages} browser pages)`,

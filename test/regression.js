@@ -20,7 +20,7 @@ import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
  */
 
-class Pages {
+class BrowserPages {
   /** @type {import('playwright').Page[]} */
   #pages;
   /** @type {function[]} */
@@ -43,7 +43,7 @@ class Pages {
   /**
    * @param {number} numPages
    * @param {BrowserID} browserName
-   * @returns {Promise<Pages>}
+   * @returns {Promise<BrowserPages>}
    */
   static async createPages(numPages, browserName) {
     const browserType = playwright[browserName];
@@ -58,7 +58,7 @@ class Pages {
     const pageArray = await Promise.all(
       Array.from(Array(numPages), () => browserContext.newPage()),
     );
-    return new Pages(pageArray, browser);
+    return new BrowserPages(pageArray, browser);
   }
 
   /**
@@ -132,7 +132,10 @@ async function performRegression(options) {
 
   const numBrowserPages = parseInt(options.browserPages);
 
-  const pages = await Pages.createPages(numBrowserPages, browserName);
+  const browserPages = await BrowserPages.createPages(
+    numBrowserPages,
+    browserName,
+  );
 
   // Initialize statistics array.
   /** @type {StatisticsMap} */
@@ -146,7 +149,13 @@ async function performRegression(options) {
   const optPhaseTime = Date.now() - start;
 
   const compStart = Date.now();
-  await compareOutput(inputDir, outputDir, relativeFilePaths, stats, pages);
+  await compareOutput(
+    inputDir,
+    outputDir,
+    relativeFilePaths,
+    stats,
+    browserPages,
+  );
 
   showStats(
     stats,
@@ -163,7 +172,7 @@ async function performRegression(options) {
 }
 
 /**
- * @param {Pages} pages
+ * @param {BrowserPages} pages
  * @param {string} inputRootDir
  * @param {string} outputRootDir
  * @param {string} diffRootDir
@@ -214,7 +223,7 @@ async function compareFile(
  * @param {string} outputDir
  * @param {string[]} relativeFilePaths
  * @param {StatisticsMap} statsMap
- * @param {Pages} pages
+ * @param {BrowserPages} pages
  */
 async function compareOutput(
   inputDir,
@@ -234,7 +243,7 @@ async function compareOutput(
 }
 
 /**
- * @param {Pages} pages
+ * @param {BrowserPages} pages
  * @param {string} rootDir
  * @param {string} relativeFilePath
  * @returns {Promise<import('pngjs').PNGWithMetadata>}

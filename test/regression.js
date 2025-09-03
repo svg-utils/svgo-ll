@@ -16,6 +16,7 @@ import { getHeapStatistics } from 'node:v8';
  * plugins?:string[],enable?:string[],disable?:string[],options?:string,inputdir:string,log:boolean,
  * browser:BrowserID,
  * browserPages:string,
+ * reusePages:boolean,
  * writeOutput:boolean
  * }} CmdLineOptions
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
@@ -27,26 +28,31 @@ class BrowserPages {
   /** @type {function[]} */
   #pendingPromises = [];
   #browser;
+  #browserContext;
 
   /**
    * @param {Promise<import('playwright').Page>[]} pages
    * @param {import('playwright').Browser} browser
+   * @param {import('playwright').BrowserContext} browserContext
    */
-  constructor(pages, browser) {
+  constructor(pages, browser, browserContext) {
     this.#pages = pages;
     this.#browser = browser;
+    this.#browserContext = browserContext;
   }
 
   async close() {
+    await Promise.all(this.#pages);
     this.#browser.close();
   }
 
   /**
    * @param {number} numPages
    * @param {BrowserID} browserName
+   * @param {boolean} reusePages
    * @returns {Promise<BrowserPages>}
    */
-  static async createPages(numPages, browserName) {
+  static async createPages(numPages, browserName, reusePages) {
     const browserType = playwright[browserName];
 
     const browser = await browserType.launch();
@@ -59,7 +65,23 @@ class BrowserPages {
     const pageArray = Array.from(Array(numPages), () =>
       browserContext.newPage(),
     );
-    return new BrowserPages(pageArray, browser);
+    return reusePages
+      ? new BrowserPagesReuse(pageArray, browser, browserContext)
+      : new BrowserPages(pageArray, browser, browserContext);
+  }
+
+  /**
+   * @param {Promise<import('playwright').Page>} page
+   */
+  addAvailablePage(page) {
+    this.#pages.push(Promise.resolve(page));
+  }
+
+  /**
+   * @returns {Function|undefined}
+   */
+  getNextPendingRequest() {
+    return this.#pendingPromises.shift();
   }
 
   /**
@@ -87,11 +109,29 @@ class BrowserPages {
    * @returns {Promise<void>}
    */
   async releasePage(page) {
-    const pending = this.#pendingPromises.shift();
+    const newPage = this.#browserContext.newPage();
+    const pending = this.getNextPendingRequest();
+    return page.close().then(() => {
+      if (pending) {
+        pending(newPage);
+      } else {
+        this.addAvailablePage(Promise.resolve(newPage));
+      }
+    });
+  }
+}
+
+class BrowserPagesReuse extends BrowserPages {
+  /**
+   * @param {import('playwright').Page} page
+   * @returns {Promise<void>}
+   */
+  async releasePage(page) {
+    const pending = this.getNextPendingRequest();
     if (pending) {
       pending(page);
     } else {
-      this.#pages.push(Promise.resolve(page));
+      this.addAvailablePage(Promise.resolve(page));
     }
   }
 }
@@ -141,6 +181,7 @@ async function performRegression(options) {
   const browserPages = await BrowserPages.createPages(
     numBrowserPages,
     browserName,
+    options.reusePages,
   );
 
   const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
@@ -167,8 +208,6 @@ async function performRegression(options) {
 
   const compStart = Date.now();
 
-  await browserPages.close();
-
   showStats(
     stats,
     Date.now() - start,
@@ -181,6 +220,8 @@ async function performRegression(options) {
   if (options.log) {
     writeLog(stats);
   }
+
+  await browserPages.close();
 }
 
 /**
@@ -221,13 +262,9 @@ async function compareFile(
 
     stats.pixels = mismatchCount;
 
-    if (mismatchCount > 0) {
-      // Write the diff image.
-      const filePath = path.join(diffRootDir, relativeFilePath) + '.png';
-      fs.promises
-        .mkdir(path.dirname(filePath), { recursive: true })
-        .then(() => fs.promises.writeFile(filePath, PNG.sync.write(diff)));
-    }
+    return mismatchCount > 0
+      ? writeDiff(diffRootDir, relativeFilePath, diff)
+      : undefined;
   });
 }
 
@@ -246,9 +283,12 @@ async function getScreenShot(pages, strContent) {
       return Promise.all([result[0].screenshot(screenshotOptions), result[0]]);
     })
     .then((result) => {
-      pages.releasePage(result[1]);
-      return PNG.sync.read(result[0]);
-    });
+      return Promise.all([
+        PNG.sync.read(result[0]),
+        pages.releasePage(result[1]),
+      ]);
+    })
+    .then((result) => result[0]);
 }
 
 /**
@@ -436,6 +476,19 @@ function showStats(
 }
 
 /**
+ * @param {string} diffRootDir
+ * @param {string} relativeFilePath
+ * @param {PNG} diff
+ */
+async function writeDiff(diffRootDir, relativeFilePath, diff) {
+  // Write the diff image.
+  const filePath = path.join(diffRootDir, relativeFilePath) + '.png';
+  fs.promises
+    .mkdir(path.dirname(filePath), { recursive: true })
+    .then(() => fs.promises.writeFile(filePath, PNG.sync.write(diff)));
+}
+
+/**
  * @param {StatisticsMap} statsMap
  */
 function writeLog(statsMap) {
@@ -533,6 +586,10 @@ program
     '-p, --browser-pages [number]',
     'number of browser pages to use for diff',
     '16',
+  )
+  .option(
+    '--no-reuse-pages',
+    'create new browser pages rather than reusing existing pages',
   )
   .option('--write-output', 'write output files to disk')
   .action(performRegression);

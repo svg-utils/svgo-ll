@@ -11,9 +11,10 @@ import Pixelmatch from 'pixelmatch';
 import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
 
 /**
+ * @typedef {'chromium' | 'firefox' | 'webkit'} BrowserID
  * @typedef {{
  * plugins?:string[],enable?:string[],disable?:string[],options?:string,inputdir:string,log:boolean,
- * browser:'chromium' | 'firefox' | 'webkit',
+ * browser:BrowserID,
  * browserPages:string
  * }} CmdLineOptions
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
@@ -41,18 +42,11 @@ class Pages {
 
   /**
    * @param {number} numPages
-   * @param {CmdLineOptions} options
+   * @param {BrowserID} browserName
    * @returns {Promise<Pages>}
    */
-  static async createPages(numPages, options) {
-    /** @type {'chromium' | 'firefox' | 'webkit'} */
-    const browserStr = ['chromium', 'firefox', 'webkit'].includes(
-      options.browser,
-    )
-      ? options.browser
-      : // Default to webkit since that shows fewer false positives.
-        'webkit';
-    const browserType = playwright[browserStr];
+  static async createPages(numPages, browserName) {
+    const browserType = playwright[browserName];
 
     const browser = await browserType.launch();
     const browserContext = await browser.newContext({
@@ -128,7 +122,17 @@ async function performRegression(options) {
     .filter((name) => name.endsWith('.svg'))
     .map((name) => name.replaceAll('\\', '/'));
 
+  /** @type {BrowserID} */
+  const browserName = ['chromium', 'firefox', 'webkit'].includes(
+    options.browser,
+  )
+    ? options.browser
+    : // Default to webkit since that shows fewer false positives.
+      'webkit';
+
   const numBrowserPages = parseInt(options.browserPages);
+
+  const pages = await Pages.createPages(numBrowserPages, browserName);
 
   // Initialize statistics array.
   /** @type {StatisticsMap} */
@@ -142,20 +146,14 @@ async function performRegression(options) {
   const optPhaseTime = Date.now() - start;
 
   const compStart = Date.now();
-  await compareOutput(
-    inputDir,
-    outputDir,
-    relativeFilePaths,
-    options,
-    stats,
-    numBrowserPages,
-  );
+  await compareOutput(inputDir, outputDir, relativeFilePaths, stats, pages);
 
   showStats(
     stats,
     Date.now() - start,
     optPhaseTime,
     Date.now() - compStart,
+    browserName,
     numBrowserPages,
   );
 
@@ -215,22 +213,18 @@ async function compareFile(
  * @param {string} inputDir
  * @param {string} outputDir
  * @param {string[]} relativeFilePaths
- * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
- * @param {number} numBrowserPages
+ * @param {Pages} pages
  */
 async function compareOutput(
   inputDir,
   outputDir,
   relativeFilePaths,
-  options,
   statsMap,
-  numBrowserPages,
+  pages,
 ) {
   const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
   fs.rmSync(diffRootDir, { force: true, recursive: true });
-
-  const pages = await Pages.createPages(numBrowserPages, options);
 
   return Promise.all(
     relativeFilePaths.map((filePath) =>
@@ -361,6 +355,7 @@ async function optimizeFile(
  * @param {number} totalTime
  * @param {number} optPhaseTime
  * @param {number} compPhaseTime
+ * @param {string} browserName
  * @param {number} numBrowserPages
  */
 function showStats(
@@ -368,6 +363,7 @@ function showStats(
   totalTime,
   optPhaseTime,
   compPhaseTime,
+  browserName,
   numBrowserPages,
 ) {
   const statsArray = Array.from(stats.values());
@@ -421,7 +417,7 @@ function showStats(
     `Total Passes: ${totalPasses} (${toFixed(totalPasses / (mismatched + matched), 2)} average)`,
   );
   console.info(
-    `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, ${numBrowserPages} browser pages)`,
+    `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, browser=${browserName}, ${numBrowserPages} browser pages)`,
   );
 }
 

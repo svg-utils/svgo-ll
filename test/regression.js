@@ -137,6 +137,9 @@ async function performRegression(options) {
     browserName,
   );
 
+  const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
+  fs.rmSync(diffRootDir, { force: true, recursive: true });
+
   // Initialize statistics array.
   /** @type {StatisticsMap} */
   const stats = new Map();
@@ -145,17 +148,27 @@ async function performRegression(options) {
 
   const start = Date.now();
 
-  await optimizeFiles(inputDir, outputDir, relativeFilePaths, options, stats);
-  const optPhaseTime = Date.now() - start;
-
-  const compStart = Date.now();
-  await compareOutput(
+  await optimizeFiles(
     inputDir,
     outputDir,
+    diffRootDir,
     relativeFilePaths,
+    options,
     stats,
     browserPages,
   );
+  const optPhaseTime = Date.now() - start;
+
+  const compStart = Date.now();
+  // await compareOutput(
+  //   inputDir,
+  //   outputDir,
+  //   relativeFilePaths,
+  //   stats,
+  //   browserPages,
+  // );
+
+  await browserPages.close();
 
   showStats(
     stats,
@@ -218,29 +231,26 @@ async function compareFile(
   });
 }
 
-/**
- * @param {string} inputDir
- * @param {string} outputDir
- * @param {string[]} relativeFilePaths
- * @param {StatisticsMap} statsMap
- * @param {BrowserPages} pages
- */
-async function compareOutput(
-  inputDir,
-  outputDir,
-  relativeFilePaths,
-  statsMap,
-  pages,
-) {
-  const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
-  fs.rmSync(diffRootDir, { force: true, recursive: true });
-
-  return Promise.all(
-    relativeFilePaths.map((filePath) =>
-      compareFile(pages, inputDir, outputDir, diffRootDir, filePath, statsMap),
-    ),
-  ).finally(() => pages.close());
-}
+// /**
+//  * @param {string} inputDir
+//  * @param {string} outputDir
+//  * @param {string[]} relativeFilePaths
+//  * @param {StatisticsMap} statsMap
+//  * @param {BrowserPages} pages
+//  */
+// async function compareOutput(
+//   inputDir,
+//   outputDir,
+//   relativeFilePaths,
+//   statsMap,
+//   pages,
+// ) {
+//   return Promise.all(
+//     relativeFilePaths.map((filePath) =>
+//       compareFile(pages, inputDir, outputDir, diffRootDir, filePath, statsMap),
+//     ),
+//   ).finally(() => pages.close());
+// }
 
 /**
  * @param {BrowserPages} pages
@@ -279,17 +289,21 @@ function getStats(statsMap, relativeFilePath) {
 /**
  * @param {string} inputDir
  * @param {string} outputDir
+ * @param {string} diffDir
  * @param {string[]} relativeFilePaths
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
+ * @param {BrowserPages} browserPages
  * @returns {Promise<void[]>}
  */
 async function optimizeFiles(
   inputDir,
   outputDir,
+  diffDir,
   relativeFilePaths,
   options,
   statsMap,
+  browserPages,
 ) {
   /** @type {import('../lib/svgo.js').Config} */
   const config = {
@@ -306,10 +320,12 @@ async function optimizeFiles(
       optimizeFile(
         inputDir,
         outputDir,
+        diffDir,
         filePath,
         config,
         resolvedPlugins,
         statsMap,
+        browserPages,
       ),
     ),
   );
@@ -318,19 +334,23 @@ async function optimizeFiles(
 /**
  * @param {string} inputDirRoot
  * @param {string} outputDirRoot
+ * @param {string} diffDirRoot
  * @param {string} relativePath
  * @param {import('../lib/svgo.js').Config} config
  * @param {import('../lib/svgo.js').CustomPlugin[]} resolvedPlugins
  * @param {StatisticsMap} statsMap
+ * @param {BrowserPages} browserPages
  * @returns {Promise<void>}
  */
 async function optimizeFile(
   inputDirRoot,
   outputDirRoot,
+  diffDirRoot,
   relativePath,
   config,
   resolvedPlugins,
   statsMap,
+  browserPages,
 ) {
   const inputPath = path.join(inputDirRoot, relativePath);
   const outputPath = path.join(outputDirRoot, relativePath);
@@ -356,6 +376,16 @@ async function optimizeFile(
     })
     .then((optimizedData) =>
       fs.promises.writeFile(outputPath, optimizedData.data),
+    )
+    .then(() =>
+      compareFile(
+        browserPages,
+        inputDirRoot,
+        outputDirRoot,
+        diffDirRoot,
+        relativePath,
+        statsMap,
+      ),
     );
 }
 
@@ -509,7 +539,7 @@ program
   .option(
     '-p, --browser-pages [number]',
     'number of browser pages to use for diff',
-    '2',
+    '16',
   )
   .action(performRegression);
 

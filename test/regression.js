@@ -8,17 +8,56 @@ import { readJSONFile } from '../lib/svgo/tools-node.js';
 import { pathToFileURL } from 'node:url';
 import { PNG } from 'pngjs';
 import Pixelmatch from 'pixelmatch';
-import { cpus } from 'node:os';
 import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
 
 /**
  * @typedef {{
  * plugins?:string[],enable?:string[],disable?:string[],options?:string,inputdir:string,log:boolean,
  * browser:'chromium' | 'firefox' | 'webkit',
- * workers?:string
+ * browserPages:string
  * }} CmdLineOptions
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
  */
+
+class Pages {
+  /** @type {import('playwright').Page[]} */
+  #pages;
+  /** @type {function[]} */
+  #pendingPromises = [];
+
+  /**
+   * @param {import('playwright').Page[]} pages
+   */
+  constructor(pages) {
+    this.#pages = pages;
+  }
+
+  /**
+   * @returns {Promise<import('playwright').Page>}
+   */
+  async newPage() {
+    const page = this.#pages.pop();
+    if (page) {
+      return page;
+    }
+    const { promise, resolve } = Promise.withResolvers();
+    this.#pendingPromises.push(resolve);
+    return promise;
+  }
+
+  /**
+   * @param {import('playwright').Page} page
+   * @returns {void}
+   */
+  releasePage(page) {
+    const pending = this.#pendingPromises.shift();
+    if (pending) {
+      pending(page);
+    } else {
+      this.#pages.push(page);
+    }
+  }
+}
 
 const BROWSER_WIDTH = 960;
 const BROWSER_HEIGHT = 720;
@@ -47,9 +86,7 @@ async function performRegression(options) {
     .filter((name) => name.endsWith('.svg'))
     .map((name) => name.replaceAll('\\', '/'));
 
-  const numWorkers = options.workers
-    ? parseInt(options.workers)
-    : cpus().length * 2;
+  const numBrowserPages = parseInt(options.browserPages);
 
   // Initialize statistics array.
   /** @type {StatisticsMap} */
@@ -63,14 +100,21 @@ async function performRegression(options) {
   const optPhaseTime = Date.now() - start;
 
   const compStart = Date.now();
-  await compareOutput(inputDir, outputDir, relativeFilePaths, options, stats);
+  await compareOutput(
+    inputDir,
+    outputDir,
+    relativeFilePaths,
+    options,
+    stats,
+    numBrowserPages,
+  );
 
   showStats(
     stats,
     Date.now() - start,
     optPhaseTime,
     Date.now() - compStart,
-    numWorkers,
+    numBrowserPages,
   );
 
   if (options.log) {
@@ -79,7 +123,7 @@ async function performRegression(options) {
 }
 
 /**
- * @param {import('playwright').BrowserContext} browserContext
+ * @param {Pages} pages
  * @param {string} inputRootDir
  * @param {string} outputRootDir
  * @param {string} diffRootDir
@@ -87,7 +131,7 @@ async function performRegression(options) {
  * @param {StatisticsMap} statsMap
  */
 async function compareFile(
-  browserContext,
+  pages,
   inputRootDir,
   outputRootDir,
   diffRootDir,
@@ -101,8 +145,8 @@ async function compareFile(
   }
 
   return Promise.all([
-    getScreenShot(browserContext, inputRootDir, relativeFilePath),
-    getScreenShot(browserContext, outputRootDir, relativeFilePath),
+    getScreenShot(pages, inputRootDir, relativeFilePath),
+    getScreenShot(pages, outputRootDir, relativeFilePath),
   ]).then((screenshots) => {
     const diff = new PNG({ width: BROWSER_WIDTH, height: BROWSER_HEIGHT });
     const mismatchCount = Pixelmatch(
@@ -131,6 +175,7 @@ async function compareFile(
  * @param {string[]} relativeFilePaths
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
+ * @param {number} numBrowserPages
  */
 async function compareOutput(
   inputDir,
@@ -138,6 +183,7 @@ async function compareOutput(
   relativeFilePaths,
   options,
   statsMap,
+  numBrowserPages,
 ) {
   /** @type {'chromium' | 'firefox' | 'webkit'} */
   const browserStr = ['chromium', 'firefox', 'webkit'].includes(options.browser)
@@ -156,16 +202,15 @@ async function compareOutput(
   const diffRootDir = path.join(cwd(), './ignored/regression/diffs');
   fs.rmSync(diffRootDir, { force: true, recursive: true });
 
+  const pages = new Pages(
+    await Promise.all(
+      Array.from(Array(numBrowserPages), () => context.newPage()),
+    ),
+  );
+
   return Promise.all(
     relativeFilePaths.map((filePath) =>
-      compareFile(
-        context,
-        inputDir,
-        outputDir,
-        diffRootDir,
-        filePath,
-        statsMap,
-      ),
+      compareFile(pages, inputDir, outputDir, diffRootDir, filePath, statsMap),
     ),
   ).finally(() => {
     browser.close();
@@ -173,24 +218,23 @@ async function compareOutput(
 }
 
 /**
- * @param {import('playwright').BrowserContext} browserContext
+ * @param {Pages} pages
  * @param {string} rootDir
  * @param {string} relativeFilePath
  * @returns {Promise<import('pngjs').PNGWithMetadata>}
  */
-async function getScreenShot(browserContext, rootDir, relativeFilePath) {
+async function getScreenShot(pages, rootDir, relativeFilePath) {
   const url = pathToFileURL(path.join(rootDir, relativeFilePath));
-  return browserContext
+  return pages
     .newPage()
     .then((page) => {
-      page.goto(url.toString());
-      return page;
-    })
-    .then((page) => {
-      return Promise.all([page.screenshot(screenshotOptions), page]);
+      return Promise.all([page, page.goto(url.toString())]);
     })
     .then((result) => {
-      result[1].close();
+      return Promise.all([result[0].screenshot(screenshotOptions), result[0]]);
+    })
+    .then((result) => {
+      pages.releasePage(result[1]);
       return PNG.sync.read(result[0]);
     });
 }
@@ -295,9 +339,15 @@ async function optimizeFile(
  * @param {number} totalTime
  * @param {number} optPhaseTime
  * @param {number} compPhaseTime
- * @param {number} numWorkers
+ * @param {number} numBrowserPages
  */
-function showStats(stats, totalTime, optPhaseTime, compPhaseTime, numWorkers) {
+function showStats(
+  stats,
+  totalTime,
+  optPhaseTime,
+  compPhaseTime,
+  numBrowserPages,
+) {
   const statsArray = Array.from(stats.values());
 
   const mismatched = statsArray.reduce(
@@ -349,7 +399,7 @@ function showStats(stats, totalTime, optPhaseTime, compPhaseTime, numWorkers) {
     `Total Passes: ${totalPasses} (${toFixed(totalPasses / (mismatched + matched), 2)} average)`,
   );
   console.info(
-    `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, ${numWorkers} workers)`,
+    `Regression tests completed in ${totalTime}ms (opt time=${optTime}, opt phase time=${optPhaseTime}, comp time = ${compPhaseTime}, ${numBrowserPages} browser pages)`,
   );
 }
 
@@ -421,7 +471,7 @@ program
   .option(
     '-b, --browser <chromium | firefox | webkit>',
     'Browser engine to use in testing',
-    'chromium',
+    'webkit',
   )
   .option(
     '-i, --inputdir <dir>',
@@ -429,7 +479,11 @@ program
     './ignored/regression/input-raw',
   )
   .option('-l, --log', 'Write statistics log file to ./tmp directory')
-  .option('--workers [number of workers]', 'number of workers to use')
+  .option(
+    '--browser-pages [number]',
+    'number of browser pages to use for diff',
+    '2',
+  )
   .action(performRegression);
 
 program.parseAsync();

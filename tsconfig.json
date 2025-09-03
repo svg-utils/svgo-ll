@@ -2,8 +2,8 @@
   "compilerOptions": {
     "noEmit": true,
     "module": "node16",
-    "target": "ES2021",
-    "lib": ["ES2021", "DOM"],
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM"],
     "allowJs": true,
     "checkJs": true,
     "strict": true,

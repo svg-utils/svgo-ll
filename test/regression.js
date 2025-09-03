@@ -330,38 +330,31 @@ async function optimizeFile(
 ) {
   const inputPath = path.join(inputDirRoot, relativePath);
 
-  return fs.promises
-    .readFile(inputPath, 'utf8')
-    .then((input) => {
-      const stats = getStats(statsMap, relativePath);
-      if (!stats) {
-        throw new Error(`no statistics for ${relativePath}`);
-      }
-      stats.lengthOrig = input.length;
+  return fs.promises.readFile(inputPath, 'utf8').then((input) => {
+    const stats = getStats(statsMap, relativePath);
+    if (!stats) {
+      throw new Error(`no statistics for ${relativePath}`);
+    }
+    stats.lengthOrig = input.length;
 
-      const optimizedData = optimizeResolved(input, config, resolvedPlugins);
-      if (!optimizedData.error) {
-        stats.lengthOpt = optimizedData.data.length;
-        stats.passes = optimizedData.passes;
-        stats.time = optimizedData.time;
-      }
-      return Promise.all([input, optimizedData]);
-    })
-    .then((result) => {
-      const input = result[0];
-      const output = result[1].data;
-      return Promise.all([
-        writeOutputFile(outputDirRoot, relativePath, output),
-        compareFile(
-          browserPages,
-          input,
-          output,
-          diffDirRoot,
-          relativePath,
-          statsMap,
-        ),
-      ]);
-    });
+    const optimizedData = optimizeResolved(input, config, resolvedPlugins);
+    if (!optimizedData.error) {
+      stats.lengthOpt = optimizedData.data.length;
+      stats.passes = optimizedData.passes;
+      stats.time = optimizedData.time;
+    }
+    return Promise.all([
+      writeOutputFile(outputDirRoot, relativePath, optimizedData.data),
+      compareFile(
+        browserPages,
+        input,
+        optimizedData.data,
+        diffDirRoot,
+        relativePath,
+        statsMap,
+      ),
+    ]);
+  });
 }
 
 /**

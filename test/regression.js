@@ -14,7 +14,8 @@ import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
  * @typedef {{
  * plugins?:string[],enable?:string[],disable?:string[],options?:string,inputdir:string,log:boolean,
  * browser:BrowserID,
- * browserPages:string
+ * browserPages:string,
+ * writeOutput:boolean
  * }} CmdLineOptions
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
  */
@@ -110,8 +111,13 @@ const screenshotOptions = {
  */
 async function performRegression(options) {
   const inputDir = path.join(cwd(), options.inputdir);
-  const outputDir = path.join(cwd(), './ignored/regression/output-files');
-  fs.rmSync(outputDir, { force: true, recursive: true });
+
+  const outputDir = options.writeOutput
+    ? path.join(cwd(), './ignored/regression/output-files')
+    : undefined;
+  if (outputDir) {
+    fs.rmSync(outputDir, { force: true, recursive: true });
+  }
 
   const inputDirEntries = fs.readdirSync(inputDir, {
     recursive: true,
@@ -159,13 +165,6 @@ async function performRegression(options) {
   const optPhaseTime = Date.now() - start;
 
   const compStart = Date.now();
-  // await compareOutput(
-  //   inputDir,
-  //   outputDir,
-  //   relativeFilePaths,
-  //   stats,
-  //   browserPages,
-  // );
 
   await browserPages.close();
 
@@ -190,6 +189,7 @@ async function performRegression(options) {
  * @param {string} diffRootDir
  * @param {string} relativeFilePath
  * @param {StatisticsMap} statsMap
+ * @returns {Promise<void>}
  */
 async function compareFile(
   pages,
@@ -230,27 +230,6 @@ async function compareFile(
   });
 }
 
-// /**
-//  * @param {string} inputDir
-//  * @param {string} outputDir
-//  * @param {string[]} relativeFilePaths
-//  * @param {StatisticsMap} statsMap
-//  * @param {BrowserPages} pages
-//  */
-// async function compareOutput(
-//   inputDir,
-//   outputDir,
-//   relativeFilePaths,
-//   statsMap,
-//   pages,
-// ) {
-//   return Promise.all(
-//     relativeFilePaths.map((filePath) =>
-//       compareFile(pages, inputDir, outputDir, diffRootDir, filePath, statsMap),
-//     ),
-//   ).finally(() => pages.close());
-// }
-
 /**
  * @param {BrowserPages} pages
  * @param {string} strContent
@@ -285,13 +264,13 @@ function getStats(statsMap, relativeFilePath) {
 
 /**
  * @param {string} inputDir
- * @param {string} outputDir
+ * @param {string|undefined} outputDir
  * @param {string} diffDir
  * @param {string[]} relativeFilePaths
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
  * @param {BrowserPages} browserPages
- * @returns {Promise<void[]>}
+ * @returns {Promise<void[][]>}
  */
 async function optimizeFiles(
   inputDir,
@@ -330,14 +309,14 @@ async function optimizeFiles(
 
 /**
  * @param {string} inputDirRoot
- * @param {string} outputDirRoot
+ * @param {string|undefined} outputDirRoot
  * @param {string} diffDirRoot
  * @param {string} relativePath
  * @param {import('../lib/svgo.js').Config} config
  * @param {import('../lib/svgo.js').CustomPlugin[]} resolvedPlugins
  * @param {StatisticsMap} statsMap
  * @param {BrowserPages} browserPages
- * @returns {Promise<void>}
+ * @returns {Promise<void[]>}
  */
 async function optimizeFile(
   inputDirRoot,
@@ -350,12 +329,9 @@ async function optimizeFile(
   browserPages,
 ) {
   const inputPath = path.join(inputDirRoot, relativePath);
-  const outputPath = path.join(outputDirRoot, relativePath);
-  const outputDir = path.dirname(outputPath);
 
   return fs.promises
-    .mkdir(outputDir, { recursive: true })
-    .then(() => fs.promises.readFile(inputPath, 'utf8'))
+    .readFile(inputPath, 'utf8')
     .then((input) => {
       const stats = getStats(statsMap, relativePath);
       if (!stats) {
@@ -371,23 +347,21 @@ async function optimizeFile(
       }
       return Promise.all([input, optimizedData]);
     })
-    .then((result) =>
-      Promise.all([
-        result[0],
-        result[1].data,
-        fs.promises.writeFile(outputPath, result[1].data),
-      ]),
-    )
-    .then((result) =>
-      compareFile(
-        browserPages,
-        result[0],
-        result[1],
-        diffDirRoot,
-        relativePath,
-        statsMap,
-      ),
-    );
+    .then((result) => {
+      const input = result[0];
+      const output = result[1].data;
+      return Promise.all([
+        writeOutputFile(outputDirRoot, relativePath, output),
+        compareFile(
+          browserPages,
+          input,
+          output,
+          diffDirRoot,
+          relativePath,
+          statsMap,
+        ),
+      ]);
+    });
 }
 
 /**
@@ -509,6 +483,24 @@ function writeLog(statsMap) {
   fs.writeFileSync(statsFileName, statArray.join('\n'));
 }
 
+/**
+ * @param {string|undefined} outputDirRoot
+ * @param {string} relativeFilePath
+ * @param {string} output
+ * @returns {Promise<void>}
+ */
+async function writeOutputFile(outputDirRoot, relativeFilePath, output) {
+  if (outputDirRoot === undefined) {
+    return;
+  }
+  const outputPath = path.join(outputDirRoot, relativeFilePath);
+  const outputDir = path.dirname(outputPath);
+
+  return fs.promises
+    .mkdir(outputDir, { recursive: true })
+    .then(() => fs.promises.writeFile(outputPath, output));
+}
+
 program
   .option(
     '--plugins [pluginNames...]',
@@ -542,6 +534,7 @@ program
     'number of browser pages to use for diff',
     '16',
   )
+  .option('--write-output', 'write output files to disk')
   .action(performRegression);
 
 program.parseAsync();

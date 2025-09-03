@@ -9,6 +9,7 @@ import { PNG } from 'pngjs';
 import Pixelmatch from 'pixelmatch';
 import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
 import { getHeapStatistics } from 'node:v8';
+import { pathToFileURL } from 'node:url';
 
 /**
  * @typedef {'chromium' | 'firefox' | 'webkit'} BrowserID
@@ -153,12 +154,8 @@ const screenshotOptions = {
 async function performRegression(options) {
   const inputDir = path.join(cwd(), options.inputdir);
 
-  const outputDir = options.writeOutput
-    ? path.join(cwd(), './ignored/regression/output-files')
-    : undefined;
-  if (outputDir) {
-    fs.rmSync(outputDir, { force: true, recursive: true });
-  }
+  const outputDir = path.join(cwd(), './ignored/regression/output-files');
+  fs.rmSync(outputDir, { force: true, recursive: true });
 
   const inputDirEntries = fs.readdirSync(inputDir, {
     recursive: true,
@@ -226,8 +223,8 @@ async function performRegression(options) {
 
 /**
  * @param {BrowserPages} pages
- * @param {string} inputStr
- * @param {string} outputStr
+ * @param {string} inputDirRoot
+ * @param {string} outputDirRoot
  * @param {string} diffRootDir
  * @param {string} relativeFilePath
  * @param {StatisticsMap} statsMap
@@ -235,8 +232,8 @@ async function performRegression(options) {
  */
 async function compareFile(
   pages,
-  inputStr,
-  outputStr,
+  inputDirRoot,
+  outputDirRoot,
   diffRootDir,
   relativeFilePath,
   statsMap,
@@ -247,10 +244,12 @@ async function compareFile(
     return;
   }
 
-  return Promise.all([
-    getScreenShot(pages, inputStr),
-    getScreenShot(pages, outputStr),
-  ]).then((screenshots) => {
+  const screenshots = Promise.all([
+    getScreenShotFromFile(pages, inputDirRoot, relativeFilePath),
+    getScreenShotFromFile(pages, outputDirRoot, relativeFilePath),
+  ]);
+
+  return screenshots.then((screenshots) => {
     const diff = new PNG({ width: BROWSER_WIDTH, height: BROWSER_HEIGHT });
     const mismatchCount = Pixelmatch(
       screenshots[0].data,
@@ -270,26 +269,51 @@ async function compareFile(
 
 /**
  * @param {BrowserPages} pages
- * @param {string} strContent
+ * @param {import('playwright').Page} page
  * @returns {Promise<import('pngjs').PNGWithMetadata>}
  */
-async function getScreenShot(pages, strContent) {
-  return pages
-    .newPage()
-    .then((page) => {
-      return Promise.all([page, page.setContent(strContent)]);
-    })
+async function getScreenShot(pages, page) {
+  return page
+    .screenshot(screenshotOptions)
     .then((result) => {
-      return Promise.all([result[0].screenshot(screenshotOptions), result[0]]);
-    })
-    .then((result) => {
-      return Promise.all([
-        PNG.sync.read(result[0]),
-        pages.releasePage(result[1]),
-      ]);
+      return Promise.all([PNG.sync.read(result), pages.releasePage(page)]);
     })
     .then((result) => result[0]);
 }
+
+/**
+ * @param {BrowserPages} pages
+ * @param {string} rootDir
+ * @param {string} relativeFilePath
+ * @returns {Promise<import('pngjs').PNGWithMetadata>}
+ */
+async function getScreenShotFromFile(pages, rootDir, relativeFilePath) {
+  const url = pathToFileURL(path.join(rootDir, relativeFilePath));
+  return pages
+    .newPage()
+    .then((page) => {
+      return Promise.all([page, page.goto(url.toString())]);
+    })
+    .then((result) => {
+      return getScreenShot(pages, result[0]);
+    });
+}
+
+// /**
+//  * @param {BrowserPages} pages
+//  * @param {string} strContent
+//  * @returns {Promise<import('pngjs').PNGWithMetadata>}
+//  */
+// async function getScreenShotFromString(pages, strContent) {
+//   return pages
+//     .newPage()
+//     .then((page) => {
+//       return Promise.all([page, page.setContent(strContent)]);
+//     })
+//     .then((result) => {
+//       return getScreenShot(pages, result[0]);
+//     });
+// }
 
 /**
  * @param {StatisticsMap} statsMap
@@ -305,13 +329,13 @@ function getStats(statsMap, relativeFilePath) {
 
 /**
  * @param {string} inputDir
- * @param {string|undefined} outputDir
+ * @param {string} outputDir
  * @param {string} diffDir
  * @param {string[]} relativeFilePaths
  * @param {CmdLineOptions} options
  * @param {StatisticsMap} statsMap
  * @param {BrowserPages} browserPages
- * @returns {Promise<void[][]>}
+ * @returns {Promise<void[]>}
  */
 async function optimizeFiles(
   inputDir,
@@ -350,14 +374,14 @@ async function optimizeFiles(
 
 /**
  * @param {string} inputDirRoot
- * @param {string|undefined} outputDirRoot
+ * @param {string} outputDirRoot
  * @param {string} diffDirRoot
  * @param {string} relativePath
  * @param {import('../lib/svgo.js').Config} config
  * @param {import('../lib/svgo.js').CustomPlugin[]} resolvedPlugins
  * @param {StatisticsMap} statsMap
  * @param {BrowserPages} browserPages
- * @returns {Promise<void[]>}
+ * @returns {Promise<void>}
  */
 async function optimizeFile(
   inputDirRoot,
@@ -371,31 +395,33 @@ async function optimizeFile(
 ) {
   const inputPath = path.join(inputDirRoot, relativePath);
 
-  return fs.promises.readFile(inputPath, 'utf8').then((input) => {
-    const stats = getStats(statsMap, relativePath);
-    if (!stats) {
-      throw new Error(`no statistics for ${relativePath}`);
-    }
-    stats.lengthOrig = input.length;
+  return fs.promises
+    .readFile(inputPath, 'utf8')
+    .then((input) => {
+      const stats = getStats(statsMap, relativePath);
+      if (!stats) {
+        throw new Error(`no statistics for ${relativePath}`);
+      }
+      stats.lengthOrig = input.length;
 
-    const optimizedData = optimizeResolved(input, config, resolvedPlugins);
-    if (!optimizedData.error) {
-      stats.lengthOpt = optimizedData.data.length;
-      stats.passes = optimizedData.passes;
-      stats.time = optimizedData.time;
-    }
-    return Promise.all([
-      writeOutputFile(outputDirRoot, relativePath, optimizedData.data),
+      const optimizedData = optimizeResolved(input, config, resolvedPlugins);
+      if (!optimizedData.error) {
+        stats.lengthOpt = optimizedData.data.length;
+        stats.passes = optimizedData.passes;
+        stats.time = optimizedData.time;
+      }
+      return writeOutputFile(outputDirRoot, relativePath, optimizedData.data);
+    })
+    .then(() =>
       compareFile(
         browserPages,
-        input,
-        optimizedData.data,
+        inputDirRoot,
+        outputDirRoot,
         diffDirRoot,
         relativePath,
         statsMap,
       ),
-    ]);
-  });
+    );
 }
 
 /**

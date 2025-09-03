@@ -5,7 +5,6 @@ import { program } from 'commander';
 import * as playwright from 'playwright';
 import { toFixed } from '../lib/svgo/tools.js';
 import { readJSONFile } from '../lib/svgo/tools-node.js';
-import { pathToFileURL } from 'node:url';
 import { PNG } from 'pngjs';
 import Pixelmatch from 'pixelmatch';
 import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
@@ -186,16 +185,16 @@ async function performRegression(options) {
 
 /**
  * @param {BrowserPages} pages
- * @param {string} inputRootDir
- * @param {string} outputRootDir
+ * @param {string} inputStr
+ * @param {string} outputStr
  * @param {string} diffRootDir
  * @param {string} relativeFilePath
  * @param {StatisticsMap} statsMap
  */
 async function compareFile(
   pages,
-  inputRootDir,
-  outputRootDir,
+  inputStr,
+  outputStr,
   diffRootDir,
   relativeFilePath,
   statsMap,
@@ -207,8 +206,8 @@ async function compareFile(
   }
 
   return Promise.all([
-    getScreenShot(pages, inputRootDir, relativeFilePath),
-    getScreenShot(pages, outputRootDir, relativeFilePath),
+    getScreenShot(pages, inputStr),
+    getScreenShot(pages, outputStr),
   ]).then((screenshots) => {
     const diff = new PNG({ width: BROWSER_WIDTH, height: BROWSER_HEIGHT });
     const mismatchCount = Pixelmatch(
@@ -254,16 +253,14 @@ async function compareFile(
 
 /**
  * @param {BrowserPages} pages
- * @param {string} rootDir
- * @param {string} relativeFilePath
+ * @param {string} strContent
  * @returns {Promise<import('pngjs').PNGWithMetadata>}
  */
-async function getScreenShot(pages, rootDir, relativeFilePath) {
-  const url = pathToFileURL(path.join(rootDir, relativeFilePath));
+async function getScreenShot(pages, strContent) {
   return pages
     .newPage()
     .then((page) => {
-      return Promise.all([page, page.goto(url.toString())]);
+      return Promise.all([page, page.setContent(strContent)]);
     })
     .then((result) => {
       return Promise.all([result[0].screenshot(screenshotOptions), result[0]]);
@@ -372,16 +369,20 @@ async function optimizeFile(
         stats.passes = optimizedData.passes;
         stats.time = optimizedData.time;
       }
-      return optimizedData;
+      return Promise.all([input, optimizedData]);
     })
-    .then((optimizedData) =>
-      fs.promises.writeFile(outputPath, optimizedData.data),
+    .then((result) =>
+      Promise.all([
+        result[0],
+        result[1].data,
+        fs.promises.writeFile(outputPath, result[1].data),
+      ]),
     )
-    .then(() =>
+    .then((result) =>
       compareFile(
         browserPages,
-        inputDirRoot,
-        outputDirRoot,
+        result[0],
+        result[1],
         diffDirRoot,
         relativePath,
         statsMap,

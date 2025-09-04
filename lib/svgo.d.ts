@@ -19,7 +19,7 @@ export type ResolvedPlugins = { pre: CustomPlugin[]; plugins: CustomPlugin[] };
 export type Config = ResolvedConfig & {
   plugins?: ResolvedPlugins;
   pre?: string[];
-  pluginNames?: string[];
+  pluginNames?: string[] | true;
   enable?: string[];
   disable?: string[];
   // Configuration parameters for plugins.

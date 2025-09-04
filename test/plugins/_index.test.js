@@ -4,7 +4,7 @@ import { EOL } from 'os';
 import { fileURLToPath } from 'url';
 import { optimize } from '../../lib/svgo.js';
 import { validateParentNodes } from '../utils.js';
-import { builtinPlugins } from '../../lib/builtin.js';
+import { builtinPlugins } from '../../plugins/builtin.js';
 
 const regEOL = new RegExp(EOL, 'g');
 const regFilename = /^(.*)\.(\d+)\.svg\.txt$/;

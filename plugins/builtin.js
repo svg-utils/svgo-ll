@@ -32,7 +32,7 @@ import * as removeXMLProcInst from '../plugins/removeXMLProcInst.js';
 import * as round from '../plugins/round.js';
 import * as sortAttrs from '../plugins/sortAttrs.js';
 
-/** @type {Map<string,import('./svgo.js').CustomPlugin>} */
+/** @type {Map<string,import('../lib/svgo.js').CustomPlugin>} */
 export const builtinPlugins = Object.freeze(
   new Map(
     [

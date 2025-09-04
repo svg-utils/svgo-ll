@@ -32,8 +32,54 @@ import * as removeXMLProcInst from '../plugins/removeXMLProcInst.js';
 import * as round from '../plugins/round.js';
 import * as sortAttrs from '../plugins/sortAttrs.js';
 
+/**
+ * @template K
+ * @template V
+ */
+class StaticMap {
+  /** @type {Map<K,V>} */
+  #map;
+
+  /**
+   * @param {Map<K,V>} map
+   */
+  constructor(map) {
+    this.#map = map;
+  }
+
+  /**
+   * @param {K} key
+   * @returns {V|undefined}
+   */
+  get(key) {
+    return this.#map.get(key);
+  }
+
+  /**
+   * @param {K} key
+   * @returns {boolean}
+   */
+  has(key) {
+    return this.#map.has(key);
+  }
+
+  /**
+   * @returns {IterableIterator<K>}
+   */
+  keys() {
+    return this.#map.keys();
+  }
+
+  /**
+   * @returns {IterableIterator<V>}
+   */
+  values() {
+    return this.#map.values();
+  }
+}
+
 /** @type {[string,import('../lib/svgo.js').CustomPlugin][]} */
-const frozenList = [
+const pluginList = [
   cleanupIds,
   cleanupStyleAttributes,
   cleanupTextElements,
@@ -69,5 +115,5 @@ const frozenList = [
   sortAttrs,
 ].map((p) => [p.name, p]);
 
-/** @type {Map<string,Readonly<import('../lib/svgo.js').CustomPlugin>>} */
-export const builtinPlugins = new Map(frozenList);
+/** @type {StaticMap<string,Readonly<import('../lib/svgo.js').CustomPlugin>>} */
+export const builtinPlugins = new StaticMap(new Map(pluginList));

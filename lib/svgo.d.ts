@@ -98,7 +98,12 @@ export declare const _collections: {
 
 export declare const VERSION: string;
 
-export declare const builtinPlugins: Map<string, CustomPlugin>;
+export class StaticMap<K, V> {
+  keys(): K[];
+  values(): V[];
+}
+
+export declare const builtinPlugins: StaticMap<string, CustomPlugin>;
 
 export declare const defaultPlugins: CustomPlugin[];
 

@@ -46,4 +46,15 @@ describe('ensure exported builtins are immutable', () => {
 
     expect(plugin.name).toBe(name);
   });
+
+  it('make sure default array cannot be changed', () => {
+    const length = defaultPlugins.plugins.length;
+    try {
+      // @ts-ignore
+      defaultPlugins.plugins.pop();
+    } catch {
+      // expected
+    }
+    expect(defaultPlugins.plugins.length).toBe(length);
+  });
 });

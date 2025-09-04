@@ -28,9 +28,9 @@ import * as removeUnusedNS from './removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 
-/** @type {Readonly<import('../lib/svgo.js').ResolvedPlugins>} */
+/** @type {Readonly<{plugins:Readonly<import('../lib/svgo.js').CustomPlugin[]>}>} */
 export const defaultPlugins = Object.freeze({
-  plugins: [
+  plugins: Object.freeze([
     removeDoctype,
     removeXMLProcInst,
     removeComments,
@@ -60,5 +60,5 @@ export const defaultPlugins = Object.freeze({
     createGroups,
     collapseGroups,
     cleanupTextElements,
-  ],
+  ]),
 });

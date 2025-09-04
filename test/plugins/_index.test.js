@@ -47,7 +47,7 @@ describe('plugins tests', function () {
           for (let i = 0; i < passes; i += 1) {
             const result = optimize(lastResultData, {
               path: file,
-              plugins: [plugin],
+              plugins: { plugins: [plugin] },
               js2svg: { pretty: true, indent: getIndent(should) },
               maxPasses: 1,
             });

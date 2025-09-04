@@ -14,8 +14,10 @@ export type ResolvedConfig = {
   datauri?: import('./types.js').DataUri;
 };
 
+export type ResolvedPlugins = { plugins: CustomPlugin[] };
+
 export type Config = ResolvedConfig & {
-  plugins?: CustomPlugin[];
+  plugins?: ResolvedPlugins;
   pluginNames?: string[];
   enable?: string[];
   disable?: string[];
@@ -108,7 +110,7 @@ export type OptimizationCallbackInfo = {
 };
 export type OptimizationCallback = (info: OptimizationCallbackInfo) => void;
 
-export declare function resolvePlugins(config: Config): CustomPlugin[];
+export declare function resolvePlugins(config: Config): ResolvedPlugins;
 
 export declare function optimize(
   input: string,
@@ -119,6 +121,6 @@ export declare function optimize(
 export declare function optimizeResolved(
   input: string,
   config: Config,
-  resolvedPlugins: CustomPlugin[],
+  resolvedPlugins: ResolvedPlugins,
   callback?: OptimizationCallback,
 ): Output;

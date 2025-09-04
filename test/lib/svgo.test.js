@@ -1,10 +1,7 @@
-import { optimize } from './svgo.js';
-import { SvgoParserError } from './parser.js';
+import { optimize } from '../../lib/svgo.js';
+import { SvgoParserError } from '../../lib/parser.js';
 
-import * as minifyTransforms from '../plugins/minifyTransforms.js';
-/**
- * @typedef {import('../lib/types.js').Plugin<void>} Plugin
- */
+import * as minifyTransforms from '../../plugins/minifyTransforms.js';
 
 describe('allow to configure EOL', () => {
   test('should respect EOL set to LF', () => {
@@ -208,7 +205,7 @@ test('plugins should run 10 times by default', () => {
   const svg = `<svg id="abcdefghijklmnopqrstuvwxyz"></svg>`;
   /** @type {number[]} */
   const list = [];
-  /** @type {import('./svgo.js').CustomPlugin} */
+  /** @type {import('../../lib/svgo.js').CustomPlugin} */
   const testPlugin = {
     name: 'testPlugin',
     fn: (info) => {
@@ -222,7 +219,7 @@ test('plugins should run 10 times by default', () => {
       };
     },
   };
-  const { data } = optimize(svg, { plugins: [testPlugin] });
+  const { data } = optimize(svg, { plugins: { plugins: [testPlugin] } });
   expect(list).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
   expect(data).toBe(`<svg id="klmnopqrstuvwxyz"/>`);
 });
@@ -235,14 +232,14 @@ test('encode as datauri', () => {
     `;
   const { data: dataSinglePass } = optimize(input, {
     datauri: 'enc',
-    plugins: [minifyTransforms],
+    plugins: { plugins: [minifyTransforms] },
   });
   expect(dataSinglePass).toMatchInlineSnapshot(
     `"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20transform%3D%22scale(2)%22%2F%3E%3C%2Fsvg%3E"`,
   );
   const { data: dataURI } = optimize(input, {
     datauri: 'enc',
-    plugins: [minifyTransforms],
+    plugins: { plugins: [minifyTransforms] },
   });
   expect(dataURI).toMatchInlineSnapshot(
     `"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20transform%3D%22scale(2)%22%2F%3E%3C%2Fsvg%3E"`,

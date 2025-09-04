@@ -378,7 +378,7 @@ async function optimizeFiles(
  * @param {string} diffDirRoot
  * @param {string} relativePath
  * @param {import('../lib/svgo.js').Config} config
- * @param {import('../lib/svgo.js').CustomPlugin[]} resolvedPlugins
+ * @param {import('../lib/svgo.js').ResolvedPlugins} resolvedPlugins
  * @param {StatisticsMap} statsMap
  * @param {BrowserPages} browserPages
  * @returns {Promise<void>}

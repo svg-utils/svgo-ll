@@ -1,4 +1,12 @@
 /**
+ * @param {import('../lib/svgo.js').CustomPlugin[]} pluginList
+ * @returns {import('../lib/svgo.js').ResolvedPlugins}
+ */
+export function getResolvedPlugins(pluginList) {
+  return { pre: [], plugins: pluginList };
+}
+
+/**
  * @param {import('../lib/types.js').XastNode} element
  * @param {import('../lib/types.js').XastParent} [parent]
  */

@@ -14,7 +14,7 @@ export type ResolvedConfig = {
   datauri?: import('./types.js').DataUri;
 };
 
-export type ResolvedPlugins = { plugins: CustomPlugin[] };
+export type ResolvedPlugins = { pre: CustomPlugin[]; plugins: CustomPlugin[] };
 
 export type Config = ResolvedConfig & {
   plugins?: ResolvedPlugins;
@@ -105,7 +105,7 @@ export class StaticMap<K, V> {
 
 export declare const builtinPlugins: StaticMap<string, CustomPlugin>;
 
-export declare const defaultPlugins: CustomPlugin[];
+export declare const defaultPlugins: Readonly<ResolvedPlugins>;
 
 export type OptimizationCallbackInfo = {
   type: 'plugin';

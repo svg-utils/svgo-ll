@@ -28,10 +28,14 @@ import * as removeUnusedNS from './removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 
-/** @type {Readonly<{plugins:Readonly<import('../lib/svgo.js').CustomPlugin[]>}>} */
+/**
+ * @typedef {Readonly<import('../lib/svgo.js').CustomPlugin[]>} ReadOnlyPluginList
+ */
+
+/** @type {Readonly<{pre:ReadOnlyPluginList, plugins:ReadOnlyPluginList}>} */
 export const defaultPlugins = Object.freeze({
+  pre: Object.freeze([removeDoctype]),
   plugins: Object.freeze([
-    removeDoctype,
     removeXMLProcInst,
     removeComments,
     removeMetadata,

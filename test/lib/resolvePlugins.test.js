@@ -6,6 +6,15 @@ describe('test resolvePlugins()', () => {
     expect(resolved.pre.length).toBe(0);
   });
 
+  it('--plugin with --pre should work', () => {
+    const resolved = resolvePlugins({
+      pre: ['convertShapeToPath'],
+      pluginNames: ['minifyTransforms'],
+    });
+    expect(resolved.pre.length).toBe(1);
+    expect(resolved.pre[0].name).toBe('convertShapeToPath');
+  });
+
   it('--disable should disable pre plugins', () => {
     const resolvedDefaults = resolvePlugins({});
     const defaultLen = resolvedDefaults.pre.length;
@@ -23,5 +32,10 @@ describe('test resolvePlugins()', () => {
     const resolvedPlugins = resolvePlugins({ pre: [name] });
     expect(resolvedPlugins.pre.length).toBe(1);
     expect(resolvedPlugins.pre[0].name).toBe(name);
+  });
+
+  it('--pre with no args should empty the pre array', () => {
+    const resolvedPlugins = resolvePlugins({ pre: [] });
+    expect(resolvedPlugins.pre.length).toBe(0);
   });
 });

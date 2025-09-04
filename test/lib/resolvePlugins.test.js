@@ -17,4 +17,11 @@ describe('test resolvePlugins()', () => {
     expect(resolvedDisabled.pre.length).toBe(defaultLen - 1);
     expect(resolvedDisabled.pre.some((p) => p.name === pluginName)).toBe(false);
   });
+
+  it('--pre should override the default pre array', () => {
+    const name = 'minifyTransforms';
+    const resolvedPlugins = resolvePlugins({ pre: [name] });
+    expect(resolvedPlugins.pre.length).toBe(1);
+    expect(resolvedPlugins.pre[0].name).toBe(name);
+  });
 });

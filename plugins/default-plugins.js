@@ -34,14 +34,16 @@ import * as removeXMLProcInst from './removeXMLProcInst.js';
 
 /** @type {Readonly<{pre:ReadOnlyPluginList, plugins:ReadOnlyPluginList}>} */
 export const defaultPlugins = Object.freeze({
-  pre: Object.freeze([removeDoctype]),
-  plugins: Object.freeze([
+  pre: Object.freeze([
+    removeDoctype,
     removeXMLProcInst,
     removeComments,
     removeMetadata,
     removeEditorsNSData,
     removeDesc,
     cleanupXlink,
+  ]),
+  plugins: Object.freeze([
     cleanupStyleAttributes,
     combineStyleElements,
     inlineStyles,

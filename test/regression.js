@@ -10,6 +10,7 @@ import Pixelmatch from 'pixelmatch';
 import { optimizeResolved, resolvePlugins } from '../lib/svgo.js';
 import { getHeapStatistics } from 'node:v8';
 import { pathToFileURL } from 'node:url';
+import { cpus } from 'node:os';
 
 /**
  * @typedef {'chromium' | 'firefox' | 'webkit'} BrowserID
@@ -173,7 +174,9 @@ async function performRegression(options) {
     : // Default to webkit since that shows fewer false positives.
       'webkit';
 
-  const numBrowserPages = parseInt(options.browserPages);
+  const numBrowserPages = options.browserPages
+    ? parseInt(options.browserPages)
+    : cpus().length;
 
   const browserPages = await BrowserPages.createPages(
     numBrowserPages,
@@ -611,7 +614,6 @@ program
   .option(
     '-p, --browser-pages [number]',
     'number of browser pages to use for diff',
-    '16',
   )
   .option(
     '--no-reuse-pages',

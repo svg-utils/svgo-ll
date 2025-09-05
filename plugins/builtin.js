@@ -32,43 +32,88 @@ import * as removeXMLProcInst from '../plugins/removeXMLProcInst.js';
 import * as round from '../plugins/round.js';
 import * as sortAttrs from '../plugins/sortAttrs.js';
 
-/** @type {Map<string,import('./svgo.js').CustomPlugin>} */
-export const builtinPlugins = Object.freeze(
-  new Map(
-    [
-      cleanupIds,
-      cleanupStyleAttributes,
-      cleanupTextElements,
-      cleanupXlink,
-      collapseGroups,
-      combineStyleElements,
-      convertEllipseToCircle,
-      convertShapeToPath,
-      createGroups,
-      inlineStyles,
-      inlineUse,
-      mergeGradients,
-      minifyColors,
-      minifyGradients,
-      minifyPathData,
-      minifyStyles,
-      minifyTransforms,
-      moveElemsStylesToGroup,
-      removeComments,
-      removeDesc,
-      removeDimensions,
-      removeDoctype,
-      removeEditorsNSData,
-      removeEmptyContainers,
-      removeHiddenElems,
-      removeMetadata,
-      removeNonInheritableGroupAttrs,
-      removeUnknownsAndDefaults,
-      removeUnusedNS,
-      removeUselessStrokeAndFill,
-      removeXMLProcInst,
-      round,
-      sortAttrs,
-    ].map((p) => [p.name, p]),
-  ),
-);
+/**
+ * @template K
+ * @template V
+ */
+class StaticMap {
+  /** @type {Map<K,V>} */
+  #map;
+
+  /**
+   * @param {Map<K,V>} map
+   */
+  constructor(map) {
+    this.#map = map;
+  }
+
+  /**
+   * @param {K} key
+   * @returns {V|undefined}
+   */
+  get(key) {
+    return this.#map.get(key);
+  }
+
+  /**
+   * @param {K} key
+   * @returns {boolean}
+   */
+  has(key) {
+    return this.#map.has(key);
+  }
+
+  /**
+   * @returns {IterableIterator<K>}
+   */
+  keys() {
+    return this.#map.keys();
+  }
+
+  /**
+   * @returns {IterableIterator<V>}
+   */
+  values() {
+    return this.#map.values();
+  }
+}
+
+/** @type {[string,import('../lib/svgo.js').CustomPlugin][]} */
+const pluginList = [
+  cleanupIds,
+  cleanupStyleAttributes,
+  cleanupTextElements,
+  cleanupXlink,
+  collapseGroups,
+  combineStyleElements,
+  convertEllipseToCircle,
+  convertShapeToPath,
+  createGroups,
+  inlineStyles,
+  inlineUse,
+  mergeGradients,
+  minifyColors,
+  minifyGradients,
+  minifyPathData,
+  minifyStyles,
+  minifyTransforms,
+  moveElemsStylesToGroup,
+  removeComments,
+  removeDesc,
+  removeDimensions,
+  removeDoctype,
+  removeEditorsNSData,
+  removeEmptyContainers,
+  removeHiddenElems,
+  removeMetadata,
+  removeNonInheritableGroupAttrs,
+  removeUnknownsAndDefaults,
+  removeUnusedNS,
+  removeUselessStrokeAndFill,
+  removeXMLProcInst,
+  round,
+  sortAttrs,
+].map((p) => [p.name, p]);
+
+/** @type {StaticMap<string,Readonly<import('../lib/svgo.js').CustomPlugin>>} */
+export const builtinPlugins = new StaticMap(new Map(pluginList));

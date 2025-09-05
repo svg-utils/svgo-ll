@@ -28,35 +28,43 @@ import * as removeUnusedNS from './removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 
-/** @type {import('../lib/svgo.js').CustomPlugin[]} */
-export const defaultPlugins = [
-  removeDoctype,
-  removeXMLProcInst,
-  removeComments,
-  removeMetadata,
-  removeEditorsNSData,
-  removeDesc,
-  cleanupXlink,
-  cleanupStyleAttributes,
-  combineStyleElements,
-  inlineStyles,
-  minifyStyles,
-  cleanupIds,
-  minifyColors,
-  minifyGradients,
-  removeUnknownsAndDefaults,
-  removeNonInheritableGroupAttrs,
-  removeUselessStrokeAndFill,
-  removeHiddenElems,
-  minifyTransforms,
-  convertEllipseToCircle,
-  moveElemsStylesToGroup,
-  convertShapeToPath,
-  minifyPathData,
-  mergeGradients,
-  removeEmptyContainers,
-  removeUnusedNS,
-  createGroups,
-  collapseGroups,
-  cleanupTextElements,
-];
+/**
+ * @typedef {Readonly<import('../lib/svgo.js').CustomPlugin[]>} ReadOnlyPluginList
+ */
+
+/** @type {Readonly<{pre:ReadOnlyPluginList, plugins:ReadOnlyPluginList}>} */
+export const defaultPlugins = Object.freeze({
+  pre: Object.freeze([
+    removeDoctype,
+    removeXMLProcInst,
+    removeComments,
+    removeMetadata,
+    removeEditorsNSData,
+    removeDesc,
+    cleanupXlink,
+  ]),
+  plugins: Object.freeze([
+    cleanupStyleAttributes,
+    combineStyleElements,
+    inlineStyles,
+    minifyStyles,
+    cleanupIds,
+    minifyColors,
+    minifyGradients,
+    removeUnknownsAndDefaults,
+    removeNonInheritableGroupAttrs,
+    removeUselessStrokeAndFill,
+    removeHiddenElems,
+    minifyTransforms,
+    convertEllipseToCircle,
+    moveElemsStylesToGroup,
+    convertShapeToPath,
+    minifyPathData,
+    mergeGradients,
+    removeEmptyContainers,
+    removeUnusedNS,
+    createGroups,
+    collapseGroups,
+    cleanupTextElements,
+  ]),
+});

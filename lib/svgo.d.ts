@@ -14,9 +14,12 @@ export type ResolvedConfig = {
   datauri?: import('./types.js').DataUri;
 };
 
+export type ResolvedPlugins = { pre: CustomPlugin[]; plugins: CustomPlugin[] };
+
 export type Config = ResolvedConfig & {
-  plugins?: CustomPlugin[];
-  pluginNames?: string[];
+  plugins?: ResolvedPlugins;
+  pre?: string[];
+  pluginNames?: string[] | true;
   enable?: string[];
   disable?: string[];
   // Configuration parameters for plugins.
@@ -96,9 +99,14 @@ export declare const _collections: {
 
 export declare const VERSION: string;
 
-export declare const builtinPlugins: Map<string, CustomPlugin>;
+export class StaticMap<K, V> {
+  keys(): K[];
+  values(): V[];
+}
 
-export declare const defaultPlugins: CustomPlugin[];
+export declare const builtinPlugins: StaticMap<string, CustomPlugin>;
+
+export declare const defaultPlugins: Readonly<ResolvedPlugins>;
 
 export type OptimizationCallbackInfo = {
   type: 'plugin';
@@ -108,7 +116,7 @@ export type OptimizationCallbackInfo = {
 };
 export type OptimizationCallback = (info: OptimizationCallbackInfo) => void;
 
-export declare function resolvePlugins(config: Config): CustomPlugin[];
+export declare function resolvePlugins(config: Config): ResolvedPlugins;
 
 export declare function optimize(
   input: string,
@@ -119,6 +127,6 @@ export declare function optimize(
 export declare function optimizeResolved(
   input: string,
   config: Config,
-  resolvedPlugins: CustomPlugin[],
+  resolvedPlugins: ResolvedPlugins,
   callback?: OptimizationCallback,
 ): Output;

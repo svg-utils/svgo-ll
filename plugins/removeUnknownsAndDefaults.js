@@ -41,6 +41,15 @@ const preserveOverflowElements = new Set([
   'symbol',
   'text',
 ]);
+const preserveFillRuleElements = new Set([
+  'path',
+  'polygon',
+  'polyline',
+  'text',
+  'textPath',
+  'tspan',
+  'g',
+]);
 
 for (const [name, config] of Object.entries(elems)) {
   /**
@@ -68,6 +77,9 @@ for (const [name, config] of Object.entries(elems)) {
   const allowedAttributes = new Set();
   if (config.attrs) {
     for (const attrName of config.attrs) {
+      if (attrName === 'fill-rule' && !preserveFillRuleElements.has(name)) {
+        continue;
+      }
       allowedAttributes.add(attrName);
     }
   }
@@ -82,6 +94,9 @@ for (const [name, config] of Object.entries(elems)) {
     const attrsGroup = attrsGroups[attrsGroupName];
     if (attrsGroup) {
       for (const attrName of attrsGroup) {
+        if (attrName === 'fill-rule' && !preserveFillRuleElements.has(name)) {
+          continue;
+        }
         allowedAttributes.add(attrName);
       }
     }
@@ -270,21 +285,27 @@ export const fn = (info, params) => {
 
           // For each of the properties, remove it if the result was unchanged.
           const propsToDelete = [];
-          for (const p of styleAttValue.keys()) {
-            const origVal = computedStyle.get(p);
-            const newVal = newComputedStyle.get(p);
+          for (const propertyName of styleAttValue.keys()) {
+            // If the style is not allowed, delete it without checking the impact.
+            if (allowedAttributes && !allowedAttributes.has(propertyName)) {
+              propsToDelete.push(propertyName);
+              continue;
+            }
+
+            const origVal = computedStyle.get(propertyName);
+            const newVal = newComputedStyle.get(propertyName);
             if (
               origVal !== null &&
               (origVal === newVal ||
                 (newVal === undefined &&
                   isDefaultPropertyValue(
                     element,
-                    p,
+                    propertyName,
                     origVal,
                     attributesDefaults,
                   )))
             ) {
-              propsToDelete.push(p);
+              propsToDelete.push(propertyName);
             }
           }
           if (propsToDelete.length > 0) {

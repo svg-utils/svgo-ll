@@ -18,8 +18,6 @@ export const name = 'removeUnknownsAndDefaults';
 export const description =
   'removes unknown elements content and attributes, removes attrs with default values';
 
-// resolve all groups references
-
 /**
  * @type {Map<string, Set<string>>}
  */
@@ -41,6 +39,8 @@ const preserveOverflowElements = new Set([
   'symbol',
   'text',
 ]);
+
+// See https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/fill-rule#specifications
 const preserveFillRuleElements = new Set([
   'path',
   'polygon',

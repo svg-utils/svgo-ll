@@ -1,0 +1,17 @@
+Remove fill-rule:evenodd when it does not apply to an element.
+
+===
+
+<svg width="200" height="300" viewBox="0 0 200 300"
+  xmlns="http://www.w3.org/2000/svg">
+  <circle style="fill-rule:evenodd" cx="85" cy="85" r="40"/>
+  <path style="fill-rule:evenodd" d="M150 150h20v20h-20zM155 155h10v10h-10z"/>
+</svg>
+
+@@@
+
+<svg width="200" height="300" viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="85" cy="85" r="40"/>
+  <path style="fill-rule:evenodd" d="M150 150h20v20h-20zM155 155h10v10h-10z"/>
+</svg>
+

@@ -1,0 +1,13 @@
+Don't convert style to attribute if transform property is present.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" style="fill:red;transform:rotate(15deg)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" style="fill:red;transform:rotate(15deg)"/>
+</svg>

@@ -36,6 +36,7 @@ type BuiltinPlugins = {
   };
   inlineUse: void;
   mergeGradients: void;
+  minifyAttrsAndStyles: void;
   minifyColors: void;
   minifyGradients: void;
   minifyIds: {

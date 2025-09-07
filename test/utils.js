@@ -3,7 +3,7 @@
  * @returns {import('../lib/svgo.js').ResolvedPlugins}
  */
 export function getResolvedPlugins(pluginList) {
-  return { pre: [], plugins: pluginList };
+  return { pre: [], plugins: pluginList, post: [] };
 }
 
 /**

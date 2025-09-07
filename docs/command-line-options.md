@@ -25,7 +25,7 @@ If `--folder` is specified, exclude files matching any of the specified regular 
 
 <a id="enable"></a>
 `--enable <plugin...>`  
-Specify one or more builtin plugins to run in addition to the default plugins.
+Specify one or more [builtin plugins](./plugins/builtin-plugins.md) to run in addition to the [default plugins](./plugins/default-plugins.md).
 
 <a id="options"></a>
 ` --options <FILENAME>`  

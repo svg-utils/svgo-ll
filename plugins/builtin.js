@@ -12,6 +12,7 @@ import * as inlineUse from '../plugins/inlineUse.js';
 import * as mergeGradients from '../plugins/mergeGradients.js';
 import * as minifyColors from '../plugins/minifyColors.js';
 import * as minifyGradients from '../plugins/minifyGradients.js';
+import * as minifyIds from '../plugins/minifyIds.js';
 import * as minifyPathData from '../plugins/minifyPathData.js';
 import * as minifyStyles from '../plugins/minifyStyles.js';
 import * as minifyTransforms from '../plugins/minifyTransforms.js';
@@ -94,6 +95,7 @@ const pluginList = [
   mergeGradients,
   minifyColors,
   minifyGradients,
+  minifyIds,
   minifyPathData,
   minifyStyles,
   minifyTransforms,

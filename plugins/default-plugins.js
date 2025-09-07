@@ -11,6 +11,7 @@ import * as inlineStyles from './inlineStyles.js';
 import * as mergeGradients from './mergeGradients.js';
 import * as minifyColors from './minifyColors.js';
 import * as minifyGradients from './minifyGradients.js';
+import * as minifyIds from './minifyIds.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
 import * as minifyTransforms from './minifyTransforms.js';
@@ -67,5 +68,5 @@ export const defaultPlugins = Object.freeze({
     collapseGroups,
     cleanupTextElements,
   ]),
-  post: Object.freeze([{ name: 'dummy', fn: () => {} }]),
+  post: Object.freeze([minifyIds]),
 });

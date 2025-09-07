@@ -29,11 +29,6 @@ type BuiltinPlugins = {
      */
     removeMatchedSelectors?: boolean;
     /**
-     * Media queries to use. An empty string indicates all selectors outside of
-     * media queries.
-     */
-    useMqs?: string[];
-    /**
      * Pseudo-classes and elements to use. An empty string indicates all
      * all non-pseudo-classes and elements.
      */
@@ -43,6 +38,10 @@ type BuiltinPlugins = {
   mergeGradients: void;
   minifyColors: void;
   minifyGradients: void;
+  minifyIds: {
+    preserve?: string[];
+    preservePrefixes?: string[];
+  };
   minifyPathData: void;
   minifyStyles: void;
   minifyTransforms: void;

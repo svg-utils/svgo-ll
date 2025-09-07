@@ -14,12 +14,17 @@ export type ResolvedConfig = {
   datauri?: import('./types.js').DataUri;
 };
 
-export type ResolvedPlugins = { pre: CustomPlugin[]; plugins: CustomPlugin[] };
+export type ResolvedPlugins = {
+  pre: CustomPlugin[];
+  plugins: CustomPlugin[];
+  post: CustomPlugin[];
+};
 
 export type Config = ResolvedConfig & {
   plugins?: ResolvedPlugins;
-  pre?: string[];
   pluginNames?: string[] | true;
+  pre?: string[];
+  post?: string[];
   enable?: string[];
   disable?: string[];
   // Configuration parameters for plugins.

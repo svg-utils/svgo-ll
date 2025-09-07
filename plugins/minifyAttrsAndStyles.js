@@ -1,3 +1,4 @@
+import { StyleAttValue } from '../lib/styleAttValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -34,6 +35,13 @@ export const fn = (info) => {
 
           // Remove the style attribute.
           updateStyleAttribute(element, undefined);
+        } else {
+          // Remove the attributes.
+          for (const name of props.keys()) {
+            delete element.attributes[name];
+          }
+
+          updateStyleAttribute(element, new StyleAttValue(props));
         }
       },
     },

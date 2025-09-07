@@ -270,4 +270,27 @@ describe('test default plugins', function () {
       ),
     );
   });
+
+  it('should respect --post with --plugins', async () => {
+    const outPath = path.join(PLUGINOPT_DIR, 'testDocType-post-plugins.svg');
+    await runProgram([
+      '-i',
+      path.join(PLUGINOPT_DIR, 'testDocType.svg'),
+      '-o',
+      outPath,
+      '--post',
+      'removeComments',
+      '--plugins',
+      'minifyTransforms',
+      '--quiet',
+      '--pretty',
+    ]);
+    const opt = fs.readFileSync(outPath, { encoding: 'utf8' });
+    expect(opt).toBe(
+      fs.readFileSync(
+        path.join(PLUGINOPT_DIR, 'testDocType-pre-plugins-expected.svg'),
+        { encoding: 'utf8' },
+      ),
+    );
+  });
 });

@@ -32,7 +32,7 @@ import * as removeXMLProcInst from './removeXMLProcInst.js';
  * @typedef {Readonly<import('../lib/svgo.js').CustomPlugin[]>} ReadOnlyPluginList
  */
 
-/** @type {Readonly<{pre:ReadOnlyPluginList, plugins:ReadOnlyPluginList}>} */
+/** @type {Readonly<{pre:ReadOnlyPluginList, plugins:ReadOnlyPluginList,post:ReadOnlyPluginList}>} */
 export const defaultPlugins = Object.freeze({
   pre: Object.freeze([
     removeDoctype,
@@ -67,4 +67,5 @@ export const defaultPlugins = Object.freeze({
     collapseGroups,
     cleanupTextElements,
   ]),
+  post: Object.freeze([{ name: 'dummy', fn: () => {} }]),
 });

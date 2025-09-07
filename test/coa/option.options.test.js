@@ -39,7 +39,7 @@ describe('test --options option', function () {
       PLUGINOPT_FILE1_OPT,
       '--quiet',
       '--options',
-      path.resolve(PLUGINOPT_DIR, 'options.cleanupIds.json'),
+      path.resolve(PLUGINOPT_DIR, 'options.minifyIds.json'),
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
     expect(opt).toBe(EXPECT_ID_PRESERVED);

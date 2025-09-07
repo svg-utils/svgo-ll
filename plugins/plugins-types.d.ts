@@ -108,6 +108,7 @@ type BuiltinPlugins = {
     order?: string[];
     xmlnsOrder?: 'front' | 'alphabetical';
   };
+  stylesToClasses: void;
 };
 
 export type Plugin<Name extends keyof BuiltinPlugins> = PluginDef<

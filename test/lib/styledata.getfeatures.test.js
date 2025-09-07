@@ -1,8 +1,8 @@
 import { generateData } from './testutils.js';
 
 /**
- * @param {Set<import('../../lib/docdata.js').CSSFeatures>} s
- * @param {import('../../lib/docdata.js').CSSFeatures[]} a
+ * @param {Set<import('../../lib/types.js').CSSFeatures>} s
+ * @param {import('../../lib/types.js').CSSFeatures[]} a
  */
 function setsAreIdentical(s, a) {
   if (s.size !== a.length) {
@@ -13,7 +13,7 @@ function setsAreIdentical(s, a) {
 
 /**
  * @param {string} fileSuffix
- * @param {import('../../lib/docdata.js').CSSFeatures[]} expected
+ * @param {import('../../lib/types.js').CSSFeatures[]} expected
  */
 function checkFile(fileSuffix, expected) {
   const data = generateData(

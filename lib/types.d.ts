@@ -144,6 +144,7 @@ export class StyleData {
 
 export class CSSRule {
   addReferencedClasses(classes: Set<string>): void;
+  addReferencedIds(ids: Map<string, CSSRule[]>): void;
   getDeclarations(): Map<string, CSSPropertyValue>;
   getFeatures(): Set<CSSFeatures>;
   getSpecificity(): [number, number, number];
@@ -151,6 +152,18 @@ export class CSSRule {
   hasPseudos(): boolean;
   isInMediaQuery(): boolean;
   matches(element: XastElement): boolean;
+  updateReferencedIds(ids: Map<string, string>): void;
+}
+
+export class CSSRuleSet {
+  deleteRules(rules: Set<CSSRule>): void;
+  getFeatures(): Set<CSSFeatures>;
+  getRules(): CSSRule[];
+  getString(): string;
+  hasAtRules(): boolean;
+  hasAttributeSelector(name: string | undefined): boolean;
+  hasIdSelector(id: string): boolean;
+  hasTypeSelector(type: string): boolean;
 }
 
 export type CSSParsedTransform = {

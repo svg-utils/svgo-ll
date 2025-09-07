@@ -8,6 +8,7 @@ import * as convertEllipseToCircle from './convertEllipseToCircle.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
+import * as minifyAttrsAndStyles from './minifyAttrsAndStyles.js';
 import * as mergeGradients from './mergeGradients.js';
 import * as minifyColors from './minifyColors.js';
 import * as minifyGradients from './minifyGradients.js';
@@ -68,5 +69,5 @@ export const defaultPlugins = Object.freeze({
     collapseGroups,
     cleanupTextElements,
   ]),
-  post: Object.freeze([minifyIds]),
+  post: Object.freeze([minifyIds, minifyAttrsAndStyles]),
 });

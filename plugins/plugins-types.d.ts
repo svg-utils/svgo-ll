@@ -6,10 +6,10 @@ type BuiltinPlugins = {
     preservePrefixes?: string[];
   };
   cleanupStyleAttributes: void;
-  cleanupStyleElements: void;
   cleanupTextElements: void;
   cleanupXlink: void;
   collapseGroups: void;
+  combineStyleElements: void;
   convertEllipseToCircle: void;
   convertShapeToPath: void;
   createGroups: void;

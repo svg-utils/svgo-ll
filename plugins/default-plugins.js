@@ -47,7 +47,6 @@ export const defaultPlugins = Object.freeze({
   ]),
   plugins: Object.freeze([
     cleanupStyleAttributes,
-    combineStyleElements,
     inlineStyles,
     minifyStyles,
     cleanupIds,
@@ -69,5 +68,5 @@ export const defaultPlugins = Object.freeze({
     collapseGroups,
     cleanupTextElements,
   ]),
-  post: Object.freeze([minifyIds, minifyAttrsAndStyles]),
+  post: Object.freeze([minifyIds, minifyAttrsAndStyles, combineStyleElements]),
 });

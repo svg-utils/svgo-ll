@@ -119,7 +119,6 @@ export class StyleData {
   ): Map<string, string | null>;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
-  getFirstStyleElement(): XastElement | undefined;
   getIdsReferencedByProperties(): string[];
   getMatchingRules(element: XastElement): CSSRule[];
   getReferencedIds(): Map<string, CSSRule[]>;

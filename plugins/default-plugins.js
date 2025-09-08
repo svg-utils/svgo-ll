@@ -44,6 +44,7 @@ export const defaultPlugins = Object.freeze({
     removeEditorsNSData,
     removeDesc,
     cleanupXlink,
+    combineStyleElements,
   ]),
   plugins: Object.freeze([
     cleanupStyleAttributes,
@@ -68,5 +69,5 @@ export const defaultPlugins = Object.freeze({
     collapseGroups,
     cleanupTextElements,
   ]),
-  post: Object.freeze([minifyIds, minifyAttrsAndStyles, combineStyleElements]),
+  post: Object.freeze([minifyIds, minifyAttrsAndStyles]),
 });

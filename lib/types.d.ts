@@ -108,6 +108,7 @@ export class AttValue {
 }
 
 export class StyleData {
+  addStyleSection(css: string): void;
   computeOwnStyle(node: XastElement): Map<string, string | null>;
   computeParentStyle(
     parentList: Readonly<ParentList>,

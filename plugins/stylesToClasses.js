@@ -46,6 +46,12 @@ export const fn = (info) => {
           }
           rules.push(`.zzz{${str}}`);
         }
+
+        if (rules.length === 0) {
+          return;
+        }
+
+        styleData.addStyleSection(rules.join(''));
       },
     },
   };

@@ -17,7 +17,7 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<string,{props:Map<string,import('../lib/types.js').CSSPropertyValue>,elements:import('../lib/types.js').XastElement[]}>} */
+  /** @type {Map<string,{props:Map<string,import('../lib/types.js').CSSPropertyValue>,elements:import('../lib/types.js').XastElement[],className?:string}>} */
   const mapStylesToElems = new Map();
 
   return {
@@ -41,16 +41,22 @@ export const fn = (info) => {
     root: {
       exit: () => {
         let classNameCounter = 0;
+
+        // First calculate savings.
+
+        let className = generateId(classNameCounter++);
+        for (const [str, info] of mapStylesToElems) {
+          info.className = className;
+          className = generateId(classNameCounter++);
+        }
+
         const rules = [];
         for (const [str, info] of mapStylesToElems) {
-          if (info.elements.length < 2) {
-            continue;
-          }
-
-          const className = generateId(classNameCounter++);
-
           for (const element of info.elements) {
-            element.attributes['class'] = className;
+            if (info.className === undefined) {
+              continue;
+            }
+            element.attributes['class'] = info.className;
             const origProps = StyleAttValue.getStyleAttValue(element);
             for (const propName of info.props.keys()) {
               if (origProps) {
@@ -60,7 +66,7 @@ export const fn = (info) => {
             }
             updateStyleAttribute(element, origProps);
           }
-          rules.push(`.${className}{${str}}`);
+          rules.push(`.${info.className}{${str}}`);
         }
 
         if (rules.length === 0) {

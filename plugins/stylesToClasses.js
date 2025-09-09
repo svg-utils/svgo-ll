@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/styleAttValue.js';
-import { generateId } from '../lib/svgo/tools.js';
+import { generateId, updateStyleAttribute } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'stylesToClasses';
@@ -17,7 +17,7 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
+  /** @type {Map<string,{props:Map<string,import('../lib/types.js').CSSPropertyValue>,elements:import('../lib/types.js').XastElement[]}>} */
   const mapStylesToElems = new Map();
 
   return {
@@ -29,12 +29,12 @@ export const fn = (info) => {
         }
 
         const strVal = new StyleAttValue(props).toString();
-        let elements = mapStylesToElems.get(strVal);
-        if (elements === undefined) {
-          elements = [];
-          mapStylesToElems.set(strVal, elements);
+        let info = mapStylesToElems.get(strVal);
+        if (info === undefined) {
+          info = { props: props, elements: [] };
+          mapStylesToElems.set(strVal, info);
         }
-        elements.push(element);
+        info.elements.push(element);
       },
     },
 
@@ -42,15 +42,22 @@ export const fn = (info) => {
       exit: () => {
         let classNameCounter = 0;
         const rules = [];
-        for (const [str, elements] of mapStylesToElems) {
-          if (elements.length < 2) {
+        for (const [str, info] of mapStylesToElems) {
+          if (info.elements.length < 2) {
             continue;
           }
 
           const className = generateId(classNameCounter++);
 
-          for (const element of elements) {
+          for (const element of info.elements) {
             element.attributes['class'] = className;
+            const origProps = StyleAttValue.getStyleAttValue(element);
+            for (const propName of info.props.keys()) {
+              if (origProps) {
+                origProps.delete(propName);
+              }
+            }
+            updateStyleAttribute(element, origProps);
           }
           rules.push(`.${className}{${str}}`);
         }

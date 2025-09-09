@@ -6,6 +6,57 @@ export const name = 'stylesToClasses';
 export const description =
   'convert attributes and inline styles to classes where shorter';
 
+class StyleToClassData {
+  #props;
+  /** @type {import('../lib/types.js').XastElement[]} */
+  #elements;
+  /** @type {string|undefined} */
+  #className;
+
+  /**
+   * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
+   */
+  constructor(props) {
+    this.#props = props;
+    this.#elements = [];
+  }
+
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
+  addElement(element) {
+    this.#elements.push(element);
+  }
+
+  /**
+   * @returns {string|undefined}
+   */
+  getClassName() {
+    return this.#className;
+  }
+
+  /**
+   * @returns {import('../lib/types.js').XastElement[]}
+   */
+  getElements() {
+    return this.#elements;
+  }
+
+  /**
+   * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+   */
+  getProperties() {
+    return this.#props;
+  }
+
+  /**
+   * @param {string} className
+   */
+  setClassName(className) {
+    this.#className = className;
+  }
+}
+
 /** @type {import('./plugins-types.js').Plugin<'stylesToClasses'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
@@ -17,7 +68,7 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<string,{props:Map<string,import('../lib/types.js').CSSPropertyValue>,elements:import('../lib/types.js').XastElement[],className?:string}>} */
+  /** @type {Map<string,StyleToClassData>} */
   const mapStylesToElems = new Map();
 
   return {
@@ -31,10 +82,10 @@ export const fn = (info) => {
         const strVal = new StyleAttValue(props).toString();
         let info = mapStylesToElems.get(strVal);
         if (info === undefined) {
-          info = { props: props, elements: [] };
+          info = new StyleToClassData(props);
           mapStylesToElems.set(strVal, info);
         }
-        info.elements.push(element);
+        info.addElement(element);
       },
     },
 
@@ -44,21 +95,22 @@ export const fn = (info) => {
 
         // First calculate savings.
 
-        let className = generateId(classNameCounter++);
+        let classId = generateId(classNameCounter++);
         for (const [str, info] of mapStylesToElems) {
-          info.className = className;
-          className = generateId(classNameCounter++);
+          info.setClassName(classId);
+          classId = generateId(classNameCounter++);
         }
 
         const rules = [];
         for (const [str, info] of mapStylesToElems) {
-          for (const element of info.elements) {
-            if (info.className === undefined) {
+          for (const element of info.getElements()) {
+            const className = info.getClassName();
+            if (className === undefined) {
               continue;
             }
-            element.attributes['class'] = info.className;
+            element.attributes['class'] = className;
             const origProps = StyleAttValue.getStyleAttValue(element);
-            for (const propName of info.props.keys()) {
+            for (const propName of info.getProperties().keys()) {
               if (origProps) {
                 origProps.delete(propName);
               }
@@ -66,7 +118,7 @@ export const fn = (info) => {
             }
             updateStyleAttribute(element, origProps);
           }
-          rules.push(`.${info.className}{${str}}`);
+          rules.push(`.${info.getClassName()}{${str}}`);
         }
 
         if (rules.length === 0) {

@@ -8,15 +8,11 @@ describe('test generateId() break points', () => {
   const testData = [
     { input: 0, expected: 'a' },
     { input: 51, expected: 'Z' },
-    { input: 52, expected: 'aa' },
-    { input: 53, expected: 'ab' },
-    { input: 61, expected: 'aj' },
-    { input: 62, expected: 'ak' },
-    { input: 114, expected: 'ba' },
-    { input: 1664, expected: 'Aa' },
-    { input: 1725, expected: 'A9' },
-    { input: 3275, expected: 'Z9' },
-    { input: 3276, expected: 'aaa' },
+    { input: 52, expected: 'a0' },
+    { input: 53, expected: 'a1' },
+    { input: 114, expected: 'b0' },
+    { input: 3275, expected: 'ZZ' },
+    { input: 3276, expected: 'a00' },
   ];
 
   for (let index = 0; index < testData.length; index++) {

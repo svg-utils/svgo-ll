@@ -377,7 +377,7 @@
         <text id="Z">
             referenced text
         </text>
-        <text id="a0">
+        <text id="aa">
             referenced text
         </text>
     </defs>
@@ -435,5 +435,5 @@
     <tref xlink:href="#X"/>
     <tref xlink:href="#Y"/>
     <tref xlink:href="#Z"/>
-    <tref xlink:href="#a0"/>
+    <tref xlink:href="#aa"/>
 </svg>

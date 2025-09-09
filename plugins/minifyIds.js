@@ -42,7 +42,7 @@ export const fn = (info, params) => {
       }
       return nextId;
     }
-    let counter = 1;
+    let counter = 0;
     /** @type {string|undefined} */
     let nextId;
 

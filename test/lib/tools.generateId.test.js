@@ -8,16 +8,14 @@ import { generateId } from '../../lib/svgo/tools.js';
  */
 
 describe('generateId()', () => {
-  /**
-   * @type {TestInfo[]}
-   */
+  /** @type {TestInfo[]} */
   const testData = [
-    { input: 1, expected: 'a' },
-    { input: 52, expected: 'Z' },
-    { input: 53, expected: 'a0' },
-    { input: 54, expected: 'aa' },
-    { input: 2808, expected: 'ZZ' },
-    { input: 2809, expected: 'a00' },
+    { input: 0, expected: 'a' },
+    { input: 51, expected: 'Z' },
+    { input: 52, expected: 'aa' },
+    { input: 53, expected: 'ab' },
+    { input: 3285, expected: 'Z9' },
+    { input: 3286, expected: 'aaa' },
   ];
 
   for (let index = 0; index < testData.length; index++) {

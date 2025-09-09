@@ -1,4 +1,5 @@
 import { StyleAttValue } from '../lib/styleAttValue.js';
+import { generateId } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'stylesToClasses';
@@ -39,12 +40,15 @@ export const fn = (info) => {
 
     root: {
       exit: () => {
+        let classNameCounter = 0;
         const rules = [];
         for (const [str, elements] of mapStylesToElems) {
           if (elements.length < 2) {
             continue;
           }
-          rules.push(`.zzz{${str}}`);
+
+          const className = generateId(classNameCounter++);
+          rules.push(`.${className}{${str}}`);
         }
 
         if (rules.length === 0) {

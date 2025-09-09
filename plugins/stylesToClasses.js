@@ -56,6 +56,7 @@ export const fn = (info) => {
               if (origProps) {
                 origProps.delete(propName);
               }
+              delete element.attributes[propName];
             }
             updateStyleAttribute(element, origProps);
           }

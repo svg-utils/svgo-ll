@@ -1,0 +1,15 @@
+Don't convert styles to classes if it makes file larger.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" style="fill:red"/>
+  <rect y="7" width="3" height="2" style="fill:red"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" style="fill:red"/>
+  <rect y="7" width="3" height="2" style="fill:red"/>
+</svg>

@@ -42,6 +42,7 @@ export const fn = (info, params) => {
       }
       return nextId;
     }
+
     let counter = 0;
     /** @type {string|undefined} */
     let nextId;
@@ -49,7 +50,7 @@ export const fn = (info, params) => {
     /** @type {Map<string,string>} */
     const idMap = new Map();
 
-    // Sort by number of references, thensize, then alpha.
+    // Sort by number of references, then size, then alpha.
     originalIds = originalIds.sort((a, b) => {
       const aRefs = allReferencedIds.get(a);
       const bRefs = allReferencedIds.get(b);

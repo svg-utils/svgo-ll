@@ -1,21 +1,22 @@
 import { generateId } from '../../lib/svgo/tools.js';
 
-/**
- * @typedef {{
- * input:number,
- * expected:string
- * }} TestInfo
- */
-
-describe('generateId()', () => {
-  /** @type {TestInfo[]} */
+describe('test generateId() break points', () => {
+  /** @type {{
+   * input:number,
+   * expected:string
+   * }[]} */
   const testData = [
     { input: 0, expected: 'a' },
     { input: 51, expected: 'Z' },
     { input: 52, expected: 'aa' },
     { input: 53, expected: 'ab' },
-    { input: 3285, expected: 'Z9' },
-    { input: 3286, expected: 'aaa' },
+    { input: 61, expected: 'aj' },
+    { input: 62, expected: 'ak' },
+    { input: 114, expected: 'ba' },
+    { input: 1664, expected: 'Aa' },
+    { input: 1725, expected: 'A9' },
+    { input: 3275, expected: 'Z9' },
+    { input: 3276, expected: 'aaa' },
   ];
 
   for (let index = 0; index < testData.length; index++) {
@@ -24,4 +25,18 @@ describe('generateId()', () => {
       expect(generateId(test.input)).toEqual(test.expected);
     });
   }
+});
+
+it('test generateId() for duplicates and leading digits', () => {
+  const generatedIds = new Set();
+  let index;
+  for (index = 0; index < 200000; index++) {
+    const id = generateId(index);
+    if ('0123456789'.includes(id[0]) || generatedIds.has(id)) {
+      break;
+    }
+    generatedIds.add(id);
+  }
+
+  expect(index).toBe(200000);
 });

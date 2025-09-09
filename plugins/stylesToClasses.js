@@ -48,6 +48,10 @@ export const fn = (info) => {
           }
 
           const className = generateId(classNameCounter++);
+
+          for (const element of elements) {
+            element.attributes['class'] = className;
+          }
           rules.push(`.${className}{${str}}`);
         }
 

@@ -6,8 +6,9 @@ export const name = 'stylesToClasses';
 export const description =
   'convert attributes and inline styles to classes where shorter';
 
-class StyleToClassData {
+export class StyleToClassData {
   #props;
+  #propString;
   /** @type {import('../lib/types.js').XastElement[]} */
   #elements;
   /** @type {string|undefined} */
@@ -15,9 +16,11 @@ class StyleToClassData {
 
   /**
    * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
+   * @param {string} propString
    */
-  constructor(props) {
+  constructor(props, propString) {
     this.#props = props;
+    this.#propString = propString;
     this.#elements = [];
   }
 
@@ -26,6 +29,30 @@ class StyleToClassData {
    */
   addElement(element) {
     this.#elements.push(element);
+  }
+
+  /**
+   * @param {string} className
+   * @returns {number}
+   */
+  calculateSavings(className) {
+    // Style rule: "." + className + "{}" + propString
+    let cost = 1 + className.length + 2 + this.#propString.length;
+    let savings = 0;
+
+    for (const element of this.#elements) {
+      // Add class to element.
+      cost += ' class=""'.length + className.length;
+
+      // If there is a style attribute, see how much it is reduced.
+      const styleAtt = StyleAttValue.getStyleAttValue(element);
+      if (styleAtt) {
+        const origSize = ' style=""'.length + styleAtt.toString().length;
+        const newSize = 0;
+        savings += origSize - newSize;
+      }
+    }
+    return savings - cost;
   }
 
   /**
@@ -82,7 +109,7 @@ export const fn = (info) => {
         const strVal = new StyleAttValue(props).toString();
         let info = mapStylesToElems.get(strVal);
         if (info === undefined) {
-          info = new StyleToClassData(props);
+          info = new StyleToClassData(props, strVal);
           mapStylesToElems.set(strVal, info);
         }
         info.addElement(element);
@@ -95,10 +122,22 @@ export const fn = (info) => {
 
         // First calculate savings.
 
+        let totalSavings = styleData.hasStyles()
+          ? 0
+          : -'<style></style>'.length;
         let classId = generateId(classNameCounter++);
         for (const [str, info] of mapStylesToElems) {
+          const savings = info.calculateSavings(classId);
+          if (savings <= 0) {
+            continue;
+          }
+          totalSavings += savings;
           info.setClassName(classId);
           classId = generateId(classNameCounter++);
+        }
+
+        if (totalSavings <= 0) {
+          return;
         }
 
         const rules = [];

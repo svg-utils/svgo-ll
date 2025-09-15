@@ -51,6 +51,16 @@ export class StyleToClassData {
         const newSize = 0;
         savings += origSize - newSize;
       }
+
+      // Remove attribute if present.
+      for (const propName of this.#props.keys()) {
+        if (element.attributes[propName] !== undefined) {
+          savings +=
+            ' =""'.length +
+            propName.length +
+            element.attributes[propName].toString().length;
+        }
+      }
     }
     return savings - cost;
   }
@@ -126,7 +136,7 @@ export const fn = (info) => {
           ? 0
           : -'<style></style>'.length;
         let classId = generateId(classNameCounter++);
-        for (const [str, info] of mapStylesToElems) {
+        for (const info of mapStylesToElems.values()) {
           const savings = info.calculateSavings(classId);
           if (savings <= 0) {
             continue;

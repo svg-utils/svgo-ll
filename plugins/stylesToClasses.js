@@ -195,11 +195,12 @@ export const fn = (info) => {
 
         const rules = [];
         for (const info of sortedStyles) {
+          const className = info.getClassName();
+          if (className === undefined) {
+            continue;
+          }
+
           for (const element of info.getElements()) {
-            const className = info.getClassName();
-            if (className === undefined) {
-              continue;
-            }
             element.attributes['class'] = className;
             const origProps = StyleAttValue.getStyleAttValue(element);
             for (const propName of info.getProperties().keys()) {

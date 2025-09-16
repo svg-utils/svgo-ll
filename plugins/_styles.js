@@ -1,3 +1,4 @@
+import { LengthOrPctValue } from '../lib/lengthOrPct.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
@@ -37,15 +38,25 @@ function _getProperties(element, fnInclude) {
     if (!fnInclude(name)) {
       continue;
     }
-    if (name === 'transform') {
-      const cssValue = svgAttTransformToCSS(value);
-      if (cssValue) {
-        props.set(name, cssValue);
-      }
-    } else if (TRANSFORM_PROP_NAMES.includes(name)) {
-      props.set(name, { value: value, important: false });
-    } else {
-      props.set(name, { value: value, important: false });
+
+    switch (name) {
+      case 'font-size':
+        {
+          const cssValue = LengthOrPctValue.getLengthOrPctObj(value);
+          props.set(name, { value: cssValue, important: false });
+        }
+        break;
+      case 'transform':
+        {
+          const cssValue = svgAttTransformToCSS(value);
+          if (cssValue) {
+            props.set(name, cssValue);
+          }
+        }
+        break;
+      default:
+        props.set(name, { value: value, important: false });
+        break;
     }
   }
 

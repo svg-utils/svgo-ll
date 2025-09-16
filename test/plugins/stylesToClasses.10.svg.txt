@@ -1,0 +1,16 @@
+Make sure font-size has units if converted to class.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <text y="10" font-size="8" style="fill:red">XX</text>
+  <text y="20" font-size="8" style="fill:red">XX</text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <text y="10" class="a">XX</text>
+  <text y="20" class="a">XX</text>
+  <style>.a{fill:red;font-size:8px}</style>
+</svg>

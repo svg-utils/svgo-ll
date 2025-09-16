@@ -138,7 +138,7 @@ export const fn = (info) => {
           return;
         }
 
-        const strVal = new StyleAttValue(props).toString();
+        const strVal = new StyleAttValue(props).getSortedString();
         let info = mapStylesToElems.get(strVal);
         if (info === undefined) {
           info = new StyleToClassData(props, strVal);

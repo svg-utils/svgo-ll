@@ -118,6 +118,11 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        // Don't convert if it already has a class attribute.
+        if (element.attributes.class !== undefined) {
+          return;
+        }
+
         const props = getPresentationProperties(element);
         if (props.size === 0) {
           return;

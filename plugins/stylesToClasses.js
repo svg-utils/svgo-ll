@@ -191,6 +191,7 @@ export const fn = (info) => {
         }
 
         styleData.addStyleSection(rules.join(''));
+        styleData.mergeStyles();
       },
     },
   };

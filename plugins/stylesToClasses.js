@@ -87,6 +87,13 @@ export class StyleToClassData {
   }
 
   /**
+   * @returns {string}
+   */
+  getPropertyString() {
+    return this.#propString;
+  }
+
+  /**
    * @param {string} className
    */
   setClassName(className) {
@@ -130,13 +137,17 @@ export const fn = (info) => {
       exit: () => {
         let classNameCounter = 0;
 
-        // First calculate savings.
+        // Sort values by number of references so most-used classes have the shortest class names.
+        const sortedStyles = Array.from(mapStylesToElems.values()).sort(
+          (a, b) => b.getElements().length - a.getElements().length,
+        );
 
+        // First calculate savings.
         let totalSavings = styleData.hasStyles()
           ? 0
           : -'<style></style>'.length;
         let classId = generateId(classNameCounter++);
-        for (const info of mapStylesToElems.values()) {
+        for (const info of sortedStyles) {
           const savings = info.calculateSavings(classId);
           if (savings <= 0) {
             continue;
@@ -151,7 +162,7 @@ export const fn = (info) => {
         }
 
         const rules = [];
-        for (const [str, info] of mapStylesToElems) {
+        for (const info of sortedStyles) {
           for (const element of info.getElements()) {
             const className = info.getClassName();
             if (className === undefined) {
@@ -167,7 +178,7 @@ export const fn = (info) => {
             }
             updateStyleAttribute(element, origProps);
           }
-          rules.push(`.${info.getClassName()}{${str}}`);
+          rules.push(`.${info.getClassName()}{${info.getPropertyString()}}`);
         }
 
         if (rules.length === 0) {

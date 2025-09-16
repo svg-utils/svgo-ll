@@ -16,6 +16,12 @@ describe('test savings calculation', () => {
       className: 'a',
       expected: 1,
     },
+    {
+      props: 'font-size:14px',
+      elements: [{ 'font-size': '14' }],
+      className: 'a',
+      expected: -13,
+    },
   ];
 
   for (const testData of testCases) {

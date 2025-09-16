@@ -1,0 +1,17 @@
+Make sure letter-spacing has units if converted to class.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <text y="10" style="fill:red;font-size:8px" letter-spacing="10">XX</text>
+  <text y="20" style="fill:red;font-size:8px" letter-spacing="10">XX</text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <text y="10" class="a">XX</text>
+  <text y="20" class="a">XX</text>
+  <style>.a{fill:red;font-size:8px;letter-spacing:10px}</style>
+</svg>
+

@@ -41,6 +41,7 @@ function _getProperties(element, fnInclude) {
 
     switch (name) {
       case 'font-size':
+      case 'letter-spacing':
         {
           const cssValue = LengthOrPctValue.getLengthOrPctObj(value);
           props.set(name, { value: cssValue, important: false });

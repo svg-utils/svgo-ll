@@ -1,5 +1,9 @@
 import { StyleAttValue } from '../lib/styleAttValue.js';
-import { generateId, updateStyleAttribute } from '../lib/svgo/tools.js';
+import {
+  generateId,
+  getClassNames,
+  updateStyleAttribute,
+} from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'stylesToClasses';
@@ -115,11 +119,17 @@ export const fn = (info) => {
   /** @type {Map<string,StyleToClassData>} */
   const mapStylesToElems = new Map();
 
+  const reservedClassNames = new Set();
+
   return {
     element: {
       enter: (element) => {
         // Don't convert if it already has a class attribute.
         if (element.attributes.class !== undefined) {
+          // Record existing class names.
+          for (const className of getClassNames(element)) {
+            reservedClassNames.add(className);
+          }
           return;
         }
 
@@ -140,6 +150,23 @@ export const fn = (info) => {
 
     root: {
       exit: () => {
+        /**
+         * @param {import('../lib/types.js').StyleData} styleData
+         * @returns {string}
+         */
+        function getNextId(styleData) {
+          while (true) {
+            const classId = generateId(classNameCounter++);
+            if (styleData.hasClassReference(classId)) {
+              continue;
+            }
+            if (reservedClassNames.has(classId)) {
+              continue;
+            }
+            return classId;
+          }
+        }
+
         let classNameCounter = 0;
 
         // Sort values by number of references so most-used classes have the shortest class names.
@@ -151,7 +178,7 @@ export const fn = (info) => {
         let totalSavings = styleData.hasStyles()
           ? 0
           : -'<style></style>'.length;
-        let classId = generateId(classNameCounter++);
+        let classId = getNextId(styleData);
         for (const info of sortedStyles) {
           const savings = info.calculateSavings(classId);
           if (savings <= 0) {
@@ -159,7 +186,7 @@ export const fn = (info) => {
           }
           totalSavings += savings;
           info.setClassName(classId);
-          classId = generateId(classNameCounter++);
+          classId = getNextId(styleData);
         }
 
         if (totalSavings <= 0) {

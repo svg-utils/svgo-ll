@@ -1,0 +1,23 @@
+When creating new class names, don't collide with existing classes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <style>.b{color:blue}</style>
+  <rect y="3" fill="cornflowerblue" width="3" height="2"/>
+  <rect y="7" fill="cornflowerblue" width="3" height="2"/>
+  <rect y="11" fill="cornflowerblue" width="3" height="2"/>
+  <rect y="15" fill="cornflowerblue" width="3" height="2"/>
+  <rect y="19" class="a" width="3" height="2"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <style>.b{color:blue}.c{fill:cornflowerblue}</style>
+  <rect y="3" width="3" height="2" class="c"/>
+  <rect y="7" width="3" height="2" class="c"/>
+  <rect y="11" width="3" height="2" class="c"/>
+  <rect y="15" width="3" height="2" class="c"/>
+  <rect y="19" class="a" width="3" height="2"/>
+</svg>

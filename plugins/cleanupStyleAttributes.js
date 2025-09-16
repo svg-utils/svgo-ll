@@ -115,6 +115,7 @@ export const fn = (info) => {
           }
           switch (p) {
             case 'font-size':
+            case 'letter-spacing':
             case 'stroke-dashoffset':
             case 'stroke-width':
               {

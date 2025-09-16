@@ -1,4 +1,4 @@
-Preserve px units on font-size.
+Don't preserve px units on font-size in style attribute.
 
 ===
 
@@ -10,6 +10,6 @@ Preserve px units on font-size.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
-  <text y="10" style="fill:red;font-size:8px">XX</text>
-  <text y="20" style="fill:red;font-size:8px">XX</text>
+  <text y="10" style="fill:red;font-size:8">XX</text>
+  <text y="20" style="fill:red;font-size:8">XX</text>
 </svg>

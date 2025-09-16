@@ -1,4 +1,3 @@
-import { LengthOrPctValue } from '../lib/lengthOrPct.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
@@ -40,13 +39,6 @@ function _getProperties(element, fnInclude) {
     }
 
     switch (name) {
-      case 'font-size':
-      case 'letter-spacing':
-        {
-          const cssValue = LengthOrPctValue.getLengthOrPctObj(value);
-          props.set(name, { value: cssValue, important: false });
-        }
-        break;
       case 'transform':
         {
           const cssValue = svgAttTransformToCSS(value);

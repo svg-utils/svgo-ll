@@ -14,6 +14,6 @@ Minify font-size property.
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
     <text y="10" style="font-size:.9em">Test</text>
     <text y="20" style="font-size:x-small">Test</text>
-    <text y="25" style="font-size:2.1px">Test</text>
+    <text y="25" style="font-size:2.1">Test</text>
     <text x="10" y="25" style="font-size:5%">Test</text>
 </svg>

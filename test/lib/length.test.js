@@ -3,8 +3,8 @@ import { LengthOrPctValue } from '../../lib/lengthOrPct.js';
 describe('test parsing and minifying', () => {
   /** @type {{in:string,minified?:string}[]} */
   const testCases = [
-    { in: '.12', minified: '.12px' },
-    { in: '.12px', minified: '.12px' },
+    { in: '.12', minified: '.12' },
+    { in: '.12px', minified: '.12' },
     { in: '0.90em', minified: '.9em' },
     { in: 'xx', minified: 'xx' },
   ];

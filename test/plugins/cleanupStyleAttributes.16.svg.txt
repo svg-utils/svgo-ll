@@ -10,6 +10,6 @@ Minify stroke-width and stroke-dashoffset.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
-    <rect y="1" width="20" height="20" fill="none" style="stroke:red;stroke-width:.5px;stroke-dashoffset:1.08779998px;stroke-dasharray:4 1 2"/>
+    <rect y="1" width="20" height="20" fill="none" style="stroke:red;stroke-width:.5;stroke-dashoffset:1.08779998;stroke-dasharray:4 1 2"/>
     <rect x="3" y="3" width="20" height="20" fill="none" style="stroke:blue;stroke-width:1%"/>
 </svg>

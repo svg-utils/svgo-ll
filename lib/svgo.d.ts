@@ -22,7 +22,7 @@ export type ResolvedPlugins = {
 
 export type Config = ResolvedConfig & {
   plugins?: ResolvedPlugins;
-  pluginNames?: string[] | true;
+  pluginNames?: string[];
   pre?: string[];
   post?: string[];
   enable?: string[];

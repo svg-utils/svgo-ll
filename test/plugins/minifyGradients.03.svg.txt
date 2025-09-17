@@ -20,7 +20,6 @@ Convert a gradient that uses a solid color gradient as a template.
         <linearGradient id="b" x1="353.83112" y1="396.85037" x2="496.56262" y2="396.85037">
             <stop style="stop-color:#a8c4cc"/>
         </linearGradient>
-        <linearGradient/>
     </defs>
     <rect width="150" height="150" x="350" y="350" style="fill:#a8c4cc"/>
 </svg>

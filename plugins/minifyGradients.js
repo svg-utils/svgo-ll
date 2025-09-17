@@ -1,6 +1,7 @@
 import { StopOffsetValue } from '../lib/stop-offset.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import {
   getReferencedIdInStyleProperty,
   recordReferencedIds,
@@ -79,6 +80,8 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
+        const childrenToDelete = new ChildDeletionQueue();
+
         // See if any template references can be inlined.
         for (const [templateId, referencedGradient] of gradientMap.entries()) {
           if (referencedGradient.attributes.id !== templateId) {
@@ -99,11 +102,14 @@ export const fn = (info) => {
                   referencedGradient,
                   gradientMap,
                   solidGradients,
+                  childrenToDelete,
                 );
               }
             }
           }
         }
+
+        childrenToDelete.delete();
 
         // Replace any solid-color gradients.
         updateSolidGradients(solidGradients, allReferencedIds);
@@ -153,8 +159,15 @@ function checkStops(element, styleData) {
  * @param {import('../lib/types.js').XastElement} inner
  * @param {Map<string,import('../lib/types.js').XastElement>} gradientMap
  * @param {Map<string,ColorData>} solidGradients
+ * @param {ChildDeletionQueue} childrenToDelete
  */
-function inlineGradient(outer, inner, gradientMap, solidGradients) {
+function inlineGradient(
+  outer,
+  inner,
+  gradientMap,
+  solidGradients,
+  childrenToDelete,
+) {
   const origInnerId = inner.attributes.id.toString();
 
   // Move all properties from outer gradient to the one it references.
@@ -172,6 +185,9 @@ function inlineGradient(outer, inner, gradientMap, solidGradients) {
       default:
         inner.attributes[attName] = attValue;
         delete outer.attributes[attName];
+        if (attName === 'id') {
+          childrenToDelete.add(outer);
+        }
         break;
     }
   }

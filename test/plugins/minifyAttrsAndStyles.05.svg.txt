@@ -1,13 +1,13 @@
-Don't convert style to attribute if transform attribute is present.
+Allow conversion of styles to attributes if there is a transform attribute.
 
 ===
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
-  <rect y="3" width="3" height="2" transform="rotate(15)" style="fill:red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40">
+  <rect width="3" height="3" y="5" transform="rotate(15)" style="fill:red"/>
 </svg>
 
 @@@
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
-  <rect y="3" width="3" height="2" transform="rotate(15)" style="fill:red"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 40">
+  <rect width="3" height="3" y="5" transform="rotate(15)" fill="red"/>
 </svg>

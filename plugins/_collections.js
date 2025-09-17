@@ -2115,6 +2115,12 @@ export const inheritableAttrs = new Set([
   'writing-mode',
 ]);
 
+export const transformAttrs = new Set([
+  'transform',
+  'gradientTransform',
+  'patternTransform',
+]);
+
 export const presentationNonInheritableGroupAttrs = new Set([
   'clip-path',
   'display',

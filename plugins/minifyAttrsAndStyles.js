@@ -1,5 +1,6 @@
 import { StyleAttValue } from '../lib/styleAttValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools.js';
+import { transformAttrs } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'minifyAttrsAndStyles';
@@ -25,18 +26,30 @@ export const fn = (info) => {
           return;
         }
 
-        if (!canConvert(props)) {
-          return;
+        let hasTransformAttribute = false;
+        if (hasTransform(props.keys())) {
+          const styleAttValue = StyleAttValue.getStyleAttValue(element);
+          if (styleAttValue && hasTransform(styleAttValue.keys())) {
+            return;
+          }
+          hasTransformAttribute = true;
+
+          // Remove any transform properties from the map so they don't affect calculations.
+          for (const attName of transformAttrs) {
+            props.delete(attName);
+          }
         }
+
         if (getAttrWidth(props) < getStyleWidth()) {
+          // Attributes are shorter; remove the style attribute and use individual attributes.
+
           for (const [name, value] of props.entries()) {
             element.attributes[name] = value.value;
           }
 
-          // Remove the style attribute.
           updateStyleAttribute(element, undefined);
-        } else {
-          // Remove the attributes.
+        } else if (!hasTransformAttribute) {
+          // Style is at least as short; remove the individual attributes and convert to style properties.
           for (const name of props.keys()) {
             delete element.attributes[name];
           }
@@ -47,22 +60,6 @@ export const fn = (info) => {
     },
   };
 };
-
-/**
- * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
- * @returns {boolean}
- */
-function canConvert(props) {
-  for (const propName of props.keys()) {
-    switch (propName) {
-      case 'transform':
-      case 'gradientTransform':
-      case 'patternTransform':
-        return false;
-    }
-  }
-  return true;
-}
 
 /**
  * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
@@ -77,4 +74,17 @@ function getAttrWidth(props) {
  */
 function getStyleWidth() {
   return 6; // Account for "style="".
+}
+
+/**
+ * @param {IterableIterator<string>} propNames
+ * @returns {boolean}
+ */
+function hasTransform(propNames) {
+  for (const propName of propNames) {
+    if (transformAttrs.has(propName)) {
+      return true;
+    }
+  }
+  return false;
 }

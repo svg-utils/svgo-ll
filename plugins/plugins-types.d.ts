@@ -6,10 +6,10 @@ type BuiltinPlugins = {
     preservePrefixes?: string[];
   };
   cleanupStyleAttributes: void;
-  cleanupStyleElements: void;
   cleanupTextElements: void;
   cleanupXlink: void;
   collapseGroups: void;
+  combineStyleElements: void;
   convertEllipseToCircle: void;
   convertShapeToPath: void;
   createGroups: void;
@@ -108,6 +108,7 @@ type BuiltinPlugins = {
     order?: string[];
     xmlnsOrder?: 'front' | 'alphabetical';
   };
+  stylesToClasses: void;
 };
 
 export type Plugin<Name extends keyof BuiltinPlugins> = PluginDef<

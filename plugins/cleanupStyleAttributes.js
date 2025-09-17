@@ -1,6 +1,7 @@
 import { LengthOrPctValue } from '../lib/lengthOrPct.js';
 import { OpacityValue } from '../lib/opacity.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
+import { getClassNames } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -12,11 +13,7 @@ import {
 export const name = 'cleanupStyleAttributes';
 export const description = 'removes invalid properties from style attributes';
 
-const CLASS_SPLITTER = /\s/;
-
-/**
- * @type {import('./plugins-types.js').Plugin<'cleanupStyleAttributes'>}
- */
+/** @type {import('./plugins-types.js').Plugin<'cleanupStyleAttributes'>} */
 export const fn = (info) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
@@ -27,12 +24,12 @@ export const fn = (info) => {
       return;
     }
     // If there is a class attribute, delete any classes not referenced in the style element.
-    const classStr = element.attributes.class;
-    if (!classStr) {
+
+    const classes = getClassNames(element);
+    if (classes.length === 0) {
       return;
     }
 
-    const classes = classStr.toString().split(CLASS_SPLITTER);
     const newClasses = classes.filter((c) => styleData.hasClassReference(c));
     if (newClasses.length === 0) {
       delete element.attributes.class;
@@ -109,15 +106,16 @@ export const fn = (info) => {
           element.name === 'g' && hasOnlyShapeChildren(element);
         for (const [p, v] of styleAttValue.entries()) {
           if (!elementCanHaveProperty(element.name, p)) {
-            styleAttValue.removeProperty(p);
+            styleAttValue.delete(p);
             continue;
           }
           if (isShapeGroup && uselessShapeProperties.has(p)) {
-            styleAttValue.removeProperty(p);
+            styleAttValue.delete(p);
             continue;
           }
           switch (p) {
             case 'font-size':
+            case 'letter-spacing':
             case 'stroke-dashoffset':
             case 'stroke-width':
               {

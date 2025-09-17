@@ -32,7 +32,7 @@ function generateTreeData(root) {
 }
 
 /**
- * @param {import('../../lib/docdata.js').StyleData} styleData
+ * @param {import('../../lib/types.js').StyleData} styleData
  * @param {{ids:Map<string,import('../../lib/types.js').XastElement>,
  * parents:Map<XastElement,{element:XastElement}[]>}} treeInfo
  * @param {string} id

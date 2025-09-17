@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import * as path from 'node:path';
 import { parseSvg } from '../../lib/parser.js';
 import { getDocData } from '../../lib/docdata.js';
 import { visit } from '../../lib/xast.js';
@@ -29,6 +30,8 @@ export function createElement(elData) {
  * @param {string} fileName
  */
 export function generateData(fileName) {
+  if (!fileName.includes('/'))
+    fileName = path.join('./test/lib/docdata', fileName);
   const input = fs.readFileSync(fileName, 'utf8');
   const root = parseSvg(input);
   return { root: root, docData: getDocData(root) };

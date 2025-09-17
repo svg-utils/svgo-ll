@@ -1,0 +1,19 @@
+Don't convert if there are attribute selectors.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <style>[style]{opacity:.1}</style>
+  <rect y="3" width="3" height="2" style="fill:cornflowerblue"/>
+  <rect y="7" width="3" height="2" style="fill:cornflowerblue"/>
+  <rect y="11" width="3" height="2" style="fill:cornflowerblue"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <style>[style]{opacity:.1}</style>
+  <rect y="3" width="3" height="2" style="fill:cornflowerblue"/>
+  <rect y="7" width="3" height="2" style="fill:cornflowerblue"/>
+  <rect y="11" width="3" height="2" style="fill:cornflowerblue"/>
+</svg>

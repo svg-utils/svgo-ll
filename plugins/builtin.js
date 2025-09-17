@@ -33,6 +33,7 @@ import * as removeUselessStrokeAndFill from '../plugins/removeUselessStrokeAndFi
 import * as removeXMLProcInst from '../plugins/removeXMLProcInst.js';
 import * as round from '../plugins/round.js';
 import * as sortAttrs from '../plugins/sortAttrs.js';
+import * as stylesToClasses from '../plugins/stylesToClasses.js';
 
 /**
  * @template K
@@ -117,6 +118,7 @@ const pluginList = [
   removeXMLProcInst,
   round,
   sortAttrs,
+  stylesToClasses,
 ].map((p) => [p.name, p]);
 
 /** @type {StaticMap<string,Readonly<import('../lib/svgo.js').CustomPlugin>>} */

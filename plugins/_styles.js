@@ -37,15 +37,19 @@ function _getProperties(element, fnInclude) {
     if (!fnInclude(name)) {
       continue;
     }
-    if (name === 'transform') {
-      const cssValue = svgAttTransformToCSS(value);
-      if (cssValue) {
-        props.set(name, cssValue);
-      }
-    } else if (TRANSFORM_PROP_NAMES.includes(name)) {
-      props.set(name, { value: value, important: false });
-    } else {
-      props.set(name, { value: value, important: false });
+
+    switch (name) {
+      case 'transform':
+        {
+          const cssValue = svgAttTransformToCSS(value);
+          if (cssValue) {
+            props.set(name, cssValue);
+          }
+        }
+        break;
+      default:
+        props.set(name, { value: value, important: false });
+        break;
     }
   }
 

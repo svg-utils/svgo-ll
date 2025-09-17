@@ -29,6 +29,7 @@ import * as removeUnknownsAndDefaults from './removeUnknownsAndDefaults.js';
 import * as removeUnusedNS from './removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
+import * as stylesToClasses from './stylesToClasses.js';
 
 /**
  * @typedef {Readonly<import('../lib/svgo.js').CustomPlugin[]>} ReadOnlyPluginList
@@ -44,10 +45,10 @@ export const defaultPlugins = Object.freeze({
     removeEditorsNSData,
     removeDesc,
     cleanupXlink,
+    combineStyleElements,
   ]),
   plugins: Object.freeze([
     cleanupStyleAttributes,
-    combineStyleElements,
     inlineStyles,
     minifyStyles,
     cleanupIds,
@@ -69,5 +70,5 @@ export const defaultPlugins = Object.freeze({
     collapseGroups,
     cleanupTextElements,
   ]),
-  post: Object.freeze([minifyIds, minifyAttrsAndStyles]),
+  post: Object.freeze([minifyIds, minifyAttrsAndStyles, stylesToClasses]),
 });

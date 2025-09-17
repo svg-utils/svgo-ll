@@ -1,0 +1,18 @@
+Don't write a <style> rule for attributes that don't save space.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" style="fill:cornflowerblue;opacity:.2"/>
+  <rect y="7" width="3" height="2" style="fill:cornflowerblue;opacity:.2"/>
+  <rect y="11" width="3" height="2" style="fill:cornflowerblue"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" class="a"/>
+  <rect y="7" width="3" height="2" class="a"/>
+  <rect y="11" width="3" height="2" style="fill:cornflowerblue"/>
+  <style>.a{fill:cornflowerblue;opacity:.2}</style>
+</svg>

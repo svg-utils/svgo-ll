@@ -1,0 +1,22 @@
+Most-used classes should have shortest class names.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" style="fill:red"/>
+  <rect y="7" width="3" height="2" style="fill:red"/>
+  <rect y="11" width="3" height="2" style="fill:cornflowerblue"/>
+  <rect y="15" width="3" height="2" style="fill:cornflowerblue"/>
+  <rect y="19" width="3" height="2" style="fill:cornflowerblue"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect y="3" width="3" height="2" class="b"/>
+  <rect y="7" width="3" height="2" class="b"/>
+  <rect y="11" width="3" height="2" class="a"/>
+  <rect y="15" width="3" height="2" class="a"/>
+  <rect y="19" width="3" height="2" class="a"/>
+  <style>.a{fill:cornflowerblue}.b{fill:red}</style>
+</svg>

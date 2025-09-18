@@ -40,17 +40,8 @@ export const fn = (info) => {
         const markerEnd = computedStyle.get('marker-end');
         const fill = computedStyle.get('fill');
         const fillOpacity = computedStyle.get('fill-opacity');
-        const parentNode = element.parentNode;
-        const computedParentStyle =
-          parentNode.type === 'element'
-            ? styleData.computeStyle(parentNode, parentList.slice(0, -1))
-            : null;
-        const parentStroke =
-          computedParentStyle === null
-            ? null
-            : computedParentStyle.get('stroke');
 
-        // remove stroke*
+        // Remove stroke*
         if (
           stroke === undefined ||
           stroke === 'none' ||
@@ -65,15 +56,19 @@ export const fn = (info) => {
           ) {
             removePrefixedProperties(element, 'stroke');
 
-            // Set explicit none to not inherit from parent
-            if (parentStroke !== undefined && parentStroke !== 'none') {
-              element.attributes.stroke = 'none';
+            // If necessary, set explicit none to override parent or <style>.
+            const computedStyle = styleData.computeStyle(element, parentList);
+            const stroke = computedStyle.get('stroke');
+            if (stroke !== undefined && stroke !== 'none') {
+              const style =
+                StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
+              style.set('stroke', { value: 'none', important: false });
+              updateStyleAttribute(element, style);
             }
           }
         }
 
-        // remove fill*
-
+        // Remove fill*
         if (
           (fill !== undefined && fill === 'none') ||
           (fillOpacity !== undefined && fillOpacity === '0')

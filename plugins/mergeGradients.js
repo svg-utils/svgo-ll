@@ -1,9 +1,5 @@
-import {
-  addChildToDelete,
-  deleteChildren,
-  recordReferencedIds,
-  updateReferencedId,
-} from '../lib/svgo/tools.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import { recordReferencedIds, updateReferencedId } from '../lib/svgo/tools.js';
 
 export const name = 'mergeGradients';
 export const description = 'merge identical gradients';
@@ -71,13 +67,13 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
-        const childrenToDelete = new Map();
+        const childrenToDelete = new ChildDeletionQueue();
 
         // Merge any duplicates.
         for (const duplicate of duplicateGradients) {
           // Update all references.
 
-          addChildToDelete(childrenToDelete, duplicate);
+          childrenToDelete.add(duplicate);
           const dupId = duplicate.attributes.id.toString();
           const dupReferencingEls = referencedIds.get(dupId);
           if (!dupReferencingEls) {
@@ -96,7 +92,7 @@ export const fn = (info) => {
         styleData.updateReferencedIds(styleData.getReferencedIds(), idMap);
 
         // Delete merged nodes.
-        deleteChildren(childrenToDelete);
+        childrenToDelete.delete();
       },
     },
   };

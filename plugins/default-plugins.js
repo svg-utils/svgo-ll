@@ -46,6 +46,7 @@ export const defaultPlugins = Object.freeze({
     removeDesc,
     cleanupXlink,
     combineStyleElements,
+    removeUnusedNS,
   ]),
   plugins: Object.freeze([
     cleanupStyleAttributes,
@@ -65,7 +66,6 @@ export const defaultPlugins = Object.freeze({
     minifyPathData,
     mergeGradients,
     removeEmptyContainers,
-    removeUnusedNS,
     createGroups,
     collapseGroups,
     cleanupTextElements,

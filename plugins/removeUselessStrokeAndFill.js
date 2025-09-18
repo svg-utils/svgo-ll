@@ -57,14 +57,7 @@ export const fn = (info) => {
             removePrefixedProperties(element, 'stroke');
 
             // If necessary, set explicit none to override parent or <style>.
-            const computedStyle = styleData.computeStyle(element, parentList);
-            const stroke = computedStyle.get('stroke');
-            if (stroke !== undefined && stroke !== 'none') {
-              const style =
-                StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
-              style.set('stroke', { value: 'none', important: false });
-              updateStyleAttribute(element, style);
-            }
+            setNone(element, 'stroke', styleData, parentList, true);
           }
         }
 
@@ -75,9 +68,8 @@ export const fn = (info) => {
         ) {
           removePrefixedProperties(element, 'fill-');
 
-          if (fill === undefined || fill !== 'none') {
-            element.attributes.fill = 'none';
-          }
+          // If necessary, set explicit none to override parent or <style>.
+          setNone(element, 'fill', styleData, parentList, false);
         }
       },
     },
@@ -105,5 +97,25 @@ function removePrefixedProperties(element, prefix) {
       }
     }
     updateStyleAttribute(element, style);
+  }
+}
+
+/**
+ * @param {import('./collapseGroups.js').XastElement} element
+ * @param {string} propName
+ * @param {import('../lib/types.js').StyleData} styleData
+ * @param {Readonly<{element:import('../lib/types.js').XastParent}[]>} parentList
+ * @param {boolean} allowUndefined
+ */
+function setNone(element, propName, styleData, parentList, allowUndefined) {
+  // If necessary, set explicit none to override parent or <style>.
+  const computedStyle = styleData.computeStyle(element, parentList);
+  const value = computedStyle.get(propName);
+  if (value !== 'none' && (!allowUndefined || value !== undefined)) {
+    const style =
+      StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
+    style.set(propName, { value: 'none', important: false });
+    updateStyleAttribute(element, style);
+    delete element.attributes[propName];
   }
 }

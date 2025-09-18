@@ -10,10 +10,9 @@ export const description = 'removes unused namespaces declaration';
  * @type {import('./plugins-types.js').Plugin<'removeUnusedNS'>}
  */
 export const fn = () => {
-  /**
-   * @type {Set<string>}
-   */
+  /** @type {Set<string>} */
   const unusedNamespaces = new Set();
+
   return {
     element: {
       enter: (element) => {

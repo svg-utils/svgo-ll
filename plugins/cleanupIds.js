@@ -1,4 +1,4 @@
-import { recordReferencedIds, SVGOError } from '../lib/svgo/tools.js';
+import { getReferencedIds, SVGOError } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
@@ -20,8 +20,8 @@ export const fn = (info, params) => {
 
   /** @type {Map<string,import('../lib/types.js').XastElement>} */
   const foundIds = new Map();
-  /** @type {import('../lib/svgo/tools.js').IdReferenceMap} */
-  const allReferencedIds = new Map();
+  /** @type {Map<string,number>} */
+  const referenceCounts = new Map();
 
   const preserveIds = new Set(
     Array.isArray(preserve) ? preserve : preserve ? [preserve] : [],
@@ -55,7 +55,14 @@ export const fn = (info, params) => {
           foundIds.set(element.attributes.id.toString(), element);
         }
 
-        recordReferencedIds(element, allReferencedIds);
+        const referencedIds = getReferencedIds(element);
+        for (const { id } of referencedIds) {
+          let referenceCount = referenceCounts.get(id);
+          if (referenceCount === undefined) {
+            referenceCount = 0;
+          }
+          referenceCounts.set(id, referenceCount + 1);
+        }
       },
     },
 
@@ -65,15 +72,35 @@ export const fn = (info, params) => {
           return visitSkip;
         }
 
-        for (const [id, element] of foundIds.entries()) {
-          // Delete id attribute if it is not referenced.
-          if (allReferencedIds.has(id) || styleElementIds.has(id)) {
-            continue;
-          } else if (
-            !preserveIds.has(id) &&
-            !preserveIdPrefixes.some((prefix) => id.startsWith(prefix))
-          ) {
-            delete element.attributes.id;
+        let moreToDelete = true;
+        while (moreToDelete) {
+          moreToDelete = false;
+          for (const [id, element] of foundIds.entries()) {
+            // Delete id attribute if it is not referenced.
+            const referenceCount = referenceCounts.get(id) ?? 0;
+            if (referenceCount > 0 || styleElementIds.has(id)) {
+              continue;
+            } else if (
+              !preserveIds.has(id) &&
+              !preserveIdPrefixes.some((prefix) => id.startsWith(prefix))
+            ) {
+              delete element.attributes.id;
+              foundIds.delete(id);
+
+              // If this is a non-renderable element that references other elements, decrement their reference count.
+              if (elemsGroups.nonRendering.has(element.name)) {
+                const referencedIds = getReferencedIds(element);
+                for (const { id } of referencedIds) {
+                  let referenceCount = referenceCounts.get(id);
+                  if (referenceCount !== undefined) {
+                    referenceCounts.set(id, referenceCount - 1);
+                    if (referenceCount === 1) {
+                      moreToDelete = true;
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       },

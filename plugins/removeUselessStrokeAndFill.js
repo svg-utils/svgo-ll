@@ -63,23 +63,7 @@ export const fn = (info) => {
             (strokeWidth !== undefined && strokeWidth === '0') ||
             markerEnd === undefined
           ) {
-            // Remove attributes.
-            for (const name of Object.keys(element.attributes)) {
-              if (name.startsWith('stroke')) {
-                delete element.attributes[name];
-              }
-            }
-
-            // Remove style attribute properties.
-            const style = StyleAttValue.getStyleAttValue(element);
-            if (style) {
-              for (const propName of style.keys()) {
-                if (propName.startsWith('stroke')) {
-                  style.delete(propName);
-                }
-              }
-              updateStyleAttribute(element, style);
-            }
+            removePrefixedProperties(element, 'stroke');
 
             // Set explicit none to not inherit from parent
             if (parentStroke !== undefined && parentStroke !== 'none') {
@@ -94,11 +78,8 @@ export const fn = (info) => {
           (fill !== undefined && fill === 'none') ||
           (fillOpacity !== undefined && fillOpacity === '0')
         ) {
-          for (const name of Object.keys(element.attributes)) {
-            if (name.startsWith('fill-')) {
-              delete element.attributes[name];
-            }
-          }
+          removePrefixedProperties(element, 'fill-');
+
           if (fill === undefined || fill !== 'none') {
             element.attributes.fill = 'none';
           }
@@ -107,3 +88,27 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {import('./collapseGroups.js').XastElement} element
+ * @param {string} prefix
+ */
+function removePrefixedProperties(element, prefix) {
+  // Remove attributes
+  for (const name of Object.keys(element.attributes)) {
+    if (name.startsWith(prefix)) {
+      delete element.attributes[name];
+    }
+  }
+
+  // Remove style attribute properties.
+  const style = StyleAttValue.getStyleAttValue(element);
+  if (style) {
+    for (const propName of style.keys()) {
+      if (propName.startsWith(prefix)) {
+        style.delete(propName);
+      }
+    }
+    updateStyleAttribute(element, style);
+  }
+}

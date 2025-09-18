@@ -18,8 +18,6 @@ Merge chained template gradients in different order.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
     <defs>
-        <linearGradient/>
-        <linearGradient/>
         <linearGradient id="a" x1="1" x2="2.5" gradientUnits="userSpaceOnUse">
             <stop offset="5%" stop-color="gold"/>
             <stop offset=".95" stop-color="red"/>

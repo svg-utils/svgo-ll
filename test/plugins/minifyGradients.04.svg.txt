@@ -21,7 +21,6 @@ Merge template gradient that is only used once.
             <stop offset="5%" stop-color="gold"/>
             <stop offset=".95" stop-color="red"/>
         </linearGradient>
-        <linearGradient/>
     </defs>
     <rect width="3" height="4" fill="url(#b)" stroke="black" stroke-width=".01"/>
 </svg>

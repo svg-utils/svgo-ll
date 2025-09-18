@@ -22,8 +22,6 @@ Merge chained template gradients.
             <stop offset="5%" stop-color="gold"/>
             <stop offset=".95" stop-color="red"/>
         </linearGradient>
-        <linearGradient/>
-        <linearGradient/>
     </defs>
     <rect width="3" height="4" fill="url(#c)" stroke="black" stroke-width=".01"/>
 </svg>

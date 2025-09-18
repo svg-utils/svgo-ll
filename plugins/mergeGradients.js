@@ -45,7 +45,7 @@ export const fn = (info) => {
             return;
         }
 
-        const gradientId = element.attributes.id.toString();
+        const gradientId = element.attributes.id?.toString();
         if (!gradientId) {
           return;
         }

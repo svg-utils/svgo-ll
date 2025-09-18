@@ -1,9 +1,6 @@
 import { parsePathCommands, PathParseError } from '../lib/pathutils.js';
-import {
-  addChildToDelete,
-  deleteChildren,
-  getEllipseProperties,
-} from '../lib/svgo/tools.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import { getEllipseProperties } from '../lib/svgo/tools.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeHiddenElems';
@@ -25,8 +22,7 @@ export const fn = (info) => {
   }
 
   // Record which elements to delete, sorted by parent.
-  /** @type {Map<import('../lib/types.js').XastParent, Set<import('../lib/types.js').XastChild>>} */
-  const childrenToDeleteByParent = new Map();
+  const childrenToDelete = new ChildDeletionQueue();
 
   /** @type {import('../lib/types.js').XastElement[]} */
   const nonRenderingStack = [];
@@ -48,7 +44,7 @@ export const fn = (info) => {
    * @param {import('../lib/types.js').XastElement} element
    */
   function removeElement(element) {
-    addChildToDelete(childrenToDeleteByParent, element);
+    childrenToDelete.add(element);
   }
 
   /**
@@ -199,7 +195,7 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
-        deleteChildren(childrenToDeleteByParent);
+        childrenToDelete.delete();
       },
     },
   };

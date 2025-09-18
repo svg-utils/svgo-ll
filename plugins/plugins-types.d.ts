@@ -93,11 +93,7 @@ type BuiltinPlugins = {
     keepRoleAttr?: boolean;
   };
   removeUnusedNS: void;
-  removeUselessStrokeAndFill: {
-    stroke?: boolean;
-    fill?: boolean;
-    removeNone?: boolean;
-  };
+  removeUselessStrokeAndFill: void;
   removeXMLProcInst: void;
   round: {
     coordDigits?: number;

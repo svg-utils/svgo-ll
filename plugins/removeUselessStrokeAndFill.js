@@ -1,4 +1,6 @@
-import { visitSkip, detachNodeFromParent } from '../lib/xast.js';
+import { StyleAttValue } from '../lib/styleAttValue.js';
+import { updateStyleAttribute } from '../lib/svgo/tools.js';
+import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeUselessStrokeAndFill';
@@ -11,13 +13,7 @@ export const description = 'removes useless stroke and fill attributes';
  *
  * @type {import('./plugins-types.js').Plugin<'removeUselessStrokeAndFill'>}
  */
-export const fn = (info, params) => {
-  const {
-    stroke: removeStroke = true,
-    fill: removeFill = true,
-    removeNone = false,
-  } = params;
-
+export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||
@@ -44,71 +40,82 @@ export const fn = (info, params) => {
         const markerEnd = computedStyle.get('marker-end');
         const fill = computedStyle.get('fill');
         const fillOpacity = computedStyle.get('fill-opacity');
-        const parentNode = element.parentNode;
-        const computedParentStyle =
-          parentNode.type === 'element'
-            ? styleData.computeStyle(parentNode, parentList.slice(0, -1))
-            : null;
-        const parentStroke =
-          computedParentStyle === null
-            ? null
-            : computedParentStyle.get('stroke');
 
-        // remove stroke*
-        if (removeStroke) {
+        // Remove stroke*
+        if (
+          stroke === undefined ||
+          stroke === 'none' ||
+          (strokeOpacity !== undefined && strokeOpacity === '0') ||
+          (strokeWidth !== undefined && strokeWidth === '0')
+        ) {
+          // stroke-width may affect the size of marker-end
+          // marker is not visible when stroke-width is 0
           if (
-            stroke === undefined ||
-            stroke === 'none' ||
-            (strokeOpacity !== undefined && strokeOpacity === '0') ||
-            (strokeWidth !== undefined && strokeWidth === '0')
+            (strokeWidth !== undefined && strokeWidth === '0') ||
+            markerEnd === undefined
           ) {
-            // stroke-width may affect the size of marker-end
-            // marker is not visible when stroke-width is 0
-            if (
-              (strokeWidth !== undefined && strokeWidth === '0') ||
-              markerEnd === undefined
-            ) {
-              for (const name of Object.keys(element.attributes)) {
-                if (name.startsWith('stroke')) {
-                  delete element.attributes[name];
-                }
-              }
-              // set explicit none to not inherit from parent
-              if (parentStroke !== undefined && parentStroke !== 'none') {
-                element.attributes.stroke = 'none';
-              }
-            }
+            removePrefixedProperties(element, 'stroke');
+
+            // If necessary, set explicit none to override parent or <style>.
+            setNone(element, 'stroke', styleData, parentList, true);
           }
         }
 
-        // remove fill*
-        if (removeFill) {
-          if (
-            (fill !== undefined && fill === 'none') ||
-            (fillOpacity !== undefined && fillOpacity === '0')
-          ) {
-            for (const name of Object.keys(element.attributes)) {
-              if (name.startsWith('fill-')) {
-                delete element.attributes[name];
-              }
-            }
-            if (fill === undefined || fill !== 'none') {
-              element.attributes.fill = 'none';
-            }
-          }
-        }
+        // Remove fill*
+        if (
+          (fill !== undefined && fill === 'none') ||
+          (fillOpacity !== undefined && fillOpacity === '0')
+        ) {
+          removePrefixedProperties(element, 'fill-');
 
-        if (removeNone) {
-          if (
-            (stroke === undefined ||
-              element.attributes.stroke.toString() === 'none') &&
-            ((fill !== undefined && fill === 'none') ||
-              element.attributes.fill.toString() === 'none')
-          ) {
-            detachNodeFromParent(element);
-          }
+          // If necessary, set explicit none to override parent or <style>.
+          setNone(element, 'fill', styleData, parentList, false);
         }
       },
     },
   };
 };
+
+/**
+ * @param {import('./collapseGroups.js').XastElement} element
+ * @param {string} prefix
+ */
+function removePrefixedProperties(element, prefix) {
+  // Remove attributes
+  for (const name of Object.keys(element.attributes)) {
+    if (name.startsWith(prefix)) {
+      delete element.attributes[name];
+    }
+  }
+
+  // Remove style attribute properties.
+  const style = StyleAttValue.getStyleAttValue(element);
+  if (style) {
+    for (const propName of style.keys()) {
+      if (propName.startsWith(prefix)) {
+        style.delete(propName);
+      }
+    }
+    updateStyleAttribute(element, style);
+  }
+}
+
+/**
+ * @param {import('./collapseGroups.js').XastElement} element
+ * @param {string} propName
+ * @param {import('../lib/types.js').StyleData} styleData
+ * @param {Readonly<{element:import('../lib/types.js').XastParent}[]>} parentList
+ * @param {boolean} allowUndefined
+ */
+function setNone(element, propName, styleData, parentList, allowUndefined) {
+  // If necessary, set explicit none to override parent or <style>.
+  const computedStyle = styleData.computeStyle(element, parentList);
+  const value = computedStyle.get(propName);
+  if (value !== 'none' && (!allowUndefined || value !== undefined)) {
+    const style =
+      StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
+    style.set(propName, { value: 'none', important: false });
+    updateStyleAttribute(element, style);
+    delete element.attributes[propName];
+  }
+}

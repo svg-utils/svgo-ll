@@ -1,0 +1,17 @@
+Add explicit "none" for stroke to override <style> if necessary.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <style>path{stroke:red}</style>
+  <path d="M1 1h3v3h-3z" style="stroke:none;stroke-width:6"/>
+  <circle cx="5" cy="5" r="2" style="stroke:none;stroke-width:.1"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <style>path{stroke:red}</style>
+  <path d="M1 1h3v3h-3z" style="stroke:none"/>
+  <circle cx="5" cy="5" r="2"/>
+</svg>

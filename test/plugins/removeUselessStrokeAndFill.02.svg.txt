@@ -22,8 +22,8 @@
         </g>
     </defs>
     <circle fill="none" cx="60" cy="60" r="50"/>
-    <circle fill="none" cx="90" cy="90" r="50"/>
-    <circle cx="90" cy="60" r="50" fill="none"/>
+    <circle cx="90" cy="90" r="50" style="fill:none"/>
+    <circle cx="90" cy="60" r="50" style="fill:none"/>
     <circle fill="red" fill-opacity=".5" cx="60" cy="60" r="50"/>
     <g fill="none">
         <circle cx="60" cy="60" r="50"/>

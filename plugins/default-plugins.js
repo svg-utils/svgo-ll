@@ -65,10 +65,14 @@ export const defaultPlugins = Object.freeze({
     minifyPathData,
     mergeGradients,
     removeEmptyContainers,
-    removeUnusedNS,
     createGroups,
     collapseGroups,
     cleanupTextElements,
   ]),
-  post: Object.freeze([minifyIds, minifyAttrsAndStyles, stylesToClasses]),
+  post: Object.freeze([
+    removeUnusedNS,
+    minifyIds,
+    minifyAttrsAndStyles,
+    stylesToClasses,
+  ]),
 });

@@ -31,9 +31,7 @@ const ROUNDABLE_XY_ELEMENTS = {
   y2: new Set(['line']),
 };
 
-/**
- * @type {import('./plugins-types.js').Plugin<'round'>}
- */
+/** @type {import('./plugins-types.js').Plugin<'round'>} */
 export const fn = (info, params) => {
   const styleData = info.docData.getStyles();
   if (
@@ -46,9 +44,7 @@ export const fn = (info, params) => {
 
   const { coordDigits = 4, opacityDigits = 3, stopOffsetDigits = 3 } = params;
 
-  /**
-   * @type {CoordRoundingContext[]}
-   */
+  /** @type {CoordRoundingContext[]} */
   const coordContextStack = [];
 
   return {
@@ -303,25 +299,25 @@ function roundPath(attValueIn, xDigits, yDigits) {
     switch (command.command) {
       case 'l':
       case 'm':
-        command.dx.setNumberOfDigits(xDigits);
-        command.dy.setNumberOfDigits(yDigits);
+        command.dx = command.dx.round(xDigits);
+        command.dy = command.dy.round(yDigits);
         break;
       case 'L':
       case 'M':
-        command.x.setNumberOfDigits(xDigits);
-        command.y.setNumberOfDigits(yDigits);
+        command.x = command.x.round(xDigits);
+        command.y = command.y.round(yDigits);
         break;
       case 'h':
-        command.dx.setNumberOfDigits(xDigits);
+        command.dx = command.dx.round(xDigits);
         break;
       case 'H':
-        command.x.setNumberOfDigits(xDigits);
+        command.x = command.x.round(xDigits);
         break;
       case 'v':
-        command.dy.setNumberOfDigits(yDigits);
+        command.dy = command.dy.round(yDigits);
         break;
       case 'V':
-        command.y.setNumberOfDigits(yDigits);
+        command.y = command.y.round(yDigits);
         break;
     }
   }
@@ -352,8 +348,8 @@ function roundTransform(attValue, xDigits, yDigits) {
     if (transform.name !== 'translate') {
       return null;
     }
-    transform.x.setNumberOfDigits(xDigits);
-    transform.y.setNumberOfDigits(yDigits);
+    transform.x = transform.x.round(xDigits);
+    transform.y = transform.y.round(yDigits);
   }
   return new SVGTransformValue(undefined, transforms.getTransforms());
 }

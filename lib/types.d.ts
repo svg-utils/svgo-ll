@@ -258,5 +258,5 @@ export type ExactNum = {
   isEqualTo(n: ExactNum): boolean;
   isZero(): boolean;
   negate(): ExactNum;
-  setNumberOfDigits(d: number): void;
+  round(numDigits: number): ExactNum;
 };

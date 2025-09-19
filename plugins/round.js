@@ -7,6 +7,7 @@ import { svgParseTransform, SVGTransformValue } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/pathAttValue.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StdDeviationValue } from '../lib/stdDeviation.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -42,7 +43,12 @@ export const fn = (info, params) => {
     return;
   }
 
-  const { coordDigits = 4, opacityDigits = 3, stopOffsetDigits = 3 } = params;
+  const {
+    coordDigits = 4,
+    opacityDigits = 3,
+    stopOffsetDigits = 3,
+    stdDeviationDigits = 3,
+  } = params;
 
   /** @type {CoordRoundingContext[]} */
   const coordContextStack = [];
@@ -102,6 +108,9 @@ export const fn = (info, params) => {
                 const stopOffset = StopOffsetValue.getStopOffsetObj(attValue);
                 newVal = stopOffset.round(stopOffsetDigits);
               }
+              break;
+            case 'stdDeviation':
+              newVal = roundStdDeviation(attValue, stdDeviationDigits);
               break;
             case 'transform':
               newVal = roundTransform(
@@ -331,6 +340,16 @@ function roundPath(attValueIn, xDigits, yDigits) {
   // Value hasn't changed by rounding, just note that we've already rounded.
   attValueIn.setRounded(true);
   return null;
+}
+
+/**
+ * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {number} digits
+ * @returns {StdDeviationValue|null}
+ */
+function roundStdDeviation(attValue, digits) {
+  const stdDeviation = StdDeviationValue.getObj(attValue);
+  return stdDeviation.round(digits);
 }
 
 /**

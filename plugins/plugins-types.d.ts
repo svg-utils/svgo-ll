@@ -99,6 +99,7 @@ type BuiltinPlugins = {
     coordDigits?: number;
     opacityDigits?: number;
     stopOffsetDigits?: number;
+    stdDeviationDigits?: number;
   };
   sortAttrs: {
     order?: string[];

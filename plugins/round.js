@@ -185,7 +185,7 @@ function getCoordContext(element, digits) {
    * @returns {number}
    */
   function scaleDigits(size, baseDigits) {
-    return Math.max(baseDigits - Math.floor(Math.log10(size)) + 2);
+    return Math.max(baseDigits - Math.floor(Math.log10(size)) + 2, baseDigits);
   }
 
   const viewBox = element.attributes.viewBox;

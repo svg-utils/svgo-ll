@@ -1,3 +1,4 @@
+import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
@@ -114,7 +115,6 @@ export const fn = (info) => {
             continue;
           }
           switch (p) {
-            case 'font-size':
             case 'letter-spacing':
             case 'stroke-dashoffset':
             case 'stroke-width':
@@ -133,6 +133,12 @@ export const fn = (info) => {
             case 'stroke-opacity':
               styleAttValue.set(p, {
                 value: OpacityValue.getOpacityObj(v.value),
+                important: v.important,
+              });
+              break;
+            case 'font-size':
+              styleAttValue.set(p, {
+                value: FontSizeValue.getObj(v.value),
                 important: v.important,
               });
               break;

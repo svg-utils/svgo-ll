@@ -1,0 +1,21 @@
+Round stdDeviation with both x and y component.
+
+===
+
+<svg viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <filter id="blurMe">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="2.123456,5.4567" />
+  </filter>
+  <circle cx="70" cy="60" r="50" fill="green" filter="url(#blurMe)" />
+</svg>
+
+@@@
+
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <filter id="blurMe">
+    <feGaussianBlur in="SourceGraphic" stdDeviation="2.123,5.457"/>
+  </filter>
+  <circle cx="70" cy="60" r="50" fill="green" filter="url(#blurMe)"/>
+</svg>
+

@@ -6,8 +6,7 @@ describe('test minification', () => {
 
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const e = new ExactNum(testCase.in);
-      e.setNumberOfDigits(testCase.digits);
+      const e = new ExactNum(testCase.in).round(testCase.digits);
       expect(e.getMinifiedString()).toBe(testCase.out);
     });
   }

@@ -1,5 +1,5 @@
-import { ColorValue } from '../lib/color.js';
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { ColorValue } from '../lib/attrs/colorValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 
 export const name = 'minifyColors';
 export const description =

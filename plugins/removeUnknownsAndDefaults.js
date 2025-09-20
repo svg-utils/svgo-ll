@@ -12,7 +12,7 @@ import {
   getHrefId,
   updateStyleAttribute,
 } from '../lib/svgo/tools.js';
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =

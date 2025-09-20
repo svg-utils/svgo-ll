@@ -1,7 +1,7 @@
-import { StopOffsetValue } from '../../lib/stop-offset.js';
+import { StopOffsetValue } from '../../lib/attrs/stopOffsetValue.js';
 
 describe('test parsing and minifying', () => {
-  /** @type {{in:string,minified?:string}[]} */
+  /** @type {{in:string,minified:string}[]} */
   const testCases = [
     { in: '0%', minified: '0' },
     { in: '.01', minified: '1%' },
@@ -16,10 +16,8 @@ describe('test parsing and minifying', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const attValue = StopOffsetValue.getStopOffsetObj(testCase.in);
-      expect(attValue.toString()).toBe(testCase.in);
-      const minified = attValue.getMinifiedValue();
-      expect(minified.toString()).toBe(testCase.minified ?? testCase.in);
+      const attValue = StopOffsetValue.getObj(testCase.in);
+      expect(attValue.toString()).toBe(testCase.minified);
     });
   }
 });
@@ -33,7 +31,7 @@ describe('test rounding', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const attValue = StopOffsetValue.getStopOffsetObj(testCase.in);
+      const attValue = StopOffsetValue.getObj(testCase.in);
       const rounded = attValue.round(testCase.digits);
       expect(rounded.toString()).toBe(testCase.minified);
     });

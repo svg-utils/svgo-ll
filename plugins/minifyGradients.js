@@ -1,5 +1,5 @@
-import { StopOffsetValue } from '../lib/stop-offset.js';
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import {
@@ -67,8 +67,8 @@ export const fn = (info) => {
             {
               const offset = element.attributes.offset;
               if (offset) {
-                const value = StopOffsetValue.getStopOffsetObj(offset);
-                const min = value.getMinifiedValue();
+                const value = StopOffsetValue.getObj(offset);
+                const min = value.toString();
                 if (min) {
                   element.attributes['offset'] = min;
                 }

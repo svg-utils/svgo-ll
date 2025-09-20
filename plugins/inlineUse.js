@@ -1,4 +1,4 @@
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import {
   getHrefId,

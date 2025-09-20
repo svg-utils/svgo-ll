@@ -1,4 +1,4 @@
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 

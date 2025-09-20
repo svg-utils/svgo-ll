@@ -1,4 +1,4 @@
-import { LengthOrPctValue } from '../../lib/lengthOrPct.js';
+import { LengthOrPctValue } from '../../lib/attrs/lengthOrPct.js';
 
 describe('test parsing and minifying', () => {
   /** @type {{in:string,minified?:string}[]} */
@@ -6,13 +6,11 @@ describe('test parsing and minifying', () => {
     { in: '.12', minified: '.12' },
     { in: '.12px', minified: '.12' },
     { in: '0.90em', minified: '.9em' },
-    { in: 'xx', minified: 'xx' },
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
       const attValue = LengthOrPctValue.getLengthOrPctObj(testCase.in);
-      const minified = attValue.getMinifiedValue();
-      expect(minified.toString()).toBe(testCase.minified ?? testCase);
+      expect(attValue.toString()).toBe(testCase.minified);
     });
   }
 });

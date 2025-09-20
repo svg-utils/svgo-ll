@@ -1,5 +1,5 @@
 import { ExactNum } from '../lib/exactnum.js';
-import { PathAttValue } from '../lib/pathAttValue.js';
+import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import {
   getCmdArgs,
   parsePathCommands,

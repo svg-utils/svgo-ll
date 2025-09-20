@@ -1,5 +1,5 @@
 import { ExactNum } from '../lib/exactnum.js';
-import { LengthValue } from '../lib/length.js';
+import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
 import { isNumber } from '../lib/svgo/tools.js';
 
@@ -138,10 +138,8 @@ function convertRect(element) {
 
   const x = getPixelsWithDefault(element, 'x');
   const y = getPixelsWithDefault(element, 'y');
-  const width = LengthValue.getLengthObj(element.attributes.width).getPixels();
-  const height = LengthValue.getLengthObj(
-    element.attributes.height,
-  ).getPixels();
+  const width = LengthValue.getObj(element.attributes.width).getPixels();
+  const height = LengthValue.getObj(element.attributes.height).getPixels();
 
   if (
     x === null ||
@@ -189,5 +187,5 @@ function convertRect(element) {
 function getPixelsWithDefault(element, attName) {
   return element.attributes[attName] === undefined
     ? 0
-    : LengthValue.getLengthObj(element.attributes[attName]).getPixels();
+    : LengthValue.getObj(element.attributes[attName]).getPixels();
 }

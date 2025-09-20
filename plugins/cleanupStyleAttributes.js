@@ -1,6 +1,7 @@
-import { LengthOrPctValue } from '../lib/lengthOrPct.js';
-import { OpacityValue } from '../lib/opacity.js';
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
+import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
+import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { getClassNames } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {
@@ -114,15 +115,13 @@ export const fn = (info) => {
             continue;
           }
           switch (p) {
-            case 'font-size':
             case 'letter-spacing':
             case 'stroke-dashoffset':
             case 'stroke-width':
               {
                 const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
-                const minified = parsedValue.getMinifiedValue();
                 styleAttValue.set(p, {
-                  value: minified,
+                  value: parsedValue,
                   important: v.important,
                 });
               }
@@ -133,6 +132,12 @@ export const fn = (info) => {
             case 'stroke-opacity':
               styleAttValue.set(p, {
                 value: OpacityValue.getOpacityObj(v.value),
+                important: v.important,
+              });
+              break;
+            case 'font-size':
+              styleAttValue.set(p, {
+                value: FontSizeValue.getObj(v.value),
                 important: v.important,
               });
               break;

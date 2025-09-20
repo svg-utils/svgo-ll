@@ -1,4 +1,4 @@
-import { LengthOrPctValue } from '../../lib/lengthOrPct.js';
+import { LengthOrPctValue } from '../../lib/attrs/lengthOrPct.js';
 
 describe('test parsing and minifying', () => {
   /** @type {{in:string,minified?:string}[]} */

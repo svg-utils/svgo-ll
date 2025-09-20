@@ -1,6 +1,6 @@
-import { LengthOrPctValue } from '../lib/lengthOrPct.js';
-import { OpacityValue } from '../lib/opacity.js';
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
+import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { getClassNames } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {

@@ -1,14 +1,15 @@
-import { ColorValue } from '../lib/color.js';
-import { LengthValue } from '../lib/length.js';
-import { OpacityValue } from '../lib/opacity.js';
+import { ColorValue } from '../lib/attrs/colorValue.js';
+import { LengthValue } from '../lib/attrs/lengthValue.js';
+import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
-import { StopOffsetValue } from '../lib/stop-offset.js';
-import { svgParseTransform, SVGTransformValue } from '../lib/svg-parse-att.js';
+import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
+import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
-import { PathAttValue } from '../lib/pathAttValue.js';
-import { StyleAttValue } from '../lib/styleAttValue.js';
-import { StdDeviationValue } from '../lib/stdDeviation.js';
-import { FontSizeValue } from '../lib/fontSizeValue.js';
+import { PathAttValue } from '../lib/attrs/pathAttValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
+import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
+import { TransformValue } from '../lib/attrs/transformValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -371,13 +372,13 @@ function roundStdDeviation(attValue, digits) {
  * @param {import('../lib/types.js').SVGAttValue} attValue
  * @param {number|null} xDigits
  * @param {number|null} yDigits
- * @returns {SVGTransformValue|null}
+ * @returns {TransformValue|null}
  */
 function roundTransform(attValue, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
     return null;
   }
-  const transforms = SVGTransformValue.getTransformObj(attValue);
+  const transforms = TransformValue.getTransformObj(attValue);
   for (const transform of transforms.getTransforms()) {
     if (transform.name !== 'translate') {
       return null;
@@ -385,5 +386,5 @@ function roundTransform(attValue, xDigits, yDigits) {
     transform.x = transform.x.round(xDigits);
     transform.y = transform.y.round(yDigits);
   }
-  return new SVGTransformValue(undefined, transforms.getTransforms());
+  return new TransformValue(undefined, transforms.getTransforms());
 }

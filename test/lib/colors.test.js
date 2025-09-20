@@ -1,4 +1,4 @@
-import { ColorValue } from '../../lib/color.js';
+import { ColorValue } from '../../lib/attrs/colorValue.js';
 
 describe('test parsing and minifying', () => {
   /** @type {{in:string,minified?:string,str?:string}[]} */

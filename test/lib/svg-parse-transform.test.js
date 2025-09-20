@@ -1,7 +1,7 @@
+import { TransformValue } from '../../lib/attrs/transformValue.js';
 import {
   svgParseTransform,
   svgStringifyTransform,
-  SVGTransformValue,
 } from '../../lib/svg-parse-att.js';
 import {
   cssTransformToSVGAtt,
@@ -51,7 +51,7 @@ describe('test transform conversion between attributes and properties', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const attValue = new SVGTransformValue(testCase.in);
+      const attValue = new TransformValue(testCase.in);
       const css = svgAttTransformToCSS(attValue);
       const att = cssTransformToSVGAtt(css);
       if (att === undefined) {

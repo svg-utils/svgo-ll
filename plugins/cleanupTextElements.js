@@ -1,4 +1,4 @@
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';

@@ -1,4 +1,4 @@
-import { StopOffsetValue } from '../../lib/stop-offset.js';
+import { StopOffsetValue } from '../../lib/attrs/stopOffsetValue.js';
 
 describe('test parsing and minifying', () => {
   /** @type {{in:string,minified:string}[]} */

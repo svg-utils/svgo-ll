@@ -1,4 +1,4 @@
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools.js';
 
 export const name = 'inlineStyles';

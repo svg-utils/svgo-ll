@@ -1,5 +1,5 @@
-import { StopOffsetValue } from '../lib/stop-offset.js';
-import { StyleAttValue } from '../lib/styleAttValue.js';
+import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import {

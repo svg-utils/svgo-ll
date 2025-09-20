@@ -1,5 +1,5 @@
 import { ExactNum } from '../lib/exactnum.js';
-import { LengthValue } from '../lib/length.js';
+import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
 import { isNumber } from '../lib/svgo/tools.js';
 

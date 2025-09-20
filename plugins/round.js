@@ -220,8 +220,8 @@ function getCoordContext(element, digits) {
       };
     }
   } else if (element.attributes.width && element.attributes.height) {
-    const width = LengthValue.getLengthObj(element.attributes.width);
-    const height = LengthValue.getLengthObj(element.attributes.height);
+    const width = LengthValue.getObj(element.attributes.width);
+    const height = LengthValue.getObj(element.attributes.height);
     const x = width.getPixels();
     const y = height.getPixels();
     if (x !== null && y !== null) {
@@ -266,7 +266,7 @@ function roundCoord(attValue, digits) {
   if (digits === null) {
     return null;
   }
-  const value = LengthValue.getLengthObj(attValue);
+  const value = LengthValue.getObj(attValue);
   return value.round(digits);
 }
 

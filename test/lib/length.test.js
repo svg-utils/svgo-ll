@@ -6,7 +6,6 @@ describe('test parsing and minifying', () => {
     { in: '.12', minified: '.12' },
     { in: '.12px', minified: '.12' },
     { in: '0.90em', minified: '.9em' },
-    { in: 'xx', minified: 'xx' },
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {

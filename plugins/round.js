@@ -172,6 +172,9 @@ export const fn = (info, params) => {
             case 'opacity':
               newVal = roundOpacity(propValue.value, opacityDigits);
               break;
+            case 'font-size':
+              newVal = roundFontSize(propValue.value, fontSizeDigits);
+              break;
           }
           if (newVal) {
             styleAttValue.set(propName, {

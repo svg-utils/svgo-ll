@@ -97,6 +97,7 @@ type BuiltinPlugins = {
   removeXMLProcInst: void;
   round: {
     coordDigits?: number;
+    fontSizeDigits?: number;
     opacityDigits?: number;
     stopOffsetDigits?: number;
     stdDeviationDigits?: number;

@@ -104,8 +104,12 @@ type CSSFeatures =
   | 'simple-selectors';
 
 export class AttValue {
+  round(numDigits: number): AttValue;
   toString(): string;
 }
+
+export class LengthValue extends AttValue {}
+export class PctValue extends AttValue {}
 
 export class StyleData {
   addStyleSection(css: string): void;

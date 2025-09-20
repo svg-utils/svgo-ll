@@ -67,8 +67,8 @@ export const fn = (info) => {
             {
               const offset = element.attributes.offset;
               if (offset) {
-                const value = StopOffsetValue.getStopOffsetObj(offset);
-                const min = value.getMinifiedValue();
+                const value = StopOffsetValue.getObj(offset);
+                const min = value.toString();
                 if (min) {
                   element.attributes['offset'] = min;
                 }

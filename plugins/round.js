@@ -8,6 +8,7 @@ import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/pathAttValue.js';
 import { StyleAttValue } from '../lib/styleAttValue.js';
 import { StdDeviationValue } from '../lib/stdDeviation.js';
+import { FontSizeValue } from '../lib/fontSizeValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -45,6 +46,7 @@ export const fn = (info, params) => {
 
   const {
     coordDigits = 4,
+    fontSizeDigits = 2,
     opacityDigits = 3,
     stopOffsetDigits = 3,
     stdDeviationDigits = 3,
@@ -103,9 +105,12 @@ export const fn = (info, params) => {
             case 'stop-opacity':
               newVal = roundOpacity(attValue, opacityDigits);
               break;
+            case 'font-size':
+              newVal = roundFontSize(attValue, fontSizeDigits);
+              break;
             case 'offset':
               if (element.name === 'stop') {
-                const stopOffset = StopOffsetValue.getStopOffsetObj(attValue);
+                const stopOffset = StopOffsetValue.getObj(attValue);
                 newVal = stopOffset.round(stopOffsetDigits);
               }
               break;
@@ -259,6 +264,16 @@ function roundCoord(attValue, digits) {
   }
   const value = LengthValue.getLengthObj(attValue);
   return value.round(digits);
+}
+
+/**
+ * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {number} numDigits
+ * @returns {FontSizeValue|null}
+ */
+function roundFontSize(attValue, numDigits) {
+  const fontSize = FontSizeValue.getObj(attValue);
+  return fontSize.round(numDigits);
 }
 
 /**

@@ -120,9 +120,8 @@ export const fn = (info) => {
             case 'stroke-width':
               {
                 const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
-                const minified = parsedValue.getMinifiedValue();
                 styleAttValue.set(p, {
-                  value: minified,
+                  value: parsedValue,
                   important: v.important,
                 });
               }

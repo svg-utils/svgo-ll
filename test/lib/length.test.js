@@ -11,8 +11,7 @@ describe('test parsing and minifying', () => {
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
       const attValue = LengthOrPctValue.getLengthOrPctObj(testCase.in);
-      const minified = attValue.getMinifiedValue();
-      expect(minified.toString()).toBe(testCase.minified ?? testCase);
+      expect(attValue.toString()).toBe(testCase.minified);
     });
   }
 });

@@ -44,7 +44,7 @@ export const fn = (info) => {
    */
   function elementHasUnmovableProperties(styles, element, parentList) {
     const properties = styles.computeStyle(element, parentList);
-    return ['clip-path', 'filter', 'mask'].some(
+    return ['filter', 'mask'].some(
       (propName) => properties.get(propName) !== undefined,
     );
   }
@@ -67,7 +67,6 @@ export const fn = (info) => {
           element.children.length === 1
         ) {
           const firstChild = element.children[0];
-          // TODO untangle this mess
           if (
             firstChild.type === 'element' &&
             firstChild.attributes.id == null &&

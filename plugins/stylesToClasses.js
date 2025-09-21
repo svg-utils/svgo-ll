@@ -47,7 +47,9 @@ export class StyleToClassData {
 
     for (const element of this.#elements) {
       // Add class to element.
-      cost += ' class=""'.length + className.length;
+      cost += element.attributes.class
+        ? className.length + 1
+        : ' class=""'.length + className.length;
 
       // If there is a style attribute, see how much it is reduced.
       const styleAtt = StyleAttValue.getStyleAttValue(element);

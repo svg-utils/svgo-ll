@@ -1,15 +1,10 @@
 import { inheritableAttrs, elemsGroups } from './_collections.js';
 
-/**
- * @typedef {import('../lib/types.js').XastElement} XastElement
- * @typedef {import('../lib/types.js').XastNode} XastNode
- */
-
 export const name = 'collapseGroups';
 export const description = 'collapses useless groups';
 
 /**
- * @type {(node: XastNode, name: string) => boolean}
+ * @type {(node: import('../lib/types.js').XastNode, name: string) => boolean}
  */
 const hasAnimatedAttr = (node, name) => {
   if (node.type === 'element') {
@@ -43,11 +38,11 @@ export const fn = (info) => {
   }
 
   /**
-   * @param {XastElement} element
+   * @param {import('../lib/types.js').StyleData} styles
+   * @param {import('../lib/types.js').XastElement} element
    * @param {Readonly<import('../lib/types.js').ParentList>} parentList,
    */
-  function elementHasUnmovableProperties(element, parentList) {
-    // @ts-ignore - styles is no null
+  function elementHasUnmovableProperties(styles, element, parentList) {
     const properties = styles.computeStyle(element, parentList);
     return ['clip-path', 'filter', 'mask'].some(
       (propName) => properties.get(propName) !== undefined,
@@ -76,7 +71,7 @@ export const fn = (info) => {
           if (
             firstChild.type === 'element' &&
             firstChild.attributes.id == null &&
-            !elementHasUnmovableProperties(element, parentList) &&
+            !elementHasUnmovableProperties(styles, element, parentList) &&
             (element.attributes.class == null ||
               firstChild.attributes.class == null)
           ) {

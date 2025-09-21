@@ -47,7 +47,7 @@ export const fn = (info, params) => {
 
   const {
     coordDigits = 4,
-    fontSizeDigits = 2,
+    fontSizeDigits = 3,
     opacityDigits = 3,
     stopOffsetDigits = 3,
     stdDeviationDigits = 3,

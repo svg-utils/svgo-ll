@@ -42,9 +42,7 @@ const preserveFillRuleElements = new Set([
 ]);
 
 for (const [name, config] of Object.entries(elems)) {
-  /**
-   * @type {Set<string>}
-   */
+  /** @type {Set<string>} */
   const allowedChildren = new Set();
   if (config.content) {
     for (const elementName of config.content) {
@@ -61,9 +59,8 @@ for (const [name, config] of Object.entries(elems)) {
       }
     }
   }
-  /**
-   * @type {Set<string>}
-   */
+
+  /** @type {Set<string>} */
   const allowedAttributes = new Set();
   if (config.attrs) {
     for (const attrName of config.attrs) {
@@ -191,7 +188,9 @@ export const fn = (info, params) => {
       },
     },
     element: {
-      enter: (element, parentList) => {
+      exit: (element, parentList) => {
+        // Process on exit so transformations are bottom-up.
+
         // skip namespaced elements
         if (element.name.includes(':')) {
           return;
@@ -334,6 +333,15 @@ export const fn = (info, params) => {
           ) {
             delete element.attributes[name];
             continue;
+          }
+
+          if (name === 'clip-path') {
+            const parentProperties = styleData.computeParentStyle(parentList);
+            const parentClipPath = parentProperties.get(name);
+            if (parentClipPath && parentClipPath === attValue.toString()) {
+              delete element.attributes[name];
+              continue;
+            }
           }
 
           const strValue = attValue.toString();

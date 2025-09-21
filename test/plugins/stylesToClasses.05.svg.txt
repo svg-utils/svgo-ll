@@ -14,10 +14,11 @@ Don't convert elements that already have a class.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
-  <style>.c{opacity:.1}.a{fill:cornflowerblue}</style>
-  <rect class="c" y="3" width="3" height="2" style="fill:red"/>
-  <rect class="c" y="7" width="3" height="2" style="fill:red"/>
+  <style>.c{opacity:.1}.a{fill:cornflowerblue}.b{fill:red}</style>
+  <rect class="c b" y="3" width="3" height="2"/>
+  <rect class="c b" y="7" width="3" height="2"/>
   <rect y="11" width="3" height="2" class="a"/>
   <rect y="15" width="3" height="2" class="a"/>
   <rect y="19" width="3" height="2" class="a"/>
 </svg>
+

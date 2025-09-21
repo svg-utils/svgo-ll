@@ -8,8 +8,9 @@ import * as convertEllipseToCircle from './convertEllipseToCircle.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
-import * as minifyAttrsAndStyles from './minifyAttrsAndStyles.js';
+import * as mergeDefs from './mergeDefs.js';
 import * as mergeGradients from './mergeGradients.js';
+import * as minifyAttrsAndStyles from './minifyAttrsAndStyles.js';
 import * as minifyColors from './minifyColors.js';
 import * as minifyGradients from './minifyGradients.js';
 import * as minifyIds from './minifyIds.js';
@@ -58,6 +59,8 @@ export const defaultPlugins = Object.freeze({
     removeNonInheritableGroupAttrs,
     removeUselessStrokeAndFill,
     removeHiddenElems,
+    // Run mergeDefs after removeHiddenElems, since removeHiddenElems may create <defs>.
+    mergeDefs,
     minifyTransforms,
     convertEllipseToCircle,
     moveElemsStylesToGroup,

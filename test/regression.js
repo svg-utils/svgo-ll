@@ -19,7 +19,7 @@ import { cpus } from 'node:os';
  * browser:BrowserID,
  * browserPages:string,
  * reusePages:boolean,
- * writeOutput:boolean
+ * pretty?:boolean,
  * }} CmdLineOptions
  * @typedef {Map<string,{lengthOrig?:number,lengthOpt?:number,passes?:number,time?:number,pixels?:number}>} StatisticsMap
  */
@@ -355,6 +355,7 @@ async function optimizeFiles(
     enable: options.enable,
     options: options.options ? readJSONFile(options.options) : undefined,
     disable: options.disable,
+    js2svg: { pretty: options.pretty },
   };
 
   const resolvedPlugins = resolvePlugins(config);
@@ -619,7 +620,7 @@ program
     '--no-reuse-pages',
     'create new browser pages rather than reusing existing pages',
   )
-  .option('--write-output', 'write output files to disk')
+  .option('--pretty', 'Add line breaks and indentation to output')
   .action(performRegression);
 
 program.parseAsync();

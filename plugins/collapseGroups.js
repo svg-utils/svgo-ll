@@ -44,7 +44,7 @@ export const fn = (info) => {
    */
   function elementHasUnmovableProperties(styles, element, parentList) {
     const properties = styles.computeStyle(element, parentList);
-    return ['filter', 'mask'].some(
+    return ['clip-path', 'filter', 'mask'].some(
       (propName) => properties.get(propName) !== undefined,
     );
   }

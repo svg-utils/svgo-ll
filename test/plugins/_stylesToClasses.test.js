@@ -3,12 +3,21 @@ import { createElement } from '../../lib/xast.js';
 import { StyleToClassData } from '../../plugins/stylesToClasses.js';
 
 describe('test savings calculation', () => {
+  /**
+   * @type {{props:string,elements:Object<string,string>[],className:string,expected:number}[]}
+   */
   const testCases = [
     {
       props: 'fill:red',
       elements: [{ style: 'fill:red' }, { style: 'fill:red' }],
       className: 'a',
       expected: 2,
+    },
+    {
+      props: 'fill:red',
+      elements: [{ class: 'b', style: 'fill:red' }, { style: 'fill:red' }],
+      className: 'a',
+      expected: 10,
     },
     {
       props: 'fill:cornflowerblue',

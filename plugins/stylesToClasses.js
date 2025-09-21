@@ -1,3 +1,4 @@
+import { ClassValue } from '../lib/attrs/classValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import {
   generateId,
@@ -46,7 +47,9 @@ export class StyleToClassData {
 
     for (const element of this.#elements) {
       // Add class to element.
-      cost += ' class=""'.length + className.length;
+      cost += element.attributes.class
+        ? className.length + 1
+        : ' class=""'.length + className.length;
 
       // If there is a style attribute, see how much it is reduced.
       const styleAtt = StyleAttValue.getStyleAttValue(element);
@@ -130,7 +133,6 @@ export const fn = (info) => {
           for (const className of getClassNames(element)) {
             reservedClassNames.add(className);
           }
-          return;
         }
 
         const props = getPresentationProperties(element);
@@ -201,7 +203,10 @@ export const fn = (info) => {
           }
 
           for (const element of info.getElements()) {
-            element.attributes['class'] = className;
+            const cv = ClassValue.getObj(element.attributes['class']);
+            cv.addClass(className);
+            element.attributes.class = cv;
+
             const origProps = StyleAttValue.getStyleAttValue(element);
             for (const propName of info.getProperties().keys()) {
               if (origProps) {

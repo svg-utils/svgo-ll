@@ -77,7 +77,7 @@ export const fn = (info) => {
 };
 
 /**
- * @param {import('./collapseGroups.js').XastElement} element
+ * @param {import('../lib/types.js').XastElement} element
  * @param {string} prefix
  */
 function removePrefixedProperties(element, prefix) {
@@ -101,7 +101,7 @@ function removePrefixedProperties(element, prefix) {
 }
 
 /**
- * @param {import('./collapseGroups.js').XastElement} element
+ * @param {import('../lib/types.js').XastElement} element
  * @param {string} propName
  * @param {import('../lib/types.js').StyleData} styleData
  * @param {Readonly<{element:import('../lib/types.js').XastParent}[]>} parentList

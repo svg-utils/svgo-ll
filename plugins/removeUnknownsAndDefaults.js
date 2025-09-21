@@ -6,29 +6,19 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
-import {
-  addChildToDelete,
-  deleteChildren,
-  getHrefId,
-  updateStyleAttribute,
-} from '../lib/svgo/tools.js';
+import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
   'removes unknown elements content and attributes, removes attrs with default values';
 
-/**
- * @type {Map<string, Set<string>>}
- */
+/** @type {Map<string, Set<string>>} */
 const allowedChildrenPerElement = new Map();
-/**
- * @type {Map<string, Set<string>>}
- */
+/** @type {Map<string, Set<string>>} */
 const allowedAttributesPerElement = new Map();
-/**
- * @type {Map<string, Map<string, string>>}
- */
+/** @type {Map<string, Map<string, string>>} */
 const attributesDefaultsPerElement = new Map();
 const preserveOverflowElements = new Set([
   'foreignObject',
@@ -418,7 +408,7 @@ export const fn = (info, params) => {
           }
         }
 
-        const childrenToDeleteByParent = new Map();
+        const childrenToDelete = new ChildDeletionQueue();
         for (const element of useElements) {
           // If the element has attributes which are present in the referenced element, delete them.
           const referencedId = getHrefId(element);
@@ -427,7 +417,7 @@ export const fn = (info, params) => {
           }
           const referencedElement = elementsById.get(referencedId);
           if (!referencedElement) {
-            addChildToDelete(childrenToDeleteByParent, element);
+            childrenToDelete.add(element);
             continue;
           }
 
@@ -476,7 +466,7 @@ export const fn = (info, params) => {
           }
         }
 
-        deleteChildren(childrenToDeleteByParent);
+        childrenToDelete.delete();
       },
     },
   };

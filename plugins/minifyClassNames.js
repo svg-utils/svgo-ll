@@ -18,6 +18,10 @@ export const fn = (info) => {
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const referencedClassNames = new Map();
 
+  for (const className of styleData.getReferencedClasses()) {
+    referencedClassNames.set(className, []);
+  }
+
   return {
     element: {
       enter: (element) => {

@@ -126,6 +126,7 @@ export class StyleData {
   getFeatures(): Set<CSSFeatures>;
   getIdsReferencedByProperties(): string[];
   getMatchingRules(element: XastElement): CSSRule[];
+  getReferencedClasses(): Set<string>;
   getReferencedIds(): Map<string, CSSRule[]>;
   hasAttributeSelector(attName?: string): boolean;
   hasClassReference(className: string): boolean;

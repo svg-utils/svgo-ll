@@ -1,0 +1,20 @@
+Minify class names correctly when class attribute has multiple class names.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.a{fill:red}.b{opacity:.1}</style>
+  <rect class="a" y="1" width="2" height="2"/>
+  <rect class="b a" y="4" width="2" height="2"/>
+  <rect class="a b" y="7" width="2" height="2"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.a{fill:red}.b{opacity:.1}</style>
+  <rect class="a" y="1" width="2" height="2"/>
+  <rect class="b a" y="4" width="2" height="2"/>
+  <rect class="a b" y="7" width="2" height="2"/>
+</svg>
+

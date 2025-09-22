@@ -7,7 +7,11 @@ export const description = 'minify class names';
 /** @type {import('./plugins-types.js').Plugin<'minifyClassNames'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
-  if (info.docData.hasScripts() || styleData === null) {
+  if (
+    info.docData.hasScripts() ||
+    styleData === null ||
+    styleData.hasAttributeSelector('class')
+  ) {
     return;
   }
 

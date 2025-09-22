@@ -180,7 +180,7 @@ function convertRect(element) {
 }
 
 /**
- * @param {import('./collapseGroups.js').XastElement} element
+ * @param {import('../lib/types.js').XastElement} element
  * @param {string} attName
  * @returns {number|null}
  */

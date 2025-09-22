@@ -1,4 +1,4 @@
-Don't collapse when group has clip-path and transform.
+Collapse groups with clip-path style property.
 
 ===
 
@@ -6,8 +6,8 @@ Don't collapse when group has clip-path and transform.
   <clipPath id="a">
     <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
   </clipPath>
-  <g clip-path="url(#a)" transform="translate(15)">
-    <circle cx="50" cy="50" r="30" fill="red" clip-path="url(#a)"/>
+  <g style="clip-path:url(#a)">
+    <circle cx="50" cy="50" r="30" style="fill:red"/>
   </g>
 </svg>
 
@@ -17,7 +17,6 @@ Don't collapse when group has clip-path and transform.
   <clipPath id="a">
     <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
   </clipPath>
-  <g clip-path="url(#a)" transform="translate(15)">
-    <circle cx="50" cy="50" r="30" fill="red" clip-path="url(#a)"/>
-  </g>
+  <circle cx="50" cy="50" r="30" style="fill:red" clip-path="url(#a)"/>
 </svg>
+

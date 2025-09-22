@@ -16,7 +16,7 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<import('../lib/types.js').XastParent,Set<import('./collapseGroups.js').XastElement>>} */
+  /** @type {Map<import('../lib/types.js').XastParent,Set<import('../lib/types.js').XastElement>>} */
   const textElsToHoist = new Map();
 
   return {
@@ -240,7 +240,7 @@ export function hasSignificantWhiteSpace(str) {
 
 /**
  * @param {import('../lib/types.js').XastChild} child
- * @returns {import('./collapseGroups.js').XastElement|undefined}
+ * @returns {import('../lib/types.js').XastElement|undefined}
  */
 function isHoistable(child) {
   if (child.type !== 'element') {

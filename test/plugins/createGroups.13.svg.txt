@@ -1,0 +1,23 @@
+If both transform and clip-path are present, move both or neither.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="a">
+    <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
+  </clipPath>
+  <circle cx="10" cy="50" r="30" fill="cornflowerblue" clip-path="url(#a)" transform="translate(15)"/>
+  <circle cx="50" cy="50" r="30" fill="cornflowerblue" clip-path="url(#a)" transform="translate(-15)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="a">
+    <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
+  </clipPath>
+  <g style="fill:cornflowerblue">
+    <circle cx="10" cy="50" r="30" clip-path="url(#a)" transform="translate(15)"/>
+    <circle cx="50" cy="50" r="30" clip-path="url(#a)" transform="translate(-15)"/>
+  </g>
+</svg>

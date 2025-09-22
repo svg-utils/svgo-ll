@@ -1,15 +1,12 @@
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { updateStyleAttribute } from '../lib/svgo/tools.js';
 import { inheritableAttrs, elemsGroups } from './_collections.js';
-
-/**
- * @typedef {import('../lib/types.js').XastElement} XastElement
- * @typedef {import('../lib/types.js').XastNode} XastNode
- */
 
 export const name = 'collapseGroups';
 export const description = 'collapses useless groups';
 
 /**
- * @type {(node: XastNode, name: string) => boolean}
+ * @type {(node: import('../lib/types.js').XastNode, name: string) => boolean}
  */
 const hasAnimatedAttr = (node, name) => {
   if (node.type === 'element') {
@@ -42,18 +39,6 @@ export const fn = (info) => {
     return;
   }
 
-  /**
-   * @param {XastElement} element
-   * @param {Readonly<import('../lib/types.js').ParentList>} parentList,
-   */
-  function elementHasUnmovableProperties(element, parentList) {
-    // @ts-ignore - styles is no null
-    const properties = styles.computeStyle(element, parentList);
-    return ['clip-path', 'filter', 'mask'].some(
-      (propName) => properties.get(propName) !== undefined,
-    );
-  }
-
   return {
     element: {
       exit: (element, parentList) => {
@@ -72,38 +57,55 @@ export const fn = (info) => {
           element.children.length === 1
         ) {
           const firstChild = element.children[0];
-          // TODO untangle this mess
           if (
             firstChild.type === 'element' &&
             firstChild.attributes.id == null &&
-            !elementHasUnmovableProperties(element, parentList) &&
             (element.attributes.class == null ||
               firstChild.attributes.class == null)
           ) {
-            const newChildElemAttrs = { ...firstChild.attributes };
+            const properties = styles.computeStyle(element, parentList);
 
-            for (const [name, value] of Object.entries(element.attributes)) {
-              // avoid copying to not conflict with animated attribute
-              if (hasAnimatedAttr(firstChild, name)) {
-                return;
+            if (!elementHasUnmovableProperties(properties)) {
+              const newChildElemAttrs = { ...firstChild.attributes };
+
+              const styleAttValue = StyleAttValue.getStyleAttValue(element);
+
+              for (const [name, value] of Object.entries(element.attributes)) {
+                if (
+                  !moveAttr(
+                    element,
+                    firstChild,
+                    newChildElemAttrs,
+                    styleAttValue,
+                    name,
+                    value,
+                  )
+                ) {
+                  return;
+                }
               }
 
-              if (newChildElemAttrs[name] == null) {
-                newChildElemAttrs[name] = value;
-              } else if (name === 'transform') {
-                newChildElemAttrs[name] = value + ' ' + newChildElemAttrs[name];
-              } else if (newChildElemAttrs[name] === 'inherit') {
-                newChildElemAttrs[name] = value;
-              } else if (
-                !inheritableAttrs.has(name) &&
-                newChildElemAttrs[name] !== value
-              ) {
-                return;
+              // Move style attributes.
+              if (styleAttValue) {
+                for (const [name, value] of styleAttValue.entries()) {
+                  if (
+                    !moveAttr(
+                      element,
+                      firstChild,
+                      newChildElemAttrs,
+                      styleAttValue,
+                      name,
+                      value.value,
+                    )
+                  ) {
+                    return;
+                  }
+                }
+                updateStyleAttribute(element, styleAttValue);
               }
+
+              firstChild.attributes = newChildElemAttrs;
             }
-
-            element.attributes = {};
-            firstChild.attributes = newChildElemAttrs;
           }
         }
 
@@ -134,3 +136,69 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {Map<string,string|null>} properties
+ * @returns {boolean}
+ */
+function elementHasUnmovableProperties(properties) {
+  if (properties.get('transform') && properties.get('clip-path')) {
+    return true;
+  }
+  return ['filter', 'mask'].some(
+    (propName) => properties.get(propName) !== undefined,
+  );
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {import('./minifyStyles.js').XastElement} firstChild
+ * @param {Object<string,import('../lib/types.js').SVGAttValue>} newChildElemAttrs
+ * @param {StyleAttValue|undefined} styleAttValue
+ * @param {string} propName
+ * @param {import('../lib/types.js').SVGAttValue} value
+ * @returns {boolean}
+ */
+function moveAttr(
+  element,
+  firstChild,
+  newChildElemAttrs,
+  styleAttValue,
+  propName,
+  value,
+) {
+  // avoid copying to not conflict with animated attribute
+  if (hasAnimatedAttr(firstChild, propName)) {
+    return false;
+  }
+
+  if (propName === 'clip-path') {
+    // Don't move clip-path if child has a transform.
+    if (firstChild.attributes['transform']) {
+      return true;
+    }
+  } else if (propName === 'style') {
+    // Style attribute will be handled separately.
+    return true;
+  }
+
+  if (newChildElemAttrs[propName] === undefined) {
+    newChildElemAttrs[propName] = value;
+  } else if (propName === 'transform') {
+    newChildElemAttrs[propName] = value + ' ' + newChildElemAttrs[propName];
+  } else if (newChildElemAttrs[propName] === 'inherit') {
+    newChildElemAttrs[propName] = value;
+  } else if (
+    !inheritableAttrs.has(propName) &&
+    newChildElemAttrs[propName] !== value
+  ) {
+    return false;
+  }
+
+  delete element.attributes[propName];
+  if (styleAttValue) {
+    styleAttValue.delete(propName);
+  }
+
+  return true;
+}

@@ -139,6 +139,7 @@ export class StyleData {
     ids: string[];
     classes: string[];
   }): void;
+  updateClassNames(renameMap: Map<string, string>): void;
   updateReferencedIds(
     styleElementIds: Map<string, CSSRule[]>,
     idMap: Map<string, string>,
@@ -156,6 +157,7 @@ export class CSSRule {
   hasPseudos(): boolean;
   isInMediaQuery(): boolean;
   matches(element: XastElement): boolean;
+  updateClassNames(renameMap: Map<string, string>): void;
   updateReferencedIds(ids: Map<string, string>): void;
 }
 

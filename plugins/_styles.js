@@ -32,7 +32,7 @@ function _getProperties(element, fnInclude) {
   /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
   const props = new Map();
 
-  // Gather all inheritable attributes.
+  // Gather all attributes.
   for (const [name, value] of Object.entries(element.attributes)) {
     if (!fnInclude(name)) {
       continue;
@@ -53,7 +53,7 @@ function _getProperties(element, fnInclude) {
     }
   }
 
-  // Overwrite with inheritable properties.
+  // Overwrite with properties.
   const styleAttValue = StyleAttValue.getStyleAttValue(element);
   if (styleAttValue) {
     for (const [name, prop] of styleAttValue.entries()) {

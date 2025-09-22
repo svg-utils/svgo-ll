@@ -9,20 +9,19 @@ Convert between transform property and attribute formats.
     </filter>
   </defs>
   <rect x="19" y="12" width="14" height="6" rx="3" style="transform-origin:19px 12.79px;transform:rotate(31deg);filter:url(#a)"/>
-  <rect x="19" y="12" width="14" height="6" rx="3" style="transform-origin:19px 12.79px;transform:rotate(31deg);filter:url(#a)"/>
+  <rect x="19" y="20" width="14" height="6" rx="3" style="transform-origin:19px 12.79px;transform:rotate(31deg);filter:url(#a)"/>
 </svg>
 
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-    <defs>
-        <filter id="a" x="17" y="13" width="12" height="10" filterUnits="userSpaceOnUse">
-            <feGaussianBlur stdDeviation=".01"/>
-        </filter>
-    </defs>
-    <g style="transform-origin:19px 12.79px" transform="rotate(31)">
-        <rect x="19" y="12" width="14" height="6" rx="3" style="filter:url(#a)"/>
-        <rect x="19" y="12" width="14" height="6" rx="3" style="filter:url(#a)"/>
-    </g>
+  <defs>
+    <filter id="a" x="17" y="13" width="12" height="10" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation=".01"/>
+    </filter>
+  </defs>
+  <g style="transform-origin:19px 12.79px;filter:url(#a)" transform="rotate(31)">
+    <rect x="19" y="12" width="14" height="6" rx="3"/>
+    <rect x="19" y="20" width="14" height="6" rx="3"/>
+  </g>
 </svg>
-

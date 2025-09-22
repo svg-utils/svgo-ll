@@ -1,17 +1,15 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
-import { getInheritableProperties } from './_styles.js';
+import { getPresentationProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'createGroups';
 export const description =
   'Create groups if common properties can be moved to group';
 
-const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
+const CLIP_PROP_NAMES = ['clip-path', 'transform'];
 
-/**
- * @type {import('./plugins-types.js').Plugin<'createGroups'>}
- */
+/** @type {import('./plugins-types.js').Plugin<'createGroups'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
@@ -79,7 +77,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       let savings = 0;
       for (let i = sharedPropStart; i < index; i++) {
         const child = element.children[i];
-        if (inheritablePropCounts.get(child) === numSharedProps) {
+        if (propCounts.get(child) === numSharedProps) {
           savings += 9;
         }
       }
@@ -180,12 +178,16 @@ function createGroups(element, usedIds, elementsToCheck) {
 
   /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
   let sharedProps = new Map();
+
+  /** @type {Set<string>} */
+  let clipProps = new Set();
   /** @type {Set<string>} */
   let transformProps = new Set();
+
   let sharedPropStart = 0;
   let ungroupedStart = 0;
   /** @type {Map<import('../lib/types.js').XastChild,number>} */
-  let inheritablePropCounts = new Map();
+  let propCounts = new Map();
 
   let index = 0;
   for (; index < element.children.length; index++) {
@@ -204,12 +206,19 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    const currentChildProps = getInheritableProperties(child);
-    inheritablePropCounts.set(child, currentChildProps.size);
-    // Record which transform properties are present.
+    // All <g> attributes are inherited by children as per https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/g
+    const currentChildProps = getPresentationProperties(child);
+    propCounts.set(child, currentChildProps.size);
+
+    // Some combinations of properties must be moved as a unit if present; record which properties are present.
     TRANSFORM_PROP_NAMES.forEach((name) => {
       if (currentChildProps.has(name)) {
         transformProps.add(name);
+      }
+    });
+    CLIP_PROP_NAMES.forEach((name) => {
+      if (currentChildProps.has(name)) {
+        clipProps.add(name);
       }
     });
 
@@ -236,6 +245,12 @@ function createGroups(element, usedIds, elementsToCheck) {
       !TRANSFORM_PROP_NAMES.every((name) => newSharedProps.has(name))
     ) {
       TRANSFORM_PROP_NAMES.forEach((name) => newSharedProps.delete(name));
+    }
+    if (
+      clipProps.size === 2 &&
+      !CLIP_PROP_NAMES.every((name) => newSharedProps.has(name))
+    ) {
+      CLIP_PROP_NAMES.forEach((name) => newSharedProps.delete(name));
     }
 
     if (newSharedProps.size > 0) {

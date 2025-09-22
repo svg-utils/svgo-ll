@@ -1,7 +1,7 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
-import { getPresentationProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
+import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'createGroups';
 export const description =
@@ -206,8 +206,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    // All <g> attributes are inherited by children as per https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Element/g
-    const currentChildProps = getPresentationProperties(child);
+    const currentChildProps = getInheritableProperties(child);
     propCounts.set(child, currentChildProps.size);
 
     // Some combinations of properties must be moved as a unit if present; record which properties are present.

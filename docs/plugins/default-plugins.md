@@ -27,7 +27,7 @@ Run until there are no further improvements, up to [max-passes](../command-line-
 - [minifyGradients](./minifyGradients.md)
 - [removeUnknownsAndDefaults](./removeUnknownsAndDefaults.md)
 - removeNonInheritableGroupAttrs
-- removeUselessStrokeAndFill
+- [removeUselessStrokeAndFill](./removeUselessStrokeAndFill.md)
 - [removeHiddenElems](./removeHiddenElems.md)
 - mergeDefs
 - [minifyTransforms](./minifyTransforms.md)

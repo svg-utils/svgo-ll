@@ -46,7 +46,7 @@ Run until there are no further improvements, up to [max-passes](../command-line-
 Run once, in the specified order, after main plugins have completed:
 
 - removeUnusedNS
-- minifyIds
+- [minifyIds](./minifyIds.md)
 - [minifyAttrsAndStyles](./minifyAttrsAndStyles.md)
 - stylesToClasses
 - minifyClassNames

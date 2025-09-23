@@ -17,7 +17,7 @@ Run once, in the specified order, before running any other plugins:
 
 ## Main Plugins
 
-Run until there are no further improvements, up to [max-passes](../command-line-options.md#max-passes) times, in the following order:
+Run until there are no further decreases in size, up to [max-passes](../command-line-options.md#max-passes) times, in the following order:
 
 - [cleanupStyleAttributes](./cleanupStyleAttributes.md)
 - [inlineStyles](./inlineStyles.md)
@@ -49,4 +49,4 @@ Run once, in the specified order, after main plugins have completed:
 - [minifyIds](./minifyIds.md)
 - [minifyAttrsAndStyles](./minifyAttrsAndStyles.md)
 - [stylesToClasses](./stylesToClasses.md)
-- minifyClassNames
+- [minifyClassNames](./minifyClassNames.md)

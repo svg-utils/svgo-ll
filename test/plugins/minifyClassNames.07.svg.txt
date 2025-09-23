@@ -1,0 +1,19 @@
+Minify class names correctly when selector has multiple class names.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.a{fill:red}.b.c{opacity:.1}.c{stroke:green}</style>
+  <rect class="c" y="1" width="2" height="2"/>
+  <rect class="c a" y="4" width="2" height="2"/>
+  <rect class="a b c" y="7" width="2" height="2"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.b{fill:red}.c.a{opacity:.1}.a{stroke:green}</style>
+  <rect class="a" y="1" width="2" height="2"/>
+  <rect class="a b" y="4" width="2" height="2"/>
+  <rect class="c b a" y="7" width="2" height="2"/>
+</svg>

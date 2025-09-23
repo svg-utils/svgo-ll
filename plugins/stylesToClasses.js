@@ -1,10 +1,6 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import {
-  generateId,
-  getClassNames,
-  updateStyleAttribute,
-} from '../lib/svgo/tools.js';
+import { generateId, updateStyleAttribute } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'stylesToClasses';
@@ -127,10 +123,10 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        // Don't convert if it already has a class attribute.
-        if (element.attributes.class !== undefined) {
+        const cv = ClassValue.getAttValue(element);
+        if (cv) {
           // Record existing class names.
-          for (const className of getClassNames(element)) {
+          for (const className of cv.getClassNames()) {
             reservedClassNames.add(className);
           }
         }

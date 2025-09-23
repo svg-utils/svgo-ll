@@ -1,0 +1,19 @@
+Don't minify class names if there is an attribute selector on class.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.long{fill:red}.longer{fill:green}[class="longer"]{fill-opacity:.1}</style>
+  <rect class="long" y="1" width="2" height="2"/>
+  <rect class="longer" y="4" width="2" height="2"/>
+  <rect class="longer" y="7" width="2" height="2"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.long{fill:red}.longer{fill:green}[class="longer"]{fill-opacity:.1}</style>
+  <rect class="long" y="1" width="2" height="2"/>
+  <rect class="longer" y="4" width="2" height="2"/>
+  <rect class="longer" y="7" width="2" height="2"/>
+</svg>

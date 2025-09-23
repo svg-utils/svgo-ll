@@ -1,9 +1,7 @@
 export const name = 'combineStyleElements';
 export const description = 'merge multiple style elements';
 
-/**
- * @type {import('./plugins-types.js').Plugin<'combineStyleElements'>}
- */
+/** @type {import('./plugins-types.js').Plugin<'combineStyleElements'>} */
 export const fn = (info) => {
   if (info.docData.hasScripts()) {
     return;

@@ -126,6 +126,7 @@ export class StyleData {
   getFeatures(): Set<CSSFeatures>;
   getIdsReferencedByProperties(): string[];
   getMatchingRules(element: XastElement): CSSRule[];
+  getReferencedClasses(): Set<string>;
   getReferencedIds(): Map<string, CSSRule[]>;
   hasAttributeSelector(attName?: string): boolean;
   hasClassReference(className: string): boolean;
@@ -139,6 +140,7 @@ export class StyleData {
     ids: string[];
     classes: string[];
   }): void;
+  updateClassNames(renameMap: Map<string, string>): void;
   updateReferencedIds(
     styleElementIds: Map<string, CSSRule[]>,
     idMap: Map<string, string>,
@@ -156,6 +158,7 @@ export class CSSRule {
   hasPseudos(): boolean;
   isInMediaQuery(): boolean;
   matches(element: XastElement): boolean;
+  updateClassNames(renameMap: Map<string, string>): void;
   updateReferencedIds(ids: Map<string, string>): void;
 }
 

@@ -1,0 +1,19 @@
+Minify class names correctly when targets already exist.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.a{fill:red}.b{fill:green}</style>
+  <rect class="a" y="1" width="2" height="2"/>
+  <rect class="b" y="4" width="2" height="2"/>
+  <rect class="b" y="7" width="2" height="2"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.b{fill:red}.a{fill:green}</style>
+  <rect class="b" y="1" width="2" height="2"/>
+  <rect class="a" y="4" width="2" height="2"/>
+  <rect class="a" y="7" width="2" height="2"/>
+</svg>

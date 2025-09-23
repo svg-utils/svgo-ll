@@ -38,6 +38,7 @@ type BuiltinPlugins = {
   mergeDefs: void;
   mergeGradients: void;
   minifyAttrsAndStyles: void;
+  minifyClassNames: void;
   minifyColors: void;
   minifyGradients: void;
   minifyIds: {

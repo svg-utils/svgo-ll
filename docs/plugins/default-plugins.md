@@ -1,6 +1,10 @@
 # Default Plugins
 
-The following plugins are enabled by default:
+The following plugins are enabled by default.
+
+## Preprocessing
+
+Run once, in the specified order, before running any other plugins:
 
 - removeDoctype
 - removeXMLProcInst
@@ -9,8 +13,13 @@ The following plugins are enabled by default:
 - removeEditorsNSData
 - removeDesc
 - [cleanupXlink](./cleanupXlink.md)
-- [cleanupStyleAttributes](./cleanupStyleAttributes.md)
 - combineStyleElements
+
+## Main Plugins
+
+Run until there are no further improvements, up to [max-passes](../command-line-options.md#max-passes) times, in the following order:
+
+- [cleanupStyleAttributes](./cleanupStyleAttributes.md)
 - [inlineStyles](./inlineStyles.md)
 - minifyStyles
 - [cleanupIds](./cleanupIds.md)
@@ -20,6 +29,7 @@ The following plugins are enabled by default:
 - removeNonInheritableGroupAttrs
 - removeUselessStrokeAndFill
 - [removeHiddenElems](./removeHiddenElems.md)
+- mergeDefs
 - [minifyTransforms](./minifyTransforms.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
@@ -27,7 +37,16 @@ The following plugins are enabled by default:
 - [minifyPathData](./minifyPathData.md)
 - [mergeGradients](./mergeGradients.md)
 - [removeEmptyContainers](./removeEmptyContainers.md)
-- removeUnusedNS
 - [createGroups](./createGroups.md)
 - collapseGroups
 - [cleanupTextElements](./cleanupTextElements.md)
+
+## Postprocessing
+
+Run once, in the specified order, after main plugins have completed:
+
+- removeUnusedNS
+- minifyIds
+- minifyAttrsAndStyles
+- stylesToClasses
+- minifyClassNames

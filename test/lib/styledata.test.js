@@ -1,3 +1,5 @@
+import { StyleData } from '../../lib/styleData.js';
+import { createElement } from '../../lib/xast.js';
 import { generateData } from './testutils.js';
 
 test('import', () => {
@@ -33,4 +35,27 @@ test('nested style with no properties', () => {
 test('nested style with +', () => {
   const data = generateData('./test/lib/docdata/style.nested.5.svg');
   expect(data.docData.getStyles()).toBeNull();
+});
+
+test('add and combine style elements', () => {
+  /** @type {import('./xast.test.js').XastRoot} */
+  const root = { type: 'root', children: [] };
+  createElement(root, 'svg');
+  const sd = new StyleData(root, []);
+
+  expect(sd.getSortedRules().length).toBe(0);
+
+  sd.addStyleSection('.a{fill:red}');
+  expect(sd.getSortedRules().length).toBe(1);
+
+  sd.addStyleSection('.b{fill:green}');
+  expect(sd.getSortedRules().length).toBe(2);
+
+  sd.mergeStyles();
+  expect(sd.getSortedRules().length).toBe(2);
+
+  sd.updateClassNames(new Map([['a', 'c']]));
+  expect(sd.getSortedRules().length).toBe(2);
+
+  expect(sd.getReferencedClasses().size).toBe(2);
 });

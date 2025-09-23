@@ -47,6 +47,6 @@ Run once, in the specified order, after main plugins have completed:
 
 - removeUnusedNS
 - minifyIds
-- minifyAttrsAndStyles
+- [minifyAttrsAndStyles](./minifyAttrsAndStyles.md)
 - stylesToClasses
 - minifyClassNames

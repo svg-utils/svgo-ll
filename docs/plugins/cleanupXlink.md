@@ -2,6 +2,8 @@
 
 Changes `xlink:href` attributes to `href` attributes. If an `href` attribute is already present, the `xlink:href` attribute is removed.
 
+## Details
+
 The plugin has no effect if:
 
 - The document has scripts.

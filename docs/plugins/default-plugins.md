@@ -23,7 +23,7 @@ The following plugins are enabled by default:
 - [minifyTransforms](./minifyTransforms.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
-- convertShapeToPath
+- [convertShapeToPath](./convertShapeToPath.md)
 - [minifyPathData](./minifyPathData.md)
 - [mergeGradients](./mergeGradients.md)
 - [removeEmptyContainers](./removeEmptyContainers.md)

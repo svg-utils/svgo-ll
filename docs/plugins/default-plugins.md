@@ -29,7 +29,7 @@ Run until there are no further improvements, up to [max-passes](../command-line-
 - removeNonInheritableGroupAttrs
 - [removeUselessStrokeAndFill](./removeUselessStrokeAndFill.md)
 - [removeHiddenElems](./removeHiddenElems.md)
-- mergeDefs
+- [mergeDefs](./mergeDefs.md)
 - [minifyTransforms](./minifyTransforms.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup

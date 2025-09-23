@@ -170,6 +170,7 @@ export const fn = (info, params) => {
               break;
             case 'fill-opacity':
             case 'opacity':
+            case 'stop-opacity':
               newVal = roundOpacity(propValue.value, opacityDigits);
               break;
             case 'font-size':

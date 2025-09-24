@@ -38,69 +38,15 @@ export const fn = (info) => {
               if (hasClassAttributeSelector) {
                 continue;
               }
-              cleanupClassAttributes(element, styleData);
+              cleanupClassAttribute(element, styleData);
               break;
-          }
-        }
-
-        if (hasStyleAttributeSelector) {
-          return;
-        }
-
-        const styleAttValue = StyleAttValue.getStyleAttValue(element);
-        if (styleAttValue === undefined) {
-          return;
-        }
-
-        if (elemsGroups.animation.has(element.name)) {
-          // Style attributes have no effect on animation elements.
-          delete element.attributes.style;
-          return;
-        }
-
-        const isShapeGroup =
-          element.name === 'g' && hasOnlyShapeChildren(element);
-        for (const [p, v] of styleAttValue.entries()) {
-          if (!elementCanHaveProperty(element.name, p)) {
-            styleAttValue.delete(p);
-            continue;
-          }
-          if (isShapeGroup && uselessShapeProperties.has(p)) {
-            styleAttValue.delete(p);
-            continue;
-          }
-          switch (p) {
-            case 'letter-spacing':
-            case 'stroke-dashoffset':
-            case 'stroke-width':
-              {
-                const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
-                styleAttValue.set(p, {
-                  value: parsedValue,
-                  important: v.important,
-                });
+            case 'style':
+              if (hasStyleAttributeSelector) {
+                continue;
               }
-              break;
-            case 'fill-opacity':
-            case 'opacity':
-            case 'stop-opacity':
-            case 'stroke-opacity':
-              styleAttValue.set(p, {
-                value: OpacityValue.getOpacityObj(v.value),
-                important: v.important,
-              });
-              break;
-            case 'font-size':
-              styleAttValue.set(p, {
-                value: FontSizeValue.getObj(v.value),
-                important: v.important,
-              });
+              cleanupStyleAttribute(element);
               break;
           }
-        }
-
-        if (styleAttValue.isEmpty()) {
-          delete element.attributes.style;
         }
       },
     },
@@ -111,7 +57,7 @@ export const fn = (info) => {
  * @param {import('../lib/types.js').XastElement} element
  * @param {import('../lib/types.js').StyleData} styleData
  */
-function cleanupClassAttributes(element, styleData) {
+function cleanupClassAttribute(element, styleData) {
   // If there is a class attribute, delete any classes not referenced in the style element.
   const cv = ClassValue.getAttValue(element);
   if (cv === undefined) {
@@ -126,6 +72,67 @@ function cleanupClassAttributes(element, styleData) {
 
   if (cv.getClassNames().length === 0) {
     delete element.attributes.class;
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {void}
+ */
+function cleanupStyleAttribute(element) {
+  const styleAttValue = StyleAttValue.getStyleAttValue(element);
+  if (styleAttValue === undefined) {
+    return;
+  }
+
+  if (elemsGroups.animation.has(element.name)) {
+    // Style attributes have no effect on animation elements.
+    delete element.attributes.style;
+    return;
+  }
+
+  const isShapeGroup = element.name === 'g' && hasOnlyShapeChildren(element);
+  for (const [p, v] of styleAttValue.entries()) {
+    if (!elementCanHaveProperty(element.name, p)) {
+      styleAttValue.delete(p);
+      continue;
+    }
+    if (isShapeGroup && uselessShapeProperties.has(p)) {
+      styleAttValue.delete(p);
+      continue;
+    }
+    switch (p) {
+      case 'letter-spacing':
+      case 'stroke-dashoffset':
+      case 'stroke-width':
+        {
+          const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
+          styleAttValue.set(p, {
+            value: parsedValue,
+            important: v.important,
+          });
+        }
+        break;
+      case 'fill-opacity':
+      case 'opacity':
+      case 'stop-opacity':
+      case 'stroke-opacity':
+        styleAttValue.set(p, {
+          value: OpacityValue.getOpacityObj(v.value),
+          important: v.important,
+        });
+        break;
+      case 'font-size':
+        styleAttValue.set(p, {
+          value: FontSizeValue.getObj(v.value),
+          important: v.important,
+        });
+        break;
+    }
+  }
+
+  if (styleAttValue.isEmpty()) {
+    delete element.attributes.style;
   }
 }
 

@@ -25,15 +25,21 @@ If `--folder` is specified, exclude files matching any of the specified regular 
 
 <a id="enable"></a>
 `--enable <plugin...>`  
-Specify one or more [builtin plugins](./plugins/builtin-plugins.md) to run in addition to the [default plugins](./plugins/default-plugins.md).
+Specify one or more [builtin plugins](./plugins/builtin-plugins.md) to run in the main plugin loop addition to the [default plugins](./plugins/default-plugins.md#main).
 
 <a id="options"></a>
-` --options <FILENAME>`  
+`--options <FILENAME>`  
 Path to a [JSON file](https://www.json.org) containing configuration parameters for enabled plugins. The JSON file should contain an object whose keys are the names of plugins, and whose values are the parameters to pass to that plugin. This option cannot be used if the [`--config` option](#config) is specified.
 
 <a id="disable"></a>
 `--disable <plugin...>`  
 Specify one or more plugins which should not be run.
+
+`--pre [plugin...]`
+Specify zero or more [builtin plugins](./plugins/builtin-plugins.md) to run in the preprocessing phase in place of the [default plugins](./plugins/default-plugins.md#pre).
+
+`--post [plugin...]`
+Specify zero or more [builtin plugins](./plugins/builtin-plugins.md) to run in the postprocessing phase in place of the [default plugins](./plugins/default-plugins.md#post).
 
 <a id="config"></a>
 `--config <FILENAME>`  

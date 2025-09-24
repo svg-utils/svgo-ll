@@ -2,6 +2,8 @@
 
 The following plugins are enabled by default.
 
+<a id="pre"></a>
+
 ## Preprocessing
 
 Run once, in the specified order, before running any other plugins:
@@ -14,6 +16,8 @@ Run once, in the specified order, before running any other plugins:
 - removeDesc
 - [cleanupXlink](./cleanupXlink.md)
 - combineStyleElements
+
+<a id="main"></a>
 
 ## Main Plugins
 
@@ -40,6 +44,8 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - [createGroups](./createGroups.md)
 - collapseGroups
 - [cleanupTextElements](./cleanupTextElements.md)
+
+<a id="post"></a>
 
 ## Postprocessing
 

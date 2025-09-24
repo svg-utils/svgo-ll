@@ -1,11 +1,11 @@
 # cleanupIds
 
-Removes unreferenced `id` attributes, and minifies id values that remain.
+Removes unreferenced `id` attributes.
 
 ## Options
 
-- `preserve`: **string[]** - a list of id values that will not be removed or minified
-- `preservePrefixes`: **string[]** - a list of prefixes; any id values that begin with one of these prefixes will not be removed or minified
+- `preserve`: **string[]** - a list of id values that will not be removed
+- `preservePrefixes`: **string[]** - a list of prefixes; any id values that begin with one of these prefixes will not be removed
 
 ## Details
 

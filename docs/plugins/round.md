@@ -5,8 +5,10 @@ Rounds numbers to a shorter form.
 ## Options
 
 - `coordDigits`: **number** - the number of digits after the decimal place to round x/y coordinates and width/height values (default: **4**)
+- `fontSizeDigits`: **number** - the number of digits after the decimal place to round `font-size` values (default: **3**)
 - `opacityDigits`: **number** - the number of digits after the decimal place to round opacity values (default: **3**)
-- `stopOffsetDigits`: **number** - the number of digits after the decimal place to round stop offset values (default: **3**)
+- `stopOffsetDigits`: **number** - the number of digits after the decimal place to round stop `offset` values (default: **3**)
+- `stdDeviationDigits`: **number** - the number of digits after the decimal place to round `stdDeviationDigits` values (default: **3**)
 
 ## Details
 
@@ -29,14 +31,22 @@ The following values are rounded using this value:
 
 If the dimension of the element or its ancestors cannot be determined, or if the element or one of its ancestors is subject to a `transform` other than `translate()`, no rounding is done.
 
-### Opacities
-
-`opacity`, `fill-opacity`, and `stop-opacity` values are rounded to the number of digits specified by the `opacityDigits` parameter.
-
 ### Colors
 
 Any colors specified using RGB percentages are converted to integer RGB values, and minified as they are in the [minifyColors](./minifyColors.md) plugin.
 
+### Font Sizes
+
+Font sizes specified in `px` units are rounded to the number of digits specified by the `opacityDigits` parameter.
+
+### Opacities
+
+`opacity`, `fill-opacity`, and `stop-opacity` values are rounded to the number of digits specified by the `fontSizeDigits` parameter.
+
 ### Stop Offsets
 
 The `offset` attribute of `<stop>` elements is rounded to the number of digits specified by the `stopOffsetDigits` parameter.
+
+### stdDeviation
+
+The `stdDeviationDigits` attribute of `<feGaussianBlur>' elements is rounded to the number of digits specified by the `stdDeviationDigits` parameter.

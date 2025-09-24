@@ -45,6 +45,7 @@ export const fn = (info) => {
         if (
           stroke === undefined ||
           stroke === 'none' ||
+          // TODO: seems like we do not need the check for undefined here.
           (strokeOpacity !== undefined && strokeOpacity === '0') ||
           (strokeWidth !== undefined && strokeWidth === '0')
         ) {

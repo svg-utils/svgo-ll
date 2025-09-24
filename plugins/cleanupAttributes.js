@@ -22,9 +22,6 @@ export const fn = (info) => {
     return;
   }
 
-  const hasClassAttributeSelector = styleData.hasAttributeSelector('class');
-  const hasStyleAttributeSelector = styleData.hasAttributeSelector('style');
-
   return {
     element: {
       enter: (element) => {
@@ -33,17 +30,14 @@ export const fn = (info) => {
         }
 
         for (const attName of Object.keys(element.attributes)) {
+          if (styleData.hasAttributeSelector(attName)) {
+            continue;
+          }
           switch (attName) {
             case 'class':
-              if (hasClassAttributeSelector) {
-                continue;
-              }
               cleanupClassAttribute(element, styleData);
               break;
             case 'style':
-              if (hasStyleAttributeSelector) {
-                continue;
-              }
               cleanupStyleAttribute(element);
               break;
           }

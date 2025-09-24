@@ -168,7 +168,6 @@ export class CSSRuleSet {
   getRules(): CSSRule[];
   getString(): string;
   hasAtRules(): boolean;
-  hasAttributeSelector(name: string | undefined): boolean;
   hasIdSelector(id: string): boolean;
   hasTypeSelector(type: string): boolean;
 }

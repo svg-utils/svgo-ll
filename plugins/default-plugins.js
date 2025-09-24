@@ -1,5 +1,5 @@
 import * as cleanupIds from './cleanupIds.js';
-import * as cleanupStyleAttributes from './cleanupStyleAttributes.js';
+import * as cleanupAttributes from './cleanupAttributes.js';
 import * as cleanupTextElements from './cleanupTextElements.js';
 import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
@@ -50,7 +50,7 @@ export const defaultPlugins = Object.freeze({
     combineStyleElements,
   ]),
   plugins: Object.freeze([
-    cleanupStyleAttributes,
+    cleanupAttributes,
     inlineStyles,
     minifyStyles,
     cleanupIds,

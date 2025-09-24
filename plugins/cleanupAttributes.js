@@ -11,10 +11,11 @@ import {
   uselessShapeProperties,
 } from './_collections.js';
 
-export const name = 'cleanupStyleAttributes';
-export const description = 'removes invalid properties from style attributes';
+export const name = 'cleanupAttributes';
+export const description =
+  'removes invalid properties from style attributes and standardizes attribute values';
 
-/** @type {import('./plugins-types.js').Plugin<'cleanupStyleAttributes'>} */
+/** @type {import('./plugins-types.js').Plugin<'cleanupAttributes'>} */
 export const fn = (info) => {
   /**
    * @param {import('../lib/types.js').XastElement} element
@@ -40,29 +41,6 @@ export const fn = (info) => {
   }
 
   /**
-   * @param {string} elName
-   * @param {string} propName
-   */
-  function elementCanHaveProperty(elName, propName) {
-    const isUniversalProperty = presentationProperties.has(propName);
-
-    if (isUniversalProperty) {
-      // See if it is excluded from this element.
-      if (elemsGroups.shape.has(elName)) {
-        if (uselessShapeProperties.has(propName)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    // See if it is allowed for this element.
-    const allowedElements = geometryProperties[propName];
-    return allowedElements && allowedElements.has(elName);
-  }
-
-  /**
-   *
    * @param {import('../lib/types.js').XastElement} element
    */
   function hasOnlyShapeChildren(element) {
@@ -151,3 +129,25 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {string} elName
+ * @param {string} propName
+ */
+function elementCanHaveProperty(elName, propName) {
+  const isUniversalProperty = presentationProperties.has(propName);
+
+  if (isUniversalProperty) {
+    // See if it is excluded from this element.
+    if (elemsGroups.shape.has(elName)) {
+      if (uselessShapeProperties.has(propName)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  // See if it is allowed for this element.
+  const allowedElements = geometryProperties[propName];
+  return allowedElements && allowedElements.has(elName);
+}

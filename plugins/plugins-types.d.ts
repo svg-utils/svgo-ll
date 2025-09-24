@@ -1,11 +1,11 @@
 import type { Plugin as PluginDef } from '../lib/types.js';
 
 type BuiltinPlugins = {
+  cleanupAttributes: void;
   cleanupIds: {
     preserve?: string[];
     preservePrefixes?: string[];
   };
-  cleanupStyleAttributes: void;
   cleanupTextElements: void;
   cleanupXlink: void;
   collapseGroups: void;

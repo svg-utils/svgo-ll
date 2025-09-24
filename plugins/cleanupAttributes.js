@@ -1,8 +1,8 @@
+import { ClassValue } from '../lib/attrs/classValue.js';
 import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { getClassNames } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -17,38 +17,6 @@ export const description =
 
 /** @type {import('./plugins-types.js').Plugin<'cleanupAttributes'>} */
 export const fn = (info) => {
-  /**
-   * @param {import('../lib/types.js').XastElement} element
-   * @param {import('../lib/types.js').StyleData} styleData
-   */
-  function cleanupClassAttributes(element, styleData) {
-    if (hasClassAttributeSelector) {
-      return;
-    }
-    // If there is a class attribute, delete any classes not referenced in the style element.
-
-    const classes = getClassNames(element);
-    if (classes.length === 0) {
-      return;
-    }
-
-    const newClasses = classes.filter((c) => styleData.hasClassReference(c));
-    if (newClasses.length === 0) {
-      delete element.attributes.class;
-    } else {
-      element.attributes.class = newClasses.join(' ');
-    }
-  }
-
-  /**
-   * @param {import('../lib/types.js').XastElement} element
-   */
-  function hasOnlyShapeChildren(element) {
-    return element.children.every(
-      (child) => child.type === 'element' && elemsGroups.shape.has(child.name),
-    );
-  }
-
   const styleData = info.docData.getStyles();
   if (info.docData.hasScripts() || styleData === null) {
     return;
@@ -64,7 +32,16 @@ export const fn = (info) => {
           return visitSkip;
         }
 
-        cleanupClassAttributes(element, styleData);
+        for (const attName of Object.keys(element.attributes)) {
+          switch (attName) {
+            case 'class':
+              if (hasClassAttributeSelector) {
+                continue;
+              }
+              cleanupClassAttributes(element, styleData);
+              break;
+          }
+        }
 
         if (hasStyleAttributeSelector) {
           return;
@@ -131,6 +108,28 @@ export const fn = (info) => {
 };
 
 /**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../lib/types.js').StyleData} styleData
+ */
+function cleanupClassAttributes(element, styleData) {
+  // If there is a class attribute, delete any classes not referenced in the style element.
+  const cv = ClassValue.getAttValue(element);
+  if (cv === undefined) {
+    return;
+  }
+
+  for (const className of cv.getClassNames()) {
+    if (!styleData.hasClassReference(className)) {
+      cv.delete(className);
+    }
+  }
+
+  if (cv.getClassNames().length === 0) {
+    delete element.attributes.class;
+  }
+}
+
+/**
  * @param {string} elName
  * @param {string} propName
  */
@@ -150,4 +149,13 @@ function elementCanHaveProperty(elName, propName) {
   // See if it is allowed for this element.
   const allowedElements = geometryProperties[propName];
   return allowedElements && allowedElements.has(elName);
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function hasOnlyShapeChildren(element) {
+  return element.children.every(
+    (child) => child.type === 'element' && elemsGroups.shape.has(child.name),
+  );
 }

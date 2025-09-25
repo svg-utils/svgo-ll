@@ -1,8 +1,3 @@
-/**
- * @typedef {import('../lib/types.js').XastElement} XastElement
- * @typedef {import('../lib/types.js').XastParent} XastParent
- */
-
 import * as csso from 'csso';
 
 export const name = 'minifyStyles';

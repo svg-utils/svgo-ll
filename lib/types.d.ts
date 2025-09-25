@@ -136,9 +136,9 @@ export class StyleData {
   hasTypeSelector(tagName: string): boolean;
   mergeStyles(): void;
   minifyStyles(usage: {
-    tags: string[];
-    ids: string[];
-    classes: string[];
+    tags?: string[];
+    ids?: string[];
+    classes?: string[];
   }): void;
   updateClassNames(renameMap: Map<string, string>): void;
   updateReferencedIds(

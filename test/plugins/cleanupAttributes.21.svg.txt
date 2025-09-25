@@ -1,0 +1,13 @@
+Remove px from width/height.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" width="300px" height="300px ">
+  <rect y="60" width="30" height="20"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300">
+    <rect y="60" width="30" height="20"/>
+</svg>

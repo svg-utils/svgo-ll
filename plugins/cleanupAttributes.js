@@ -40,6 +40,12 @@ export const fn = (info) => {
             case 'style':
               cleanupStyleAttribute(element);
               break;
+            case 'x':
+            case 'y':
+            case 'width':
+            case 'height':
+              cleanupLengthPct(element, attName);
+              break;
           }
         }
       },
@@ -66,6 +72,18 @@ function cleanupClassAttribute(element, styleData) {
 
   if (cv.getClassNames().length === 0) {
     delete element.attributes.class;
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} attName
+ */
+function cleanupLengthPct(element, attName) {
+  // If there is a class attribute, delete any classes not referenced in the style element.
+  const value = LengthOrPctValue.getAttValue(element, attName);
+  if (value === undefined) {
+    return;
   }
 }
 

@@ -3,7 +3,13 @@ import * as path from 'node:path/posix';
 import { optimize } from '../../lib/svgo.js';
 
 /** @type {{name:string,config:import('../../lib/svgo.js').Config}[]} */
-const tests = [{ name: 'minifyPathData-round', config: { enable: ['round'] } }];
+const tests = [
+  { name: 'minifyPathData-round', config: { enable: ['round'] } },
+  {
+    name: 'inlineStyles-stylesToClasses',
+    config: { pluginNames: ['inlineStyles', 'stylesToClasses'] },
+  },
+];
 
 describe('plugins tests', function () {
   for (const test of tests) {

@@ -15,7 +15,6 @@ See: https://github.com/svg/svgo/issues/2065
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-    <style/>
     <path id="a" d="M 2 2 h10" style="stroke:red"/>
     <use href="#a" x="5" y="5"/>
 </svg>

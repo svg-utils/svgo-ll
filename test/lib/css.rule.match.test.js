@@ -1,15 +1,14 @@
-import { CSSRule, CSSSelector, CSSSelectorSequence } from '../../lib/css.js';
+import { ClassValue } from '../../lib/attrs/classValue.js';
+import { CSSSelector, CSSSelectorSequence } from '../../lib/css.js';
+import { CSSRuleConcrete } from '../../lib/style-css-tree.js';
 import { createElement } from './testutils.js';
-
-/**
- * @typedef {import('../../lib/css.js').SimpleSelector} SimpleSelector
- */
 
 describe('test parsing and stringifying of selectors', function () {
   /** @type {{
-   * selectorInfo:SimpleSelector[],
+   * selectorInfo:import('../../lib/css.js').SimpleSelector[],
    * elData:{elName:string,atts:[string,string][]},
-   * expected:boolean|null
+   * expected:boolean|null,
+   * expectedComplex?:boolean
    * }[]} */
   const tests = [
     {
@@ -49,6 +48,22 @@ describe('test parsing and stringifying of selectors', function () {
       ],
       elData: { elName: 'path', atts: [['class', 'class1']] },
       expected: null,
+      expectedComplex: false,
+    },
+    {
+      selectorInfo: [
+        { type: 'ClassSelector', name: 'class1' },
+        { type: 'IdSelector', name: 'id1' },
+      ],
+      elData: {
+        elName: 'path',
+        atts: [
+          ['class', 'class1'],
+          ['id', 'id1'],
+        ],
+      },
+      expected: null,
+      expectedComplex: true,
     },
     {
       selectorInfo: [{ type: 'IdSelector', name: 'id1' }],
@@ -82,9 +97,28 @@ describe('test parsing and stringifying of selectors', function () {
     const sequences = [new CSSSelectorSequence(undefined, test.selectorInfo)];
     const selector = new CSSSelector(sequences);
     it(`test ${selector.getString()} - ${test.elData.atts}}`, function () {
-      const rule = new CSSRule(selector, [0, 0, 0], declarations, false);
+      const rule = new CSSRuleConcrete(
+        selector,
+        [0, 0, 0],
+        declarations,
+        false,
+      );
       const element = createElement(test.elData);
       expect(rule._matches(element)).toBe(test.expected);
+      if (test.expectedComplex !== undefined) {
+        expect(rule.matches(element)).toBe(test.expectedComplex);
+      }
+
+      // If attribute is parseable, make sure the parsed version behaves the same.
+      for (const attName of Object.keys(element.attributes)) {
+        if (attName === 'class') {
+          ClassValue.getAttValue(element);
+        }
+      }
+      expect(rule._matches(element)).toBe(test.expected);
+      if (test.expectedComplex !== undefined) {
+        expect(rule.matches(element)).toBe(test.expectedComplex);
+      }
     });
   }
 });

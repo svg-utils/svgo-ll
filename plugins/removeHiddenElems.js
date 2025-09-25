@@ -121,8 +121,8 @@ export const fn = (info) => {
           element.children.length === 0 &&
           (!element.attributes.width ||
             !element.attributes.height ||
-            element.attributes.width === '0' ||
-            element.attributes.height === '0')
+            element.attributes.width.toString() === '0' ||
+            element.attributes.height.toString() === '0')
         ) {
           removeElement(element);
           return true;

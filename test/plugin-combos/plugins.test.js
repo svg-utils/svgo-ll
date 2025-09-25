@@ -9,6 +9,10 @@ const tests = [
     name: 'inlineStyles-stylesToClasses',
     config: { pluginNames: ['inlineStyles', 'stylesToClasses'] },
   },
+  {
+    name: 'cleanupAttributes-removeHiddenElems',
+    config: { pluginNames: ['cleanupAttributes', 'removeHiddenElems'] },
+  },
 ];
 
 describe('plugins tests', function () {

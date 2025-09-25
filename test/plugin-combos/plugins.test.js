@@ -13,6 +13,10 @@ const tests = [
     name: 'cleanupAttributes-removeHiddenElems',
     config: { pluginNames: ['cleanupAttributes', 'removeHiddenElems'] },
   },
+  {
+    name: 'cleanupAttributes-removeUnknownsAndDefaults',
+    config: { pluginNames: ['cleanupAttributes', 'removeUnknownsAndDefaults'] },
+  },
 ];
 
 describe('plugins tests', function () {

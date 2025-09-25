@@ -211,7 +211,10 @@ export const fn = (info, params) => {
           }
           // x="0" and y="0" can be removed; otherwise leave attributes alone.
           ['x', 'y'].forEach((attName) => {
-            if (element.attributes[attName] === '0') {
+            if (
+              element.attributes[attName] !== undefined &&
+              element.attributes[attName].toString() === '0'
+            ) {
               delete element.attributes[attName];
             }
           });

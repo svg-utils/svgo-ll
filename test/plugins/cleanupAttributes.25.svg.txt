@@ -1,0 +1,14 @@
+Clean up rx, ry attributes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect x="3" y="3" width="10" height="10" rx="0.9" ry="0.8"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <rect x="3" y="3" width="10" height="10" rx=".9" ry=".8"/>
+</svg>
+

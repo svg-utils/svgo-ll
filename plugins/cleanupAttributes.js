@@ -48,6 +48,8 @@ export const fn = (info) => {
             case 'y2':
             case 'width':
             case 'height':
+            case 'cx':
+            case 'cy':
             case 'r':
             case 'rx':
             case 'ry':
@@ -89,10 +91,7 @@ function cleanupClassAttribute(element, styleData) {
  */
 function cleanupLengthPct(element, attName) {
   // If there is a class attribute, delete any classes not referenced in the style element.
-  const value = LengthOrPctValue.getAttValue(element, attName);
-  if (value === undefined) {
-    return;
-  }
+  LengthOrPctValue.getAttValue(element, attName);
 }
 
 /**

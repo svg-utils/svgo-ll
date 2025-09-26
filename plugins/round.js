@@ -287,7 +287,7 @@ function roundFontSize(attValue, numDigits) {
  * @returns {OpacityValue|null}
  */
 function roundOpacity(attValue, digits) {
-  const value = OpacityValue.getOpacityObj(attValue);
+  const value = OpacityValue.getObj(attValue);
   const opacity = value.getOpacity();
   if (opacity >= 1) {
     return new OpacityValue('1', 1);

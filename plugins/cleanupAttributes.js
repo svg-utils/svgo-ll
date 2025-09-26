@@ -40,6 +40,12 @@ export const fn = (info) => {
             case 'style':
               cleanupStyleAttribute(element);
               break;
+            case 'fill-opacity':
+            case 'opacity':
+            case 'stop-opacity':
+            case 'stroke-opacity':
+              cleanupOpacityAttribute(element, attName);
+              break;
             case 'x':
             case 'x1':
             case 'x2':
@@ -93,8 +99,15 @@ function cleanupClassAttribute(element, styleData) {
  * @param {string} attName
  */
 function cleanupLengthPct(element, attName) {
-  // If there is a class attribute, delete any classes not referenced in the style element.
   LengthOrPctValue.getAttValue(element, attName);
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} attName
+ */
+function cleanupOpacityAttribute(element, attName) {
+  OpacityValue.getAttValue(element, attName);
 }
 
 /**
@@ -140,7 +153,7 @@ function cleanupStyleAttribute(element) {
       case 'stop-opacity':
       case 'stroke-opacity':
         styleAttValue.set(p, {
-          value: OpacityValue.getOpacityObj(v.value),
+          value: OpacityValue.getObj(v.value),
           important: v.important,
         });
         break;

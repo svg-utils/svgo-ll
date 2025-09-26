@@ -41,7 +41,11 @@ export const fn = (info) => {
               cleanupStyleAttribute(element);
               break;
             case 'x':
+            case 'x1':
+            case 'x2':
             case 'y':
+            case 'y1':
+            case 'y2':
             case 'width':
             case 'height':
             case 'r':

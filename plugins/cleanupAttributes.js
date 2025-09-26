@@ -174,6 +174,12 @@ function cleanupStyleAttribute(element) {
           important: v.important,
         });
         break;
+      case 'stroke-dasharray':
+        styleAttValue.set(p, {
+          value: StrokeDasharrayValue.getObj(v.value),
+          important: v.important,
+        });
+        break;
     }
   }
 

@@ -53,6 +53,9 @@ export const fn = (info) => {
             case 'r':
             case 'rx':
             case 'ry':
+            case 'fx':
+            case 'fy':
+            case 'fr':
             case 'stdDeviation':
               cleanupLengthPct(element, attName);
               break;

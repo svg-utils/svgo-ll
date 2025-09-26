@@ -4,6 +4,7 @@ import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -68,6 +69,9 @@ export const fn = (info) => {
               break;
             case 'stroke-dasharray':
               cleanupStrokeDasharrayAttribute(element);
+              break;
+            case 'viewBox':
+              ViewBoxValue.getAttValue(element);
               break;
           }
         }

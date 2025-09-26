@@ -2,6 +2,7 @@ import { ClassValue } from '../lib/attrs/classValue.js';
 import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
@@ -65,6 +66,9 @@ export const fn = (info) => {
             case 'stdDeviation':
               cleanupLengthPct(element, attName);
               break;
+            case 'stroke-dasharray':
+              cleanupStrokeDasharrayAttribute(element);
+              break;
           }
         }
       },
@@ -108,6 +112,13 @@ function cleanupLengthPct(element, attName) {
  */
 function cleanupOpacityAttribute(element, attName) {
   OpacityValue.getAttValue(element, attName);
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function cleanupStrokeDasharrayAttribute(element) {
+  StrokeDasharrayValue.getAttValue(element);
 }
 
 /**

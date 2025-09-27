@@ -48,11 +48,11 @@ export const defaultPlugins = Object.freeze({
     removeDesc,
     cleanupXlink,
     combineStyleElements,
+    cleanupAttributes,
   ]),
   plugins: Object.freeze([
-    cleanupAttributes,
-    inlineStyles,
     minifyStyles,
+    inlineStyles,
     cleanupIds,
     minifyColors,
     minifyGradients,

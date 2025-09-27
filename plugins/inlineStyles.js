@@ -1,3 +1,4 @@
+import { ClassValue } from '../lib/attrs/classValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools.js';
 
@@ -68,6 +69,8 @@ export const fn = (info) => {
       exit: () => {
         const rulesToDelete = new Set();
 
+        const classAttsToCheck = new Set();
+
         for (const [rule, elements] of elementsPerRule.entries()) {
           if (elements.length === 1) {
             const element = elements[0];
@@ -82,6 +85,8 @@ export const fn = (info) => {
                 new StyleAttValue(rule.getDeclarations()),
               );
               rulesToDelete.add(rule);
+
+              classAttsToCheck.add(element);
             }
           }
         }
@@ -89,6 +94,18 @@ export const fn = (info) => {
         if (rulesToDelete.size > 0) {
           styleData.deleteRules(rulesToDelete);
           styleData.writeRules();
+
+          // If any class attributes are no longer referenced in the styles, delete them.
+          for (const element of classAttsToCheck.values()) {
+            const cv = ClassValue.getAttValue(element);
+            if (
+              cv &&
+              cv.getClassNames().length === 1 &&
+              !styleData.hasClassReference(cv.getClassNames()[0])
+            ) {
+              delete element.attributes.class;
+            }
+          }
         }
       },
     },

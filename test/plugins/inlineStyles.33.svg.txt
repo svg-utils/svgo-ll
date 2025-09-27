@@ -1,0 +1,15 @@
+If inlined style is a class selector, remove class from target element.
+
+===
+
+<svg viewBox="0 0 20 20"
+  xmlns="http://www.w3.org/2000/svg">
+  <style>.a{fill:red}</style>
+  <rect width="4" height="5" class="a"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <rect width="4" height="5" style="fill:red"/>
+</svg>

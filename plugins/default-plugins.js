@@ -51,8 +51,9 @@ export const defaultPlugins = Object.freeze({
     cleanupAttributes,
   ]),
   plugins: Object.freeze([
-    minifyStyles,
     inlineStyles,
+    // Run minifyStyles after inlineStyles; minifyStyles can split a single class reference into multiple references.
+    minifyStyles,
     cleanupIds,
     minifyColors,
     minifyGradients,

@@ -10,6 +10,7 @@ import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { TransformValue } from '../lib/attrs/transformValue.js';
+import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -207,12 +208,12 @@ function getCoordContext(element, digits) {
     return Math.max(baseDigits - Math.floor(Math.log10(size)) + 2, baseDigits);
   }
 
-  const viewBox = element.attributes.viewBox;
-  if (typeof viewBox === 'string' && viewBox) {
-    const vbParsed = viewBox.trim().split(/\s+/);
-    if (vbParsed.length === 4) {
-      const width = parseFloat(vbParsed[2]);
-      const height = parseFloat(vbParsed[3]);
+  const viewBox = ViewBoxValue.getAttValue(element);
+  if (viewBox) {
+    const coords = viewBox.getCoordinates();
+    if (coords.length === 4) {
+      const width = coords[2].getValue();
+      const height = coords[3].getValue();
       return {
         width: width,
         height: height,

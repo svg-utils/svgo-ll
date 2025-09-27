@@ -64,6 +64,7 @@ export const fn = (info) => {
             case 'fx':
             case 'fy':
             case 'fr':
+            case 'stroke-width':
             case 'stdDeviation':
               cleanupLengthPct(element, attName);
               break;

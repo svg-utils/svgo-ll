@@ -68,6 +68,9 @@ export const fn = (info) => {
             case 'stdDeviation':
               cleanupLengthPct(element, attName);
               break;
+            case 'href':
+              cleanupHref(element);
+              break;
             case 'stroke-dasharray':
               cleanupStrokeDasharrayAttribute(element);
               break;
@@ -100,6 +103,16 @@ function cleanupClassAttribute(element, styleData) {
 
   if (cv.getClassNames().length === 0) {
     delete element.attributes.class;
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function cleanupHref(element) {
+  const href = element.attributes.href;
+  if (typeof href === 'string' && href.startsWith('data:')) {
+    element.attributes.href = href.replaceAll('\n', '');
   }
 }
 

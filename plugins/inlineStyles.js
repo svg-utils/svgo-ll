@@ -1,6 +1,6 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 
 export const name = 'inlineStyles';
 export const description =

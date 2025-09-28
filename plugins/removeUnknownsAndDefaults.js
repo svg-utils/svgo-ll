@@ -6,9 +6,10 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
-import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/svgo/tools.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =

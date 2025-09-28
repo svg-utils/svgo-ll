@@ -1,4 +1,5 @@
-import { getReferencedIds, SVGOError } from '../lib/svgo/tools.js';
+import { getReferencedIds } from '../lib/svgo/tools-svg.js';
+import { SVGOError } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 

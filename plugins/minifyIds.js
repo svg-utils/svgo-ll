@@ -1,9 +1,8 @@
 import {
-  generateId,
   recordReferencedIds,
-  SVGOError,
   updateReferencedId,
-} from '../lib/svgo/tools.js';
+} from '../lib/svgo/tools-svg.js';
+import { generateId, SVGOError } from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
@@ -86,7 +85,7 @@ export const fn = (info, params) => {
 
   /** @type {Map<string,import('../lib/types.js').XastElement>} */
   const foundIds = new Map();
-  /** @type {import('../lib/svgo/tools.js').IdReferenceMap} */
+  /** @type {import('../lib/svgo/tools-svg.js').IdReferenceMap} */
   const allReferencedIds = new Map();
 
   const preserveIds = new Set(

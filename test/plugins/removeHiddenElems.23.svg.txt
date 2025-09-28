@@ -42,6 +42,6 @@ Don't delete non-rendered nodes that are referenced from within another non-rend
         </mask>
     </defs>
     <g mask="url(#d)" transform="translate(0 16)">
-        <path style="opacity:0.3;fill:#ffffff;stroke:url(#h);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:1.08779998" d="M52.000004 28h24.000002v108.53865H52.000004z"/>
+        <path style="opacity:.3;fill:#ffffff;stroke:url(#h);stroke-width:8;stroke-linecap:round;stroke-linejoin:round;stroke-dashoffset:1.08779998" d="M52.000004 28h24.000002v108.53865H52.000004z"/>
     </g>
 </svg>

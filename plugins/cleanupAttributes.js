@@ -1,5 +1,4 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
-import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
@@ -156,7 +155,7 @@ function cleanupStyleAttribute(element) {
   }
 
   const isShapeGroup = element.name === 'g' && hasOnlyShapeChildren(element);
-  for (const [p, v] of styleAttValue.entries()) {
+  for (const p of styleAttValue.keys()) {
     if (!elementCanHaveProperty(element.name, p)) {
       styleAttValue.delete(p);
       continue;
@@ -164,40 +163,6 @@ function cleanupStyleAttribute(element) {
     if (isShapeGroup && uselessShapeProperties.has(p)) {
       styleAttValue.delete(p);
       continue;
-    }
-    switch (p) {
-      case 'letter-spacing':
-      case 'stroke-dashoffset':
-      case 'stroke-width':
-        {
-          const parsedValue = LengthOrPctValue.getLengthOrPctObj(v.value);
-          styleAttValue.set(p, {
-            value: parsedValue,
-            important: v.important,
-          });
-        }
-        break;
-      case 'fill-opacity':
-      case 'opacity':
-      case 'stop-opacity':
-      case 'stroke-opacity':
-        styleAttValue.set(p, {
-          value: OpacityValue.getObj(v.value),
-          important: v.important,
-        });
-        break;
-      case 'font-size':
-        styleAttValue.set(p, {
-          value: FontSizeValue.getObj(v.value),
-          important: v.important,
-        });
-        break;
-      case 'stroke-dasharray':
-        styleAttValue.set(p, {
-          value: StrokeDasharrayValue.getObj(v.value),
-          important: v.important,
-        });
-        break;
     }
   }
 

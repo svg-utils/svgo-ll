@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
@@ -45,16 +45,12 @@ export const fn = (info) => {
         if (
           stroke === undefined ||
           stroke === 'none' ||
-          // TODO: seems like we do not need the check for undefined here.
-          (strokeOpacity !== undefined && strokeOpacity === '0') ||
-          (strokeWidth !== undefined && strokeWidth === '0')
+          strokeOpacity === '0' ||
+          strokeWidth === '0'
         ) {
           // stroke-width may affect the size of marker-end
           // marker is not visible when stroke-width is 0
-          if (
-            (strokeWidth !== undefined && strokeWidth === '0') ||
-            markerEnd === undefined
-          ) {
+          if (strokeWidth === '0' || markerEnd === undefined) {
             removePrefixedProperties(element, 'stroke');
 
             // If necessary, set explicit none to override parent or <style>.

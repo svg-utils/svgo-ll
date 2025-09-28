@@ -1,9 +1,11 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
+import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
+import { WordSpacingValue } from '../lib/attrs/wordSpacingValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -75,6 +77,12 @@ export const fn = (info) => {
               break;
             case 'viewBox':
               ViewBoxValue.getAttValue(element);
+              break;
+            case 'word-spacing':
+              WordSpacingValue.getAttValue(element);
+              break;
+            case 'letter-spacing':
+              LetterSpacingValue.getAttValue(element);
               break;
           }
         }

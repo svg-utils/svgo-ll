@@ -1,10 +1,10 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import {
-  getHrefId,
   getReferencedIds,
   updateStyleAttribute,
-} from '../lib/svgo/tools.js';
+} from '../lib/svgo/tools-svg.js';
+import { getHrefId } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'inlineUse';

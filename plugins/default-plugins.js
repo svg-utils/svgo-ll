@@ -1,5 +1,5 @@
 import * as cleanupIds from './cleanupIds.js';
-import * as cleanupStyleAttributes from './cleanupStyleAttributes.js';
+import * as cleanupAttributes from './cleanupAttributes.js';
 import * as cleanupTextElements from './cleanupTextElements.js';
 import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
@@ -48,10 +48,11 @@ export const defaultPlugins = Object.freeze({
     removeDesc,
     cleanupXlink,
     combineStyleElements,
+    cleanupAttributes,
   ]),
   plugins: Object.freeze([
-    cleanupStyleAttributes,
     inlineStyles,
+    // Run minifyStyles after inlineStyles; minifyStyles can split a single class reference into multiple references.
     minifyStyles,
     cleanupIds,
     minifyColors,

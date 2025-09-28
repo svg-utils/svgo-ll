@@ -106,6 +106,7 @@ type CSSFeatures =
 export class AttValue {
   round(numDigits: number): AttValue;
   toString(): string;
+  toStyleElementString(): string;
 }
 
 export class LengthValue extends AttValue {}
@@ -136,9 +137,9 @@ export class StyleData {
   hasTypeSelector(tagName: string): boolean;
   mergeStyles(): void;
   minifyStyles(usage: {
-    tags: string[];
-    ids: string[];
-    classes: string[];
+    tags?: string[];
+    ids?: string[];
+    classes?: string[];
   }): void;
   updateClassNames(renameMap: Map<string, string>): void;
   updateReferencedIds(
@@ -168,7 +169,6 @@ export class CSSRuleSet {
   getRules(): CSSRule[];
   getString(): string;
   hasAtRules(): boolean;
-  hasAttributeSelector(name: string | undefined): boolean;
   hasIdSelector(id: string): boolean;
   hasTypeSelector(type: string): boolean;
 }

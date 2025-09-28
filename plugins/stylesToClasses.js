@@ -1,6 +1,7 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { generateId, updateStyleAttribute } from '../lib/svgo/tools.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
+import { generateId } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'stylesToClasses';

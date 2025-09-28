@@ -1,0 +1,25 @@
+Clean up stop-opacity attributes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="a">
+      <stop style="stop-color:#aaa" stop-opacity="0.6789101"/>
+      <stop offset="1" style="stop-color:#aaa;stop-opacity:0.12345"/>
+    </linearGradient>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="a">
+      <stop style="stop-color:#aaa" stop-opacity=".6789101"/>
+      <stop offset="1" style="stop-color:#aaa;stop-opacity:.12345"/>
+    </linearGradient>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+</svg>

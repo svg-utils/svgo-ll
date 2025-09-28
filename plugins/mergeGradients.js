@@ -1,5 +1,8 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { recordReferencedIds, updateReferencedId } from '../lib/svgo/tools.js';
+import {
+  recordReferencedIds,
+  updateReferencedId,
+} from '../lib/svgo/tools-svg.js';
 
 export const name = 'mergeGradients';
 export const description = 'merge identical gradients';
@@ -21,7 +24,7 @@ export const fn = (info) => {
   /** @type {import('../lib/types.js').XastElement[]} */
   const duplicateGradients = [];
 
-  /** @type {import('../lib/svgo/tools.js').IdReferenceMap} */
+  /** @type {import('../lib/svgo/tools-svg.js').IdReferenceMap} */
   const referencedIds = new Map();
 
   /** @type {Map<string,string>} */

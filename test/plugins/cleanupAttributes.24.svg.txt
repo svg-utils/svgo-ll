@@ -1,0 +1,19 @@
+Clean up stdDeviation attribute.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <filter id="a">
+    <feGaussianBlur stdDeviation="0.9"/>
+  </filter>
+  <rect x="3" y="3" width="10" height="10" filter="url(#a)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <filter id="a">
+    <feGaussianBlur stdDeviation=".9"/>
+  </filter>
+  <rect x="3" y="3" width="10" height="10" filter="url(#a)"/>
+</svg>

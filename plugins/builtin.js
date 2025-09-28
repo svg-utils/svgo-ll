@@ -1,5 +1,5 @@
 import * as cleanupIds from '../plugins/cleanupIds.js';
-import * as cleanupStyleAttributes from '../plugins/cleanupStyleAttributes.js';
+import * as cleanupAttributes from '../plugins/cleanupAttributes.js';
 import * as cleanupTextElements from '../plugins/cleanupTextElements.js';
 import * as cleanupXlink from '../plugins/cleanupXlink.js';
 import * as collapseGroups from '../plugins/collapseGroups.js';
@@ -85,8 +85,8 @@ class StaticMap {
 
 /** @type {[string,import('../lib/svgo.js').CustomPlugin][]} */
 const pluginList = [
+  cleanupAttributes,
   cleanupIds,
-  cleanupStyleAttributes,
   cleanupTextElements,
   cleanupXlink,
   collapseGroups,

@@ -2,9 +2,9 @@ import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import { recordReferencedIds } from '../lib/svgo/tools-svg.js';
 import {
   getReferencedIdInStyleProperty,
-  recordReferencedIds,
   SVGOError,
 } from '../lib/svgo/tools.js';
 
@@ -31,7 +31,7 @@ export const fn = (info) => {
    * @type {Map<string,ColorData>} */
   const solidGradients = new Map();
 
-  /** @type {import('../lib/svgo/tools.js').IdReferenceMap} */
+  /** @type {import('../lib/svgo/tools-svg.js').IdReferenceMap} */
   const allReferencedIds = new Map();
 
   /**
@@ -231,7 +231,7 @@ function inlineGradient(
 
 /**
  * @param {Map<string,ColorData>} solidGradients
- * @param {import('../lib/svgo/tools.js').IdReferenceMap} allReferencedIds
+ * @param {import('../lib/svgo/tools-svg.js').IdReferenceMap} allReferencedIds
  */
 function updateSolidGradients(solidGradients, allReferencedIds) {
   /** @type {Map<string,ColorData>} */

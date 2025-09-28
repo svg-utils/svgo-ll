@@ -413,8 +413,8 @@ async function optimizeFile(
         stats.lengthOpt = optimizedData.data.length;
         stats.passes = optimizedData.passes;
         stats.time = optimizedData.time;
+        return writeOutputFile(outputDirRoot, relativePath, optimizedData.data);
       }
-      return writeOutputFile(outputDirRoot, relativePath, optimizedData.data);
     })
     .then(() =>
       compareFile(

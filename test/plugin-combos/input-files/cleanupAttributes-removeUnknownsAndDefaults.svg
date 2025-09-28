@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128.66954 142.59889">
+  <path style="fill:none;stroke:#000;stroke-width:1;stroke-dasharray:none" d="M58.75 77.5186 40.0609 45.1482" id="a"/>
+  <use x="0" y="0" href="#a"/>
+  <use x="0" y="0" transform="rotate(10 61.0575 103.89346)" href="#a"/>
+  <use transform="rotate(60 72.595001 101.49886)" href="#a"/>
+</svg>

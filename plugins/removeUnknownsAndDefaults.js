@@ -6,9 +6,10 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
-import { getHrefId, updateStyleAttribute } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/svgo/tools.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -114,6 +115,10 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
   if (value === defaultVals) {
     return true;
   }
+  if (propName === 'word-spacing' && (value === '0' || value === '0px')) {
+    // 'normal' is equivalent to 0
+    return true;
+  }
   if (
     propName === 'overflow' &&
     value === 'visible' &&
@@ -211,7 +216,10 @@ export const fn = (info, params) => {
           }
           // x="0" and y="0" can be removed; otherwise leave attributes alone.
           ['x', 'y'].forEach((attName) => {
-            if (element.attributes[attName] === '0') {
+            if (
+              element.attributes[attName] !== undefined &&
+              element.attributes[attName].toString() === '0'
+            ) {
               delete element.attributes[attName];
             }
           });

@@ -1,0 +1,16 @@
+Clean up cx and cy attributes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5">
+  <circle cx="0.9" cy="0.8" r=".3"/>
+  <ellipse cx="0.5%" cy="2" rx="1" ry="2"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 5">
+  <circle cx=".9" cy=".8" r=".3"/>
+  <ellipse cx=".5%" cy="2" rx="1" ry="2"/>
+</svg>
+

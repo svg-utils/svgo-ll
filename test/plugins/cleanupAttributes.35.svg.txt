@@ -1,0 +1,14 @@
+Handle letter-spacing:normal
+
+===
+
+<svg viewBox="0 0 20 20"
+  xmlns="http://www.w3.org/2000/svg">
+  <text style="letter-spacing:normal">xxx</text>  
+</svg>
+
+@@@
+
+<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <text style="letter-spacing:normal">xxx</text>
+</svg>

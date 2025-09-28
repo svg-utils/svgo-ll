@@ -1,4 +1,4 @@
-import { getReferencedIds } from '../../lib/svgo/tools.js';
+import { getReferencedIds } from '../../lib/svgo/tools-svg.js';
 import { createElement } from './testutils.js';
 
 /**

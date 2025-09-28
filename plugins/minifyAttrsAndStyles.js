@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { transformAttrs } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 

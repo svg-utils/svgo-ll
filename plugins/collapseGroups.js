@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { inheritableAttrs, elemsGroups } from './_collections.js';
 
 export const name = 'collapseGroups';
@@ -152,7 +152,7 @@ function elementHasUnmovableProperties(properties) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @param {import('./minifyStyles.js').XastElement} firstChild
+ * @param {import('../lib/types.js').XastElement} firstChild
  * @param {Object<string,import('../lib/types.js').SVGAttValue>} newChildElemAttrs
  * @param {StyleAttValue|undefined} styleAttValue
  * @param {string} propName

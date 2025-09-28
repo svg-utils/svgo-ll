@@ -106,6 +106,7 @@ type CSSFeatures =
 export class AttValue {
   round(numDigits: number): AttValue;
   toString(): string;
+  toStyleElementString(): string;
 }
 
 export class LengthValue extends AttValue {}

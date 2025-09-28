@@ -17,6 +17,12 @@ const tests = [
     name: 'cleanupAttributes-removeUnknownsAndDefaults',
     config: { pluginNames: ['cleanupAttributes', 'removeUnknownsAndDefaults'] },
   },
+  {
+    name: 'cleanupAttributes-stylesToClasses-minifyClassNames',
+    config: {
+      pluginNames: ['cleanupAttributes', 'stylesToClasses', 'minifyClassNames'],
+    },
+  },
 ];
 
 describe('plugins tests', function () {

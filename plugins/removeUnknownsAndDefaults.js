@@ -115,6 +115,10 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
   if (value === defaultVals) {
     return true;
   }
+  if (propName === 'word-spacing' && (value === '0' || value === '0px')) {
+    // 'normal' is equivalent to 0
+    return true;
+  }
   if (
     propName === 'overflow' &&
     value === 'visible' &&

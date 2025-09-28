@@ -1,8 +1,6 @@
 // https://www.w3.org/TR/SVG11/intro.html#Definitions
 
-/**
- * @type {Record<string, Set<string>>}
- */
+/** @type {Record<string, Set<string>>} */
 export const elemsGroups = {
   animation: new Set([
     'animate',

@@ -22,7 +22,8 @@ export const fn = function (info) {
   if (
     info.docData.hasScripts() ||
     styles === null ||
-    !styles.hasOnlyFeatures(['simple-selectors'])
+    !styles.hasOnlyFeatures(['simple-selectors']) ||
+    styles.hasTypeSelector('path')
   ) {
     return;
   }

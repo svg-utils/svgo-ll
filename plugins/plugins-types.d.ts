@@ -7,6 +7,7 @@ type BuiltinPlugins = {
     preservePrefixes?: string[];
   };
   cleanupTextElements: void;
+  cleanupTextNodes: void;
   cleanupXlink: void;
   collapseGroups: void;
   combineStyleElements: void;

@@ -5,6 +5,7 @@ import { fileURLToPath } from 'url';
 import { optimize } from '../../lib/svgo.js';
 import { getResolvedPlugins, validateParentNodes } from '../utils.js';
 import { builtinPlugins } from '../../plugins/builtin.js';
+import * as cleanupTextNodes from '../../plugins/cleanupTextNodes.js';
 
 const regEOL = new RegExp(EOL, 'g');
 const regFilename = /^(.*)\.(\d+)\.svg\.txt$/;
@@ -47,7 +48,7 @@ describe('plugins tests', function () {
           for (let i = 0; i < passes; i += 1) {
             const result = optimize(lastResultData, {
               path: file,
-              plugins: getResolvedPlugins([plugin]),
+              plugins: getResolvedPlugins([cleanupTextNodes, plugin]),
               js2svg: { pretty: true, indent: getIndent(should) },
               maxPasses: 1,
             });

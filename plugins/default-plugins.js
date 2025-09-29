@@ -1,6 +1,7 @@
 import * as cleanupIds from './cleanupIds.js';
 import * as cleanupAttributes from './cleanupAttributes.js';
 import * as cleanupTextElements from './cleanupTextElements.js';
+import * as cleanupTextNodes from './cleanupTextNodes.js';
 import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
 import * as combineStyleElements from './combineStyleElements.js';
@@ -40,6 +41,7 @@ import * as stylesToClasses from './stylesToClasses.js';
 /** @type {Readonly<{pre:ReadOnlyPluginList, plugins:ReadOnlyPluginList,post:ReadOnlyPluginList}>} */
 export const defaultPlugins = Object.freeze({
   pre: Object.freeze([
+    cleanupTextNodes,
     removeDoctype,
     removeXMLProcInst,
     removeComments,

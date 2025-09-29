@@ -1,5 +1,6 @@
 import * as cleanupIds from '../plugins/cleanupIds.js';
 import * as cleanupAttributes from '../plugins/cleanupAttributes.js';
+import * as cleanupTextNodes from '../plugins/cleanupTextNodes.js';
 import * as cleanupTextElements from '../plugins/cleanupTextElements.js';
 import * as cleanupXlink from '../plugins/cleanupXlink.js';
 import * as collapseGroups from '../plugins/collapseGroups.js';
@@ -87,6 +88,7 @@ class StaticMap {
 const pluginList = [
   cleanupAttributes,
   cleanupIds,
+  cleanupTextNodes,
   cleanupTextElements,
   cleanupXlink,
   collapseGroups,

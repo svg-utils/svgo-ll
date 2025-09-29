@@ -1,0 +1,21 @@
+Don't convert if there is a tag selector on path.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>
+  path{fill:red}
+  </style>
+  <rect x="1" y="2" width="2" height="1.5"/>
+  <path d="M3 3h5v5h-5"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>
+  path{fill:red}
+  </style>
+  <rect x="1" y="2" width="2" height="1.5"/>
+  <path d="M3 3h5v5h-5"/>
+</svg>

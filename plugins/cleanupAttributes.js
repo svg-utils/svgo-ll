@@ -28,7 +28,11 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        if (element.name === 'foreignObject') {
+        if (element.uri !== undefined) {
+          return;
+        }
+
+        if (element.local === 'foreignObject') {
           return visitSkip;
         }
 

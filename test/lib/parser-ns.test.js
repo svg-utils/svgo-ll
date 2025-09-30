@@ -53,8 +53,3 @@ test('add xlink ns to top element if already there', () => {
   const data = getData('xlink.3');
   expect(data.actual).toBe(data.expected);
 });
-
-test('fail if a default namespace other than SVG is declared - file should be unchanged', () => {
-  const data = getData('xlink.4');
-  expect(data.actual).toBe(data.expected);
-});

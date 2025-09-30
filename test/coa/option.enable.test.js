@@ -42,6 +42,8 @@ describe('test --enable option', function () {
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
+      '--pre',
+      'cleanupTextNodes',
       '--plugins',
       '--enable=minifyTransforms',
     ]);
@@ -58,6 +60,7 @@ describe('test --enable option', function () {
       '--quiet',
       '--plugins',
       '--enable',
+      'cleanupTextNodes',
       'minifyTransforms',
       'convertShapeToPath',
       'minifyPathData',
@@ -76,6 +79,7 @@ describe('test --enable option', function () {
       '--plugins',
       '--enable',
       'x',
+      'cleanupTextNodes',
       'minifyTransforms',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });

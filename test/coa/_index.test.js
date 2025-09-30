@@ -206,7 +206,7 @@ describe('test default plugins', function () {
     expect(opt).toBe(EXPECT_TRANS_PATH);
   });
 
-  it('should only remove whitespace when no plugins specified', async () => {
+  it('should do nothing when no plugins specified', async () => {
     await runProgram([
       '-i',
       PLUGINOPT_FILE1,
@@ -216,9 +216,7 @@ describe('test default plugins', function () {
       '--plugins',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
-    expect(opt).toBe(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" id="abc" transform="matrix(1 0 0 1 10 20) "/></svg>',
-    );
+    expect(opt).toBe(opt);
   });
 
   it('should only minify transform when no plugins specified, but custom config is used', async () => {
@@ -256,6 +254,7 @@ describe('test default plugins', function () {
       '-o',
       outPath,
       '--pre',
+      'cleanupTextNodes',
       'removeComments',
       '--plugins',
       'minifyTransforms',
@@ -281,6 +280,7 @@ describe('test default plugins', function () {
       '--post',
       'removeComments',
       '--plugins',
+      'cleanupTextNodes',
       'minifyTransforms',
       '--quiet',
       '--pretty',

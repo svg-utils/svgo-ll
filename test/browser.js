@@ -32,7 +32,7 @@ const content = `
 <script type="module">
 import { VERSION, optimize } from '/svgo.browser.js';
 const result = optimize(${JSON.stringify(fixture)}, {
-  plugins : {plugins:[]},
+  pluginNames : ['cleanupTextNodes'],
   js2svg  : { pretty: true, indent: 2 }
 });
 globalThis.version = VERSION;

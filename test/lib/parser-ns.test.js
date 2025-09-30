@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { parseSvg } from '../../lib/parser.js';
-import { stringifySvg } from '../../lib/stringifier.js';
 import { SVGOError } from '../../lib/svgo/tools.js';
+import { optimize } from '../../lib/svgo.js';
 
 const testFileDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -25,8 +24,10 @@ function getData(filename) {
   );
   let actual = input;
   try {
-    const parsed = parseSvg(input);
-    actual = stringifySvg(parsed, { pretty: true });
+    actual = optimize(input, {
+      pluginNames: ['cleanupTextNodes'],
+      js2svg: { pretty: true },
+    }).data;
   } catch (error) {
     if (!(error instanceof SVGOError)) {
       throw error;

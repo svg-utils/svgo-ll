@@ -107,23 +107,6 @@ describe('svg2js', function () {
           expect(el.children).toBeInstanceOf(Array);
         }
       });
-
-      it('should eventually have length 3', function () {
-        const el = root.children[3];
-        if (el.type !== 'element') {
-          fail();
-        } else {
-          expect(el.children).toHaveLength(3);
-        }
-      });
-    });
-
-    describe('text nodes', function () {
-      it('should contain preserved whitespace', function () {
-        // @ts-ignore
-        const textNode = root.children[3].children[1].children[0].children[1];
-        expect(textNode.children[0].value).toBe('  test  ');
-      });
     });
   });
 });

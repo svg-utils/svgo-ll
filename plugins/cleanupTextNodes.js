@@ -1,3 +1,4 @@
+import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'cleanupTextNodes';
@@ -23,9 +24,11 @@ export const fn = () => {
             (child) => child.type !== 'text',
           );
         }
-        // element.children = element.children.filter(
-        //   (child) => child.type !== 'text' || !/^\s*$/.test(child.value),
-        // );
+
+        // Don't remove text from within a <foreignObject>.
+        if (element.name === 'foreignObject') {
+          return visitSkip;
+        }
       },
     },
   };

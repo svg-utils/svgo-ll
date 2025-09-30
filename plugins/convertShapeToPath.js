@@ -2,6 +2,7 @@ import { ExactNum } from '../lib/exactnum.js';
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
 import { isNumber } from '../lib/svgo/tools.js';
+import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 
 export const name = 'convertShapeToPath';
 export const description = 'converts basic shapes to more compact path form';
@@ -146,17 +147,22 @@ function convertRect(element) {
 
   const x = getPixelsWithDefault(element, 'x');
   const y = getPixelsWithDefault(element, 'y');
-  const width = LengthValue.getObj(element.attributes.width).getPixels();
-  const height = LengthValue.getObj(element.attributes.height).getPixels();
+  const widthValue = LengthOrPctValue.getAttValue(element, 'width');
+  const heightValue = LengthOrPctValue.getAttValue(element, 'height');
 
   if (
     x === null ||
     y === null ||
-    width === null ||
-    height === null ||
-    width === 0 ||
-    height === 0
+    widthValue === undefined ||
+    heightValue === undefined
   ) {
+    return;
+  }
+
+  const width = widthValue.getPixels();
+  const height = heightValue.getPixels();
+
+  if (width === 0 || width === null || height === 0 || height === null) {
     return;
   }
 

@@ -13,21 +13,21 @@ const pipeline = util.promisify(stream.pipeline);
  */
 const extractTarGz = async (url, baseDir) => {
   const extract = tarStream.extract();
+  const resolvedBase = path.resolve(baseDir);
   extract.on('entry', async (header, stream, next) => {
-    const name = header.name;
-
     try {
-      if (
-        !header.name.includes('..') &&
-        name.endsWith('.svg') &&
-        // Exclude all W3C files until parsing is fixed - they all have sections where XHTML is the default namespace.
-        !name.startsWith('svgo-test-suite/W3C_SVG_11_TestSuite/')
-      ) {
+      const name = header.name;
+      if (name.endsWith('.svg')) {
         // Remove the initial "svgo-test-suite/" directory
         const newPath = name.split('/').slice(1).join('/');
-        const file = path.join(baseDir, newPath);
-        await fs.promises.mkdir(path.dirname(file), { recursive: true });
-        await pipeline(stream, fs.createWriteStream(file));
+        const filePath = path.join(baseDir, newPath);
+        const resolvedFile = path.resolve(filePath);
+        if (resolvedFile.startsWith(resolvedBase + path.sep)) {
+          await fs.promises.mkdir(path.dirname(resolvedFile), {
+            recursive: true,
+          });
+          await pipeline(stream, fs.createWriteStream(resolvedFile));
+        }
       }
     } catch (error) {
       console.error(error);

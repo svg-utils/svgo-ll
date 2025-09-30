@@ -22,7 +22,7 @@ export const fn = (info) => {
   return {
     element: {
       exit: (element) => {
-        if (element.name !== 'text') {
+        if (element.uri !== undefined || element.local !== 'text') {
           return;
         }
 
@@ -95,7 +95,7 @@ export const fn = (info) => {
         if (Object.keys(element.attributes).length === 0) {
           if (
             element.parentNode.type === 'element' &&
-            element.parentNode.name !== 'switch'
+            element.parentNode.local !== 'switch'
           ) {
             if (
               element.children.every(
@@ -129,7 +129,7 @@ export const fn = (info) => {
                 throw new Error();
               }
               textChild.parentNode = parent;
-              textChild.name = 'text';
+              textChild.local = 'text';
               newChildren.push(textChild);
             }
           }
@@ -154,7 +154,7 @@ function canRemovePreserve(element) {
         }
         break;
       case 'element':
-        switch (child.name) {
+        switch (child.local) {
           case 'tspan':
             if (!canRemovePreserve(child)) {
               return false;
@@ -178,7 +178,7 @@ function childrenAllHaveXY(element) {
     if (child.type !== 'element') {
       return false;
     }
-    if (child.name !== 'tspan') {
+    if (child.local !== 'tspan') {
       return false;
     }
     if (child.attributes.x === undefined || child.attributes.y === undefined) {

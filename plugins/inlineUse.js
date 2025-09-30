@@ -170,7 +170,8 @@ function inlineUse(use, def) {
   }
 
   // Convert the <use>.
-  use.name = isContainer ? 'g' : def.name;
+  use.local = isContainer ? 'g' : def.name;
+  use.name = use.prefix === '' ? use.local : `${use.prefix}:${use.local}`;
 
   // Update attributes.
   let tx = '0';

@@ -38,7 +38,12 @@ export const fn = function (info) {
   return {
     element: {
       enter: (element) => {
-        switch (element.name) {
+        if (element.uri !== undefined) {
+          // Not in SVG namespace.
+          return;
+        }
+
+        switch (element.local) {
           case 'rect':
             if (stylesOK.rect) {
               convertRect(element);
@@ -51,7 +56,7 @@ export const fn = function (info) {
             return;
           case 'polygon':
           case 'polyline':
-            if (stylesOK[element.name]) {
+            if (stylesOK[element.local]) {
               convertPolyline(element);
             }
             return;
@@ -79,7 +84,8 @@ function convertLine(element) {
     { command: 'M', x: new ExactNum(x1), y: new ExactNum(y1) },
     { command: 'L', x: new ExactNum(x2), y: new ExactNum(y2) },
   ];
-  element.name = 'path';
+  element.local = 'path';
+  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.x1;
   delete element.attributes.y1;
@@ -115,10 +121,11 @@ function convertPolyline(element) {
       y: new ExactNum(y),
     });
   }
-  if (element.name === 'polygon') {
+  if (element.local === 'polygon') {
     pathData.push({ command: 'z' });
   }
-  element.name = 'path';
+  element.local = 'path';
+  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.points;
 }
@@ -172,7 +179,8 @@ function convertRect(element) {
     { command: 'H', x: ex },
     { command: 'z' },
   ];
-  element.name = 'path';
+  element.local = 'path';
+  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.x;
   delete element.attributes.y;

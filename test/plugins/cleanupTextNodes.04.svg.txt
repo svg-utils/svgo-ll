@@ -1,0 +1,14 @@
+Handle namespace prefix.
+
+===
+
+<x:svg xmlns:x="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+
+  <x:rect width="2" height="3"/>
+</x:svg>
+
+@@@
+
+<x:svg xmlns:x="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <x:rect width="2" height="3"/>
+</x:svg>

@@ -31,7 +31,8 @@ export const fn = (info) => {
    * @param {import('../lib/types.js').XastElement} element
    */
   function convertToDefs(element) {
-    element.name = 'defs';
+    element.name = element.prefix === '' ? 'defs' : `${element.prefix}:defs`;
+    element.local = 'defs';
     element.attributes = {};
     processDefsChildren(element);
     if (element.children.length === 0) {

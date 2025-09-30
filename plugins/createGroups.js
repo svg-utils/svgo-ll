@@ -30,7 +30,12 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        switch (element.name) {
+        if (element.uri !== undefined) {
+          // Not in the SVG namespace.
+          return;
+        }
+
+        switch (element.local) {
           case 'g':
           case 'svg':
             elementsToCheck.add(element);

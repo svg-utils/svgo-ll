@@ -11,7 +11,7 @@ export const description = 'collapses useless groups';
 const hasAnimatedAttr = (node, name) => {
   if (node.type === 'element') {
     if (
-      elemsGroups.animation.has(node.name) &&
+      elemsGroups.animation.has(node.local) &&
       node.attributes.attributeName === name
     ) {
       return true;
@@ -29,7 +29,7 @@ const hasAnimatedAttr = (node, name) => {
  * Collapse useless groups.
  * @type {import('./plugins-types.js').Plugin<'collapseGroups'>}
  */
-export const fn = (info) => {
+export function fn(info) {
   const styles = info.docData.getStyles();
   if (
     info.docData.hasScripts() ||
@@ -43,11 +43,11 @@ export const fn = (info) => {
     element: {
       exit: (element, parentList) => {
         const parentNode = element.parentNode;
-        if (parentNode.type === 'root' || parentNode.name === 'switch') {
+        if (parentNode.type === 'root' || parentNode.local === 'switch') {
           return;
         }
         // non-empty groups
-        if (element.name !== 'g' || element.children.length === 0) {
+        if (element.local !== 'g' || element.children.length === 0) {
           return;
         }
 
@@ -116,7 +116,7 @@ export const fn = (info) => {
           for (const child of element.children) {
             if (
               child.type === 'element' &&
-              elemsGroups.animation.has(child.name)
+              elemsGroups.animation.has(child.local)
             ) {
               return;
             }
@@ -135,7 +135,7 @@ export const fn = (info) => {
       },
     },
   };
-};
+}
 
 /**
  * @param {Map<string,string|null>} properties
@@ -186,7 +186,7 @@ function moveAttr(
     newChildElemAttrs[propName] = value;
   } else if (propName === 'transform') {
     newChildElemAttrs[propName] = value + ' ' + newChildElemAttrs[propName];
-  } else if (newChildElemAttrs[propName] === 'inherit') {
+  } else if (newChildElemAttrs[propName].toString() === 'inherit') {
     newChildElemAttrs[propName] = value;
   } else if (
     !inheritableAttrs.has(propName) &&

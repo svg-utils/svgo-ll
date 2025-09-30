@@ -19,7 +19,7 @@ const extractTarGz = async (url, baseDir) => {
       const name = header.name;
       if (
         name.endsWith('.svg') &&
-        !name.startsWith('svgo-test-suite/W3C_SVG_11_TestSuite/animate-')
+        !name.startsWith('svgo-test-suite/W3C_SVG_11_TestSuite/svg/animate-')
       ) {
         // Remove the initial "svgo-test-suite/" directory
         const newPath = name.split('/').slice(1).join('/');

@@ -1,0 +1,26 @@
+Check self-closing elements in foreignObject.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px" viewBox="0 0 10 10">
+  <foreignObject x="0" y="0" width="10" height="10" style="font-size:2px">
+    <xhtml:div xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <xhtml:p style="margin-top:0">
+      <xhtml:span style="height:4px;display:inline-block"/>
+      Some text.
+    </xhtml:p>
+    </xhtml:div>
+  </foreignObject>
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="100px" height="100px" viewBox="0 0 10 10">
+  <foreignObject x="0" y="0" width="10" height="10" style="font-size:2px"><xhtml:div xmlns:xhtml="http://www.w3.org/1999/xhtml">
+    <xhtml:p style="margin-top:0">
+      <xhtml:span style="height:4px;display:inline-block"/>
+      Some text.
+    </xhtml:p>
+    </xhtml:div></foreignObject>
+</svg>

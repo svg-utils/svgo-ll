@@ -38,10 +38,16 @@ describe('plugins tests', function () {
         'output-files',
         test.name + '.svg',
       );
+      /** @type {import('../../lib/svgo.js').Config} */
+      const config = { ...test.config };
+      if (config.pluginNames) {
+        config.pluginNames = ['cleanupTextNodes'].concat(config.pluginNames);
+      }
+
       const input = fs.readFileSync(inputFilePath, 'utf8');
       const expected = fs.readFileSync(outputFilePath, 'utf8');
       const result = optimize(input, {
-        ...test.config,
+        ...config,
         js2svg: { pretty: true, indent: 2 },
       });
       expect(result.data).toBe(expected);

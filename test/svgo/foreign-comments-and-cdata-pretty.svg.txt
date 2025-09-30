@@ -14,14 +14,12 @@
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg">
-    <foreignObject width="100%" height="100%">
-    <div xmlns="http://www.w3.org/1999/xhtml">
+    <foreignObject width="100%" height="100%"><div xmlns="http://www.w3.org/1999/xhtml">
       <!--  comment ... -->
         Some random text
 
                          <![CDATA[
     some more text
 ]]>
-    </div>
-  </foreignObject>
+    </div></foreignObject>
 </svg>

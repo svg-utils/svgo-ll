@@ -1,0 +1,13 @@
+Check entity decoding.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100">
+  <text y="20">&lt;tags&gt; &amp; &quot;quotes&apos; are hard to escape</text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 100">
+    <text y="20">&lt;tags> &amp; "quotes' are hard to escape</text>
+</svg>

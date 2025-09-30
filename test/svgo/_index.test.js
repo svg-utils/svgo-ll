@@ -4,6 +4,7 @@ import { EOL } from 'os';
 import { fileURLToPath } from 'url';
 import { VERSION, optimize } from '../../lib/svgo.js';
 import { getResolvedPlugins } from '../utils.js';
+import * as cleanupTextNodes from '../../plugins/cleanupTextNodes.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -40,7 +41,7 @@ describe('svgo', () => {
   it('should create indent with 2 spaces', async () => {
     const [original, expected] = await parseFixture('test.svg.txt');
     const result = optimize(original, {
-      plugins: getResolvedPlugins([]),
+      plugins: getResolvedPlugins([cleanupTextNodes]),
       js2svg: { pretty: true, indent: 2 },
     });
     expect(normalize(result.data)).toStrictEqual(expected);
@@ -55,7 +56,7 @@ describe('svgo', () => {
     const [original, expected] = await parseFixture('entities.svg.txt');
     const result = optimize(original, {
       path: 'input.svg',
-      plugins: getResolvedPlugins([]),
+      plugins: getResolvedPlugins([cleanupTextNodes]),
       js2svg: { pretty: true },
     });
     expect(normalize(result.data)).toStrictEqual(expected);
@@ -74,6 +75,7 @@ describe('svgo', () => {
   it('should not trim whitespace at start and end of pre element', async () => {
     const [original, expected] = await parseFixture('pre-element.svg.txt');
     const result = optimize(original, {
+      pluginNames: ['cleanupTextNodes'],
       path: 'input.svg',
     });
     expect(normalize(result.data)).toStrictEqual(expected);
@@ -96,7 +98,7 @@ describe('svgo', () => {
     // Disable plugins so comments aren't removed.
     const result = optimize(original, {
       path: 'input.svg',
-      plugins: getResolvedPlugins([]),
+      plugins: getResolvedPlugins([cleanupTextNodes]),
       js2svg: { pretty: true },
     });
     expect(normalize(result.data)).toStrictEqual(expected);

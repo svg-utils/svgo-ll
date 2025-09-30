@@ -1,5 +1,5 @@
 import { StyleData } from '../../lib/styleData.js';
-import { createElement } from '../../lib/xast.js';
+import { createElement, createRoot } from '../../lib/xast.js';
 import { generateData } from './testutils.js';
 
 test('import', () => {
@@ -38,8 +38,7 @@ test('nested style with +', () => {
 });
 
 test('add and combine style elements', () => {
-  /** @type {import('./xast.test.js').XastRoot} */
-  const root = { type: 'root', children: [] };
+  const root = createRoot();
   createElement(root, 'svg');
   const sd = new StyleData(root, []);
 

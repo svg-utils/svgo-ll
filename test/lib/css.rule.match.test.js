@@ -1,7 +1,7 @@
 import { ClassValue } from '../../lib/attrs/classValue.js';
 import { CSSSelector, CSSSelectorSequence } from '../../lib/css.js';
 import { CSSRuleConcrete } from '../../lib/style-css-tree.js';
-import { createElement } from './testutils.js';
+import { createElement, createRoot } from '../../lib/xast.js';
 
 describe('test parsing and stringifying of selectors', function () {
   /** @type {{
@@ -103,7 +103,11 @@ describe('test parsing and stringifying of selectors', function () {
         declarations,
         false,
       );
-      const element = createElement(test.elData);
+      const root = createRoot();
+      /** @type {Object<string,import('../../lib/types.js').SVGAttValue>} */
+      const obj = {};
+      test.elData.atts.forEach((v) => (obj[v[0]] = v[1]));
+      const element = createElement(root, test.elData.elName, obj);
       expect(rule._matches(element)).toBe(test.expected);
       if (test.expectedComplex !== undefined) {
         expect(rule.matches(element)).toBe(test.expectedComplex);

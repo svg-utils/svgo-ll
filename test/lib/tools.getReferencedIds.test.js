@@ -1,5 +1,5 @@
 import { getReferencedIds } from '../../lib/svgo/tools-svg.js';
-import { createElement } from './testutils.js';
+import { createElement, createRoot } from '../../lib/xast.js';
 
 /**
  * @typedef {{
@@ -158,7 +158,11 @@ describe('getReferencedIds()', () => {
   for (let index = 0; index < testData.length; index++) {
     const test = testData[index];
     it(`test ${test.atts}`, function () {
-      const ids = getReferencedIds(createElement(test));
+      const root = createRoot();
+      /** @type {Object<string,string>} */
+      const atts = {};
+      test.atts.forEach((a) => (atts[a[0]] = a[1]));
+      const ids = getReferencedIds(createElement(root, test.elName, atts));
       expect(ids).toEqual(test.expected);
     });
   }

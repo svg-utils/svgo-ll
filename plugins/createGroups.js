@@ -128,6 +128,9 @@ function createGroups(element, usedIds, elementsToCheck) {
       type: 'element',
       parentNode: element,
       name: 'g',
+      local: 'g',
+      prefix: element.prefix,
+      uri: element.uri,
       attributes: {},
       children: groupChildren,
     };

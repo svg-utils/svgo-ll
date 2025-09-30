@@ -36,7 +36,11 @@ export type SVGAttValue = string | AttValue;
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
+  /** @deprecated */
   name: string;
+  local: string;
+  prefix: string;
+  uri: string | undefined;
   attributes: Record<string, SVGAttValue>;
   children: XastChild[];
   isSelfClosing?: boolean;

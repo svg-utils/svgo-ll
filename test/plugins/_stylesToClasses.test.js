@@ -1,5 +1,5 @@
 import { parseStyleDeclarations } from '../../lib/css-tools.js';
-import { createElement } from '../../lib/xast.js';
+import { createElement, createRoot } from '../../lib/xast.js';
 import { StyleToClassData } from '../../plugins/stylesToClasses.js';
 
 describe('test savings calculation', () => {
@@ -39,8 +39,7 @@ describe('test savings calculation', () => {
         parseStyleDeclarations(testData.props),
         testData.props,
       );
-      /** @type {import('../lib/xast.test.js').XastRoot} */
-      const root = { type: 'root', children: [] };
+      const root = createRoot();
       for (const element of testData.elements) {
         const e = createElement(root, 'elem', element);
         data.addElement(e);

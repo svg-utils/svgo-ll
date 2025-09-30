@@ -3,9 +3,7 @@ import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
 
-/**
- * @type {import('./plugins-types.js').Plugin<'cleanupTextElements'>}
- */
+/** @type {import('./plugins-types.js').Plugin<'cleanupTextElements'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
@@ -130,6 +128,8 @@ export const fn = (info) => {
               }
               textChild.parentNode = parent;
               textChild.local = 'text';
+              textChild.name =
+                textChild.prefix === '' ? 'text' : `${textChild.prefix}:text`;
               newChildren.push(textChild);
             }
           }

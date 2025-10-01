@@ -2,6 +2,7 @@ import { ClassValue } from '../lib/attrs/classValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
@@ -70,8 +71,10 @@ export const fn = (info) => {
             case 'fy':
             case 'fr':
             case 'stroke-width':
-            case 'stdDeviation':
               cleanupLengthPct(element, attName);
+              break;
+            case 'stdDeviation':
+              StdDeviationValue.getAttValue(element);
               break;
             case 'href':
               cleanupHref(element);

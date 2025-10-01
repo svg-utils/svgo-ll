@@ -122,7 +122,7 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
   if (
     propName === 'overflow' &&
     value === 'visible' &&
-    !preserveOverflowElements.has(element.name)
+    !preserveOverflowElements.has(element.local)
   ) {
     return true;
   }
@@ -197,11 +197,11 @@ export const fn = (info, params) => {
         // Process on exit so transformations are bottom-up.
 
         // skip namespaced elements
-        if (element.name.includes(':')) {
+        if (element.uri !== undefined) {
           return;
         }
         // skip visiting foreignObject subtree
-        if (element.name === 'foreignObject') {
+        if (element.local === 'foreignObject') {
           return visitSkip;
         }
 
@@ -209,7 +209,7 @@ export const fn = (info, params) => {
           elementsById.set(element.attributes.id.toString(), element);
         }
 
-        if (element.name === 'use') {
+        if (element.local === 'use') {
           const id = getHrefId(element);
           if (id) {
             usedIDs.add(id);
@@ -227,29 +227,31 @@ export const fn = (info, params) => {
           return;
         }
 
-        const allowedChildren = allowedChildrenPerElement.get(element.name);
+        const allowedChildren = allowedChildrenPerElement.get(element.local);
         if (allowedChildren) {
           // Remove any disallowed child elements.
           if (
             element.children.some(
               (child) =>
                 child.type === 'element' &&
-                !allowedChildren.has(child.name) &&
-                !child.name.includes(':'),
+                !allowedChildren.has(child.local) &&
+                child.uri === undefined,
             )
           ) {
             element.children = element.children.filter(
               (child) =>
                 child.type !== 'element' ||
-                allowedChildren.has(child.name) ||
-                child.name.includes(':'),
+                allowedChildren.has(child.local) ||
+                child.uri !== undefined,
             );
           }
         }
 
-        const allowedAttributes = allowedAttributesPerElement.get(element.name);
+        const allowedAttributes = allowedAttributesPerElement.get(
+          element.local,
+        );
         const attributesDefaults = attributesDefaultsPerElement.get(
-          element.name,
+          element.local,
         );
         /** @type {Map<string, string | null>} */
         const computedStyle = styleData.computeStyle(element, parentList);
@@ -260,7 +262,7 @@ export const fn = (info, params) => {
           // Delete the associated attributes, since they will always be overridden by the style property.
           for (let p of styleAttValue.keys()) {
             if (p === 'transform') {
-              switch (element.name) {
+              switch (element.local) {
                 case 'linearGradient':
                 case 'radialGradient':
                   p = 'gradientTransform';
@@ -472,7 +474,7 @@ export const fn = (info, params) => {
                   element,
                   propName,
                   propValue.value.toString(),
-                  attributesDefaultsPerElement.get(element.name),
+                  attributesDefaultsPerElement.get(element.local),
                 )
               ) {
                 styleAttValue.delete(propName);

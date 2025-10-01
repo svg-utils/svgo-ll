@@ -356,7 +356,7 @@ export const fn = (info, params) => {
 
           const strValue = attValue.toString();
           // Remove rx/ry = 0 from <rect>.
-          if (element.name === 'rect') {
+          if (element.local === 'rect') {
             switch (name) {
               case 'rx':
               case 'ry':
@@ -439,22 +439,10 @@ export const fn = (info, params) => {
             continue;
           }
 
-          // Build the parent list for the referenced element.
-          /** @type {{element:import('../lib/types.js').XastParent}[]} */
-          const parentList = [];
-          let p = referencedElement.parentNode;
-          while (true) {
-            parentList.unshift({ element: p });
-            if (p.type === 'root') {
-              break;
-            }
-            p = p.parentNode;
-          }
-          const referencedElementProps = styleData.computeStyle(
-            referencedElement,
-            parentList,
-          );
+          const referencedElementProps =
+            styleData.computeOwnStyle(referencedElement);
 
+          // Delete any attributes or style properties that are directly present in the referenced element.
           for (const attName of Object.keys(element.attributes)) {
             if (attrsGroups.presentation.has(attName)) {
               if (attName === 'transform') {

@@ -213,6 +213,7 @@ export const fn = (info, params) => {
           const id = getHrefId(element);
           if (id) {
             usedIDs.add(id);
+            useElements.add(element);
           }
           // x="0" and y="0" can be removed; otherwise leave attributes alone.
           ['x', 'y'].forEach((attName) => {
@@ -223,7 +224,6 @@ export const fn = (info, params) => {
               delete element.attributes[attName];
             }
           });
-          useElements.add(element);
           return;
         }
 

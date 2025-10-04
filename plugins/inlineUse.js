@@ -1,5 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import {
   getReferencedIds,
   updateStyleAttribute,
@@ -158,14 +157,11 @@ function inlineUse(use, def) {
   }
 
   // If there is a transform property, convert to an attribute.
+  /** @type {import('../lib/types.js').SVGAttValue} */
   let transform = '';
   const cssTransform = useProperties.get('transform');
   if (cssTransform) {
-    const svgTransform = cssTransformToSVGAtt(cssTransform);
-    if (!svgTransform) {
-      return false;
-    }
-    transform = svgTransform.toString();
+    transform = cssTransform.value;
     useProperties.delete('transform');
   }
 

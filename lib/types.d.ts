@@ -110,6 +110,7 @@ type CSSFeatures =
 export class AttValue {
   round(numDigits: number): AttValue;
   toString(): string;
+  toStyleAttString(): string;
   toStyleElementString(): string;
 }
 
@@ -176,11 +177,6 @@ export class CSSRuleSet {
   hasIdSelector(id: string): boolean;
   hasTypeSelector(type: string): boolean;
 }
-
-export type CSSParsedTransform = {
-  type: 'transform';
-  value: import('./types-css-decl.js').CSSTransformFn[] | null;
-};
 
 export type CSSPropertyValue = {
   value: SVGAttValue;

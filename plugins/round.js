@@ -383,13 +383,13 @@ function roundTransform(attValue, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
     return null;
   }
-  const transforms = TransformValue.getTransformObj(attValue);
+  const transforms = TransformValue.getObj(attValue);
   for (const transform of transforms.getTransforms()) {
     if (transform.name !== 'translate') {
       return null;
     }
-    transform.x = transform.x.round(xDigits);
-    transform.y = transform.y.round(yDigits);
+    transform.x.n = transform.x.n.round(xDigits);
+    transform.y.n = transform.y.n.round(yDigits);
   }
-  return new TransformValue(undefined, transforms.getTransforms());
+  return new TransformValue(transforms.getTransforms());
 }

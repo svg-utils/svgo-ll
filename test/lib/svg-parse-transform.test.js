@@ -3,10 +3,7 @@ import {
   svgParseTransform,
   svgStringifyTransform,
 } from '../../lib/svg-parse-att.js';
-import {
-  cssTransformToSVGAtt,
-  svgAttTransformToCSS,
-} from '../../lib/svg-to-css.js';
+import { createElement, createRoot } from '../../lib/xast.js';
 
 describe('test svg transform parsing', () => {
   /** @type {{in:string,out?:string}[]} */
@@ -36,28 +33,31 @@ describe('test svg transform parsing', () => {
 });
 
 describe('test transform conversion between attributes and properties', () => {
-  /** @type {{in:string}[]} */
+  /** @type {{in:string,out?:string}[]} */
   const testCases = [
-    { in: 'rotate(31)' },
-    { in: 'rotate(31 2 3)' },
-    { in: 'rotate(31 2 3)translate(2)' },
-    { in: 'translate(31)' },
-    { in: 'translate(31 3)' },
-    { in: 'matrix(1 2 3 4 5 6)' },
-    { in: 'skewX(31)' },
-    { in: 'skewY(31)' },
+    { in: 'rotate(31)', out: 'rotate(31deg)' },
+    { in: 'rotate(31 2 3)', out: 'rotate(31deg 2 3)' },
+    {
+      in: 'rotate(31 2 3)translate(2)',
+      out: 'rotate(31deg 2 3)translate(2px)',
+    },
+    { in: 'translate(31)', out: 'translate(31px)' },
+    { in: 'translate(31 3)', out: 'translate(31px,3px)' },
+    { in: 'matrix(1 2 3 4 5 6)', out: 'matrix(1,2,3,4,5,6)' },
+    { in: 'skewX(31)', out: 'skewX(31deg)' },
+    { in: 'skewY(31)', out: 'skewY(31deg)' },
     { in: 'scale(31)' },
-    { in: 'scale(3 1)' },
+    { in: 'scale(3 1)', out: 'scale(3,1)' },
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const attValue = new TransformValue(testCase.in);
-      const css = svgAttTransformToCSS(attValue);
-      const att = cssTransformToSVGAtt(css);
-      if (att === undefined) {
+      const root = createRoot();
+      const element = createElement(root, 'g', { transform: testCase.in });
+      const attValue = TransformValue.getAttValue(element, 'transform');
+      if (!attValue) {
         throw new Error();
       }
-      expect(att.toString()).toBe(testCase.in);
+      expect(attValue.toStyleAttString()).toBe(testCase.out ?? testCase.in);
     });
   }
 });

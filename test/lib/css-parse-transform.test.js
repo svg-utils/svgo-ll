@@ -1,7 +1,5 @@
-import {
-  cssParseTransform,
-  cssStringifyTransform,
-} from '../../lib/css-parse-decl.js';
+import { TransformValue } from '../../lib/attrs/transformValue.js';
+import { cssParseTransform } from '../../lib/css-parse-decl.js';
 
 describe('test css transform parsing', () => {
   /** @type {{in:string;out?:string|null}[]} */
@@ -24,7 +22,8 @@ describe('test css transform parsing', () => {
         expect(testCase.out).toBeNull();
       } else {
         const expected = testCase.out ? testCase.out : testCase.in;
-        expect(cssStringifyTransform(transforms)).toBe(expected);
+        const attVal = new TransformValue(transforms);
+        expect(attVal.toStyleAttString()).toBe(expected);
       }
     });
   }

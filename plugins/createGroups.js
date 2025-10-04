@@ -1,5 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getHrefId } from '../lib/svgo/tools.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
@@ -141,7 +140,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     };
 
     // Add styles to group.
-    const attTransform = cssTransformToSVGAtt(sharedProps.get('transform'));
+    const attTransform = sharedProps.get('transform');
     if (attTransform) {
       // Add transform as an attribute.
       sharedProps.delete('transform');
@@ -175,7 +174,7 @@ function createGroups(element, usedIds, elementsToCheck) {
 
     // Add transform attribute.
     if (attTransform) {
-      groupElement.attributes['transform'] = attTransform;
+      groupElement.attributes['transform'] = attTransform.value;
     }
     newChildren.push(groupElement);
 

@@ -1,6 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { transformAttrs } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'minifyAttrsAndStyles';
@@ -26,20 +25,6 @@ export const fn = (info) => {
           return;
         }
 
-        let hasTransformAttribute = false;
-        if (hasTransform(props.keys())) {
-          const styleAttValue = StyleAttValue.getStyleAttValue(element);
-          if (styleAttValue && hasTransform(styleAttValue.keys())) {
-            return;
-          }
-          hasTransformAttribute = true;
-
-          // Remove any transform properties from the map so they don't affect calculations.
-          for (const attName of transformAttrs) {
-            props.delete(attName);
-          }
-        }
-
         if (getAttrWidth(props) < getStyleWidth(props)) {
           // Attributes are shorter; remove the style attribute and use individual attributes.
 
@@ -48,7 +33,7 @@ export const fn = (info) => {
           }
 
           updateStyleAttribute(element, undefined);
-        } else if (!hasTransformAttribute) {
+        } else {
           // Style is at least as short; remove the individual attributes and convert to style properties.
           for (const name of props.keys()) {
             delete element.attributes[name];
@@ -80,17 +65,4 @@ function getAttrWidth(props) {
 function getStyleWidth(props) {
   const att = new StyleAttValue(props);
   return ' style=""'.length + att.toString().length;
-}
-
-/**
- * @param {IterableIterator<string>} propNames
- * @returns {boolean}
- */
-function hasTransform(propNames) {
-  for (const propName of propNames) {
-    if (transformAttrs.has(propName)) {
-      return true;
-    }
-  }
-  return false;
 }

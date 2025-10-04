@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
+import { TransformValue } from '../lib/attrs/transformValue.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 
 export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
@@ -41,10 +41,11 @@ function _getProperties(element, fnInclude) {
     switch (name) {
       case 'transform':
         {
-          const cssValue = svgAttTransformToCSS(value);
-          if (cssValue) {
-            props.set(name, cssValue);
+          const attValue = TransformValue.getAttValue(element, 'transform');
+          if (!attValue) {
+            throw new Error();
           }
+          props.set(name, { value: attValue, important: false });
         }
         break;
       default:

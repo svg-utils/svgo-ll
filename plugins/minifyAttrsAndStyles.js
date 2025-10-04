@@ -40,7 +40,7 @@ export const fn = (info) => {
           }
         }
 
-        if (getAttrWidth(props) < getStyleWidth()) {
+        if (getAttrWidth(props) < getStyleWidth(props)) {
           // Attributes are shorter; remove the style attribute and use individual attributes.
 
           for (const [name, value] of props.entries()) {
@@ -66,14 +66,20 @@ export const fn = (info) => {
  * @returns {number}
  */
 function getAttrWidth(props) {
-  return (props.size - 1) * 2; // Account for extra quotes around attributes.
+  let width = 0;
+  for (const [name, value] of props.entries()) {
+    width += ' =""'.length + name.length + value.value.toString().length;
+  }
+  return width;
 }
 
 /**
+ * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
  * @returns {number}
  */
-function getStyleWidth() {
-  return 6; // Account for "style="".
+function getStyleWidth(props) {
+  const att = new StyleAttValue(props);
+  return ' style=""'.length + att.toString().length;
 }
 
 /**

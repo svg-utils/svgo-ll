@@ -16,17 +16,14 @@ export const fn = () => {
       enter: (element) => {
         // Don't remove text nodes from non-SVG elements or elements which allow character data.
 
-        if (
-          !element.name.includes(':') &&
-          !elementsToIgnore.has(element.name)
-        ) {
+        if (element.uri === undefined && !elementsToIgnore.has(element.local)) {
           element.children = element.children.filter(
             (child) => child.type !== 'text',
           );
         }
 
         // Don't remove text from within a <foreignObject>.
-        if (element.name === 'foreignObject') {
+        if (element.local === 'foreignObject') {
           return visitSkip;
         }
       },

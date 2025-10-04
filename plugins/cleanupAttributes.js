@@ -163,15 +163,15 @@ function cleanupStyleAttribute(element) {
     return;
   }
 
-  if (elemsGroups.animation.has(element.name)) {
+  if (elemsGroups.animation.has(element.local)) {
     // Style attributes have no effect on animation elements.
     delete element.attributes.style;
     return;
   }
 
-  const isShapeGroup = element.name === 'g' && hasOnlyShapeChildren(element);
+  const isShapeGroup = element.local === 'g' && hasOnlyShapeChildren(element);
   for (const p of styleAttValue.keys()) {
-    if (!elementCanHaveProperty(element.name, p)) {
+    if (!elementCanHaveProperty(element.local, p)) {
       styleAttValue.delete(p);
       continue;
     }
@@ -200,6 +200,11 @@ function elementCanHaveProperty(elName, propName) {
         return false;
       }
     }
+    return true;
+  }
+
+  // "marker" is allowed as a style property but not as an attribute.
+  if (propName === 'marker') {
     return true;
   }
 

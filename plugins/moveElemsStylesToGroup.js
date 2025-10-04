@@ -104,7 +104,7 @@ export const fn = (info) => {
         // Add common child properties to group.
         /** @type {StyleAttValue} */
         const groupProperties =
-          StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
+          StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue('');
 
         for (const [name, value] of commonProperties) {
           groupProperties.set(name, value);

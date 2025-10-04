@@ -287,8 +287,15 @@ export const fn = (info, params) => {
           for (const propertyName of styleAttValue.keys()) {
             // If the style is not allowed, delete it without checking the impact.
             if (allowedAttributes && !allowedAttributes.has(propertyName)) {
-              propsToDelete.push(propertyName);
-              continue;
+              // "marker" is allowed as a style property but not as an attribute; allow it only if the marker attributes are allowed for
+              // this element.
+              if (
+                propertyName !== 'marker' ||
+                !allowedAttributes.has('marker-start')
+              ) {
+                propsToDelete.push(propertyName);
+                continue;
+              }
             }
 
             const origVal = computedStyle.get(propertyName);

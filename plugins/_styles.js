@@ -57,8 +57,15 @@ function _getProperties(element, fnInclude) {
   const styleAttValue = StyleAttValue.getStyleAttValue(element);
   if (styleAttValue) {
     for (const [name, prop] of styleAttValue.entries()) {
-      if (fnInclude(name)) {
-        props.set(name, prop);
+      const nameToCheck = name === 'marker' ? 'marker-start' : name;
+      if (fnInclude(nameToCheck)) {
+        if (name === 'marker') {
+          ['marker-start', 'marker-mid', 'marker-end'].forEach((name) => {
+            props.set(name, prop);
+          });
+        } else {
+          props.set(name, prop);
+        }
       }
     }
   }

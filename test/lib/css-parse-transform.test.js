@@ -14,6 +14,7 @@ describe('test css transform parsing', () => {
     { in: 'scale(2,3)' },
     { in: 'scale(3,3)', out: 'scale(3)' },
     { in: 'matrix(1,2,3,4,5,6)' },
+    { in: 'rotate(.1turn)' },
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {

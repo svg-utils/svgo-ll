@@ -36,10 +36,13 @@ describe('test transform conversion between attributes and properties', () => {
   /** @type {{in:string,out?:string}[]} */
   const testCases = [
     { in: 'rotate(31)', out: 'rotate(31deg)' },
-    { in: 'rotate(31 2 3)', out: 'rotate(31deg 2 3)' },
+    {
+      in: 'rotate(31 2 3)',
+      out: 'translate(2px,3px)rotate(31deg)translate(-2px,-3px)',
+    },
     {
       in: 'rotate(31 2 3)translate(2)',
-      out: 'rotate(31deg 2 3)translate(2px)',
+      out: 'translate(2px,3px)rotate(31deg)translate(-2px,-3px)translate(2px)',
     },
     { in: 'translate(31)', out: 'translate(31px)' },
     { in: 'translate(31 3)', out: 'translate(31px,3px)' },

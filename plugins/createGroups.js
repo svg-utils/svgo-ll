@@ -140,11 +140,6 @@ function createGroups(element, usedIds, elementsToCheck) {
     };
 
     // Add styles to group.
-    const attTransform = sharedProps.get('transform');
-    if (attTransform) {
-      // Add transform as an attribute.
-      sharedProps.delete('transform');
-    }
     updateStyleAttribute(groupElement, new StyleAttValue(sharedProps));
 
     // Remove properties from children.
@@ -161,21 +156,11 @@ function createGroups(element, usedIds, elementsToCheck) {
           styleAttValue.delete(name);
         }
       }
-      if (attTransform) {
-        delete child.attributes['transform'];
-        if (styleAttValue) {
-          styleAttValue.delete('transform');
-        }
-      }
       if (styleAttValue) {
         updateStyleAttribute(child, styleAttValue);
       }
     });
 
-    // Add transform attribute.
-    if (attTransform) {
-      groupElement.attributes['transform'] = attTransform.value;
-    }
     newChildren.push(groupElement);
 
     ungroupedStart = index;

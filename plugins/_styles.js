@@ -1,5 +1,6 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { TransformValue } from '../lib/attrs/transformValue.js';
+import { MARKER_PROP_NAMES } from '../lib/css-tools.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 
 export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
@@ -61,7 +62,7 @@ function _getProperties(element, fnInclude) {
       const nameToCheck = name === 'marker' ? 'marker-start' : name;
       if (fnInclude(nameToCheck)) {
         if (name === 'marker') {
-          ['marker-start', 'marker-mid', 'marker-end'].forEach((name) => {
+          MARKER_PROP_NAMES.forEach((name) => {
             props.set(name, prop);
           });
         } else {

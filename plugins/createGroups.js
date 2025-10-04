@@ -1,4 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { hasMarkerProperties } from '../lib/css-tools.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getHrefId } from '../lib/svgo/tools.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
@@ -89,18 +90,8 @@ function createGroups(element, usedIds, elementsToCheck) {
       return savings;
     }
 
-    /**
-     * @param {import('../lib/types.js').CSSDeclarationMap} props
-     */
-    function getPropSize(props) {
-      let size = 0;
-      for (const [k, v] of props.entries()) {
-        size += k.length + v.value.toString().length + 2; // Add 2 for ":", ";"
-      }
-      return size;
-    }
     const groupSize = index - sharedPropStart;
-    const propSize = getPropSize(sharedProps);
+    const propSize = StyleAttValue.getPropertyString(sharedProps).length;
     const cost =
       16 + // for <g style=""></g>
       propSize -
@@ -156,7 +147,12 @@ function createGroups(element, usedIds, elementsToCheck) {
           styleAttValue.delete(name);
         }
       }
+
       if (styleAttValue) {
+        // Check for marker property, which won't be directly present in sharedProps.
+        if (hasMarkerProperties(sharedProps)) {
+          styleAttValue.delete('marker');
+        }
         updateStyleAttribute(child, styleAttValue);
       }
     });
@@ -268,7 +264,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     for (const child of element.children) {
       if (
         child.type === 'element' &&
-        child.name === 'g' &&
+        child.local === 'g' &&
         !elementsToCheck.has(child)
       ) {
         createGroups(child, usedIds, elementsToCheck);

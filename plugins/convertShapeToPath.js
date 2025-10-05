@@ -113,7 +113,7 @@ function convertPolyline(element) {
   for (let i = 0; i < coords.length; i += 2) {
     const x = coords[i];
     const y = coords[i + 1];
-    if (!isNumber(x) || !isNumber(y)) {
+    if (!isNumber(x) || !isNumber(y ?? '')) {
       return;
     }
     pathData.push({
@@ -126,7 +126,7 @@ function convertPolyline(element) {
     pathData.push({ command: 'z' });
   }
   element.local = 'path';
-  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
+  element.local = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.points;
 }

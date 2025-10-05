@@ -100,6 +100,8 @@ export class DocData {
   getStyles(): StyleData | null;
 }
 
+type CSSGlobalKeyword = 'inherit' | 'revert' | 'initial' | 'unset';
+
 type CSSFeatures =
   | 'atrules'
   | 'attribute-selectors'

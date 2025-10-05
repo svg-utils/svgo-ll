@@ -153,8 +153,8 @@ function convertRect(element) {
   if (
     x === null ||
     y === null ||
-    widthValue === undefined ||
-    heightValue === undefined
+    !(typeof widthValue === 'object') ||
+    !(typeof heightValue === 'object')
   ) {
     return;
   }

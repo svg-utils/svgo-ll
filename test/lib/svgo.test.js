@@ -9,7 +9,7 @@ describe('allow to configure EOL', () => {
   test('should respect EOL set to LF', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -20,14 +20,14 @@ describe('allow to configure EOL', () => {
       js2svg: { eol: 'lf', pretty: true, indent: 2 },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
     );
   });
 
   test('should respect EOL set to CRLF', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -38,14 +38,14 @@ describe('allow to configure EOL', () => {
       js2svg: { eol: 'crlf', pretty: true, indent: 2 },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\r\n  <circle fill="red" cx="60" cy="60" r="50"/>\r\n</svg>\r\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\r\n  <circle fill="red" cx="60" cy="60" r="50"/>\r\n</svg>\r\n',
     );
   });
 
   test('should default to LF line break for any other EOL values', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -57,7 +57,7 @@ describe('allow to configure EOL', () => {
       js2svg: { eol: 'invalid', pretty: true, indent: 2 },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\n  <circle cx="60" cy="60" fill="red" r="50"/>\n</svg>\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\n  <circle cx="60" cy="60" fill="red" r="50"/>\n</svg>\n',
     );
   });
 });
@@ -66,7 +66,7 @@ describe('allow to configure final newline', () => {
   test('should not add final newline when unset', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -75,14 +75,14 @@ describe('allow to configure final newline', () => {
     `;
     const { data } = optimize(svg, { js2svg: { eol: 'lf' } });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="red"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" fill="red"/></svg>',
     );
   });
 
   test('should add final newline when set', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -93,14 +93,14 @@ describe('allow to configure final newline', () => {
       js2svg: { finalNewline: true, eol: 'lf' },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120"><circle fill="red" cx="60" cy="60" r="50"/></svg>\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle fill="red" cx="60" cy="60" r="50"/></svg>\n',
     );
   });
 
   test('should not add extra newlines when using pretty: true', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -111,7 +111,7 @@ describe('allow to configure final newline', () => {
       js2svg: { finalNewline: true, pretty: true, indent: 2, eol: 'lf' },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
     );
   });
 });

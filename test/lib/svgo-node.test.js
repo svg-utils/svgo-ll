@@ -1,9 +1,9 @@
 import os from 'os';
 import path from 'path';
-import { optimize, loadConfig } from './svgo-node.js';
+import { optimize, loadConfig } from '../../lib/svgo-node.js';
 
 /**
- * @typedef {import('../lib/types.js').Plugin<any>} Plugin
+ * @typedef {import('../../lib/types.js').Plugin<any>} Plugin
  */
 
 const describeLF = os.EOL === '\r\n' ? describe.skip : describe;
@@ -13,7 +13,7 @@ describeLF('with LF line-endings', () => {
   test('should work', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -22,14 +22,14 @@ describeLF('with LF line-endings', () => {
     `;
     const { data } = optimize(svg);
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120"><circle fill="red" cx="60" cy="60" r="50"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle fill="red" cx="60" cy="60" r="50"/></svg>',
     );
   });
 
   test('should respect config', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -40,14 +40,14 @@ describeLF('with LF line-endings', () => {
       js2svg: { pretty: true, indent: 2 },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
     );
   });
 
   test('should respect line-ending config', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -58,7 +58,7 @@ describeLF('with LF line-endings', () => {
       js2svg: { eol: 'crlf', pretty: true, indent: 2 },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\r\n  <circle fill="red" cx="60" cy="60" r="50"/>\r\n</svg>\r\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\r\n  <circle fill="red" cx="60" cy="60" r="50"/>\r\n</svg>\r\n',
     );
   });
 });
@@ -67,7 +67,7 @@ describeCRLF('with CRLF line-endings', () => {
   test('should work', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -76,14 +76,14 @@ describeCRLF('with CRLF line-endings', () => {
     `;
     const { data } = optimize(svg);
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120"><circle fill="red" cx="60" cy="60" r="50"/></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle fill="red" cx="60" cy="60" r="50"/></svg>',
     );
   });
 
   test('should respect config', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -94,14 +94,14 @@ describeCRLF('with CRLF line-endings', () => {
       js2svg: { pretty: true, indent: 2 },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\r\n  <circle fill="red" cx="60" cy="60" r="50"/>\r\n</svg>\r\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\r\n  <circle fill="red" cx="60" cy="60" r="50"/>\r\n</svg>\r\n',
     );
   });
 
   test('should respect line-ending config', () => {
     const svg = `
       <?xml version="1.0" encoding="utf-8"?>
-      <svg viewBox="0 0 120 120">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
         <desc>
           Created with love
         </desc>
@@ -112,7 +112,7 @@ describeCRLF('with CRLF line-endings', () => {
       js2svg: { eol: 'lf', pretty: true, indent: 2 },
     });
     expect(data).toBe(
-      '<svg viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">\n  <circle fill="red" cx="60" cy="60" r="50"/>\n</svg>\n',
     );
   });
 });

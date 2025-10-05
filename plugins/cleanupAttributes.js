@@ -1,6 +1,7 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
+import { ListOfLengthOrPctValue } from '../lib/attrs/listOfLengthOrPctValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
@@ -54,10 +55,8 @@ export const fn = (info) => {
             case 'stroke-opacity':
               cleanupOpacityAttribute(element, attName);
               break;
-            case 'x':
             case 'x1':
             case 'x2':
-            case 'y':
             case 'y1':
             case 'y2':
             case 'width':
@@ -72,6 +71,20 @@ export const fn = (info) => {
             case 'fr':
             case 'stroke-width':
               cleanupLengthPct(element, attName);
+              break;
+            case 'x':
+            case 'y':
+              {
+                switch (element.local) {
+                  case 'text':
+                  case 'tspan':
+                    ListOfLengthOrPctValue.getAttValue(element, attName);
+                    break;
+                  default:
+                    cleanupLengthPct(element, attName);
+                    break;
+                }
+              }
               break;
             case 'stdDeviation':
               StdDeviationValue.getAttValue(element);

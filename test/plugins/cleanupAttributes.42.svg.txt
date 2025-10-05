@@ -1,0 +1,13 @@
+Handle multiple values in text x coordinate.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <text x="2.0 12 60.10%" y="20">abcd</text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <text x="2,12,60.1%" y="20">abcd</text>
+</svg>

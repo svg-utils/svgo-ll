@@ -105,9 +105,11 @@ type CSSGlobalKeyword = 'inherit' | 'revert' | 'initial' | 'unset';
 type CSSFeatures =
   | 'atrules'
   | 'attribute-selectors'
+  | 'class-selectors'
   | 'combinators'
+  | 'id-selectors'
   | 'pseudos'
-  | 'simple-selectors';
+  | 'type-selectors';
 
 export class AttValue {
   round(numDigits: number): AttValue;

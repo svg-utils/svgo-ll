@@ -111,7 +111,7 @@ export const fn = (info) => {
   if (
     info.docData.hasScripts() ||
     styleData === null ||
-    styleData.hasAttributeSelector()
+    !styleData.hasOnlyFeatures(['class-selectors'])
   ) {
     return;
   }

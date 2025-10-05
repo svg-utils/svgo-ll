@@ -34,7 +34,11 @@ export function fn(info) {
   if (
     info.docData.hasScripts() ||
     styles === null ||
-    !styles.hasOnlyFeatures(['simple-selectors'])
+    !styles.hasOnlyFeatures([
+      'class-selectors',
+      'id-selectors',
+      'type-selectors',
+    ])
   ) {
     return;
   }

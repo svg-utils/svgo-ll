@@ -25,20 +25,21 @@ function checkFile(fileSuffix, expected) {
     return;
   }
   const features = styles.getFeatures();
+  console.log(features);
   return setsAreIdentical(features, expected);
 }
 
 test('getFeatures', () => {
-  expect(checkFile('1', ['simple-selectors'])).toBe(true);
-  expect(checkFile('2', ['atrules', 'combinators', 'simple-selectors'])).toBe(
+  expect(checkFile('1', ['id-selectors'])).toBe(true);
+  expect(checkFile('2', ['atrules', 'combinators', 'type-selectors'])).toBe(
     true,
   );
 
   expect(
-    checkFile('3', ['atrules', 'combinators', 'pseudos', 'simple-selectors']),
+    checkFile('3', ['atrules', 'combinators', 'pseudos', 'type-selectors']),
   ).toBe(true);
   expect(
-    checkFile('4', ['atrules', 'combinators', 'pseudos', 'simple-selectors']),
+    checkFile('4', ['atrules', 'combinators', 'pseudos', 'type-selectors']),
   ).toBe(true);
   // No style elements.
   expect(checkFile('5', [])).toBe(true);
@@ -46,19 +47,19 @@ test('getFeatures', () => {
   expect(checkFile('6', [])).toBe(true);
   // Same as test 4, but with media query in style element.
   expect(
-    checkFile('7', ['atrules', 'combinators', 'pseudos', 'simple-selectors']),
+    checkFile('7', ['atrules', 'combinators', 'pseudos', 'type-selectors']),
   ).toBe(true);
   // Same as test 1, but with type="text/css".
-  expect(checkFile('8', ['simple-selectors'])).toBe(true);
+  expect(checkFile('8', ['id-selectors'])).toBe(true);
   // If media=" all ", should not count as a media query.
-  expect(checkFile('9', ['simple-selectors'])).toBe(true);
+  expect(checkFile('9', ['type-selectors'])).toBe(true);
   // If media=" ", should not count as a media query.
-  expect(checkFile('10', ['simple-selectors'])).toBe(true);
+  expect(checkFile('10', ['type-selectors'])).toBe(true);
   // If @media all{}, should not count as a media query.
-  expect(checkFile('11', ['simple-selectors'])).toBe(true);
+  expect(checkFile('11', ['type-selectors'])).toBe(true);
   // If @media {}, should not count as a media query.
-  expect(checkFile('12', ['simple-selectors'])).toBe(true);
+  expect(checkFile('12', ['type-selectors'])).toBe(true);
 
   // Same as test 1, but with id="whatever" in <style> element
-  expect(checkFile('13', ['simple-selectors'])).toBe(true);
+  expect(checkFile('13', ['id-selectors'])).toBe(true);
 });

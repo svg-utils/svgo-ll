@@ -16,7 +16,12 @@ export const fn = (info) => {
   if (
     info.docData.hasScripts() ||
     styleData === null ||
-    !styleData.hasOnlyFeatures(['simple-selectors', 'attribute-selectors'])
+    !styleData.hasOnlyFeatures([
+      'class-selectors',
+      'id-selectors',
+      'type-selectors',
+      'attribute-selectors',
+    ])
   ) {
     return;
   }

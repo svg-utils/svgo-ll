@@ -338,7 +338,7 @@ export const fn = (info, params) => {
           // skip namespaced attributes except xml:* and xlink:*
           if (name.includes(':')) {
             const [prefix] = name.split(':');
-            if (prefix !== 'xml' && prefix !== 'xlink') {
+            if (prefix !== 'xlink') {
               continue;
             }
           }

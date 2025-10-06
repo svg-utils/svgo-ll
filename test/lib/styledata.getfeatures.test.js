@@ -25,7 +25,6 @@ function checkFile(fileSuffix, expected) {
     return;
   }
   const features = styles.getFeatures();
-  console.log(features);
   return setsAreIdentical(features, expected);
 }
 

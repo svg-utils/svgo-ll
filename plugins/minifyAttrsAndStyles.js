@@ -20,6 +20,10 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         const props = getPresentationProperties(element);
         if (props.size === 0) {
           return;

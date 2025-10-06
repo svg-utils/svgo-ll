@@ -25,7 +25,11 @@ export const fn = (info) => {
         // Run on exit so children are processed first.
 
         // Process only groups with more than 1 child.
-        if (element.name !== 'g' || element.children.length <= 1) {
+        if (
+          element.uri !== undefined ||
+          element.local !== 'g' ||
+          element.children.length <= 1
+        ) {
           return;
         }
 

@@ -285,17 +285,10 @@ export const fn = (info, params) => {
           // For each of the properties, remove it if the result was unchanged.
           const propsToDelete = [];
           for (const propertyName of styleAttValue.keys()) {
-            // If the style is not allowed, delete it without checking the impact.
-            if (allowedAttributes && !allowedAttributes.has(propertyName)) {
-              // "marker" is allowed as a style property but not as an attribute; allow it only if the marker attributes are allowed for
-              // this element.
-              if (
-                propertyName !== 'marker' ||
-                !allowedAttributes.has('marker-start')
-              ) {
-                propsToDelete.push(propertyName);
-                continue;
-              }
+            // If the property is not allowed, delete it without checking the impact.
+            if (!canHaveProperty(propertyName, allowedAttributes)) {
+              propsToDelete.push(propertyName);
+              continue;
             }
 
             const origVal = computedStyle.get(propertyName);
@@ -484,3 +477,25 @@ export const fn = (info, params) => {
     },
   };
 };
+
+/**
+ * @param {string} propName
+ * @param {Set<string>|undefined} allowedAttributes
+ * @returns {boolean}
+ */
+function canHaveProperty(propName, allowedAttributes) {
+  if (!allowedAttributes || allowedAttributes.has(propName)) {
+    return true;
+  }
+  switch (propName) {
+    case 'font':
+      // "font" is allowed as a style property but not as an attribute; allow it only if the font attributes are allowed for
+      // this element.
+      return allowedAttributes.has('font-size');
+    case 'marker':
+      // "marker" is allowed as a style property but not as an attribute; allow it only if the marker attributes are allowed for
+      // this element.
+      return allowedAttributes.has('marker-start');
+  }
+  return false;
+}

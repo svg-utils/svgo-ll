@@ -35,9 +35,6 @@ export const fn = (info) => {
           case 'default':
             processChildWhiteSpaceDefault(element);
             break;
-          case 'preserve':
-            processChildWhiteSpacePreserve(element);
-            break;
         }
 
         // If there is a single child whose content can be hoisted, do so.
@@ -262,66 +259,13 @@ function isHoistable(child) {
 }
 
 /**
- * @param {string} str
- * @returns {boolean}
- */
-function isOnlyWhiteSpace(str) {
-  for (const char of str) {
-    switch (char) {
-      case ' ':
-      case '\n':
-      case '\t':
-        continue;
-      default:
-        return false;
-    }
-  }
-  return true;
-}
-
-/**
  * @param {import('../lib/types.js').XastElement} element
  */
 function processChildWhiteSpaceDefault(element) {
-  const childrenToDelete = new Set();
   for (let index = 0; index < element.children.length; index++) {
     const child = element.children[index];
     if (child.type === 'text') {
-      if (
-        index !== element.children.length - 1 &&
-        childHasXY(element.children[index + 1]) &&
-        isOnlyWhiteSpace(child.value)
-      ) {
-        childrenToDelete.add(child);
-      } else {
-        // Replace sequences of space with single spaces.
-        child.value = child.value.replaceAll(/\s+/g, ' ');
-      }
+      child.value = child.value.replaceAll(/\s+/g, ' ');
     }
-  }
-
-  if (childrenToDelete.size > 0) {
-    element.children = element.children.filter((c) => !childrenToDelete.has(c));
-  }
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- */
-function processChildWhiteSpacePreserve(element) {
-  const childrenToDelete = new Set();
-  for (let index = 0; index < element.children.length - 1; index++) {
-    const child = element.children[index];
-    if (
-      child.type === 'text' &&
-      childHasXY(element.children[index + 1]) &&
-      isOnlyWhiteSpace(child.value)
-    ) {
-      childrenToDelete.add(child);
-    }
-  }
-
-  if (childrenToDelete.size > 0) {
-    element.children = element.children.filter((c) => !childrenToDelete.has(c));
   }
 }

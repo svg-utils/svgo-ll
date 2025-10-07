@@ -68,8 +68,12 @@ export function fn(info) {
               firstChild.attributes.class == null)
           ) {
             const properties = styles.computeStyle(element, parentList);
+            /** @type {import('../lib/types.js').ParentList} */
+            const childParents = parentList.slice();
+            childParents.push({ element: element });
+            const childProps = styles.computeStyle(firstChild, childParents);
 
-            if (!elementHasUnmovableProperties(properties)) {
+            if (!elementHasUnmovableProperties(properties, childProps)) {
               const newChildElemAttrs = { ...firstChild.attributes };
 
               const styleAttValue = StyleAttValue.getStyleAttValue(element);
@@ -142,15 +146,27 @@ export function fn(info) {
 }
 
 /**
- * @param {Map<string,string|null>} properties
+ * @param {Map<string,string|null>} parentProps
+ * @param {Map<string,string|null>} childProps
  * @returns {boolean}
  */
-function elementHasUnmovableProperties(properties) {
-  if (properties.get('transform') && properties.get('clip-path')) {
+function elementHasUnmovableProperties(parentProps, childProps) {
+  if (parentProps.has('filter')) {
     return true;
   }
-  return ['filter', 'mask'].some(
-    (propName) => properties.get(propName) !== undefined,
+  if (
+    parentProps.has('transform') &&
+    ['clip-path', 'filter', 'mask'].some(
+      (propName) => childProps.get(propName) !== undefined,
+    )
+  ) {
+    return true;
+  }
+  return (
+    childProps.has('transform') &&
+    ['clip-path', 'filter', 'mask'].some(
+      (propName) => parentProps.get(propName) !== undefined,
+    )
   );
 }
 
@@ -176,12 +192,7 @@ function moveAttr(
     return false;
   }
 
-  if (propName === 'clip-path') {
-    // Don't move clip-path if child has a transform.
-    if (firstChild.attributes['transform']) {
-      return true;
-    }
-  } else if (propName === 'style') {
+  if (propName === 'style') {
     // Style attribute will be handled separately.
     return true;
   }

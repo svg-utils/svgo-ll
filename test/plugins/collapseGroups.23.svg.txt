@@ -1,4 +1,4 @@
-Collapse groups with clip-path style property if there is no transform on child.
+Don't collapse groups with clip-path style property if there is a transform property on child.
 
 ===
 
@@ -7,7 +7,7 @@ Collapse groups with clip-path style property if there is no transform on child.
     <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
   </clipPath>
   <g style="clip-path:url(#a)">
-    <circle cx="50" cy="50" r="30" style="fill:red"/>
+    <circle cx="50" cy="50" r="30" style="fill:red;transform:translate(2px,3px)"/>
   </g>
 </svg>
 
@@ -17,6 +17,7 @@ Collapse groups with clip-path style property if there is no transform on child.
   <clipPath id="a">
     <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
   </clipPath>
-  <circle cx="50" cy="50" r="30" style="fill:red" clip-path="url(#a)"/>
+  <g style="clip-path:url(#a)">
+    <circle cx="50" cy="50" r="30" style="fill:red;transform:translate(2px,3px)"/>
+  </g>
 </svg>
-

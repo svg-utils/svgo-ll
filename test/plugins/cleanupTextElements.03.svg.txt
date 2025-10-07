@@ -19,7 +19,7 @@ Don't hoist children of <switch>.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
     <switch>
-        <text systemLanguage="ca"><tspan x="35" y="45">Here is some text</tspan><tspan x="35" y="55">And Here is some more</tspan></text>
-        <text><tspan x="35" y="45">Here is some text</tspan><tspan x="35" y="55">And Here is some more</tspan></text>
+        <text systemLanguage="ca"><tspan x="35" y="45">Here is some text</tspan><tspan x="35" y="55">And Here is some more</tspan> </text>
+        <text><tspan x="35" y="45">Here is some text</tspan><tspan x="35" y="55">And Here is some more</tspan> </text>
     </switch>
 </svg>

@@ -284,19 +284,22 @@ function isOnlyWhiteSpace(str) {
  */
 function processChildWhiteSpaceDefault(element) {
   const childrenToDelete = new Set();
-  for (const child of element.children) {
-    switch (child.type) {
-      case 'cdata':
-      case 'text':
-        if (isOnlyWhiteSpace(child.value)) {
-          childrenToDelete.add(child);
-        } else {
-          // Replace sequences of space with single spaces.
-          child.value = child.value.replaceAll(/\s+/g, ' ');
-        }
-        break;
+  for (let index = 0; index < element.children.length; index++) {
+    const child = element.children[index];
+    if (child.type === 'text') {
+      if (
+        index !== element.children.length - 1 &&
+        childHasXY(element.children[index + 1]) &&
+        isOnlyWhiteSpace(child.value)
+      ) {
+        childrenToDelete.add(child);
+      } else {
+        // Replace sequences of space with single spaces.
+        child.value = child.value.replaceAll(/\s+/g, ' ');
+      }
     }
   }
+
   if (childrenToDelete.size > 0) {
     element.children = element.children.filter((c) => !childrenToDelete.has(c));
   }

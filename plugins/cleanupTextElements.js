@@ -1,4 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
@@ -17,10 +18,17 @@ export const fn = (info) => {
   /** @type {Map<import('../lib/types.js').XastParent,Set<import('../lib/types.js').XastElement>>} */
   const textElsToHoist = new Map();
 
+  const childrenToDelete = new ChildDeletionQueue();
+
   return {
     element: {
       exit: (element) => {
         if (element.uri !== undefined || element.local !== 'text') {
+          return;
+        }
+
+        if (isEmpty(element)) {
+          childrenToDelete.add(element);
           return;
         }
 
@@ -123,10 +131,34 @@ export const fn = (info) => {
           }
           parent.children = newChildren;
         }
+
+        childrenToDelete.delete();
       },
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {boolean}
+ */
+function isEmpty(element) {
+  if (element.local !== 'text' && element.local !== 'tspan') {
+    return false;
+  }
+  for (const child of element.children) {
+    if (child.type === 'text') {
+      if (!/^\s*$/.test(child.value)) {
+        return false;
+      }
+    } else if (child.type === 'element') {
+      if (!isEmpty(child)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
 
 /**
  * @param {import('../lib/types.js').XastElement} element

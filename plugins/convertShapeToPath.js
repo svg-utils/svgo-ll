@@ -130,7 +130,7 @@ function convertPolyline(element) {
     pathData.push({ command: 'z' });
   }
   element.local = 'path';
-  element.local = element.prefix === '' ? 'path' : `${element.prefix}:path`;
+  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.points;
 }

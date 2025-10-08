@@ -137,6 +137,20 @@ function canRemoveXmlSpace(element) {
   if (value === undefined) {
     return false;
   }
+  if (value === 'preserve') {
+    if (element.children.length !== 1) {
+      return false;
+    }
+    const child = element.children[0];
+    if (child.type !== 'text') {
+      return false;
+    }
+    return (
+      !/^\s/.test(child.value) &&
+      !/\s$/.test(child.value) &&
+      !/\s\s/.test(child.value)
+    );
+  }
   return value === 'default';
 }
 

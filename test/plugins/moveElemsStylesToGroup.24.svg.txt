@@ -30,7 +30,7 @@ Preserve transform on children when group has clip-path or mask
     <mask id="mask">
         <path/>
     </mask>
-    <g transform="rotate(45)scale(2)" style="fill:red">
+    <g style="transform:rotate(45deg)scale(2);fill:red">
         <g>
             <path d="..."/>
         </g>

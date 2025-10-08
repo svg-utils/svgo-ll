@@ -26,6 +26,8 @@ export const fn = () => {
             ry === 'auto' // SVG2
           ) {
             element.local = 'circle';
+            element.name =
+              element.prefix === '' ? 'circle' : `${element.prefix}:circle`;
             const radius = rx === 'auto' ? ry : rx;
             delete element.attributes.rx;
             delete element.attributes.ry;

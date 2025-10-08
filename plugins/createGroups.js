@@ -122,7 +122,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     const groupElement = {
       type: 'element',
       parentNode: element,
-      name: 'g',
+      name: element.prefix ? `${element.prefix}:g` : 'g',
       local: 'g',
       prefix: element.prefix,
       uri: element.uri,
@@ -186,7 +186,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    if (usedIds.has(child.attributes.id?.toString())) {
+    if (usedIds.has(String(child.attributes.id))) {
       // If the element is <use>d, we can't move any properties to a group, so it needs to be on its own.
       writeGroup(index);
       sharedProps = new Map();

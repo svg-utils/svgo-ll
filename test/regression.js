@@ -302,22 +302,6 @@ async function getScreenShotFromFile(pages, rootDir, relativeFilePath) {
     });
 }
 
-// /**
-//  * @param {BrowserPages} pages
-//  * @param {string} strContent
-//  * @returns {Promise<import('pngjs').PNGWithMetadata>}
-//  */
-// async function getScreenShotFromString(pages, strContent) {
-//   return pages
-//     .newPage()
-//     .then((page) => {
-//       return Promise.all([page, page.setContent(strContent)]);
-//     })
-//     .then((result) => {
-//       return getScreenShot(pages, result[0]);
-//     });
-// }
-
 /**
  * @param {StatisticsMap} statsMap
  * @param {string} relativeFilePath
@@ -604,7 +588,7 @@ program
   .option(
     '-b, --browser <chromium | firefox | webkit>',
     'Browser engine to use in testing',
-    'webkit',
+    'chromium',
   )
   .option(
     '-i, --inputdir <dir>',

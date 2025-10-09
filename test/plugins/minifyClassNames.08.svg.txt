@@ -1,0 +1,17 @@
+Handle lang pseudo-class when rewriting rules.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <style>:lang(es){fill:green}.yellow{fill:yellow}</style>
+  <rect width="10" height="10" xml:lang="es"/>
+  <rect width="10" height="10" y="15" class="yellow"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <style>:lang(es){fill:green}.a{fill:yellow}</style>
+  <rect width="10" height="10" xml:lang="es"/>
+  <rect width="10" height="10" y="15" class="a"/>
+</svg>

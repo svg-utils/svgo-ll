@@ -1,0 +1,19 @@
+Combine transforms properly if there is already a transform in group.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <g style="transform:translate(-3px,-4px)">
+    <rect x="19" y="12" width="14" height="6" rx="3" transform="rotate(31)"/>
+    <rect x="19" y="12" width="14" height="6" rx="3" transform="rotate(31)"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <g style="transform:translate(-3px,-4px)rotate(31deg)">
+    <rect x="19" y="12" width="14" height="6" rx="3"/>
+    <rect x="19" y="12" width="14" height="6" rx="3"/>
+  </g>
+</svg>

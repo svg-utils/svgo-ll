@@ -15,7 +15,7 @@ Combine own child transform and inherited
 
 <svg xmlns="http://www.w3.org/2000/svg">
     <g attr1="val1">
-        <path transform="rotate(45) scale(2)" d="..."/>
+        <path d="..." style="transform:rotate(45deg)scale(2)"/>
         <path d="..."/>
     </g>
 </svg>

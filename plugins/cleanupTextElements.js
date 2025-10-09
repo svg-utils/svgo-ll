@@ -1,11 +1,10 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
 
-/**
- * @type {import('./plugins-types.js').Plugin<'cleanupTextElements'>}
- */
+/** @type {import('./plugins-types.js').Plugin<'cleanupTextElements'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
@@ -19,36 +18,31 @@ export const fn = (info) => {
   /** @type {Map<import('../lib/types.js').XastParent,Set<import('../lib/types.js').XastElement>>} */
   const textElsToHoist = new Map();
 
+  const childrenToDelete = new ChildDeletionQueue();
+
   return {
     element: {
       exit: (element) => {
-        if (element.name !== 'text') {
+        if (element.uri !== undefined || element.local !== 'text') {
           return;
         }
 
-        // Remove xml:space="preserve" if possible.
-        if (element.attributes['xml:space'] === 'preserve') {
-          if (canRemovePreserve(element)) {
-            delete element.attributes['xml:space'];
-          }
+        if (isEmpty(element)) {
+          childrenToDelete.add(element);
+          return;
         }
 
-        // Remove any pure whitespace children.
-        const childrenToDelete = new Set();
-        for (const child of element.children) {
-          switch (child.type) {
-            case 'cdata':
-            case 'text':
-              if (isOnlyWhiteSpace(child.value)) {
-                childrenToDelete.add(child);
-              }
-              break;
-          }
+        // Remove xml:space= if possible.
+        if (canRemoveXmlSpace(element)) {
+          delete element.attributes['xml:space'];
         }
-        if (childrenToDelete.size > 0) {
-          element.children = element.children.filter(
-            (c) => !childrenToDelete.has(c),
-          );
+
+        const wsProp = getWhitespaceProperty(element);
+
+        switch (wsProp) {
+          case 'default':
+            processChildWhiteSpaceDefault(element);
+            break;
         }
 
         // If there is a single child whose content can be hoisted, do so.
@@ -95,7 +89,7 @@ export const fn = (info) => {
         if (Object.keys(element.attributes).length === 0) {
           if (
             element.parentNode.type === 'element' &&
-            element.parentNode.name !== 'switch'
+            element.parentNode.local !== 'switch'
           ) {
             if (
               element.children.every(
@@ -129,12 +123,16 @@ export const fn = (info) => {
                 throw new Error();
               }
               textChild.parentNode = parent;
-              textChild.name = 'text';
+              textChild.local = 'text';
+              textChild.name =
+                textChild.prefix === '' ? 'text' : `${textChild.prefix}:text`;
               newChildren.push(textChild);
             }
           }
           parent.children = newChildren;
         }
+
+        childrenToDelete.delete();
       },
     },
   };
@@ -144,27 +142,63 @@ export const fn = (info) => {
  * @param {import('../lib/types.js').XastElement} element
  * @returns {boolean}
  */
-function canRemovePreserve(element) {
+function isEmpty(element) {
+  if (element.local !== 'text' && element.local !== 'tspan') {
+    return false;
+  }
   for (const child of element.children) {
-    switch (child.type) {
-      case 'cdata':
-      case 'text':
-        if (hasSignificantWhiteSpace(child.value)) {
-          return false;
-        }
-        break;
-      case 'element':
-        switch (child.name) {
-          case 'tspan':
-            if (!canRemovePreserve(child)) {
-              return false;
-            }
-            break;
-          default:
-            return false;
-        }
-        break;
+    if (child.type === 'text') {
+      if (!/^\s*$/.test(child.value)) {
+        return false;
+      }
+    } else if (child.type === 'element') {
+      if (!isEmpty(child)) {
+        return false;
+      }
     }
+  }
+  return true;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {boolean}
+ */
+function canRemoveXmlSpace(element) {
+  const value = element.attributes['xml:space'];
+  if (value === undefined) {
+    return false;
+  }
+  if (value === 'preserve') {
+    if (element.children.length !== 1) {
+      return false;
+    }
+    const child = element.children[0];
+    if (child.type !== 'text') {
+      return false;
+    }
+    return (
+      !/^\s/.test(child.value) &&
+      !/\s$/.test(child.value) &&
+      !/\s\s/.test(child.value)
+    );
+  }
+  return value === 'default';
+}
+
+/**
+ * @param {import('../lib/types.js').XastChild} child
+ * @returns {boolean}
+ */
+function childHasXY(child) {
+  if (child.type !== 'element') {
+    return false;
+  }
+  if (child.local !== 'tspan') {
+    return false;
+  }
+  if (child.attributes.x === undefined || child.attributes.y === undefined) {
+    return false;
   }
   return true;
 }
@@ -175,13 +209,7 @@ function canRemovePreserve(element) {
  */
 function childrenAllHaveXY(element) {
   for (const child of element.children) {
-    if (child.type !== 'element') {
-      return false;
-    }
-    if (child.name !== 'tspan') {
-      return false;
-    }
-    if (child.attributes.x === undefined || child.attributes.y === undefined) {
+    if (!childHasXY(child)) {
       return false;
     }
   }
@@ -201,6 +229,17 @@ function getHoistableChild(element) {
 }
 
 /**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {"default"|"preserve"}
+ */
+function getWhitespaceProperty(element) {
+  if (element.attributes['xml:space'] === 'preserve') {
+    return 'preserve';
+  }
+  return 'default';
+}
+
+/**
  * @param {string} str
  * @returns {boolean}
  */
@@ -213,7 +252,7 @@ export function hasSignificantWhiteSpace(str) {
       case '\n':
       case '\t':
         if (!isStart) {
-          // Consective space within text is significant.
+          // Consecutive space within text is significant.
           if (lastIsSpace) {
             return true;
           }
@@ -266,19 +305,13 @@ function isHoistable(child) {
 }
 
 /**
- * @param {string} str
- * @returns {boolean}
+ * @param {import('../lib/types.js').XastElement} element
  */
-function isOnlyWhiteSpace(str) {
-  for (const char of str) {
-    switch (char) {
-      case ' ':
-      case '\n':
-      case '\t':
-        continue;
-      default:
-        return false;
+function processChildWhiteSpaceDefault(element) {
+  for (let index = 0; index < element.children.length; index++) {
+    const child = element.children[index];
+    if (child.type === 'text') {
+      child.value = child.value.replaceAll(/\s+/g, ' ');
     }
   }
-  return true;
 }

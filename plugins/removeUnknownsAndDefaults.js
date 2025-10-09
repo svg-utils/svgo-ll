@@ -122,7 +122,7 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
   if (
     propName === 'overflow' &&
     value === 'visible' &&
-    !preserveOverflowElements.has(element.name)
+    !preserveOverflowElements.has(element.local)
   ) {
     return true;
   }
@@ -197,11 +197,11 @@ export const fn = (info, params) => {
         // Process on exit so transformations are bottom-up.
 
         // skip namespaced elements
-        if (element.name.includes(':')) {
+        if (element.uri !== undefined) {
           return;
         }
         // skip visiting foreignObject subtree
-        if (element.name === 'foreignObject') {
+        if (element.local === 'foreignObject') {
           return visitSkip;
         }
 
@@ -209,10 +209,11 @@ export const fn = (info, params) => {
           elementsById.set(element.attributes.id.toString(), element);
         }
 
-        if (element.name === 'use') {
+        if (element.local === 'use') {
           const id = getHrefId(element);
           if (id) {
             usedIDs.add(id);
+            useElements.add(element);
           }
           // x="0" and y="0" can be removed; otherwise leave attributes alone.
           ['x', 'y'].forEach((attName) => {
@@ -223,33 +224,34 @@ export const fn = (info, params) => {
               delete element.attributes[attName];
             }
           });
-          useElements.add(element);
           return;
         }
 
-        const allowedChildren = allowedChildrenPerElement.get(element.name);
+        const allowedChildren = allowedChildrenPerElement.get(element.local);
         if (allowedChildren) {
           // Remove any disallowed child elements.
           if (
             element.children.some(
               (child) =>
                 child.type === 'element' &&
-                !allowedChildren.has(child.name) &&
-                !child.name.includes(':'),
+                !allowedChildren.has(child.local) &&
+                child.uri === undefined,
             )
           ) {
             element.children = element.children.filter(
               (child) =>
                 child.type !== 'element' ||
-                allowedChildren.has(child.name) ||
-                child.name.includes(':'),
+                allowedChildren.has(child.local) ||
+                child.uri !== undefined,
             );
           }
         }
 
-        const allowedAttributes = allowedAttributesPerElement.get(element.name);
+        const allowedAttributes = allowedAttributesPerElement.get(
+          element.local,
+        );
         const attributesDefaults = attributesDefaultsPerElement.get(
-          element.name,
+          element.local,
         );
         /** @type {Map<string, string | null>} */
         const computedStyle = styleData.computeStyle(element, parentList);
@@ -260,7 +262,7 @@ export const fn = (info, params) => {
           // Delete the associated attributes, since they will always be overridden by the style property.
           for (let p of styleAttValue.keys()) {
             if (p === 'transform') {
-              switch (element.name) {
+              switch (element.local) {
                 case 'linearGradient':
                 case 'radialGradient':
                   p = 'gradientTransform';
@@ -283,8 +285,8 @@ export const fn = (info, params) => {
           // For each of the properties, remove it if the result was unchanged.
           const propsToDelete = [];
           for (const propertyName of styleAttValue.keys()) {
-            // If the style is not allowed, delete it without checking the impact.
-            if (allowedAttributes && !allowedAttributes.has(propertyName)) {
+            // If the property is not allowed, delete it without checking the impact.
+            if (!canHaveProperty(propertyName, allowedAttributes)) {
               propsToDelete.push(propertyName);
               continue;
             }
@@ -329,7 +331,7 @@ export const fn = (info, params) => {
           // skip namespaced attributes except xml:* and xlink:*
           if (name.includes(':')) {
             const [prefix] = name.split(':');
-            if (prefix !== 'xml' && prefix !== 'xlink') {
+            if (prefix !== 'xlink') {
               continue;
             }
           }
@@ -354,7 +356,7 @@ export const fn = (info, params) => {
 
           const strValue = attValue.toString();
           // Remove rx/ry = 0 from <rect>.
-          if (element.name === 'rect') {
+          if (element.local === 'rect') {
             switch (name) {
               case 'rx':
               case 'ry':
@@ -437,22 +439,10 @@ export const fn = (info, params) => {
             continue;
           }
 
-          // Build the parent list for the referenced element.
-          /** @type {{element:import('../lib/types.js').XastParent}[]} */
-          const parentList = [];
-          let p = referencedElement.parentNode;
-          while (true) {
-            parentList.unshift({ element: p });
-            if (p.type === 'root') {
-              break;
-            }
-            p = p.parentNode;
-          }
-          const referencedElementProps = styleData.computeStyle(
-            referencedElement,
-            parentList,
-          );
+          const referencedElementProps =
+            styleData.computeOwnStyle(referencedElement);
 
+          // Delete any attributes or style properties that are directly present in the referenced element.
           for (const attName of Object.keys(element.attributes)) {
             if (attrsGroups.presentation.has(attName)) {
               if (attName === 'transform') {
@@ -472,7 +462,7 @@ export const fn = (info, params) => {
                   element,
                   propName,
                   propValue.value.toString(),
-                  attributesDefaultsPerElement.get(element.name),
+                  attributesDefaultsPerElement.get(element.local),
                 )
               ) {
                 styleAttValue.delete(propName);
@@ -487,3 +477,25 @@ export const fn = (info, params) => {
     },
   };
 };
+
+/**
+ * @param {string} propName
+ * @param {Set<string>|undefined} allowedAttributes
+ * @returns {boolean}
+ */
+function canHaveProperty(propName, allowedAttributes) {
+  if (!allowedAttributes || allowedAttributes.has(propName)) {
+    return true;
+  }
+  switch (propName) {
+    case 'font':
+      // "font" is allowed as a style property but not as an attribute; allow it only if the font attributes are allowed for
+      // this element.
+      return allowedAttributes.has('font-size');
+    case 'marker':
+      // "marker" is allowed as a style property but not as an attribute; allow it only if the marker attributes are allowed for
+      // this element.
+      return allowedAttributes.has('marker-start');
+  }
+  return false;
+}

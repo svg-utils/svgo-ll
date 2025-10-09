@@ -1,0 +1,19 @@
+Don't convert to classes if there is anything other than class selectors in existing <style>s.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+  <style>#a{fill:green}</style>
+  <rect x="2" y="2" width="10" height="10" style="fill:red"/>
+  <rect x="14" y="2" width="10" height="10" style="fill:red"/>
+  <rect x="26" y="2" width="10" height="10" style="fill:red" id="a"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+  <style>#a{fill:green}</style>
+  <rect x="2" y="2" width="10" height="10" style="fill:red"/>
+  <rect x="14" y="2" width="10" height="10" style="fill:red"/>
+  <rect x="26" y="2" width="10" height="10" style="fill:red" id="a"/>
+</svg>

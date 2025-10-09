@@ -1,0 +1,20 @@
+Don't move properties that would overwrite a calculated style.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>rect{fill:red}</style>
+  <g style="fill:green">
+    <rect y="9" width="2" height="1.5"/>
+  </g>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>rect{fill:red}</style>
+  <g style="fill:green">
+    <rect y="9" width="2" height="1.5"/>
+  </g>
+</svg>

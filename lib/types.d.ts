@@ -36,7 +36,11 @@ export type SVGAttValue = string | AttValue;
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
+  /** @deprecated */
   name: string;
+  local: string;
+  prefix: string;
+  uri: string | undefined;
   attributes: Record<string, SVGAttValue>;
   children: XastChild[];
   isSelfClosing?: boolean;
@@ -96,16 +100,21 @@ export class DocData {
   getStyles(): StyleData | null;
 }
 
+type CSSGlobalKeyword = 'inherit' | 'revert' | 'initial' | 'unset';
+
 type CSSFeatures =
   | 'atrules'
   | 'attribute-selectors'
+  | 'class-selectors'
   | 'combinators'
+  | 'id-selectors'
   | 'pseudos'
-  | 'simple-selectors';
+  | 'type-selectors';
 
 export class AttValue {
   round(numDigits: number): AttValue;
   toString(): string;
+  toStyleAttString(): string;
   toStyleElementString(): string;
 }
 
@@ -122,7 +131,7 @@ export class StyleData {
     node: XastElement,
     parentList: Readonly<ParentList>,
     declarations?: CSSDeclarationMap,
-  ): Map<string, string | null>;
+  ): ComputedStyleMap;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
   getIdsReferencedByProperties(): string[];
@@ -149,10 +158,13 @@ export class StyleData {
   writeRules(): void;
 }
 
+export type ComputedStyleMap = Map<string, string | null>;
+export type CSSPropertyMap = Map<string, CSSPropertyValue>;
+
 export class CSSRule {
   addReferencedClasses(classes: Set<string>): void;
   addReferencedIds(ids: Map<string, CSSRule[]>): void;
-  getDeclarations(): Map<string, CSSPropertyValue>;
+  getDeclarations(): CSSPropertyMap;
   getFeatures(): Set<CSSFeatures>;
   getSpecificity(): [number, number, number];
   hasAttributeSelector(attName: string | undefined): boolean;
@@ -173,19 +185,15 @@ export class CSSRuleSet {
   hasTypeSelector(type: string): boolean;
 }
 
-export type CSSParsedTransform = {
-  type: 'transform';
-  value: import('./types-css-decl.js').CSSTransformFn[] | null;
-};
-
 export type CSSPropertyValue = {
   value: SVGAttValue;
   important: boolean;
 };
 
 export type CSSDeclarationMap = {
-  entries(): IterableIterator<[string, CSSPropertyValue]>;
   delete(name: string): void;
+  entries(): IterableIterator<[string, CSSPropertyValue]>;
+  keys(): IterableIterator<string>;
   get(name: string): CSSPropertyValue | undefined;
   set(name: string, value: CSSPropertyValue): void;
   values(): IterableIterator<CSSPropertyValue>;

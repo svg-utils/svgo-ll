@@ -110,7 +110,7 @@ function setNone(element, propName, styleData, parentList, allowUndefined) {
   const value = computedStyle.get(propName);
   if (value !== 'none' && (!allowUndefined || value !== undefined)) {
     const style =
-      StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
+      StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue('');
     style.set(propName, { value: 'none', important: false });
     updateStyleAttribute(element, style);
     delete element.attributes[propName];

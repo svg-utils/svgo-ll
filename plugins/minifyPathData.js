@@ -31,7 +31,11 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        if (pathElems.has(element.name) && element.attributes.d !== undefined) {
+        if (
+          element.uri === undefined &&
+          pathElems.has(element.local) &&
+          element.attributes.d !== undefined
+        ) {
           if (PathAttValue.isMinified(element.attributes.d)) {
             return;
           }

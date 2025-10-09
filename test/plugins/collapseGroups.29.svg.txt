@@ -1,0 +1,20 @@
+Don't collapse groups with selector on child type.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>rect{fill:red}</style>
+  <g style="fill:green">
+    <rect y="9" width="2" height="1.5" fill="yellow"/>
+  </g>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>rect{fill:red}</style>
+  <g style="fill:green">
+    <rect y="9" width="2" height="1.5" fill="yellow"/>
+  </g>
+</svg>

@@ -16,7 +16,12 @@ export const fn = (info) => {
   if (
     info.docData.hasScripts() ||
     styleData === null ||
-    !styleData.hasOnlyFeatures(['simple-selectors', 'attribute-selectors'])
+    !styleData.hasOnlyFeatures([
+      'class-selectors',
+      'id-selectors',
+      'type-selectors',
+      'attribute-selectors',
+    ])
   ) {
     return;
   }
@@ -31,7 +36,8 @@ export const fn = (info) => {
    * @param {import('../lib/types.js').XastElement} element
    */
   function convertToDefs(element) {
-    element.name = 'defs';
+    element.name = element.prefix === '' ? 'defs' : `${element.prefix}:defs`;
+    element.local = 'defs';
     element.attributes = {};
     processDefsChildren(element);
     if (element.children.length === 0) {

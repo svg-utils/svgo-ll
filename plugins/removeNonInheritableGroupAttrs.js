@@ -3,6 +3,7 @@ import {
   attrsGroups,
   presentationNonInheritableGroupAttrs,
 } from './_collections.js';
+import { getPresentationProperties } from './_styles.js';
 
 export const name = 'removeNonInheritableGroupAttrs';
 export const description =
@@ -11,24 +12,53 @@ export const description =
 /**
  * Remove non-inheritable groups "presentation" attributes.
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeNonInheritableGroupAttrs'>}
  */
 export const fn = () => {
   return {
     element: {
-      enter: (node) => {
-        if (node.name === 'g') {
-          for (const name of Object.keys(node.attributes)) {
-            if (
-              attrsGroups.presentation.has(name) &&
-              !inheritableAttrs.has(name) &&
-              !presentationNonInheritableGroupAttrs.has(name)
-            ) {
-              delete node.attributes[name];
+      exit: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
+        if (element.local !== 'g') {
+          return;
+        }
+
+        const candidates = new Set();
+        for (const name of Object.keys(element.attributes)) {
+          if (
+            attrsGroups.presentation.has(name) &&
+            !inheritableAttrs.has(name) &&
+            !presentationNonInheritableGroupAttrs.has(name)
+          ) {
+            candidates.add(name);
+          }
+        }
+
+        if (candidates.size === 0) {
+          return;
+        }
+
+        // Make sure no attributes are inherited by children.
+        for (const child of element.children) {
+          if (child.type !== 'element') {
+            continue;
+          }
+          const childProps = getPresentationProperties(child);
+          for (const [name, value] of childProps.entries()) {
+            if (value.value.toString() === 'inherit') {
+              candidates.delete(name);
+              if (candidates.size === 0) {
+                return;
+              }
             }
           }
+        }
+
+        for (const attName of candidates.values()) {
+          delete element.attributes[attName];
         }
       },
     },

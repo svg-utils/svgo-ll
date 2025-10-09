@@ -1,0 +1,23 @@
+Don't collapse groups with clip-path style property if there is a transform attribute on child.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="a">
+    <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
+  </clipPath>
+  <g style="clip-path:url(#a)">
+    <circle cx="50" cy="50" r="30" transform="translate(2,3)" style="fill:red"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="a">
+    <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
+  </clipPath>
+  <g style="clip-path:url(#a)">
+    <circle cx="50" cy="50" r="30" transform="translate(2 3)" style="fill:red"/>
+  </g>
+</svg>

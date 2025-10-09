@@ -1,4 +1,4 @@
-Collapse groups with clip-path style property.
+Collapse groups with clip-path style property if there is no transform on child.
 
 ===
 
@@ -17,6 +17,6 @@ Collapse groups with clip-path style property.
   <clipPath id="a">
     <path d="M20 20L20 80L80 70L60 40z" fill="none" stroke="black"/>
   </clipPath>
-  <circle cx="50" cy="50" r="30" style="fill:red" clip-path="url(#a)"/>
+  <circle cx="50" cy="50" r="30" style="fill:red;clip-path:url(#a)"/>
 </svg>
 

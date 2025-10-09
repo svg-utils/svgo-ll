@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
+import { hasMarkerProperties } from '../lib/css-tools.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getHrefId } from '../lib/svgo/tools.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
@@ -30,7 +30,12 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        switch (element.name) {
+        if (element.uri !== undefined) {
+          // Not in the SVG namespace.
+          return;
+        }
+
+        switch (element.local) {
           case 'g':
           case 'svg':
             elementsToCheck.add(element);
@@ -85,18 +90,8 @@ function createGroups(element, usedIds, elementsToCheck) {
       return savings;
     }
 
-    /**
-     * @param {import('../lib/types.js').CSSDeclarationMap} props
-     */
-    function getPropSize(props) {
-      let size = 0;
-      for (const [k, v] of props.entries()) {
-        size += k.length + v.value.toString().length + 2; // Add 2 for ":", ";"
-      }
-      return size;
-    }
     const groupSize = index - sharedPropStart;
-    const propSize = getPropSize(sharedProps);
+    const propSize = StyleAttValue.getPropertyString(sharedProps).length;
     const cost =
       16 + // for <g style=""></g>
       propSize -
@@ -127,17 +122,15 @@ function createGroups(element, usedIds, elementsToCheck) {
     const groupElement = {
       type: 'element',
       parentNode: element,
-      name: 'g',
+      name: element.prefix ? `${element.prefix}:g` : 'g',
+      local: 'g',
+      prefix: element.prefix,
+      uri: element.uri,
       attributes: {},
       children: groupChildren,
     };
 
     // Add styles to group.
-    const attTransform = cssTransformToSVGAtt(sharedProps.get('transform'));
-    if (attTransform) {
-      // Add transform as an attribute.
-      sharedProps.delete('transform');
-    }
     updateStyleAttribute(groupElement, new StyleAttValue(sharedProps));
 
     // Remove properties from children.
@@ -154,21 +147,16 @@ function createGroups(element, usedIds, elementsToCheck) {
           styleAttValue.delete(name);
         }
       }
-      if (attTransform) {
-        delete child.attributes['transform'];
-        if (styleAttValue) {
-          styleAttValue.delete('transform');
-        }
-      }
+
       if (styleAttValue) {
+        // Check for marker property, which won't be directly present in sharedProps.
+        if (hasMarkerProperties(sharedProps)) {
+          styleAttValue.delete('marker');
+        }
         updateStyleAttribute(child, styleAttValue);
       }
     });
 
-    // Add transform attribute.
-    if (attTransform) {
-      groupElement.attributes['transform'] = attTransform;
-    }
     newChildren.push(groupElement);
 
     ungroupedStart = index;
@@ -198,7 +186,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    if (usedIds.has(child.attributes.id?.toString())) {
+    if (usedIds.has(String(child.attributes.id))) {
       // If the element is <use>d, we can't move any properties to a group, so it needs to be on its own.
       writeGroup(index);
       sharedProps = new Map();
@@ -276,7 +264,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     for (const child of element.children) {
       if (
         child.type === 'element' &&
-        child.name === 'g' &&
+        child.local === 'g' &&
         !elementsToCheck.has(child)
       ) {
         createGroups(child, usedIds, elementsToCheck);

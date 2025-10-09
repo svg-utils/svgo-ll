@@ -1,0 +1,17 @@
+Remove empty nodes for xml:space="default".
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 40">
+  <text x="10" y="10" xml:space="default">
+    <tspan>this is a</tspan>
+        test     of    
+    <tspan>lots of spaces around test</tspan>
+  </text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 40">
+  <text x="10" y="10"> <tspan>this is a</tspan> test of <tspan>lots of spaces around test</tspan> </text>
+</svg>

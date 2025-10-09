@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
+import { TransformValue } from '../lib/attrs/transformValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
@@ -26,7 +26,11 @@ export const fn = (info) => {
         // Run on exit so children are processed first.
 
         // Process only groups with more than 1 child.
-        if (element.name !== 'g' || element.children.length <= 1) {
+        if (
+          element.uri !== undefined ||
+          element.local !== 'g' ||
+          element.children.length <= 1
+        ) {
           return;
         }
 
@@ -102,32 +106,33 @@ export const fn = (info) => {
         }
 
         // Add common child properties to group.
-        /** @type {StyleAttValue} */
-        const groupProperties =
-          StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue();
+        const groupProperties = getInheritableProperties(element);
+
+        const groupTransform = groupProperties.get('transform');
+        const childTransform = commonProperties.get('transform');
+
+        if (groupTransform && childTransform) {
+          // We need to merge the two transforms rather than overwriting.
+          commonProperties.set('transform', {
+            value: TransformValue.mergeTransforms(
+              groupTransform.value,
+              childTransform.value,
+            ),
+            important: false,
+          });
+        }
 
         for (const [name, value] of commonProperties) {
           groupProperties.set(name, value);
         }
 
-        const cssTransform = groupProperties.get('transform');
-        if (cssTransform) {
-          // Make sure we can translate it to an attribute.
-          const attTransform = cssTransformToSVGAtt(cssTransform);
-          if (attTransform) {
-            // Add transform as an attribute.
-            groupProperties.delete('transform');
-            const currentTransform = element.attributes.transform ?? '';
-            element.attributes.transform =
-              currentTransform + attTransform.toString();
-          } else {
-            // This shouldn't happen unless there's a CSS transform which can't be converted to an attribute; don't
-            // move the property.
-            groupProperties.delete('transform');
-          }
+        let groupStyleAttValue =
+          StyleAttValue.getStyleAttValue(element) || new StyleAttValue('');
+        for (const [name, value] of groupProperties.entries()) {
+          groupStyleAttValue.set(name, value);
+          delete element.attributes[name];
         }
-
-        updateStyleAttribute(element, groupProperties);
+        updateStyleAttribute(element, groupStyleAttValue);
 
         // Delete common properties from children.
         for (const child of element.children) {

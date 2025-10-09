@@ -51,6 +51,10 @@ export const fn = (info) => {
           }
         }
 
+        if (referencedClassNames.size === 0) {
+          return;
+        }
+
         let classNameCounter = 0;
 
         // Sort values by number of references so most-used classes have the shortest class names.

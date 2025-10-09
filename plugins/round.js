@@ -117,7 +117,7 @@ export const fn = (info, params) => {
               }
               break;
             case 'stdDeviation':
-              newVal = roundStdDeviation(attValue, stdDeviationDigits);
+              newVal = roundStdDeviation(element, stdDeviationDigits);
               break;
             case 'transform':
               newVal = roundTransform(
@@ -364,13 +364,13 @@ function roundPath(attValueIn, xDigits, yDigits) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {import('../lib/types.js').XastElement} element
  * @param {number} digits
  * @returns {StdDeviationValue|null}
  */
-function roundStdDeviation(attValue, digits) {
-  const stdDeviation = StdDeviationValue.getObj(attValue);
-  return stdDeviation.round(digits);
+function roundStdDeviation(element, digits) {
+  const stdDeviation = StdDeviationValue.getAttValue(element);
+  return stdDeviation ? stdDeviation.round(digits) : null;
 }
 
 /**
@@ -383,13 +383,13 @@ function roundTransform(attValue, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
     return null;
   }
-  const transforms = TransformValue.getTransformObj(attValue);
+  const transforms = TransformValue.getObj(attValue);
   for (const transform of transforms.getTransforms()) {
     if (transform.name !== 'translate') {
       return null;
     }
-    transform.x = transform.x.round(xDigits);
-    transform.y = transform.y.round(yDigits);
+    transform.x.n = transform.x.n.round(xDigits);
+    transform.y.n = transform.y.n.round(yDigits);
   }
-  return new TransformValue(undefined, transforms.getTransforms());
+  return new TransformValue(transforms.getTransforms());
 }

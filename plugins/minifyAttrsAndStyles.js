@@ -1,6 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { transformAttrs } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'minifyAttrsAndStyles';
@@ -21,26 +20,16 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         const props = getPresentationProperties(element);
         if (props.size === 0) {
           return;
         }
 
-        let hasTransformAttribute = false;
-        if (hasTransform(props.keys())) {
-          const styleAttValue = StyleAttValue.getStyleAttValue(element);
-          if (styleAttValue && hasTransform(styleAttValue.keys())) {
-            return;
-          }
-          hasTransformAttribute = true;
-
-          // Remove any transform properties from the map so they don't affect calculations.
-          for (const attName of transformAttrs) {
-            props.delete(attName);
-          }
-        }
-
-        if (getAttrWidth(props) < getStyleWidth()) {
+        if (getAttrWidth(props) < getStyleWidth(props)) {
           // Attributes are shorter; remove the style attribute and use individual attributes.
 
           for (const [name, value] of props.entries()) {
@@ -48,7 +37,7 @@ export const fn = (info) => {
           }
 
           updateStyleAttribute(element, undefined);
-        } else if (!hasTransformAttribute) {
+        } else {
           // Style is at least as short; remove the individual attributes and convert to style properties.
           for (const name of props.keys()) {
             delete element.attributes[name];
@@ -66,25 +55,18 @@ export const fn = (info) => {
  * @returns {number}
  */
 function getAttrWidth(props) {
-  return (props.size - 1) * 2; // Account for extra quotes around attributes.
+  let width = 0;
+  for (const [name, value] of props.entries()) {
+    width += ' =""'.length + name.length + value.value.toString().length;
+  }
+  return width;
 }
 
 /**
+ * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
  * @returns {number}
  */
-function getStyleWidth() {
-  return 6; // Account for "style="".
-}
-
-/**
- * @param {IterableIterator<string>} propNames
- * @returns {boolean}
- */
-function hasTransform(propNames) {
-  for (const propName of propNames) {
-    if (transformAttrs.has(propName)) {
-      return true;
-    }
-  }
-  return false;
+function getStyleWidth(props) {
+  const att = new StyleAttValue(props);
+  return ' style=""'.length + att.toString().length;
 }

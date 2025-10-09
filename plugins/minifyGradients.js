@@ -1,12 +1,8 @@
 import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { cssTransformToSVGAtt } from '../lib/svg-to-css.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { recordReferencedIds } from '../lib/svgo/tools-svg.js';
-import {
-  getReferencedIdInStyleProperty,
-  SVGOError,
-} from '../lib/svgo/tools.js';
+import { getReferencedIdInStyleProperty } from '../lib/svgo/tools.js';
 
 export const name = 'minifyGradients';
 export const description =
@@ -200,12 +196,7 @@ function inlineGradient(
   if (styleAttValue) {
     const cssTransform = styleAttValue.get('transform');
     if (cssTransform) {
-      transform = cssTransformToSVGAtt(cssTransform);
-      if (transform === undefined) {
-        throw new SVGOError(
-          `unable to convert css transform "${cssTransform}"`,
-        );
-      }
+      transform = cssTransform.value;
     }
   }
   if (transform) {

@@ -1,0 +1,21 @@
+Collapse mask and opacity if child has no opacity.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <mask id="a">
+    <circle cx="50" cy="50" r="30" fill="white"/>
+  </mask>
+  <g style="opacity:.4" mask="url(#a)">
+    <rect x="10" y="10" width="30" height="30"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <mask id="a">
+    <circle cx="50" cy="50" r="30" fill="white"/>
+  </mask>
+  <rect x="10" y="10" width="30" height="30" style="mask:url(#a);opacity:.4"/>
+</svg>

@@ -12,7 +12,7 @@ Move transform attribute if possible.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-    <g style="fill:green" transform="rotate(30)">
+    <g style="transform:rotate(30deg);fill:green">
         <rect y="0" width="2" height="1.5"/>
         <rect y="3" width="2" height="1.5"/>
         <g style="stroke:red">

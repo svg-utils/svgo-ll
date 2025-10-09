@@ -1,7 +1,9 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
+import { ListOfLengthOrPctValue } from '../lib/attrs/listOfLengthOrPctValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
@@ -28,7 +30,11 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        if (element.name === 'foreignObject') {
+        if (element.uri !== undefined) {
+          return;
+        }
+
+        if (element.local === 'foreignObject') {
           return visitSkip;
         }
 
@@ -49,10 +55,8 @@ export const fn = (info) => {
             case 'stroke-opacity':
               cleanupOpacityAttribute(element, attName);
               break;
-            case 'x':
             case 'x1':
             case 'x2':
-            case 'y':
             case 'y1':
             case 'y2':
             case 'width':
@@ -66,8 +70,24 @@ export const fn = (info) => {
             case 'fy':
             case 'fr':
             case 'stroke-width':
-            case 'stdDeviation':
               cleanupLengthPct(element, attName);
+              break;
+            case 'x':
+            case 'y':
+              {
+                switch (element.local) {
+                  case 'text':
+                  case 'tspan':
+                    ListOfLengthOrPctValue.getAttValue(element, attName);
+                    break;
+                  default:
+                    cleanupLengthPct(element, attName);
+                    break;
+                }
+              }
+              break;
+            case 'stdDeviation':
+              StdDeviationValue.getAttValue(element);
               break;
             case 'href':
               cleanupHref(element);
@@ -156,15 +176,15 @@ function cleanupStyleAttribute(element) {
     return;
   }
 
-  if (elemsGroups.animation.has(element.name)) {
+  if (elemsGroups.animation.has(element.local)) {
     // Style attributes have no effect on animation elements.
     delete element.attributes.style;
     return;
   }
 
-  const isShapeGroup = element.name === 'g' && hasOnlyShapeChildren(element);
+  const isShapeGroup = element.local === 'g' && hasOnlyShapeChildren(element);
   for (const p of styleAttValue.keys()) {
-    if (!elementCanHaveProperty(element.name, p)) {
+    if (!elementCanHaveProperty(element.local, p)) {
       styleAttValue.delete(p);
       continue;
     }
@@ -193,6 +213,11 @@ function elementCanHaveProperty(elName, propName) {
         return false;
       }
     }
+    return true;
+  }
+
+  // "marker" is allowed as a style property but not as an attribute.
+  if (propName === 'marker') {
     return true;
   }
 

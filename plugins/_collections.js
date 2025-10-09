@@ -285,11 +285,8 @@ export const attrsGroups = {
   ]),
 };
 
-/**
- * @type {Record<string, Record<string, string>>}
- */
-export const attrsGroupsDefaults = {
-  core: { 'xml:space': 'default' },
+/** @type {Record<string, Record<string, string>>} */
+export const attrsGroupsDefaults = Object.freeze({
   presentation: {
     clip: 'auto',
     'clip-path': 'none',
@@ -350,7 +347,7 @@ export const attrsGroupsDefaults = {
     exponent: '1',
     offset: '0',
   },
-};
+});
 
 /**
  * @type {Record<string, {

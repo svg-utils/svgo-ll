@@ -1,12 +1,13 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { svgAttTransformToCSS } from '../lib/svg-to-css.js';
+import { TransformValue } from '../lib/attrs/transformValue.js';
+import { MARKER_PROP_NAMES } from '../lib/css-tools.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 
 export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+ * @returns {import('../lib/types.js').CSSPropertyMap}
  */
 export function getInheritableProperties(element) {
   return _getProperties(
@@ -41,10 +42,11 @@ function _getProperties(element, fnInclude) {
     switch (name) {
       case 'transform':
         {
-          const cssValue = svgAttTransformToCSS(value);
-          if (cssValue) {
-            props.set(name, cssValue);
+          const attValue = TransformValue.getAttValue(element, 'transform');
+          if (!attValue) {
+            throw new Error();
           }
+          props.set(name, { value: attValue, important: false });
         }
         break;
       default:
@@ -57,8 +59,15 @@ function _getProperties(element, fnInclude) {
   const styleAttValue = StyleAttValue.getStyleAttValue(element);
   if (styleAttValue) {
     for (const [name, prop] of styleAttValue.entries()) {
-      if (fnInclude(name)) {
-        props.set(name, prop);
+      const nameToCheck = name === 'marker' ? 'marker-start' : name;
+      if (fnInclude(nameToCheck)) {
+        if (name === 'marker') {
+          MARKER_PROP_NAMES.forEach((name) => {
+            props.set(name, prop);
+          });
+        } else {
+          props.set(name, prop);
+        }
       }
     }
   }

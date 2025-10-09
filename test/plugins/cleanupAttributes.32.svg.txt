@@ -10,5 +10,5 @@ Clean up viewBox attribute.
 @@@
 
 <svg viewBox="-.9 -.8 20 20" xmlns="http://www.w3.org/2000/svg">
-  <rect width="4" height="5" stroke="black" fill="none" style="stroke-dasharray:.8 .9%"/>
+  <rect width="4" height="5" stroke="black" fill="none" style="stroke-dasharray:.8,.9%"/>
 </svg>

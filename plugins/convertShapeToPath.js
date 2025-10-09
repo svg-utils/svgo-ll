@@ -2,6 +2,7 @@ import { ExactNum } from '../lib/exactnum.js';
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
 import { isNumber } from '../lib/svgo/tools.js';
+import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 
 export const name = 'convertShapeToPath';
 export const description = 'converts basic shapes to more compact path form';
@@ -22,7 +23,11 @@ export const fn = function (info) {
   if (
     info.docData.hasScripts() ||
     styles === null ||
-    !styles.hasOnlyFeatures(['simple-selectors']) ||
+    !styles.hasOnlyFeatures([
+      'class-selectors',
+      'id-selectors',
+      'type-selectors',
+    ]) ||
     styles.hasTypeSelector('path')
   ) {
     return;
@@ -38,7 +43,12 @@ export const fn = function (info) {
   return {
     element: {
       enter: (element) => {
-        switch (element.name) {
+        if (element.uri !== undefined) {
+          // Not in SVG namespace.
+          return;
+        }
+
+        switch (element.local) {
           case 'rect':
             if (stylesOK.rect) {
               convertRect(element);
@@ -51,7 +61,7 @@ export const fn = function (info) {
             return;
           case 'polygon':
           case 'polyline':
-            if (stylesOK[element.name]) {
+            if (stylesOK[element.local]) {
               convertPolyline(element);
             }
             return;
@@ -79,7 +89,8 @@ function convertLine(element) {
     { command: 'M', x: new ExactNum(x1), y: new ExactNum(y1) },
     { command: 'L', x: new ExactNum(x2), y: new ExactNum(y2) },
   ];
-  element.name = 'path';
+  element.local = 'path';
+  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.x1;
   delete element.attributes.y1;
@@ -106,7 +117,7 @@ function convertPolyline(element) {
   for (let i = 0; i < coords.length; i += 2) {
     const x = coords[i];
     const y = coords[i + 1];
-    if (!isNumber(x) || !isNumber(y)) {
+    if (!isNumber(x) || !isNumber(y ?? '')) {
       return;
     }
     pathData.push({
@@ -115,10 +126,11 @@ function convertPolyline(element) {
       y: new ExactNum(y),
     });
   }
-  if (element.name === 'polygon') {
+  if (element.local === 'polygon') {
     pathData.push({ command: 'z' });
   }
-  element.name = 'path';
+  element.local = 'path';
+  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.points;
 }
@@ -139,17 +151,22 @@ function convertRect(element) {
 
   const x = getPixelsWithDefault(element, 'x');
   const y = getPixelsWithDefault(element, 'y');
-  const width = LengthValue.getObj(element.attributes.width).getPixels();
-  const height = LengthValue.getObj(element.attributes.height).getPixels();
+  const widthValue = LengthOrPctValue.getAttValue(element, 'width');
+  const heightValue = LengthOrPctValue.getAttValue(element, 'height');
 
   if (
     x === null ||
     y === null ||
-    width === null ||
-    height === null ||
-    width === 0 ||
-    height === 0
+    !(typeof widthValue === 'object') ||
+    !(typeof heightValue === 'object')
   ) {
+    return;
+  }
+
+  const width = widthValue.getPixels();
+  const height = heightValue.getPixels();
+
+  if (width === 0 || width === null || height === 0 || height === null) {
     return;
   }
 
@@ -172,7 +189,8 @@ function convertRect(element) {
     { command: 'H', x: ex },
     { command: 'z' },
   ];
-  element.name = 'path';
+  element.local = 'path';
+  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.x;
   delete element.attributes.y;

@@ -1,0 +1,21 @@
+Collapse groups with transform.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <g transform="translate(4,5)">
+    <g style="transform:translate(2px,3px)">
+      <rect width="14" height="6" rx="3"/>
+      <rect x="16" y="10" width="4" height="2" rx="3"/>
+    </g>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <g style="transform:translate(4px,5px)translate(2px,3px)">
+    <rect width="14" height="6" rx="3"/>
+    <rect x="16" y="10" width="4" height="2" rx="3"/>
+  </g>
+</svg>

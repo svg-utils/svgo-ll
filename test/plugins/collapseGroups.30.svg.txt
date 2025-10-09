@@ -1,0 +1,30 @@
+Do not collapse clip-path if child also has clip-path.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="a">
+    <circle cx="50" cy="50" r="30"/>
+  </clipPath>
+  <clipPath id="b">
+    <circle cx="10" cy="10" r="30"/>
+  </clipPath>
+  <g clip-path="url(#a)">
+    <rect x="10" y="10" width="30" height="30" clip-path="url(#b)"/>
+  </g>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="a">
+    <circle cx="50" cy="50" r="30"/>
+  </clipPath>
+  <clipPath id="b">
+    <circle cx="10" cy="10" r="30"/>
+  </clipPath>
+  <g clip-path="url(#a)">
+    <rect x="10" y="10" width="30" height="30" clip-path="url(#b)"/>
+  </g>
+</svg>

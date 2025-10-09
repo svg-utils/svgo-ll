@@ -116,6 +116,8 @@ describe('test parsing and stringifying of selectors', function () {
     { input: '[stroke]+path' },
     { input: 'ul.my-things>li' },
     { input: 'ul.my-things li' },
+    { input: ':lang(en)' },
+    { input: '::part(foo)' },
   ];
 
   for (let index = 0; index < tests.length; index++) {

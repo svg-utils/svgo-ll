@@ -1,0 +1,17 @@
+Don't remove font property
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 40">
+  <text x="10" y="10" style="font:20px Arial;opacity:1">
+    This is a test
+  </text>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 40">
+  <text x="10" y="10" style="font:20px Arial">
+    This is a test
+  </text>
+</svg>

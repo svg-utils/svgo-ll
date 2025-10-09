@@ -1,0 +1,37 @@
+Don't remove defaults from <use> if they override referenced element.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50">
+  <g fill="red">
+    <g id="a">
+      <rect width="20" height="10"/>
+    </g>
+  </g>
+  <!-- fill="none" is used, since there is no explicit fill on referenced element. -->
+  <use href="#a" x="5" y="5" fill="none" stroke="black"/>
+
+  <g id="b" fill="red">
+    <rect x="30" width="20" height="10"/>
+  </g>
+  <!-- fill="none" is not used, since there is an explicit fill on referenced element. -->
+  <use href="#b" x="5" y="5" fill="none" stroke="black"/>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50">
+  <g fill="red">
+    <g id="a">
+      <rect width="20" height="10"/>
+    </g>
+  </g>
+  <!-- fill="none" is used, since there is no explicit fill on referenced element. -->
+  <use href="#a" x="5" y="5" fill="none" stroke="black"/>
+  <g id="b" fill="red">
+    <rect x="30" width="20" height="10"/>
+  </g>
+  <!-- fill="none" is not used, since there is an explicit fill on referenced element. -->
+  <use href="#b" x="5" y="5" stroke="black"/>
+</svg>

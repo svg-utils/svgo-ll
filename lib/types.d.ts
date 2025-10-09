@@ -191,8 +191,9 @@ export type CSSPropertyValue = {
 };
 
 export type CSSDeclarationMap = {
-  entries(): IterableIterator<[string, CSSPropertyValue]>;
   delete(name: string): void;
+  entries(): IterableIterator<[string, CSSPropertyValue]>;
+  keys(): IterableIterator<string>;
   get(name: string): CSSPropertyValue | undefined;
   set(name: string, value: CSSPropertyValue): void;
   values(): IterableIterator<CSSPropertyValue>;

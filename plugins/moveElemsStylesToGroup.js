@@ -113,11 +113,11 @@ export const fn = (info) => {
 
         if (groupTransform && childTransform) {
           // We need to merge the two transforms rather than overwriting.
-          const mergedTransform = TransformValue.getObj(
-            groupTransform.value.toString() + childTransform.value.toString(),
-          );
           commonProperties.set('transform', {
-            value: mergedTransform,
+            value: TransformValue.mergeTransforms(
+              groupTransform.value,
+              childTransform.value,
+            ),
             important: false,
           });
         }

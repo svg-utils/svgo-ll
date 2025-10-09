@@ -1,31 +1,11 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { TransformValue } from '../lib/attrs/transformValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { inheritableAttrs, elemsGroups } from './_collections.js';
+import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'collapseGroups';
 export const description = 'collapses useless groups';
-
-/**
- * @type {(node: import('../lib/types.js').XastNode, name: string) => boolean}
- */
-const hasAnimatedAttr = (node, name) => {
-  if (node.type === 'element') {
-    if (
-      elemsGroups.animation.has(node.local) &&
-      node.attributes.attributeName === name
-    ) {
-      return true;
-    }
-    for (const child of node.children) {
-      if (hasAnimatedAttr(child, name)) {
-        return true;
-      }
-    }
-  }
-  return false;
-};
 
 /**
  * Collapse useless groups.
@@ -76,29 +56,43 @@ export function fn(info) {
             childParents.push({ element: element });
             const childStyle = styles.computeStyle(firstChild, childParents);
 
-            if (!elementHasUnmovableProperties(parentStyle, childStyle)) {
-              const moveableParentProps = getPresentationProperties(element);
-              const newChildElemProps = getPresentationProperties(firstChild);
+            const moveableParentProps = getPresentationProperties(element);
+            const newChildElemProps = getPresentationProperties(firstChild);
 
-              for (const [name, value] of moveableParentProps.entries()) {
-                if (
-                  !moveAttr(
-                    element,
-                    firstChild,
-                    newChildElemProps,
-                    moveableParentProps,
-                    childStyle,
-                    name,
-                    value,
-                  )
+            if (
+              !canCollapse(
+                firstChild,
+                moveableParentProps,
+                newChildElemProps,
+                styles,
+              )
+            ) {
+              return;
+            }
+
+            if (!elementHasUnmovableStyles(parentStyle, childStyle)) {
+              for (const [propName, value] of moveableParentProps.entries()) {
+                const childProp = newChildElemProps.get(propName);
+                if (propName === 'transform') {
+                  newChildElemProps.set(propName, {
+                    value: TransformValue.mergeTransforms(
+                      value.value,
+                      childProp?.value,
+                    ),
+                    important: false,
+                  });
+                } else if (
+                  childProp === undefined ||
+                  childProp.value.toString() === 'inherit'
                 ) {
-                  return;
+                  newChildElemProps.set(propName, value);
                 }
+
+                delete element.attributes[propName];
+                delete firstChild.attributes[propName];
               }
-              updateStyleAttribute(
-                element,
-                new StyleAttValue(moveableParentProps),
-              );
+
+              delete element.attributes.style;
               updateStyleAttribute(
                 firstChild,
                 new StyleAttValue(newChildElemProps),
@@ -152,11 +146,35 @@ export function fn(info) {
 }
 
 /**
+ * @param {import('../lib/types.js').XastElement} child
+ * @param {import('../lib/types.js').CSSDeclarationMap} parentProps
+ * @param {import('../lib/types.js').CSSDeclarationMap} childProps
+ * @param {import('../lib/types.js').StyleData} styleData
+ * @returns
+ */
+function canCollapse(child, parentProps, childProps, styleData) {
+  if (styleData.hasTypeSelector(child.local)) {
+    return false;
+  }
+  for (const propName of parentProps.keys()) {
+    if (propName === 'opacity') {
+      if (childProps.get('opacity') !== undefined) {
+        return false;
+      }
+    }
+    if (hasAnimatedAttr(child, propName)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
  * @param {import('../lib/types.js').ComputedStyleMap} parentProps
  * @param {import('../lib/types.js').ComputedStyleMap} childProps
  * @returns {boolean}
  */
-function elementHasUnmovableProperties(parentProps, childProps) {
+function elementHasUnmovableStyles(parentProps, childProps) {
   if (parentProps.has('filter')) {
     return true;
   }
@@ -177,57 +195,21 @@ function elementHasUnmovableProperties(parentProps, childProps) {
 }
 
 /**
- * @param {import('../lib/types.js').XastElement} element
- * @param {import('../lib/types.js').XastElement} firstChild
- * @param {import('../lib/types.js').CSSDeclarationMap} newChildElemProps
- * @param {import('../lib/types.js').CSSDeclarationMap} parentProps
- * @param {import('../lib/types.js').ComputedStyleMap} childStyle
- * @param {string} propName
- * @param {import('../lib/types.js').CSSPropertyValue} value
- * @returns {boolean}
+ * @type {(node: import('../lib/types.js').XastNode, name: string) => boolean}
  */
-function moveAttr(
-  element,
-  firstChild,
-  newChildElemProps,
-  parentProps,
-  childStyle,
-  propName,
-  value,
-) {
-  // avoid copying to not conflict with animated attribute
-  if (hasAnimatedAttr(firstChild, propName)) {
-    return false;
-  }
-
-  const childProp = newChildElemProps.get(propName);
-  if (childProp === undefined) {
-    // Don't write the property to the child if it would change the calculated value.
-    const calculatedValue = childStyle.get(propName);
+const hasAnimatedAttr = (node, name) => {
+  if (node.type === 'element') {
     if (
-      calculatedValue === undefined ||
-      calculatedValue === value.value.toString()
+      elemsGroups.animation.has(node.local) &&
+      node.attributes.attributeName === name
     ) {
-      newChildElemProps.set(propName, value);
+      return true;
     }
-  } else if (propName === 'transform') {
-    newChildElemProps.set(propName, {
-      value: TransformValue.getObj(
-        value.value.toString() + childProp.value.toString(),
-      ),
-      important: false,
-    });
-  } else if (childProp.value.toString() === 'inherit') {
-    newChildElemProps.set(propName, value);
-  } else if (
-    !inheritableAttrs.has(propName) &&
-    childProp.value.toString() !== value.value.toString()
-  ) {
-    return false;
+    for (const child of node.children) {
+      if (hasAnimatedAttr(child, name)) {
+        return true;
+      }
+    }
   }
-
-  delete element.attributes[propName];
-  parentProps.delete(propName);
-
-  return true;
-}
+  return false;
+};

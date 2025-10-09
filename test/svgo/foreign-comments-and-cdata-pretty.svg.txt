@@ -18,8 +18,8 @@
       <!--  comment ... -->
         Some random text
 
-                         <![CDATA[
+                         
     some more text
-]]>
+
     </div></foreignObject>
 </svg>

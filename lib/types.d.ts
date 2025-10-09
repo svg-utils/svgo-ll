@@ -20,12 +20,6 @@ export type XastComment = {
   value: string;
 };
 
-export type XastCdata = {
-  type: 'cdata';
-  parentNode: XastParent;
-  value: string;
-};
-
 export type XastText = {
   type: 'text';
   parentNode: XastParent;
@@ -54,7 +48,6 @@ export type XastChild =
   | XastDoctype
   | XastInstruction
   | XastComment
-  | XastCdata
   | XastText
   | XastElement;
 
@@ -88,7 +81,6 @@ export type Visitor = {
   doctype?: VisitorNode<XastDoctype>;
   instruction?: VisitorNode<XastInstruction>;
   comment?: VisitorNode<XastComment>;
-  cdata?: VisitorNode<XastCdata>;
   text?: VisitorNode<XastText>;
   element?: VisitorNode<XastElement>;
   root?: VisitorRoot;

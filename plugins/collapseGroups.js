@@ -170,27 +170,36 @@ function canCollapse(child, parentProps, childProps, styleData) {
 }
 
 /**
- * @param {import('../lib/types.js').ComputedStyleMap} parentProps
- * @param {import('../lib/types.js').ComputedStyleMap} childProps
+ * @param {import('../lib/types.js').ComputedStyleMap} parentStyles
+ * @param {import('../lib/types.js').ComputedStyleMap} childStyles
  * @returns {boolean}
  */
-function elementHasUnmovableStyles(parentProps, childProps) {
-  if (parentProps.has('filter')) {
+function elementHasUnmovableStyles(parentStyles, childStyles) {
+  if (parentStyles.has('filter')) {
     return true;
   }
   if (
-    parentProps.has('transform') &&
+    parentStyles.has('transform') &&
     ['clip-path', 'filter', 'mask'].some(
-      (propName) => childProps.get(propName) !== undefined,
+      (propName) => childStyles.get(propName) !== undefined,
     )
   ) {
     return true;
   }
-  return (
-    childProps.has('transform') &&
+  if (
+    childStyles.has('transform') &&
     ['clip-path', 'filter', 'mask'].some(
-      (propName) => parentProps.get(propName) !== undefined,
+      (propName) => parentStyles.get(propName) !== undefined,
     )
+  ) {
+    return true;
+  }
+
+  // Don't overwrite child with any of these.
+  return ['clip-path', 'filter', 'mask'].some(
+    (propName) =>
+      parentStyles.get(propName) !== undefined &&
+      childStyles.get(propName) !== undefined,
   );
 }
 

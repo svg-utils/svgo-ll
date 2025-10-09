@@ -131,7 +131,7 @@ export class StyleData {
     node: XastElement,
     parentList: Readonly<ParentList>,
     declarations?: CSSDeclarationMap,
-  ): Map<string, string | null>;
+  ): ComputedStyleMap;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
   getIdsReferencedByProperties(): string[];
@@ -158,10 +158,13 @@ export class StyleData {
   writeRules(): void;
 }
 
+export type ComputedStyleMap = Map<string, string | null>;
+export type CSSPropertyMap = Map<string, CSSPropertyValue>;
+
 export class CSSRule {
   addReferencedClasses(classes: Set<string>): void;
   addReferencedIds(ids: Map<string, CSSRule[]>): void;
-  getDeclarations(): Map<string, CSSPropertyValue>;
+  getDeclarations(): CSSPropertyMap;
   getFeatures(): Set<CSSFeatures>;
   getSpecificity(): [number, number, number];
   hasAttributeSelector(attName: string | undefined): boolean;

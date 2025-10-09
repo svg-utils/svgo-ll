@@ -1,6 +1,8 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { TransformValue } from '../lib/attrs/transformValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { inheritableAttrs, elemsGroups } from './_collections.js';
+import { getPresentationProperties } from './_styles.js';
 
 export const name = 'collapseGroups';
 export const description = 'collapses useless groups';
@@ -63,28 +65,27 @@ export function fn(info) {
           const firstChild = element.children[0];
           if (
             firstChild.type === 'element' &&
-            firstChild.attributes.id == null &&
-            (element.attributes.class == null ||
-              firstChild.attributes.class == null)
+            firstChild.attributes.id === undefined &&
+            (element.attributes.class === undefined ||
+              firstChild.attributes.class === undefined)
           ) {
-            const properties = styles.computeStyle(element, parentList);
+            const parentStyle = styles.computeStyle(element, parentList);
             /** @type {import('../lib/types.js').ParentList} */
             const childParents = parentList.slice();
             childParents.push({ element: element });
-            const childProps = styles.computeStyle(firstChild, childParents);
+            const childStyle = styles.computeStyle(firstChild, childParents);
 
-            if (!elementHasUnmovableProperties(properties, childProps)) {
-              const newChildElemAttrs = { ...firstChild.attributes };
+            if (!elementHasUnmovableProperties(parentStyle, childStyle)) {
+              const moveableParentProps = getPresentationProperties(element);
+              const newChildElemProps = getPresentationProperties(firstChild);
 
-              const styleAttValue = StyleAttValue.getStyleAttValue(element);
-
-              for (const [name, value] of Object.entries(element.attributes)) {
+              for (const [name, value] of moveableParentProps.entries()) {
                 if (
                   !moveAttr(
                     element,
                     firstChild,
-                    newChildElemAttrs,
-                    styleAttValue,
+                    newChildElemProps,
+                    moveableParentProps,
                     name,
                     value,
                   )
@@ -92,27 +93,30 @@ export function fn(info) {
                   return;
                 }
               }
+              updateStyleAttribute(
+                element,
+                new StyleAttValue(moveableParentProps),
+              );
+              updateStyleAttribute(
+                firstChild,
+                new StyleAttValue(newChildElemProps),
+              );
 
-              // Move style attributes.
-              if (styleAttValue) {
-                for (const [name, value] of styleAttValue.entries()) {
-                  if (
-                    !moveAttr(
-                      element,
-                      firstChild,
-                      newChildElemAttrs,
-                      styleAttValue,
-                      name,
-                      value.value,
-                    )
-                  ) {
-                    return;
-                  }
-                }
-                updateStyleAttribute(element, styleAttValue);
+              // Remove any child attributes that are overwritten by style properties.
+              for (const name of newChildElemProps.keys()) {
+                delete firstChild.attributes[name];
               }
 
-              firstChild.attributes = newChildElemAttrs;
+              // Move any remaining attributes from the parent to the child.
+              for (const [name, value] of Object.entries(element.attributes)) {
+                if (
+                  firstChild.attributes[name] === undefined ||
+                  firstChild.attributes[name].toString() === value.toString()
+                ) {
+                  firstChild.attributes[name] = value;
+                  delete element.attributes[name];
+                }
+              }
             }
           }
         }
@@ -146,8 +150,8 @@ export function fn(info) {
 }
 
 /**
- * @param {Map<string,string|null>} parentProps
- * @param {Map<string,string|null>} childProps
+ * @param {import('../lib/types.js').ComputedStyleMap} parentProps
+ * @param {import('../lib/types.js').ComputedStyleMap} childProps
  * @returns {boolean}
  */
 function elementHasUnmovableProperties(parentProps, childProps) {
@@ -173,17 +177,17 @@ function elementHasUnmovableProperties(parentProps, childProps) {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {import('../lib/types.js').XastElement} firstChild
- * @param {Object<string,import('../lib/types.js').SVGAttValue>} newChildElemAttrs
- * @param {StyleAttValue|undefined} styleAttValue
+ * @param {import('../lib/types.js').CSSDeclarationMap} newChildElemProps
+ * @param {import('../lib/types.js').CSSDeclarationMap} parentProps
  * @param {string} propName
- * @param {import('../lib/types.js').SVGAttValue} value
+ * @param {import('../lib/types.js').CSSPropertyValue} value
  * @returns {boolean}
  */
 function moveAttr(
   element,
   firstChild,
-  newChildElemAttrs,
-  styleAttValue,
+  newChildElemProps,
+  parentProps,
   propName,
   value,
 ) {
@@ -192,28 +196,27 @@ function moveAttr(
     return false;
   }
 
-  if (propName === 'style') {
-    // Style attribute will be handled separately.
-    return true;
-  }
-
-  if (newChildElemAttrs[propName] === undefined) {
-    newChildElemAttrs[propName] = value;
+  const childProp = newChildElemProps.get(propName);
+  if (childProp === undefined) {
+    newChildElemProps.set(propName, value);
   } else if (propName === 'transform') {
-    newChildElemAttrs[propName] = value + ' ' + newChildElemAttrs[propName];
-  } else if (newChildElemAttrs[propName].toString() === 'inherit') {
-    newChildElemAttrs[propName] = value;
+    newChildElemProps.set(propName, {
+      value: TransformValue.getObj(
+        value.value.toString() + childProp.value.toString(),
+      ),
+      important: false,
+    });
+  } else if (childProp.value.toString() === 'inherit') {
+    newChildElemProps.set(propName, value);
   } else if (
     !inheritableAttrs.has(propName) &&
-    newChildElemAttrs[propName] !== value
+    childProp.value.toString() !== value.value.toString()
   ) {
     return false;
   }
 
   delete element.attributes[propName];
-  if (styleAttValue) {
-    styleAttValue.delete(propName);
-  }
+  parentProps.delete(propName);
 
   return true;
 }

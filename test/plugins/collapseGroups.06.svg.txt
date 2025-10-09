@@ -15,7 +15,7 @@ Remove inheritable overridden groups attributes
 
 <svg xmlns="http://www.w3.org/2000/svg">
     <g attr1="val1">
-        <path fill="green" d="..."/>
+        <path d="..." style="fill:green"/>
         <path d="..."/>
     </g>
 </svg>

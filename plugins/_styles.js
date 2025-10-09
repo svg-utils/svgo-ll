@@ -7,7 +7,7 @@ export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+ * @returns {import('../lib/types.js').CSSPropertyMap}
  */
 export function getInheritableProperties(element) {
   return _getProperties(

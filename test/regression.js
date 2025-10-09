@@ -588,7 +588,7 @@ program
   .option(
     '-b, --browser <chromium | firefox | webkit>',
     'Browser engine to use in testing',
-    'webkit',
+    'chromium',
   )
   .option(
     '-i, --inputdir <dir>',

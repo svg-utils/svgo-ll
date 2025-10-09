@@ -40,7 +40,8 @@ export function fn(info) {
       'class-selectors',
       'id-selectors',
       'type-selectors',
-    ])
+    ]) ||
+    styles.hasTypeSelector('g')
   ) {
     return;
   }
@@ -86,6 +87,7 @@ export function fn(info) {
                     firstChild,
                     newChildElemProps,
                     moveableParentProps,
+                    childStyle,
                     name,
                     value,
                   )
@@ -179,6 +181,7 @@ function elementHasUnmovableProperties(parentProps, childProps) {
  * @param {import('../lib/types.js').XastElement} firstChild
  * @param {import('../lib/types.js').CSSDeclarationMap} newChildElemProps
  * @param {import('../lib/types.js').CSSDeclarationMap} parentProps
+ * @param {import('../lib/types.js').ComputedStyleMap} childStyle
  * @param {string} propName
  * @param {import('../lib/types.js').CSSPropertyValue} value
  * @returns {boolean}
@@ -188,6 +191,7 @@ function moveAttr(
   firstChild,
   newChildElemProps,
   parentProps,
+  childStyle,
   propName,
   value,
 ) {
@@ -198,7 +202,14 @@ function moveAttr(
 
   const childProp = newChildElemProps.get(propName);
   if (childProp === undefined) {
-    newChildElemProps.set(propName, value);
+    // Don't write the property to the child if it would change the calculated value.
+    const calculatedValue = childStyle.get(propName);
+    if (
+      calculatedValue === undefined ||
+      calculatedValue === value.value.toString()
+    ) {
+      newChildElemProps.set(propName, value);
+    }
   } else if (propName === 'transform') {
     newChildElemProps.set(propName, {
       value: TransformValue.getObj(

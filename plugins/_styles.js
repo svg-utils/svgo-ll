@@ -26,6 +26,16 @@ export function getPresentationProperties(element) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @returns {TransformValue|undefined}
+ */
+export function getTransformValue(element) {
+  const props = _getProperties(element, (name) => name === 'transform');
+  // @ts-ignore
+  return props.size === 0 ? undefined : props.get('transform').value;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
  * @param {function(string):boolean} fnInclude
  * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
  */

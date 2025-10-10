@@ -1,6 +1,8 @@
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { LengthValue } from '../lib/attrs/lengthValue.js';
+import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getTransformValue } from './_styles.js';
 
 export const name = 'applyTransforms';
@@ -71,6 +73,12 @@ function applyToRect(element) {
   element.attributes.y = new LengthValue(newY);
 
   delete element.attributes.transform;
+
+  const styleAtt = StyleAttValue.getStyleAttValue(element);
+  if (styleAtt) {
+    styleAtt.delete('transform');
+    updateStyleAttribute(element, styleAtt);
+  }
 }
 
 /**

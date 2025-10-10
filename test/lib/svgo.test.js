@@ -204,7 +204,7 @@ test('slices long line in error code snippet', () => {
 });
 
 test('plugins should run 10 times by default', () => {
-  const svg = `<svg id="abcdefghijklmnopqrstuvwxyz"></svg>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" id="abcdefghijklmnopqrstuvwxyz"></svg>`;
   /** @type {number[]} */
   const list = [];
   /** @type {import('../../lib/svgo.js').CustomPlugin} */
@@ -223,7 +223,9 @@ test('plugins should run 10 times by default', () => {
   };
   const { data } = optimizeResolved(svg, {}, getResolvedPlugins([testPlugin]));
   expect(list).toStrictEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-  expect(data).toBe(`<svg id="klmnopqrstuvwxyz"/>`);
+  expect(data).toBe(
+    `<svg xmlns="http://www.w3.org/2000/svg" id="klmnopqrstuvwxyz"/>`,
+  );
 });
 
 test('encode as datauri', () => {

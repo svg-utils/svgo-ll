@@ -4,7 +4,7 @@ Skip styles inside foreignObject element
 
 <svg id="test" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <foreignObject>
-    <style>
+    <style xmlns="http://www.w3.org/1999/xhtml">
       .st0 { fill: yellow; }
     </style>
   </foreignObject>
@@ -16,10 +16,12 @@ Skip styles inside foreignObject element
 @@@
 
 <svg id="test" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-    <foreignObject><style>
+  <foreignObject>
+    <style xmlns="http://www.w3.org/1999/xhtml">
       .st0 { fill: yellow; }
-    </style></foreignObject>
-    <style>
+    </style>
+  </foreignObject>
+  <style>
     .st1 { fill: red; }
   </style>
 </svg>

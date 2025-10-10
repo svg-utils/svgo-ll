@@ -45,21 +45,24 @@ test('accepts svg as input stream', async () => {
   const proc = spawn('node', ['../../bin/svgo', '--no-color', '-'], {
     cwd: __dirname,
   });
-  proc.stdin.write('<svg><desc>Created with Love</desc></svg>');
+  proc.stdin.write(
+    '<svg xmlns="http://www.w3.org/2000/svg"><desc>Created with Love</desc></svg>',
+  );
   proc.stdin.end();
   const stdout = await waitStdout(proc);
-  expect(stdout).toBe('<svg/>');
+  expect(stdout).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
 });
 
 test('accepts svg as string', async () => {
-  const input = '<svg><desc>Created with Love</desc></svg>';
+  const input =
+    '<svg xmlns="http://www.w3.org/2000/svg"><desc>Created with Love</desc></svg>';
   const proc = spawn(
     'node',
     ['../../bin/svgo', '--no-color', '--string', input],
     { cwd: __dirname },
   );
   const stdout = await waitStdout(proc);
-  expect(stdout).toBe('<svg/>');
+  expect(stdout).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
 });
 
 test('accepts svg as filename', async () => {
@@ -73,7 +76,7 @@ test('accepts svg as filename', async () => {
     path.join(__dirname, 'output/single.svg'),
     'utf-8',
   );
-  expect(output).toBe('<svg/>');
+  expect(output).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
 });
 
 test('output as stream when "-" is specified', async () => {
@@ -83,7 +86,7 @@ test('output as stream when "-" is specified', async () => {
     { cwd: __dirname },
   );
   const stdout = await waitStdout(proc);
-  expect(stdout).toBe('<svg/>');
+  expect(stdout).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
 });
 
 test('should exit with 0 code and show error on syntax error', async () => {

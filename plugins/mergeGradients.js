@@ -36,7 +36,7 @@ export const fn = (info) => {
         // Record all referenced ids.
         recordReferencedIds(element, referencedIds);
 
-        switch (element.name) {
+        switch (element.local) {
           case 'linearGradient':
           case 'radialGradient':
             break;

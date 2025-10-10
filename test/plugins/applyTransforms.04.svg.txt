@@ -1,0 +1,25 @@
+Translate <rect> when fill is gradient with gradientUnits="objectBoundingBox".
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="a">
+      <stop stop-color="blue"/>
+      <stop offset="1" stop-color="red"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="50" height="50" fill="url(#a)" transform="translate(4,5)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="a">
+      <stop stop-color="blue"/>
+      <stop offset="1" stop-color="red"/>
+    </linearGradient>
+  </defs>
+  <rect x="14" y="15" width="50" height="50" fill="url(#a)"/>
+</svg>

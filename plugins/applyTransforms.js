@@ -1,9 +1,13 @@
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { LengthValue } from '../lib/attrs/lengthValue.js';
+import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
+import { getHrefId } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
+
+/** @typedef {Map<string,{element:import('../lib/types.js').XastElement,href:string|undefined}>} GradientMap */
 
 export const name = 'applyTransforms';
 export const description = 'merge transforms with shape elements';
@@ -19,6 +23,12 @@ export const fn = (info) => {
     return;
   }
 
+  /** @type {import('../lib/types.js').XastElement[]} */
+  const elementsToCheck = [];
+
+  /** @type {GradientMap} */
+  const gradientIds = new Map();
+
   return {
     element: {
       exit: (element) => {
@@ -28,8 +38,31 @@ export const fn = (info) => {
 
         switch (element.local) {
           case 'rect':
-            applyToRect(element);
+            elementsToCheck.push(element);
             return;
+          case 'linearGradient':
+          case 'radialGradient':
+            {
+              const id = element.attributes.id;
+              if (id) {
+                gradientIds.set(id.toString(), {
+                  element: element,
+                  href: getHrefId(element),
+                });
+              }
+            }
+            return;
+        }
+      },
+    },
+    root: {
+      exit: () => {
+        for (const element of elementsToCheck) {
+          switch (element.local) {
+            case 'rect':
+              applyToRect(element, gradientIds);
+              return;
+          }
         }
       },
     },
@@ -38,16 +71,20 @@ export const fn = (info) => {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @param {GradientMap} gradientMap
  */
-function applyToRect(element) {
+function applyToRect(element, gradientMap) {
   const props = getPresentationProperties(element);
   const transform = props.get('transform');
   if (transform === undefined) {
     return;
   }
-  if (props.get('filter') !== undefined) {
+
+  const fill = props.get('fill');
+  if (fill && !canTransformFill(fill, gradientMap)) {
     return;
   }
+
   // @ts-ignore
   const funcs = transform.value.getTransforms();
   if (funcs.length !== 1) {
@@ -84,6 +121,40 @@ function applyToRect(element) {
     styleAtt.delete('transform');
     updateStyleAttribute(element, styleAtt);
   }
+}
+
+/**
+ * @param {import('../lib/types.js').CSSPropertyValue} fill
+ * @param {GradientMap} gradientMap
+ * @returns {boolean}
+ */
+function canTransformFill(fill, gradientMap) {
+  const attValue = PaintAttValue.getObj(fill.value);
+  const url = attValue.getURL();
+  if (url === undefined) {
+    return true;
+  }
+  const id = url.getID();
+  if (id === undefined) {
+    return false;
+  }
+  return canTransformGradient(gradientMap, id);
+}
+
+/**
+ * @param {GradientMap} gradientMap
+ * @param {string} id
+ * @returns {boolean}
+ */
+function canTransformGradient(gradientMap, id) {
+  const gradient = gradientMap.get(id);
+  if (gradient === undefined) {
+    return false;
+  }
+  if (gradient.href) {
+    return canTransformGradient(gradientMap, gradient.href);
+  }
+  return gradient.element.attributes.gradientUnits !== 'userSpaceOnUse';
 }
 
 /**

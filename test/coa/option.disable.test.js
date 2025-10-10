@@ -29,6 +29,8 @@ const EXPECT_NO_ID =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="matrix(1 0 0 1 10 20)"/></svg>';
 const EXPECT_TRANS =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="translate(10 20)"/></svg>';
+const EXPECT_TRANS_APPLY =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="40" width="10" height="20"/></svg>';
 
 describe('test --disable option', function () {
   afterAll(() => {
@@ -45,7 +47,7 @@ describe('test --disable option', function () {
       '--disable=convertShapeToPath',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
-    expect(opt).toBe(EXPECT_TRANS);
+    expect(opt).toBe(EXPECT_TRANS_APPLY);
   });
 
   it('should run multiple plugins with default plugins and --disable minifyTransforms convertShapeToPath minifyColors', async () => {
@@ -73,6 +75,7 @@ describe('test --disable option', function () {
       '--quiet',
       '--disable',
       'x',
+      'applyTransforms',
       'convertShapeToPath',
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });

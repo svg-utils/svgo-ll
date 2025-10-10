@@ -3,7 +3,7 @@ import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { getTransformValue } from './_styles.js';
+import { getPresentationProperties } from './_styles.js';
 
 export const name = 'applyTransforms';
 export const description = 'merge transforms with shape elements';
@@ -40,11 +40,16 @@ export const fn = (info) => {
  * @param {import('../lib/types.js').XastElement} element
  */
 function applyToRect(element) {
-  const transform = getTransformValue(element);
+  const props = getPresentationProperties(element);
+  const transform = props.get('transform');
   if (transform === undefined) {
     return;
   }
-  const funcs = transform.getTransforms();
+  if (props.get('filter') !== undefined) {
+    return;
+  }
+  // @ts-ignore
+  const funcs = transform.value.getTransforms();
   if (funcs.length !== 1) {
     return;
   }

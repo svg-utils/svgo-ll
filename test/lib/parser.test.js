@@ -1,5 +1,5 @@
 import { parseSvg } from '../../lib/parser.js';
-import { NS_XLINK } from '../../lib/svgo/tools-svg.js';
+import { NS_XLINK } from '../../lib/tools-ast.js';
 
 describe('test otherAtts values', () => {
   const testCases = [

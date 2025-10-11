@@ -1,3 +1,10 @@
+import { RawUrlAttValue } from '../lib/attrs/rawUrlAttValue.js';
+import {
+  deleteOtherAtt,
+  getXlinkHref,
+  setSVGAttValue,
+} from '../lib/tools-ast.js';
+
 export const name = 'cleanupXlink';
 export const description = 'replaces xlink:href with href';
 
@@ -20,11 +27,13 @@ export const fn = (info) => {
         if (element.uri !== undefined || element.otherAtts === undefined) {
           return;
         }
-        if (element.attributes['xlink:href']) {
+
+        const att = getXlinkHref(element);
+        if (att) {
           if (!element.attributes.href) {
-            element.attributes.href = element.attributes['xlink:href'];
+            setSVGAttValue(element, 'href', new RawUrlAttValue(att.value));
           }
-          delete element.attributes['xlink:href'];
+          deleteOtherAtt(element, att);
         }
       },
     },

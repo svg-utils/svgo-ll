@@ -3,6 +3,7 @@ import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
 import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
 import { ListOfLengthOrPctValue } from '../lib/attrs/listOfLengthOrPctValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
@@ -48,6 +49,10 @@ export const fn = (info) => {
               break;
             case 'style':
               cleanupStyleAttribute(element);
+              break;
+            case 'fill':
+            case 'stroke':
+              PaintAttValue.getAttValue(element, attName);
               break;
             case 'fill-opacity':
             case 'opacity':

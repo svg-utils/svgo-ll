@@ -11,6 +11,7 @@ import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { TransformValue } from '../lib/attrs/transformValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
+import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -60,11 +61,15 @@ export const fn = (info, params) => {
   return {
     element: {
       enter: (element, parentList) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         const properties = styleData.computeStyle(element, parentList);
         const transform = properties.get('transform');
         if (transform === undefined || isTranslation(transform)) {
           // Generate the coordinate rounding context.
-          switch (element.name) {
+          switch (element.local) {
             case 'marker':
             case 'pattern':
             case 'svg':
@@ -96,10 +101,17 @@ export const fn = (info, params) => {
               );
               break;
             case 'fill':
+            case 'stroke':
+              {
+                const value = PaintAttValue.getAttValue(element, attName);
+                if (value) {
+                  newVal = value.round();
+                }
+              }
+              break;
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-            case 'stroke':
               newVal = roundColor(attValue);
               break;
             case 'fill-opacity':
@@ -163,10 +175,12 @@ export const fn = (info, params) => {
           let newVal;
           switch (propName) {
             case 'fill':
+            case 'stroke':
+              newVal = PaintAttValue.getObj(propValue.value).round();
+              break;
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-            case 'stroke':
               newVal = roundColor(propValue.value);
               break;
             case 'fill-opacity':

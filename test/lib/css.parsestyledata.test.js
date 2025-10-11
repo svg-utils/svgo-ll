@@ -91,7 +91,7 @@ describe('test parsing of style attributes', function () {
       const parsed = parseStyleDeclarations(test.input);
       expect(parsed.size).toBe(Object.keys(test.expected).length);
       for (const [prop, value] of Object.entries(test.expected)) {
-        expect(parsed.get(prop)?.value).toBe(value.value);
+        expect(parsed.get(prop)?.value.toString()).toBe(value.value);
         expect(parsed.get(prop)?.important).toBe(value.important);
       }
     });

@@ -56,12 +56,20 @@ export const fn = (info) => {
         }
         for (const [propName, propValue] of styleAttValue.entries()) {
           switch (propName) {
-            case 'color':
             case 'fill':
+            case 'stroke':
+              {
+                const value = PaintAttValue.getObj(propValue.value);
+                styleAttValue.set(propName, {
+                  value: value.getMinifiedValue(),
+                  important: propValue.important,
+                });
+              }
+              break;
+            case 'color':
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-            case 'stroke':
               {
                 const value = ColorValue.getColorObj(propValue.value);
                 const min = value.getMinifiedValue();

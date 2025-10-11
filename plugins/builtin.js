@@ -1,3 +1,4 @@
+import * as applyTransforms from '../plugins/applyTransforms.js';
 import * as cleanupIds from '../plugins/cleanupIds.js';
 import * as cleanupAttributes from '../plugins/cleanupAttributes.js';
 import * as cleanupTextNodes from '../plugins/cleanupTextNodes.js';
@@ -86,6 +87,7 @@ class StaticMap {
 
 /** @type {[string,import('../lib/svgo.js').CustomPlugin][]} */
 const pluginList = [
+  applyTransforms,
   cleanupAttributes,
   cleanupIds,
   cleanupTextNodes,

@@ -110,7 +110,9 @@ export class AttValue {
   toStyleElementString(): string;
 }
 
-export class LengthValue extends AttValue {}
+export class LengthValue extends AttValue {
+  constructor(value: string | ExactNum, units?: string);
+}
 export class PctValue extends AttValue {}
 
 export class StyleData {
@@ -260,10 +262,12 @@ export type PathDataCommand =
 export type DataUri = 'base64' | 'enc' | 'unenc';
 
 export type ExactNum = {
+  add(n: ExactNum): ExactNum | undefined;
   clone(): ExactNum;
   getMinifiedString(): string;
   isEqualTo(n: ExactNum): boolean;
   isZero(): boolean;
   negate(): ExactNum;
   round(numDigits: number): ExactNum;
+  sub(n: ExactNum): ExactNum | undefined;
 };

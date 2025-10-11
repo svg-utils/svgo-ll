@@ -1,0 +1,13 @@
+Translate <rect> with transform in style.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <rect x="1" y="1" width="2" height="3" style="transform:translate(1px,2px)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <rect x="2" y="3" width="2" height="3"/>
+</svg>

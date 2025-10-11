@@ -1,4 +1,5 @@
 import { ColorValue } from '../lib/attrs/colorValue.js';
+import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 
 export const name = 'minifyColors';
@@ -24,12 +25,19 @@ export const fn = (info) => {
         // Minify attribute values.
         for (const [attName, attVal] of Object.entries(element.attributes)) {
           switch (attName) {
-            case 'color':
             case 'fill':
+            case 'stroke':
+              {
+                const value = PaintAttValue.getAttValue(element, attName);
+                if (value) {
+                  element.attributes[attName] = value.getMinifiedValue();
+                }
+              }
+              break;
+            case 'color':
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-            case 'stroke':
               {
                 const value = ColorValue.getColorObj(attVal);
                 const min = value.getMinifiedValue();
@@ -48,12 +56,20 @@ export const fn = (info) => {
         }
         for (const [propName, propValue] of styleAttValue.entries()) {
           switch (propName) {
-            case 'color':
             case 'fill':
+            case 'stroke':
+              {
+                const value = PaintAttValue.getObj(propValue.value);
+                styleAttValue.set(propName, {
+                  value: value.getMinifiedValue(),
+                  important: propValue.important,
+                });
+              }
+              break;
+            case 'color':
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-            case 'stroke':
               {
                 const value = ColorValue.getColorObj(propValue.value);
                 const min = value.getMinifiedValue();

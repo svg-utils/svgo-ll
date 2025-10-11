@@ -1,0 +1,24 @@
+Don't translate <rect> when there is a clip-path.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <clipPath id="a">
+      <circle cx="8" cy="8" r="25"/>
+    </clipPath>
+  </defs>
+  <rect x="10" y="10" width="50" height="50" transform="translate(4 5)" clip-path="url(#a)"/>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <clipPath id="a">
+      <circle cx="8" cy="8" r="25"/>
+    </clipPath>
+  </defs>
+  <rect x="10" y="10" width="50" height="50" transform="translate(4 5)" clip-path="url(#a)"/>
+</svg>

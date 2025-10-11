@@ -21,7 +21,7 @@ Round stop offsets.
             <stop offset=".9" stop-color="red"/>
         </linearGradient>
     </defs>
-    <circle cx="5" cy="5" r="4" fill="url('#myGradient')"/>
+    <circle cx="5" cy="5" r="4" fill="url(#myGradient)"/>
 </svg>
 
 @@@

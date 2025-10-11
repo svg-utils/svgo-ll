@@ -1,6 +1,7 @@
 import type { Plugin as PluginDef } from '../lib/types.js';
 
 type BuiltinPlugins = {
+  applyTransforms: void;
   cleanupAttributes: void;
   cleanupIds: {
     preserve?: string[];

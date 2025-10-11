@@ -1,3 +1,4 @@
+import * as applyTransforms from './applyTransforms.js';
 import * as cleanupIds from './cleanupIds.js';
 import * as cleanupAttributes from './cleanupAttributes.js';
 import * as cleanupTextElements from './cleanupTextElements.js';
@@ -75,6 +76,7 @@ export const defaultPlugins = Object.freeze({
     createGroups,
     collapseGroups,
     cleanupTextElements,
+    applyTransforms,
   ]),
   post: Object.freeze([
     removeUnusedNS,

@@ -80,6 +80,10 @@ function applyToRect(element, gradientMap) {
     return;
   }
 
+  // Don't transform if there is a clip-path.
+  if (props.get('clip-path')) {
+    return;
+  }
   const fill = props.get('fill');
   if (fill && !canTransformFill(fill, gradientMap)) {
     return;

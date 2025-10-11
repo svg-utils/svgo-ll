@@ -27,6 +27,11 @@ export type XastText = {
 };
 
 export type SVGAttValue = string | AttValue;
+export type XastAttOther = {
+  prefix: string | undefined;
+  local: string;
+  value: string;
+};
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
@@ -35,7 +40,9 @@ export type XastElement = {
   local: string;
   prefix: string;
   uri: string | undefined;
+  /** @deprecated */
   attributes: Record<string, SVGAttValue>;
+  otherAtts: XastAttOther[] | undefined;
   children: XastChild[];
   isSelfClosing?: boolean;
 };

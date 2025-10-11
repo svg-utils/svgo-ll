@@ -126,6 +126,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       local: 'g',
       prefix: element.prefix,
       uri: element.uri,
+      otherAtts: undefined,
       attributes: {},
       children: groupChildren,
     };

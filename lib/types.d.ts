@@ -30,6 +30,7 @@ export type SVGAttValue = string | AttValue;
 export type XastAttOther = {
   prefix: string | undefined;
   local: string;
+  uri: string;
   value: string;
 };
 export type XastElement = {

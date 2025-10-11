@@ -17,6 +17,9 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined || element.otherAtts === undefined) {
+          return;
+        }
         if (element.attributes['xlink:href']) {
           if (!element.attributes.href) {
             element.attributes.href = element.attributes['xlink:href'];

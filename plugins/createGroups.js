@@ -1,7 +1,7 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { hasMarkerProperties } from '../lib/css-tools.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { getHrefId } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'createGroups';

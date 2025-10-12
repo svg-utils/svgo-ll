@@ -1,8 +1,5 @@
-import {
-  addChildToDelete,
-  deleteChildren,
-  getHrefId,
-} from '../lib/svgo/tools.js';
+import { addChildToDelete, deleteChildren } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
 import { detachNodeFromParent } from '../lib/xast.js';
 
 export const name = 'removeEmptyContainers';

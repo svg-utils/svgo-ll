@@ -3,7 +3,7 @@ import {
   getReferencedIds,
   updateStyleAttribute,
 } from '../lib/svgo/tools-svg.js';
-import { getHrefId } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'inlineUse';

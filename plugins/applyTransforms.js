@@ -4,7 +4,7 @@ import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { getHrefId } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
 /** @typedef {Map<string,{element:import('../lib/types.js').XastElement,href:string|undefined}>} GradientMap */

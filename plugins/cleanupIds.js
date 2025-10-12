@@ -1,5 +1,5 @@
-import { getReferencedIds } from '../lib/svgo/tools-svg.js';
 import { SVGOError } from '../lib/svgo/tools.js';
+import { getReferencedIds } from '../lib/tools-ast.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
@@ -41,19 +41,21 @@ export const fn = (info, params) => {
         }
 
         if (
-          elemsGroups.animation.has(element.name) &&
-          element.attributes.begin
+          elemsGroups.animation.has(element.local) &&
+          element.svgAtts.get('begin') !== undefined
         ) {
           // Until we have support for this attribute, disable the plugin.
           disabled = true;
           return visitSkip;
         }
 
-        if (element.attributes.id) {
-          if (foundIds.has(element.attributes.id.toString())) {
-            throw new SVGOError(`Duplicate id "${element.attributes.id}"`);
+        const id = element.svgAtts.get('id');
+        if (id) {
+          const str = id.toString();
+          if (foundIds.has(str)) {
+            throw new SVGOError(`Duplicate id "${str}"`);
           }
-          foundIds.set(element.attributes.id.toString(), element);
+          foundIds.set(str, element);
         }
 
         const referencedIds = getReferencedIds(element);
@@ -85,7 +87,7 @@ export const fn = (info, params) => {
               !preserveIds.has(id) &&
               !preserveIdPrefixes.some((prefix) => id.startsWith(prefix))
             ) {
-              delete element.attributes.id;
+              element.svgAtts.delete('id');
               foundIds.delete(id);
 
               // If this is a non-renderable element that references other elements, decrement their reference count.

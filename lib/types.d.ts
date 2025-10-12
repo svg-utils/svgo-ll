@@ -38,6 +38,7 @@ export type XastAttSvg = {
   value: AttValue;
 };
 export class SvgAttValues {
+  delete(name: string): void;
   get(name: string): string | AttValue | undefined;
   set(name: string, value: string | AttValue): void;
 }

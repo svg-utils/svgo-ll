@@ -1,3 +1,5 @@
+import { deleteOtherAtt, getOtherAtts, NS_SVG } from '../lib/tools-ast.js';
+
 export const name = 'removeUnusedNS';
 export const description = 'removes unused namespaces declaration';
 
@@ -8,8 +10,8 @@ export const description = 'removes unused namespaces declaration';
  * @type {import('./plugins-types.js').Plugin<'removeUnusedNS'>}
  */
 export const fn = () => {
-  /** @type {Set<string>} */
-  const unusedNamespaces = new Set();
+  /** @type {Map<string,string>} */
+  const unusedPrefixes = new Map();
 
   return {
     element: {
@@ -22,26 +24,27 @@ export const fn = () => {
           element.uri === undefined &&
           parentNode.type === 'root'
         ) {
-          for (const name of Object.keys(element.attributes)) {
-            if (name.startsWith('xmlns:')) {
-              const local = name.slice('xmlns:'.length);
-              unusedNamespaces.add(local);
+          for (const att of getOtherAtts(element)) {
+            if (att.prefix === 'xmlns' && att.value !== NS_SVG) {
+              unusedPrefixes.set(att.local, att.value);
             }
           }
         }
-        if (unusedNamespaces.size !== 0) {
+        if (unusedPrefixes.size !== 0) {
           // preserve namespace used in nested elements names
-          if (element.name.includes(':')) {
-            const [ns] = element.name.split(':');
-            if (unusedNamespaces.has(ns)) {
-              unusedNamespaces.delete(ns);
-            }
+          if (
+            element.prefix &&
+            element.uri === unusedPrefixes.get(element.prefix)
+          ) {
+            unusedPrefixes.delete(element.prefix);
           }
           // preserve namespace used in nested elements attributes
-          for (const name of Object.keys(element.attributes)) {
-            if (name.includes(':')) {
-              const [ns] = name.split(':');
-              unusedNamespaces.delete(ns);
+          for (const att of getOtherAtts(element)) {
+            if (
+              att.prefix !== undefined &&
+              att.uri === unusedPrefixes.get(att.prefix)
+            ) {
+              unusedPrefixes.delete(att.prefix);
             }
           }
         }
@@ -53,11 +56,24 @@ export const fn = () => {
           element.uri === undefined &&
           element.parentNode.type === 'root'
         ) {
-          for (const name of unusedNamespaces) {
-            delete element.attributes[`xmlns:${name}`];
+          for (const prefix of unusedPrefixes.keys()) {
+            deleteNamespaceAtt(element, prefix);
           }
         }
       },
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} prefix
+ */
+function deleteNamespaceAtt(element, prefix) {
+  for (const att of getOtherAtts(element)) {
+    if (att.prefix === 'xmlns' && att.local === prefix) {
+      deleteOtherAtt(element, att);
+      return;
+    }
+  }
+}

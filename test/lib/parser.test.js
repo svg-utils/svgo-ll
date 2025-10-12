@@ -1,5 +1,5 @@
 import { parseSvg } from '../../lib/parser.js';
-import { NS_XLINK } from '../../lib/tools-ast.js';
+import { NS_XLINK, NS_XMLNS } from '../../lib/tools-ast.js';
 
 describe('test otherAtts values', () => {
   const testCases = [
@@ -9,7 +9,7 @@ describe('test otherAtts values', () => {
         {
           local: 'd',
           prefix: 'xmlns',
-          uri: 'http://www.w3.org/2000/xmlns/',
+          uri: NS_XMLNS,
           value: 'x',
         },
         { local: 'att', prefix: undefined, uri: '', value: 'val' },
@@ -21,7 +21,7 @@ describe('test otherAtts values', () => {
         {
           local: 'd',
           prefix: 'xmlns',
-          uri: 'http://www.w3.org/2000/xmlns/',
+          uri: NS_XMLNS,
           value: 'x',
         },
         { local: 'att', prefix: 'd', uri: 'x', value: 'val' },
@@ -34,7 +34,7 @@ describe('test otherAtts values', () => {
         {
           local: 'd',
           prefix: 'xmlns',
-          uri: 'http://www.w3.org/2000/xmlns/',
+          uri: NS_XMLNS,
           value: 'x',
         },
         { local: 'href', prefix: 'xlink', uri: NS_XLINK, value: '#a' },

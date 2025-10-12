@@ -38,7 +38,8 @@ export type XastAttSvg = {
   value: AttValue;
 };
 export class SvgAttValues {
-  set(name: string, value: string): void;
+  get(name: string): string | AttValue | undefined;
+  set(name: string, value: string | AttValue): void;
 }
 export type XastElement = {
   type: 'element';

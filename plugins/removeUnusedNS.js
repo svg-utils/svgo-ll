@@ -5,8 +5,6 @@ export const description = 'removes unused namespaces declaration';
  * Remove unused namespaces declaration from svg element
  * which are not used in elements or attributes
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeUnusedNS'>}
  */
 export const fn = () => {
@@ -19,7 +17,11 @@ export const fn = () => {
         const parentNode = element.parentNode;
         // collect all namespaces from svg element
         // (such as xmlns:xlink="http://www.w3.org/1999/xlink")
-        if (element.name === 'svg' && parentNode.type === 'root') {
+        if (
+          element.local === 'svg' &&
+          element.uri === undefined &&
+          parentNode.type === 'root'
+        ) {
           for (const name of Object.keys(element.attributes)) {
             if (name.startsWith('xmlns:')) {
               const local = name.slice('xmlns:'.length);
@@ -46,7 +48,11 @@ export const fn = () => {
       },
       exit: (element) => {
         // remove unused namespace attributes from svg element
-        if (element.name === 'svg' && element.parentNode.type === 'root') {
+        if (
+          element.local === 'svg' &&
+          element.uri === undefined &&
+          element.parentNode.type === 'root'
+        ) {
           for (const name of unusedNamespaces) {
             delete element.attributes[`xmlns:${name}`];
           }

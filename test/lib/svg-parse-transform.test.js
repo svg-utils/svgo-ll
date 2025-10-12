@@ -55,7 +55,9 @@ describe('test transform conversion between attributes and properties', () => {
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
       const root = createRoot();
-      const element = createElement(root, 'g', { transform: testCase.in });
+      const element = createElement(root, 'g', '', undefined, {
+        transform: testCase.in,
+      });
       const attValue = TransformValue.getAttValue(element, 'transform');
       if (!attValue) {
         throw new Error();

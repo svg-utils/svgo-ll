@@ -33,6 +33,13 @@ export type XastAttOther = {
   uri: string;
   value: string;
 };
+export type XastAttSvg = {
+  local: string;
+  value: AttValue;
+};
+export class SvgAttValues {
+  set(name: string, value: string): void;
+}
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
@@ -43,6 +50,7 @@ export type XastElement = {
   uri: string | undefined;
   /** @deprecated */
   attributes: Record<string, SVGAttValue>;
+  svgAtts: SvgAttValues;
   otherAtts: XastAttOther[] | undefined;
   children: XastChild[];
   isSelfClosing?: boolean;

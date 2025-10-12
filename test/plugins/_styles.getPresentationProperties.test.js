@@ -34,7 +34,13 @@ describe('test getPresentationProperties() parsing and stringification', () => {
   for (const testCase of testCases) {
     it(`${JSON.stringify(testCase.attributes)}`, () => {
       const root = createRoot();
-      const element = createElement(root, 'g', testCase.attributes);
+      const element = createElement(
+        root,
+        'g',
+        '',
+        undefined,
+        testCase.attributes,
+      );
       const props = getPresentationProperties(element);
       const attValue = new StyleAttValue(props);
       expect(attValue.toString()).toBe(testCase.expected);

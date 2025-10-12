@@ -162,7 +162,9 @@ describe('getReferencedIds()', () => {
       /** @type {Object<string,string>} */
       const atts = {};
       test.atts.forEach((a) => (atts[a[0]] = a[1]));
-      const ids = getReferencedIds(createElement(root, test.elName, atts));
+      const ids = getReferencedIds(
+        createElement(root, test.elName, '', undefined, atts),
+      );
       expect(ids).toEqual(test.expected);
     });
   }

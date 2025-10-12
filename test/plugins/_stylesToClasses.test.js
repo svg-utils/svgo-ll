@@ -4,30 +4,30 @@ import { StyleToClassData } from '../../plugins/stylesToClasses.js';
 
 describe('test savings calculation', () => {
   /**
-   * @type {{props:string,elements:Object<string,string>[],className:string,expected:number}[]}
+   * @type {{props:string,elAtts:Object<string,string>[],className:string,expected:number}[]}
    */
   const testCases = [
     {
       props: 'fill:red',
-      elements: [{ style: 'fill:red' }, { style: 'fill:red' }],
+      elAtts: [{ style: 'fill:red' }, { style: 'fill:red' }],
       className: 'a',
       expected: 2,
     },
     {
       props: 'fill:red',
-      elements: [{ class: 'b', style: 'fill:red' }, { style: 'fill:red' }],
+      elAtts: [{ class: 'b', style: 'fill:red' }, { style: 'fill:red' }],
       className: 'a',
       expected: 10,
     },
     {
       props: 'fill:cornflowerblue',
-      elements: [{ fill: 'cornflowerblue' }, { fill: 'cornflowerblue' }],
+      elAtts: [{ fill: 'cornflowerblue' }, { fill: 'cornflowerblue' }],
       className: 'a',
       expected: 1,
     },
     {
       props: 'font-size:14px',
-      elements: [{ 'font-size': '14' }],
+      elAtts: [{ 'font-size': '14' }],
       className: 'a',
       expected: -13,
     },
@@ -40,8 +40,8 @@ describe('test savings calculation', () => {
         testData.props,
       );
       const root = createRoot();
-      for (const element of testData.elements) {
-        const e = createElement(root, 'elem', element);
+      for (const atts of testData.elAtts) {
+        const e = createElement(root, 'elem', '', undefined, atts);
         data.addElement(e);
       }
       expect(data.calculateSavings(testData.className)).toBe(testData.expected);

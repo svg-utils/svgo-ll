@@ -25,7 +25,7 @@ export const fn = () => {
           parentNode.type === 'root'
         ) {
           for (const att of getOtherAtts(element)) {
-            if (att.prefix === 'xmlns' && att.value !== NS_SVG) {
+            if (att.prefix === 'xmlns' && att.local !== '') {
               unusedPrefixes.set(att.local, att.value);
             }
           }
@@ -34,7 +34,7 @@ export const fn = () => {
           // preserve namespace used in nested elements names
           if (
             element.prefix &&
-            element.uri === unusedPrefixes.get(element.prefix)
+            (element.uri ?? NS_SVG) === unusedPrefixes.get(element.prefix)
           ) {
             unusedPrefixes.delete(element.prefix);
           }

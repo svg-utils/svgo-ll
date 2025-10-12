@@ -314,7 +314,7 @@ export const fn = (info, params) => {
 
         // remove element's unknown attrs and attrs with default values
         const attsToDelete = [];
-        for (const [name, attValue] of Object.entries(element.attributes)) {
+        for (const [name, attValue] of element.svgAtts.entries()) {
           if (keepDataAttrs && name.startsWith('data-')) {
             continue;
           }

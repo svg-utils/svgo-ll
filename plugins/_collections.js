@@ -197,15 +197,6 @@ export const attrsGroups = {
     'word-spacing',
     'writing-mode',
   ]),
-  xlink: new Set([
-    'xlink:actuate',
-    'xlink:arcrole',
-    'xlink:href',
-    'xlink:role',
-    'xlink:show',
-    'xlink:title',
-    'xlink:type',
-  ]),
   documentEvent: new Set([
     'onabort',
     'onerror',
@@ -1348,13 +1339,6 @@ export const elems = {
       'y2',
     ]),
     defaults: {
-      // TODO: Figure out why these can't always be used. See test removeUnknownsAndDefaults.19.svg.txt - removing x1="0" changes
-      // appearance. Is there a similar issue with radialGradient? Seems like behavior of coordinates depends on setting of
-      // gradientUnits.
-      // x1: '0',
-      // y1: '0',
-      // x2: '100%',
-      // y2: '0',
       spreadMethod: 'pad',
     },
     contentGroups: new Set(['descriptive']),

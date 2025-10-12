@@ -794,7 +794,6 @@ export const elems = {
       'href',
       'preserveAspectRatio',
       'style',
-      'xlink:href',
     ]),
     defaults: {
       preserveAspectRatio: 'xMidYMid meet',
@@ -922,7 +921,6 @@ export const elems = {
       'style',
       'width',
       'x',
-      'xlink:href',
       'y',
     ]),
     defaults: {
@@ -1060,7 +1058,7 @@ export const elems = {
   },
   'font-face-uri': {
     attrsGroups: new Set(['core', 'xlink']),
-    attrs: new Set(['href', 'xlink:href']),
+    attrs: new Set(['href']),
     content: new Set(['font-face-format']),
   },
   foreignObject: {
@@ -1287,7 +1285,6 @@ export const elems = {
       'transform',
       'width',
       'x',
-      'xlink:href',
       'y',
     ]),
     defaults: {
@@ -1334,7 +1331,6 @@ export const elems = {
       'style',
       'x1',
       'x2',
-      'xlink:href',
       'y1',
       'y2',
     ]),
@@ -1496,7 +1492,7 @@ export const elems = {
   },
   mpath: {
     attrsGroups: new Set(['core', 'xlink']),
-    attrs: new Set(['externalResourcesRequired', 'href', 'xlink:href']),
+    attrs: new Set(['externalResourcesRequired', 'href']),
     contentGroups: new Set(['descriptive']),
   },
   path: {
@@ -1536,7 +1532,6 @@ export const elems = {
       'viewBox',
       'width',
       'x',
-      'xlink:href',
       'y',
     ]),
     defaults: {
@@ -1624,7 +1619,6 @@ export const elems = {
       'r',
       'spreadMethod',
       'style',
-      'xlink:href',
     ]),
     defaults: {
       gradientUnits: 'objectBoundingBox',
@@ -1680,7 +1674,7 @@ export const elems = {
   },
   script: {
     attrsGroups: new Set(['core', 'xlink']),
-    attrs: new Set(['externalResourcesRequired', 'type', 'href', 'xlink:href']),
+    attrs: new Set(['externalResourcesRequired', 'type', 'href']),
   },
   set: {
     attrsGroups: new Set([
@@ -1887,7 +1881,6 @@ export const elems = {
       'spacing',
       'startOffset',
       'style',
-      'xlink:href',
     ]),
     defaults: {
       startOffset: '0',
@@ -1917,13 +1910,7 @@ export const elems = {
       'presentation',
       'xlink',
     ]),
-    attrs: new Set([
-      'class',
-      'externalResourcesRequired',
-      'href',
-      'style',
-      'xlink:href',
-    ]),
+    attrs: new Set(['class', 'externalResourcesRequired', 'href', 'style']),
     contentGroups: new Set(['descriptive']),
     content: new Set(['animate', 'animateColor', 'set']),
   },
@@ -1974,7 +1961,6 @@ export const elems = {
       'transform',
       'width',
       'x',
-      'xlink:href',
       'y',
     ]),
     defaults: {

@@ -10,6 +10,7 @@ import { getHrefId } from '../lib/tools-ast.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
+import { getPresentationProperties } from './_styles.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -100,34 +101,8 @@ for (const [name, config] of Object.entries(elems)) {
   attributesDefaultsPerElement.set(name, attributesDefaults);
 }
 
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} propName
- * @param {string|undefined} value
- * @param {Map<string,string>|undefined} defaults
- * @returns {boolean}
- */
-function isDefaultPropertyValue(element, propName, value, defaults) {
-  if (defaults === undefined) {
-    return false;
-  }
-  const defaultVals = defaults.get(propName);
-  if (value === defaultVals) {
-    return true;
-  }
-  if (propName === 'word-spacing' && (value === '0' || value === '0px')) {
-    // 'normal' is equivalent to 0
-    return true;
-  }
-  if (
-    propName === 'overflow' &&
-    value === 'visible' &&
-    !preserveOverflowElements.has(element.local)
-  ) {
-    return true;
-  }
-  return false;
-}
+const colorEls = new Set();
+const currentColorEls = new Set();
 
 /**
  * Remove unknown elements content and attributes,
@@ -394,6 +369,34 @@ export const fn = (info, params) => {
         if (attsToDelete.length > 0) {
           attsToDeleteIfUnused.set(element, attsToDelete);
         }
+
+        // Remove attribute if value is "currentColor" and color is not set.
+        const color = computedStyle.get('color')?.toString();
+        const props = getPresentationProperties(element);
+        if (props.get('color') !== undefined) {
+          colorEls.add(element);
+        }
+        [
+          'fill',
+          'stroke',
+          'stop-color',
+          'flood-color',
+          'lighting-color',
+        ].forEach((attName) => {
+          const attValue = props.get(attName)?.value.toString();
+          if (attValue === 'currentColor') {
+            // If there is no color in the cascade, delete the attribute
+            if (!color) {
+              element.svgAtts.delete(attName);
+              if (styleAttValue) {
+                styleAttValue.delete(attName);
+              }
+            } else {
+              // Otherwise record the fact that it is present.
+              currentColorEls.add(element);
+            }
+          }
+        });
       },
     },
     root: {
@@ -418,6 +421,9 @@ export const fn = (info, params) => {
             updateStyleAttribute(element, styleAttValue);
           }
         }
+
+        // Delete color property from elements where it is not needed.
+        deleteColorAtts(colorEls, currentColorEls);
 
         const childrenToDelete = new ChildDeletionQueue();
         for (const element of useElements) {
@@ -489,6 +495,61 @@ function canHaveProperty(propName, allowedAttributes) {
       // "marker" is allowed as a style property but not as an attribute; allow it only if the marker attributes are allowed for
       // this element.
       return allowedAttributes.has('marker-start');
+  }
+  return false;
+}
+
+/**
+ * @param {Set<import('../lib/types.js').XastElement>} colorEls
+ * @param {Set<import('../lib/types.js').XastElement>} currentColorEls
+ */
+function deleteColorAtts(colorEls, currentColorEls) {
+  if (colorEls.size === 0) {
+    return;
+  }
+
+  const validColorEls = new Set();
+  currentColorEls.forEach((element) => {
+    /** @type {import('../lib/types.js').XastElement|undefined} */
+    let el = element;
+    while (el) {
+      validColorEls.add(el);
+      el = el.parentNode.type === 'root' ? undefined : el.parentNode;
+    }
+  });
+
+  colorEls.forEach((element) => {
+    if (!validColorEls.has(element)) {
+      element.svgAtts.delete('color');
+    }
+  });
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} propName
+ * @param {string|undefined} value
+ * @param {Map<string,string>|undefined} defaults
+ * @returns {boolean}
+ */
+function isDefaultPropertyValue(element, propName, value, defaults) {
+  if (defaults === undefined) {
+    return false;
+  }
+  const defaultVals = defaults.get(propName);
+  if (value === defaultVals) {
+    return true;
+  }
+  if (propName === 'word-spacing' && (value === '0' || value === '0px')) {
+    // 'normal' is equivalent to 0
+    return true;
+  }
+  if (
+    propName === 'overflow' &&
+    value === 'visible' &&
+    !preserveOverflowElements.has(element.local)
+  ) {
+    return true;
   }
   return false;
 }

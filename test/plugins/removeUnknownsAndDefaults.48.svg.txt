@@ -1,0 +1,41 @@
+Remove unused color attributes and currentColor values.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <g color="red">
+    <g>
+      <rect x="0" y="2" width="10" height="10" fill="currentColor"/>
+    </g>
+  </g>
+  <g color="blue">
+    <g>
+      <rect x="12" y="2" width="10" height="10" fill="green"/>
+    </g>
+  </g>
+  <g>
+    <g>
+      <rect x="24" y="2" width="10" height="10" fill="currentColor"/>
+    </g>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <g color="red">
+    <g>
+      <rect y="2" width="10" height="10" fill="currentColor"/>
+    </g>
+  </g>
+  <g>
+    <g>
+      <rect x="12" y="2" width="10" height="10" fill="green"/>
+    </g>
+  </g>
+  <g>
+    <g>
+      <rect x="24" y="2" width="10" height="10"/>
+    </g>
+  </g>
+</svg>

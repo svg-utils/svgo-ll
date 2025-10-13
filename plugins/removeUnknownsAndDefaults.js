@@ -390,6 +390,7 @@ export const fn = (info, params) => {
               element.svgAtts.delete(attName);
               if (styleAttValue) {
                 styleAttValue.delete(attName);
+                updateStyleAttribute(element, styleAttValue);
               }
             } else {
               // Otherwise record the fact that it is present.
@@ -521,6 +522,11 @@ function deleteColorAtts(colorEls, currentColorEls) {
   colorEls.forEach((element) => {
     if (!validColorEls.has(element)) {
       element.svgAtts.delete('color');
+      const styleAttValue = StyleAttValue.getStyleAttValue(element);
+      if (styleAttValue) {
+        styleAttValue.delete('color');
+        updateStyleAttribute(element, styleAttValue);
+      }
     }
   });
 }

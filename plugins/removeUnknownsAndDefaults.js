@@ -328,20 +328,13 @@ export const fn = (info, params) => {
           if (name === 'xmlns') {
             continue;
           }
-          // skip namespaced attributes except xml:* and xlink:*
-          if (name.includes(':')) {
-            const [prefix] = name.split(':');
-            if (prefix !== 'xlink') {
-              continue;
-            }
-          }
 
           if (
             unknownAttrs &&
             allowedAttributes &&
             !allowedAttributes.has(name)
           ) {
-            delete element.attributes[name];
+            element.svgAtts.delete(name);
             continue;
           }
 

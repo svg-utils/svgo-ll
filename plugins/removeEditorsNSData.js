@@ -1,5 +1,6 @@
 import { editorNamespaces } from './_collections.js';
-import { detachNodeFromParent } from '../lib/xast.js';
+import { deleteOtherAtt, getOtherAtts, NS_XMLNS } from '../lib/tools-ast.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 
 export const name = 'removeEditorsNSData';
 export const description =
@@ -13,57 +14,44 @@ export const description =
  * <sodipodi:namedview/>
  * <path sodipodi:nodetypes="cccc"/>
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeEditorsNSData'>}
  */
 export function fn(info, params) {
-  if (info.passNumber > 0) {
-    return;
-  }
-
   let namespaces = [...editorNamespaces];
   if (Array.isArray(params.additionalNamespaces)) {
     namespaces = [...editorNamespaces, ...params.additionalNamespaces];
   }
-  /**
-   * @type {string[]}
-   */
-  const prefixes = [];
+
+  const childrenToDelete = new ChildDeletionQueue();
+
   return {
     element: {
-      enter: (node) => {
+      enter: (element) => {
         // collect namespace prefixes from svg element
-        if (node.name === 'svg') {
-          for (const [name, value] of Object.entries(node.attributes)) {
-            if (
-              name.startsWith('xmlns:') &&
-              namespaces.includes(value.toString())
-            ) {
-              prefixes.push(name.slice('xmlns:'.length));
-              // <svg xmlns:sodipodi="">
-              delete node.attributes[name];
+        if (element.local === 'svg' && element.uri === undefined) {
+          for (const att of getOtherAtts(element)) {
+            if (att.uri === NS_XMLNS && namespaces.includes(att.value)) {
+              deleteOtherAtt(element, att);
             }
           }
         }
         // remove editor attributes, for example
         // <* sodipodi:*="">
-        for (const name of Object.keys(node.attributes)) {
-          if (name.includes(':')) {
-            const [prefix] = name.split(':');
-            if (prefixes.includes(prefix)) {
-              delete node.attributes[name];
-            }
+        for (const att of getOtherAtts(element)) {
+          if (namespaces.includes(att.uri)) {
+            deleteOtherAtt(element, att);
           }
         }
         // remove editor elements, for example
         // <sodipodi:*>
-        if (node.name.includes(':')) {
-          const [prefix] = node.name.split(':');
-          if (prefixes.includes(prefix)) {
-            detachNodeFromParent(node);
-          }
+        if (element.uri !== undefined && namespaces.includes(element.uri)) {
+          childrenToDelete.add(element);
         }
+      },
+    },
+    root: {
+      exit: () => {
+        childrenToDelete.delete();
       },
     },
   };

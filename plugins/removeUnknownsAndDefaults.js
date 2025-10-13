@@ -111,28 +111,6 @@ const currentColorEls = new Set();
  * @type {import('./plugins-types.js').Plugin<'removeUnknownsAndDefaults'>}
  */
 export const fn = (info, params) => {
-  /**
-   * @param {import('../lib/types.js').XastElement} element
-   * @returns {boolean}
-   */
-  function elementIsUsed(element) {
-    if (usedIDs.size === 0) {
-      return false;
-    }
-    // See if the element or any of its parents are used.
-    while (true) {
-      const id = element.svgAtts.get('id')?.toString();
-      if (id !== undefined && usedIDs.has(id)) {
-        return true;
-      }
-      const parent = element.parentNode;
-      if (parent.type === 'root') {
-        return false;
-      }
-      element = parent;
-    }
-  }
-
   const {
     unknownAttrs = true,
     defaultMarkupDeclarations = true,
@@ -407,15 +385,15 @@ export const fn = (info, params) => {
     root: {
       exit: () => {
         for (const [element, attNames] of attsToDeleteIfUnused.entries()) {
-          if (elementIsUsed(element)) {
+          if (elementIsUsed(element, usedIDs)) {
             continue;
           }
           for (const attName of attNames) {
-            delete element.attributes[attName];
+            element.svgAtts.delete(attName);
           }
         }
         for (const [element, propNames] of propsToDeleteIfUnused.entries()) {
-          if (elementIsUsed(element)) {
+          if (elementIsUsed(element, usedIDs)) {
             continue;
           }
           const styleAttValue = StyleAttValue.getStyleAttValue(element);
@@ -536,6 +514,29 @@ function deleteColorAtts(elsWithColorAtt, elsWithCurrentColor) {
       }
     }
   });
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {Set<string>} usedIDs
+ * @returns {boolean}
+ */
+function elementIsUsed(element, usedIDs) {
+  if (usedIDs.size === 0) {
+    return false;
+  }
+  // See if the element or any of its parents are used.
+  while (true) {
+    const id = element.svgAtts.get('id')?.toString();
+    if (id !== undefined && usedIDs.has(id)) {
+      return true;
+    }
+    const parent = element.parentNode;
+    if (parent.type === 'root') {
+      return false;
+    }
+    element = parent;
+  }
 }
 
 /**

@@ -121,10 +121,8 @@ export const fn = (info, params) => {
     }
     // See if the element or any of its parents are used.
     while (true) {
-      if (
-        element.attributes.id &&
-        usedIDs.has(element.attributes.id.toString())
-      ) {
+      const id = element.svgAtts.get('id')?.toString();
+      if (id !== undefined && usedIDs.has(id)) {
         return true;
       }
       const parent = element.parentNode;

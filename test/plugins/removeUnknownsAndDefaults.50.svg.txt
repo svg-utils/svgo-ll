@@ -1,0 +1,25 @@
+Remove unused color properties and currentColor values from gradient.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="a">
+      <stop stop-color="yellow"/>
+      <stop offset="1" stop-color="currentColor"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="50" height="50" fill="url(#a)" color="red"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="a">
+      <stop stop-color="yellow"/>
+      <stop offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="50" height="50" fill="url(#a)"/>
+</svg>

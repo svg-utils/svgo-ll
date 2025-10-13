@@ -1,0 +1,27 @@
+Remove unused colors from chained gradients.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="a">
+      <stop stop-color="yellow"/>
+      <stop offset="1" stop-color="currentColor"/>
+    </linearGradient>
+    <linearGradient id="b" href="#a" color="blue"/>
+  </defs>
+  <rect x="10" y="10" width="50" height="50" fill="url(#b)" color="red"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <linearGradient id="a">
+      <stop stop-color="yellow"/>
+      <stop offset="1"/>
+    </linearGradient>
+    <linearGradient id="b" href="#a"/>
+  </defs>
+  <rect x="10" y="10" width="50" height="50" fill="url(#b)"/>
+</svg>

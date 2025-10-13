@@ -101,9 +101,6 @@ for (const [name, config] of Object.entries(elems)) {
   attributesDefaultsPerElement.set(name, attributesDefaults);
 }
 
-const colorEls = new Set();
-const currentColorEls = new Set();
-
 /**
  * Remove unknown elements content and attributes,
  * remove attributes with default values.
@@ -134,6 +131,9 @@ export const fn = (info, params) => {
   const elementsById = new Map();
   /** @type {Set<import('../lib/types.js').XastElement>} */
   const useElements = new Set();
+
+  const elsWithColorAtt = new Set();
+  const elsWithCurrentColor = new Set();
 
   return {
     instruction: {
@@ -178,7 +178,7 @@ export const fn = (info, params) => {
           // If there is a color attribute, save it to see if it is necessary.
           const props = getPresentationProperties(element);
           if (props.get('color')) {
-            colorEls.add(element);
+            elsWithColorAtt.add(element);
           }
 
           return;
@@ -356,7 +356,7 @@ export const fn = (info, params) => {
         const color = computedStyle.get('color')?.toString();
         const props = getPresentationProperties(element);
         if (props.get('color') !== undefined) {
-          colorEls.add(element);
+          elsWithColorAtt.add(element);
         }
         [
           'fill',
@@ -376,7 +376,7 @@ export const fn = (info, params) => {
               }
             } else {
               // Otherwise record the fact that it is present.
-              currentColorEls.add(element);
+              elsWithCurrentColor.add(element);
             }
           }
         });
@@ -406,7 +406,7 @@ export const fn = (info, params) => {
         }
 
         // Delete color property from elements where it is not needed.
-        deleteColorAtts(colorEls, currentColorEls);
+        deleteColorAtts(elsWithColorAtt, elsWithCurrentColor);
 
         const childrenToDelete = new ChildDeletionQueue();
         for (const element of useElements) {

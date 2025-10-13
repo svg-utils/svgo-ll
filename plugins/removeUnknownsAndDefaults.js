@@ -178,8 +178,9 @@ export const fn = (info, params) => {
           return visitSkip;
         }
 
-        if (element.attributes.id) {
-          elementsById.set(element.attributes.id.toString(), element);
+        const id = element.svgAtts.get('id')?.toString();
+        if (id) {
+          elementsById.set(id, element);
         }
 
         if (element.local === 'use') {
@@ -190,11 +191,9 @@ export const fn = (info, params) => {
           }
           // x="0" and y="0" can be removed; otherwise leave attributes alone.
           ['x', 'y'].forEach((attName) => {
-            if (
-              element.attributes[attName] !== undefined &&
-              element.attributes[attName].toString() === '0'
-            ) {
-              delete element.attributes[attName];
+            const val = element.svgAtts.get(attName)?.toString();
+            if (val === '0') {
+              element.svgAtts.delete(attName);
             }
           });
           return;

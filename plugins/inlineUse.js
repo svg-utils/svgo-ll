@@ -1,9 +1,10 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import {
+  getHrefId,
   getReferencedIds,
-  updateStyleAttribute,
-} from '../lib/svgo/tools-svg.js';
-import { getHrefId } from '../lib/svgo/tools.js';
+  setElementName,
+} from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'inlineUse';
@@ -35,14 +36,18 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        if (element.name === 'defs') {
+        if (element.uri !== undefined) {
+          return;
+        }
+
+        if (element.local === 'defs') {
           // Record the ids of all <defs> children as potential candidates for inlining.
           for (const child of element.children) {
             if (child.type === 'element' && child.attributes.id) {
               defIds.set(child.attributes.id.toString(), child);
             }
           }
-        } else if (element.name === 'use') {
+        } else if (element.local === 'use') {
           const id = getHrefId(element);
           if (id) {
             let usingEls = usedIds.get(id);
@@ -117,14 +122,14 @@ function inlineUse(use, def) {
   // Don't inline symbols that are <use>d with a width/height.
   if (
     (use.attributes.width || use.attributes.height) &&
-    def.name === 'symbol'
+    def.local === 'symbol'
   ) {
     return false;
   }
 
   // Check referenced element.
   let isContainer = false;
-  switch (def.name) {
+  switch (def.local) {
     case 'path':
       break;
     case 'symbol':
@@ -136,7 +141,7 @@ function inlineUse(use, def) {
 
   const defProperties = getPresentationProperties(def);
   // Don't convert <symbol> unless overflow is visible.
-  if (def.name === 'symbol') {
+  if (def.local === 'symbol') {
     const overflow = defProperties.get('overflow');
     if (!overflow || overflow.value !== 'visible') {
       return false;
@@ -166,8 +171,8 @@ function inlineUse(use, def) {
   }
 
   // Convert the <use>.
-  use.local = isContainer ? 'g' : def.name;
-  use.name = use.prefix === '' ? use.local : `${use.prefix}:${use.local}`;
+  use.local = isContainer ? 'g' : def.local;
+  setElementName(use);
 
   // Update attributes.
   let tx = '0';
@@ -181,7 +186,7 @@ function inlineUse(use, def) {
         ty = attValue.toString();
         break;
     }
-    delete use.attributes[attName];
+    use.svgAtts.delete(attName);
   }
 
   // Copy any non-presentation properties from def.
@@ -207,7 +212,7 @@ function inlineUse(use, def) {
     transform = isContainer ? transform + translate : translate + transform;
   }
   if (transform !== '') {
-    use.attributes.transform = transform;
+    use.svgAtts.set('transform', transform);
   }
   updateStyleAttribute(use, new StyleAttValue(useProperties));
 

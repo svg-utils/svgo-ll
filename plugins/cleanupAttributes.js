@@ -236,6 +236,6 @@ function elementCanHaveProperty(elName, propName) {
  */
 function hasOnlyShapeChildren(element) {
   return element.children.every(
-    (child) => child.type === 'element' && elemsGroups.shape.has(child.name),
+    (child) => child.type === 'element' && elemsGroups.shape.has(child.local),
   );
 }

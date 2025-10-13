@@ -12,29 +12,27 @@ export const description =
  *   ↓
  * <svg viewBox="0 0 100 50" />
  *
- * @author Benny Schudel
- *
  * @type {import('./plugins-types.js').Plugin<'removeDimensions'>}
  */
 export const fn = () => {
   return {
     element: {
-      enter: (node) => {
-        if (node.name === 'svg') {
-          if (node.attributes.viewBox) {
-            delete node.attributes.width;
-            delete node.attributes.height;
+      enter: (element) => {
+        if (element.uri === undefined && element.local === 'svg') {
+          if (element.attributes.viewBox) {
+            delete element.attributes.width;
+            delete element.attributes.height;
           } else if (
-            node.attributes.width &&
-            node.attributes.height &&
-            Number.isNaN(Number(node.attributes.width)) === false &&
-            Number.isNaN(Number(node.attributes.height)) === false
+            element.attributes.width &&
+            element.attributes.height &&
+            Number.isNaN(Number(element.attributes.width)) === false &&
+            Number.isNaN(Number(element.attributes.height)) === false
           ) {
-            const width = Number(node.attributes.width);
-            const height = Number(node.attributes.height);
-            node.attributes.viewBox = `0 0 ${width} ${height}`;
-            delete node.attributes.width;
-            delete node.attributes.height;
+            const width = Number(element.attributes.width);
+            const height = Number(element.attributes.height);
+            element.attributes.viewBox = `0 0 ${width} ${height}`;
+            delete element.attributes.width;
+            delete element.attributes.height;
           }
         }
         return visitSkip;

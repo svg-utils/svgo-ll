@@ -27,15 +27,33 @@ export type XastText = {
 };
 
 export type SVGAttValue = string | AttValue;
+export type XastAttOther = {
+  prefix: string | undefined;
+  local: string;
+  uri: string;
+  value: string;
+};
+export type XastAttSvg = {
+  local: string;
+  value: AttValue;
+};
+export class SvgAttValues {
+  keys(): IterableIterator<string>;
+  delete(name: string): void;
+  entries(): IterableIterator<[string, string | AttValue]>;
+  get(name: string): string | AttValue | undefined;
+  set(name: string, value: string | AttValue): void;
+}
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
-  /** @deprecated */
-  name: string;
   local: string;
   prefix: string;
   uri: string | undefined;
+  /** @deprecated */
   attributes: Record<string, SVGAttValue>;
+  svgAtts: SvgAttValues;
+  otherAtts: XastAttOther[] | undefined;
   children: XastChild[];
   isSelfClosing?: boolean;
 };

@@ -3,6 +3,7 @@ import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
 import { isNumber } from '../lib/svgo/tools.js';
 import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
+import { setElementName } from '../lib/tools-ast.js';
 
 export const name = 'convertShapeToPath';
 export const description = 'converts basic shapes to more compact path form';
@@ -90,7 +91,7 @@ function convertLine(element) {
     { command: 'L', x: new ExactNum(x2), y: new ExactNum(y2) },
   ];
   element.local = 'path';
-  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
+  setElementName(element);
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.x1;
   delete element.attributes.y1;
@@ -130,7 +131,7 @@ function convertPolyline(element) {
     pathData.push({ command: 'z' });
   }
   element.local = 'path';
-  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
+  setElementName(element);
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.points;
 }
@@ -190,7 +191,7 @@ function convertRect(element) {
     { command: 'z' },
   ];
   element.local = 'path';
-  element.name = element.prefix === '' ? 'path' : `${element.prefix}:path`;
+  setElementName(element);
   element.attributes.d = stringifyPathCommands(pathData);
   delete element.attributes.x;
   delete element.attributes.y;

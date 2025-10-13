@@ -6,7 +6,7 @@ import {
   inheritableAttrs,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
-import { getHrefId } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
@@ -314,7 +314,7 @@ export const fn = (info, params) => {
 
         // remove element's unknown attrs and attrs with default values
         const attsToDelete = [];
-        for (const [name, attValue] of Object.entries(element.attributes)) {
+        for (const [name, attValue] of element.svgAtts.entries()) {
           if (keepDataAttrs && name.startsWith('data-')) {
             continue;
           }
@@ -328,20 +328,13 @@ export const fn = (info, params) => {
           if (name === 'xmlns') {
             continue;
           }
-          // skip namespaced attributes except xml:* and xlink:*
-          if (name.includes(':')) {
-            const [prefix] = name.split(':');
-            if (prefix !== 'xlink') {
-              continue;
-            }
-          }
 
           if (
             unknownAttrs &&
             allowedAttributes &&
             !allowedAttributes.has(name)
           ) {
-            delete element.attributes[name];
+            element.svgAtts.delete(name);
             continue;
           }
 

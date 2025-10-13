@@ -1,4 +1,21 @@
 /**
+ * @param {import('../lib/types.js').XastRoot} root
+ * @returns {import('../lib/types.js').XastElement}
+ */
+export function getFirstChild(root) {
+  for (const svg of root.children) {
+    if (svg.type === 'element' && svg.local === 'svg') {
+      for (const child of svg.children) {
+        if (child.type === 'element') {
+          return child;
+        }
+      }
+    }
+  }
+  throw new Error();
+}
+
+/**
  * @param {import('../lib/svgo.js').CustomPlugin[]} pluginList
  * @returns {import('../lib/svgo.js').ResolvedPlugins}
  */

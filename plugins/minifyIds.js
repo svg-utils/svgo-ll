@@ -1,8 +1,5 @@
-import {
-  recordReferencedIds,
-  updateReferencedId,
-} from '../lib/svgo/tools-svg.js';
 import { generateId, SVGOError } from '../lib/svgo/tools.js';
+import { recordReferencedIds, updateReferencedId } from '../lib/tools-ast.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
@@ -85,7 +82,7 @@ export const fn = (info, params) => {
 
   /** @type {Map<string,import('../lib/types.js').XastElement>} */
   const foundIds = new Map();
-  /** @type {import('../lib/svgo/tools-svg.js').IdReferenceMap} */
+  /** @type {import('../lib/tools-ast.js').IdReferenceMap} */
   const allReferencedIds = new Map();
 
   const preserveIds = new Set(
@@ -105,8 +102,8 @@ export const fn = (info, params) => {
         }
 
         if (
-          elemsGroups.animation.has(element.name) &&
-          element.attributes.begin
+          elemsGroups.animation.has(element.local) &&
+          element.svgAtts.get('begin') !== undefined
         ) {
           // Until we have support for this attribute, disable the plugin.
           disabled = true;
@@ -139,7 +136,7 @@ export const fn = (info, params) => {
           if (!element) {
             throw new Error();
           }
-          element.attributes.id = newId;
+          element.svgAtts.set('id', newId);
         }
 
         // Update all referenced ids.
@@ -151,6 +148,7 @@ export const fn = (info, params) => {
             updateReferencedId(
               reference.referencingEl,
               reference.referencingAtt,
+              reference.uri,
               idMap,
             );
           }

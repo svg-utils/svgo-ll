@@ -1,8 +1,5 @@
-import {
-  addChildToDelete,
-  deleteChildren,
-  getHrefId,
-} from '../lib/svgo/tools.js';
+import { addChildToDelete, deleteChildren } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
 import { detachNodeFromParent } from '../lib/xast.js';
 
 export const name = 'removeEmptyContainers';
@@ -43,7 +40,11 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        if (element.name === 'use') {
+        if (element.uri !== undefined) {
+          return;
+        }
+
+        if (element.local === 'use') {
           // Record uses so those referencing empty containers can be removed.
           const id = getHrefId(element);
           if (id) {
@@ -58,12 +59,12 @@ export const fn = (info) => {
       },
       exit: (element, parentList) => {
         // remove only empty non-svg containers
-        if (!removableEls.has(element.name) || element.children.length !== 0) {
+        if (!removableEls.has(element.local) || element.children.length !== 0) {
           return;
         }
         // empty patterns may contain reusable configuration
         if (
-          element.name === 'pattern' &&
+          element.local === 'pattern' &&
           Object.keys(element.attributes).length !== 0
         ) {
           return;
@@ -71,15 +72,18 @@ export const fn = (info) => {
         // The <g> may not have content, but the filter may cause a rectangle
         // to be created and filled with pattern.
         const props = styleData.computeStyle(element, parentList);
-        if (element.name === 'g' && props.get('filter') !== undefined) {
+        if (element.local === 'g' && props.get('filter') !== undefined) {
           return;
         }
         // empty <mask> hides masked element
-        if (element.name === 'mask' && element.attributes.id != null) {
+        if (
+          element.local === 'mask' &&
+          element.svgAtts.get('id') !== undefined
+        ) {
           return;
         }
         const parentNode = element.parentNode;
-        if (parentNode.type === 'element' && parentNode.name === 'switch') {
+        if (parentNode.type === 'element' && parentNode.local === 'switch') {
           return;
         }
 

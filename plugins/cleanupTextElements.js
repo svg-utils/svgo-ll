@@ -1,5 +1,10 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import {
+  deleteOtherAtt,
+  getXmlNSAtt,
+  setElementName,
+} from '../lib/tools-ast.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
@@ -33,8 +38,9 @@ export const fn = (info) => {
         }
 
         // Remove xml:space= if possible.
-        if (canRemoveXmlSpace(element)) {
-          delete element.attributes['xml:space'];
+        const att = canRemoveXmlSpace(element);
+        if (att) {
+          deleteOtherAtt(element, att);
         }
 
         const wsProp = getWhitespaceProperty(element);
@@ -124,8 +130,7 @@ export const fn = (info) => {
               }
               textChild.parentNode = parent;
               textChild.local = 'text';
-              textChild.name =
-                textChild.prefix === '' ? 'text' : `${textChild.prefix}:text`;
+              setElementName(textChild);
               newChildren.push(textChild);
             }
           }
@@ -162,28 +167,28 @@ function isEmpty(element) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @returns {boolean}
+ * @returns {import('../lib/types.js').XastAttOther|undefined}
  */
 function canRemoveXmlSpace(element) {
-  const value = element.attributes['xml:space'];
-  if (value === undefined) {
-    return false;
+  const att = getXmlNSAtt(element, 'space');
+  if (att === undefined) {
+    return;
   }
-  if (value === 'preserve') {
+  if (att.value === 'preserve') {
     if (element.children.length !== 1) {
-      return false;
+      return;
     }
     const child = element.children[0];
     if (child.type !== 'text') {
-      return false;
+      return;
     }
-    return (
-      !/^\s/.test(child.value) &&
+    return !/^\s/.test(child.value) &&
       !/\s$/.test(child.value) &&
       !/\s\s/.test(child.value)
-    );
+      ? att
+      : undefined;
   }
-  return value === 'default';
+  return att.value === 'default' ? att : undefined;
 }
 
 /**
@@ -233,7 +238,8 @@ function getHoistableChild(element) {
  * @returns {"default"|"preserve"}
  */
 function getWhitespaceProperty(element) {
-  if (element.attributes['xml:space'] === 'preserve') {
+  const att = getXmlNSAtt(element, 'space');
+  if (att && att.value === 'preserve') {
     return 'preserve';
   }
   return 'default';
@@ -291,7 +297,7 @@ function isHoistable(child) {
   if (child.children[0].type !== 'text') {
     return;
   }
-  for (const attributeName of Object.keys(child.attributes)) {
+  for (const attributeName of child.svgAtts.keys()) {
     switch (attributeName) {
       case 'style':
       case 'x':

@@ -1,7 +1,8 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { hasMarkerProperties } from '../lib/css-tools.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { getHrefId } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
+import { createElement } from '../lib/xast.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'createGroups';
@@ -118,17 +119,16 @@ function createGroups(element, usedIds, elementsToCheck) {
       ...element.children.slice(ungroupedStart, sharedPropStart),
     );
     const groupChildren = element.children.slice(sharedPropStart, index);
-    /** @type {import('../lib/types.js').XastElement} */
-    const groupElement = {
-      type: 'element',
-      parentNode: element,
-      name: element.prefix ? `${element.prefix}:g` : 'g',
-      local: 'g',
-      prefix: element.prefix,
-      uri: element.uri,
-      attributes: {},
-      children: groupChildren,
-    };
+    const groupElement = createElement(
+      element,
+      'g',
+      element.prefix,
+      undefined,
+      {},
+      groupChildren,
+      false,
+      false,
+    );
 
     // Add styles to group.
     updateStyleAttribute(groupElement, new StyleAttValue(sharedProps));

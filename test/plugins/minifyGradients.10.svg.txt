@@ -1,0 +1,27 @@
+Merge transform in style attribute and gradientTransform correctly when xlink used.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"
+  xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <linearGradient id="a" x1="2" x2="3" gradientUnits="userSpaceOnUse" gradientTransform="rotate(15)">
+      <stop offset="5%" stop-color="gold" />
+      <stop offset="95%" stop-color="red"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="b" x1="1" style="transform:rotate(30deg)"/>
+  </defs>
+  <rect width="3" height="4" fill="url(#b)" stroke="black" stroke-width=".01"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <linearGradient id="b" x1="1" x2="3" gradientUnits="userSpaceOnUse" gradientTransform="rotate(30)">
+            <stop offset="5%" stop-color="gold"/>
+            <stop offset=".95" stop-color="red"/>
+        </linearGradient>
+    </defs>
+    <rect width="3" height="4" fill="url(#b)" stroke="black" stroke-width=".01"/>
+</svg>

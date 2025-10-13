@@ -107,7 +107,8 @@ describe('test parsing and stringifying of selectors', function () {
       /** @type {Object<string,import('../../lib/types.js').SVGAttValue>} */
       const obj = {};
       test.elData.atts.forEach((v) => (obj[v[0]] = v[1]));
-      const element = createElement(root, test.elData.elName, obj);
+      const element = createElement(root, test.elData.elName);
+      element.attributes = obj;
       expect(rule._matches(element)).toBe(test.expected);
       if (test.expectedComplex !== undefined) {
         expect(rule.matches(element)).toBe(test.expectedComplex);

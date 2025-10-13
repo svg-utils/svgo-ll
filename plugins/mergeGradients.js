@@ -1,8 +1,5 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import {
-  recordReferencedIds,
-  updateReferencedId,
-} from '../lib/svgo/tools-svg.js';
+import { recordReferencedIds, updateReferencedId } from '../lib/tools-ast.js';
 
 export const name = 'mergeGradients';
 export const description = 'merge identical gradients';
@@ -24,7 +21,7 @@ export const fn = (info) => {
   /** @type {import('../lib/types.js').XastElement[]} */
   const duplicateGradients = [];
 
-  /** @type {import('../lib/svgo/tools-svg.js').IdReferenceMap} */
+  /** @type {import('../lib/tools-ast.js').IdReferenceMap} */
   const referencedIds = new Map();
 
   /** @type {Map<string,string>} */
@@ -44,7 +41,7 @@ export const fn = (info) => {
             return;
         }
 
-        const gradientId = element.attributes.id?.toString();
+        const gradientId = element.svgAtts.get('id')?.toString();
         if (!gradientId) {
           return;
         }
@@ -77,7 +74,10 @@ export const fn = (info) => {
           // Update all references.
 
           childrenToDelete.add(duplicate);
-          const dupId = duplicate.attributes.id.toString();
+          const dupId = duplicate.svgAtts.get('id')?.toString();
+          if (dupId === undefined) {
+            throw new Error();
+          }
           const dupReferencingEls = referencedIds.get(dupId);
           if (!dupReferencingEls) {
             continue;
@@ -86,6 +86,7 @@ export const fn = (info) => {
             updateReferencedId(
               dupReferencingEl.referencingEl,
               dupReferencingEl.referencingAtt,
+              dupReferencingEl.uri,
               idMap,
             );
           }
@@ -114,7 +115,7 @@ function getGradientKey(element) {
    * @param {boolean} excludeId
    */
   function addParts(element, excludeId) {
-    parts.push(element.name);
+    parts.push(element.local);
     for (const [attName, attVal] of Object.entries(element.attributes).sort(
       (a, b) => a[0].localeCompare(b[0]),
     )) {
@@ -128,7 +129,7 @@ function getGradientKey(element) {
   addParts(element, true);
 
   for (const child of element.children) {
-    if (child.type !== 'element' || child.name !== 'stop') {
+    if (child.type !== 'element' || child.local !== 'stop') {
       return;
     }
     addParts(child, false);

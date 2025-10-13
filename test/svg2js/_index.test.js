@@ -83,7 +83,9 @@ describe('svg2js', function () {
       it('should have property name: "svg"', function () {
         expect(root.children[3]).toStrictEqual(
           expect.objectContaining({
-            name: 'svg',
+            uri: undefined,
+            prefix: '',
+            local: 'svg',
           }),
         );
       });

@@ -2,16 +2,12 @@ import { visit } from '../../lib/xast.js';
 import { generateData } from './testutils.js';
 
 /**
- * @typedef {import('../../lib/types.js').XastElement} XastElement
- */
-
-/**
  * @param {import('../../lib/types.js').XastRoot} root
  */
 function generateTreeData(root) {
   const idMap = new Map();
   const parentMap = new Map();
-  /** @type {{element:XastElement}[]} */
+  /** @type {{element:import('../../lib/types.js').XastElement}[]} */
   const parents = [];
   visit(root, {
     element: {
@@ -34,7 +30,7 @@ function generateTreeData(root) {
 /**
  * @param {import('../../lib/types.js').StyleData} styleData
  * @param {{ids:Map<string,import('../../lib/types.js').XastElement>,
- * parents:Map<XastElement,{element:XastElement}[]>}} treeInfo
+ * parents:Map<import('../../lib/types.js').XastElement,{element:import('../../lib/types.js').XastElement}[]>}} treeInfo
  * @param {string} id
  * @param {string} styleName
  */

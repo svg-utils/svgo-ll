@@ -47,8 +47,6 @@ export class SvgAttValues {
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
-  // /** @deprecated */
-  // name: string;
   local: string;
   prefix: string;
   uri: string | undefined;

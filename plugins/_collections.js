@@ -120,7 +120,7 @@ export const attrsGroups = {
     'requiredFeatures',
     'systemLanguage',
   ]),
-  core: new Set(['id', 'tabindex', 'xml:base', 'xml:lang', 'xml:space']),
+  core: new Set(['id', 'tabindex']),
   graphicalEvent: new Set([
     'onactivate',
     'onclick',

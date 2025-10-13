@@ -38,6 +38,7 @@ export type XastAttSvg = {
   value: AttValue;
 };
 export class SvgAttValues {
+  keys(): IterableIterator<string>;
   delete(name: string): void;
   entries(): IterableIterator<[string, string | AttValue]>;
   get(name: string): string | AttValue | undefined;

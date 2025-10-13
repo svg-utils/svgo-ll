@@ -18,11 +18,17 @@ Preserve <use>d colors.
         <rect width="18" height="18" fill="currentColor"/>
       </g>
     </g>
+    <g id="e">
+      <rect width="18" height="18" fill="currentColor"/>
+    </g>
   </defs>
   <use href="#a" x="2" y="2" color="red"/>
   <use href="#b" x="22" y="2" color="red"/>
   <use href="#c" x="42" y="2"/>
   <use href="#d" x="62" y="2" color="red"/>
+  <g color="red">
+    <use href="#e" x="2" y="22"/>
+  </g>
 </svg>
 
 @@@
@@ -43,9 +49,15 @@ Preserve <use>d colors.
         <rect width="18" height="18" fill="currentColor"/>
       </g>
     </g>
+    <g id="e">
+      <rect width="18" height="18" fill="currentColor"/>
+    </g>
   </defs>
   <use href="#a" x="2" y="2" color="red"/>
   <use href="#b" x="22" y="2"/>
   <use href="#c" x="42" y="2"/>
   <use href="#d" x="62" y="2"/>
+  <g color="red">
+    <use href="#e" x="2" y="22"/>
+  </g>
 </svg>

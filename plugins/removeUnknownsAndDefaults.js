@@ -196,6 +196,13 @@ export const fn = (info, params) => {
               element.svgAtts.delete(attName);
             }
           });
+
+          // If there is a color attribute, save it to see if it is necessary.
+          const props = getPresentationProperties(element);
+          if (props.get('color')) {
+            colorEls.add(element);
+          }
+
           return;
         }
 

@@ -90,7 +90,7 @@ export const fn = (info, params) => {
         const coordContext = coordContextStack[coordContextStack.length - 1];
 
         // Round attributes.
-        for (const [attName, attValue] of Object.entries(element.attributes)) {
+        for (const [attName, attValue] of element.svgAtts.entries()) {
           let newVal;
           switch (attName) {
             case 'd':
@@ -123,7 +123,7 @@ export const fn = (info, params) => {
               newVal = roundFontSize(attValue, fontSizeDigits);
               break;
             case 'offset':
-              if (element.name === 'stop') {
+              if (element.local === 'stop') {
                 const stopOffset = StopOffsetValue.getObj(attValue);
                 newVal = stopOffset.round(stopOffsetDigits);
               }
@@ -144,7 +144,7 @@ export const fn = (info, params) => {
             case 'width':
               if (
                 !ROUNDABLE_XY_ELEMENTS[attName] ||
-                ROUNDABLE_XY_ELEMENTS[attName].has(element.name)
+                ROUNDABLE_XY_ELEMENTS[attName].has(element.local)
               ) {
                 newVal = roundCoord(attValue, coordContext.xDigits);
               }
@@ -155,14 +155,14 @@ export const fn = (info, params) => {
             case 'height':
               if (
                 !ROUNDABLE_XY_ELEMENTS[attName] ||
-                ROUNDABLE_XY_ELEMENTS[attName].has(element.name)
+                ROUNDABLE_XY_ELEMENTS[attName].has(element.local)
               ) {
                 newVal = roundCoord(attValue, coordContext.yDigits);
               }
               break;
           }
           if (newVal) {
-            element.attributes[attName] = newVal;
+            element.svgAtts.set(attName, newVal);
           }
         }
 

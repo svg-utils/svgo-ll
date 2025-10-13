@@ -505,26 +505,29 @@ function canHaveProperty(propName, allowedAttributes) {
 }
 
 /**
- * @param {Set<import('../lib/types.js').XastElement>} colorEls
- * @param {Set<import('../lib/types.js').XastElement>} currentColorEls
+ * @param {Set<import('../lib/types.js').XastElement>} elsWithColorAtt
+ * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColor
  */
-function deleteColorAtts(colorEls, currentColorEls) {
-  if (colorEls.size === 0) {
+function deleteColorAtts(elsWithColorAtt, elsWithCurrentColor) {
+  if (elsWithColorAtt.size === 0) {
     return;
   }
 
-  const validColorEls = new Set();
-  currentColorEls.forEach((element) => {
+  const elsWhichCanHaveColorAtt = new Set();
+
+  elsWithCurrentColor.forEach((element) => {
+    // This element has currentColor; add all its parents as allowed to have color.
     /** @type {import('../lib/types.js').XastElement|undefined} */
     let el = element;
     while (el) {
-      validColorEls.add(el);
+      elsWhichCanHaveColorAtt.add(el);
+      // If the element has an id, and it is <use>d, add the <use>ing element and its parents as allowed to have color.
       el = el.parentNode.type === 'root' ? undefined : el.parentNode;
     }
   });
 
-  colorEls.forEach((element) => {
-    if (!validColorEls.has(element)) {
+  elsWithColorAtt.forEach((element) => {
+    if (!elsWhichCanHaveColorAtt.has(element)) {
       element.svgAtts.delete('color');
       const styleAttValue = StyleAttValue.getStyleAttValue(element);
       if (styleAttValue) {

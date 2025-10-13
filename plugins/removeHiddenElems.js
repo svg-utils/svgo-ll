@@ -1,6 +1,7 @@
 import { parsePathCommands, PathParseError } from '../lib/pathutils.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getEllipseProperties } from '../lib/svgo/tools.js';
+import { setElementName } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeHiddenElems';
@@ -36,8 +37,8 @@ export const fn = (info) => {
    * @param {import('../lib/types.js').XastElement} element
    */
   function convertToDefs(element) {
-    element.name = element.prefix === '' ? 'defs' : `${element.prefix}:defs`;
     element.local = 'defs';
+    setElementName(element);
     element.attributes = {};
     processDefsChildren(element);
     if (element.children.length === 0) {
@@ -57,7 +58,7 @@ export const fn = (info) => {
    * @param {import('../lib/types.js').XastElement} element
    */
   function removeUndisplayedElement(element) {
-    if (element.name === 'g') {
+    if (element.local === 'g') {
       // It may contain referenced elements; treat it as <defs>.
       convertToDefs(element);
     } else {
@@ -71,7 +72,7 @@ export const fn = (info) => {
    * @returns {boolean}
    */
   function removeEmptyShapes(element, properties) {
-    switch (element.name) {
+    switch (element.local) {
       case 'circle':
         if (properties.get('r') === '0' && !isAnimated(element)) {
           removeElement(element);
@@ -142,13 +143,17 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element, parentList) => {
-        if (element.name === 'defs') {
+        if (element.uri !== undefined) {
+          return;
+        }
+
+        if (element.local === 'defs') {
           processDefsChildren(element);
           return;
         }
 
         // Process non-rendering elements.
-        if (elemsGroups.nonRendering.has(element.name)) {
+        if (elemsGroups.nonRendering.has(element.local)) {
           if (!element.attributes.id) {
             // If the element doesn't have an id, it can't be referenced; but it may contain referenced elements. Change it to <defs>.
             convertToDefs(element);
@@ -178,7 +183,7 @@ export const fn = (info) => {
         if (
           display === 'none' &&
           // markers with display: none still rendered
-          element.name !== 'marker'
+          element.local !== 'marker'
         ) {
           removeUndisplayedElement(element);
           return;
@@ -194,7 +199,7 @@ export const fn = (info) => {
         }
       },
       exit: (element) => {
-        if (elemsGroups.nonRendering.has(element.name)) {
+        if (elemsGroups.nonRendering.has(element.local)) {
           nonRenderingStack.pop();
         }
       },
@@ -225,7 +230,7 @@ function getChildrenWithIds(child) {
   }
 
   // Preserve styles and scripts with no id.
-  switch (child.name) {
+  switch (child.local) {
     case 'script':
     case 'style':
       return [child];

@@ -1,4 +1,4 @@
-import { detachNodeFromParent } from '../lib/xast.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 
 export const name = 'removeMetadata';
 export const description = 'removes <metadata>';
@@ -8,20 +8,21 @@ export const description = 'removes <metadata>';
  *
  * https://www.w3.org/TR/SVG11/metadata.html
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeMetadata'>}
  */
-export function fn(info) {
-  if (info.passNumber > 0) {
-    return;
-  }
+export function fn() {
+  const childrenToDelete = new ChildDeletionQueue();
   return {
     element: {
       enter: (element) => {
-        if (element.name === 'metadata') {
-          detachNodeFromParent(element);
+        if (element.uri === undefined && element.local === 'metadata') {
+          childrenToDelete.add(element);
         }
+      },
+    },
+    root: {
+      exit: () => {
+        childrenToDelete.delete();
       },
     },
   };

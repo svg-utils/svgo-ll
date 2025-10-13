@@ -19,6 +19,7 @@ export default [
     files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
     rules: {
       strict: 'error',
+      // eqeqeq: 'error',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },

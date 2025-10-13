@@ -91,7 +91,7 @@ export const fn = (info, params) => {
               foundIds.delete(id);
 
               // If this is a non-renderable element that references other elements, decrement their reference count.
-              if (elemsGroups.nonRendering.has(element.name)) {
+              if (elemsGroups.nonRendering.has(element.local)) {
                 const referencedIds = getReferencedIds(element);
                 for (const { id } of referencedIds) {
                   let referenceCount = referenceCounts.get(id);

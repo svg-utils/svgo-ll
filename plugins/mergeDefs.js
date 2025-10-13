@@ -16,7 +16,7 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        if (element.name === 'defs') {
+        if (element.uri === undefined && element.local === 'defs') {
           defs.push(element);
         }
       },

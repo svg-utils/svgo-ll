@@ -37,7 +37,7 @@ export const fn = (info) => {
     element: {
       enter: (element) => {
         // collect tags, ids and classes usage
-        tagsUsage.add(element.name);
+        tagsUsage.add(element.local);
         if (element.attributes.id != null) {
           idsUsage.add(element.attributes.id.toString());
         }

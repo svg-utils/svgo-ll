@@ -1,6 +1,10 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
-import { getHrefId, getReferencedIds } from '../lib/tools-ast.js';
+import {
+  getHrefId,
+  getReferencedIds,
+  setElementName,
+} from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'inlineUse';
@@ -168,7 +172,7 @@ function inlineUse(use, def) {
 
   // Convert the <use>.
   use.local = isContainer ? 'g' : def.local;
-  use.name = use.prefix === '' ? use.local : `${use.prefix}:${use.local}`;
+  setElementName(use);
 
   // Update attributes.
   let tx = '0';

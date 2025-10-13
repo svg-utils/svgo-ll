@@ -102,8 +102,8 @@ export const fn = (info, params) => {
         }
 
         if (
-          elemsGroups.animation.has(element.name) &&
-          element.attributes.begin
+          elemsGroups.animation.has(element.local) &&
+          element.svgAtts.get('begin') !== undefined
         ) {
           // Until we have support for this attribute, disable the plugin.
           disabled = true;
@@ -136,7 +136,7 @@ export const fn = (info, params) => {
           if (!element) {
             throw new Error();
           }
-          element.attributes.id = newId;
+          element.svgAtts.set('id', newId);
         }
 
         // Update all referenced ids.

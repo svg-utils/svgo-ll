@@ -9,8 +9,6 @@ export const description = 'removes useless stroke and fill attributes';
 /**
  * Remove useless stroke and fill attrs.
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeUselessStrokeAndFill'>}
  */
 export const fn = (info) => {
@@ -26,11 +24,15 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element, parentList) => {
-        // id attribute deoptimise the whole subtree
-        if (element.attributes.id) {
+        if (element.uri !== undefined) {
+          return;
+        }
+
+        // If id attribute is present the element may be <use>; do not process.
+        if (element.svgAtts.get('id')) {
           return visitSkip;
         }
-        if (!elemsGroups.shape.has(element.name)) {
+        if (!elemsGroups.shape.has(element.local)) {
           return;
         }
         const computedStyle = styleData.computeStyle(element, parentList);
@@ -79,9 +81,9 @@ export const fn = (info) => {
  */
 function removePrefixedProperties(element, prefix) {
   // Remove attributes
-  for (const name of Object.keys(element.attributes)) {
+  for (const name of element.svgAtts.keys()) {
     if (name.startsWith(prefix)) {
-      delete element.attributes[name];
+      element.svgAtts.delete(name);
     }
   }
 
@@ -113,6 +115,6 @@ function setNone(element, propName, styleData, parentList, allowUndefined) {
       StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue('');
     style.set(propName, { value: 'none', important: false });
     updateStyleAttribute(element, style);
-    delete element.attributes[propName];
+    element.svgAtts.delete(propName);
   }
 }

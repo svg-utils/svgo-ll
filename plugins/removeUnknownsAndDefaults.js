@@ -14,12 +14,13 @@ import { getPresentationProperties, getProperty } from './_styles.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
-  'removes unknown elements content and attributes, removes attrs with default values';
+  'removes unknown elements, removes attributes and properties with default values or unused values';
 
 /**
  * @typedef {Map<string,{element:import('../lib/types.js').XastElement,hasColor:boolean}[]>} UsedElMap
  */
 
+// https://svgwg.org/svg2-draft/painting.html#ColorProperty
 const ALLOWED_CURRENTCOLOR_PROPS = [
   'fill',
   'stroke',
@@ -553,7 +554,7 @@ function deleteColorAtts(elsWithColorAtt, elsWithCurrentColor, usedElsById) {
   elsWithColorAtt.forEach((element) => {
     if (!elsWhichCanHaveColorAtt.has(element)) {
       element.svgAtts.delete('color');
-      const styleAttValue = StyleAttValue.getStyleAttValue(element);
+      const styleAttValue = StyleAttValue.getAttValue(element);
       if (styleAttValue) {
         styleAttValue.delete('color');
         updateStyleAttribute(element, styleAttValue);

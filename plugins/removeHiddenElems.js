@@ -1,7 +1,6 @@
 import { parsePathCommands, PathParseError } from '../lib/pathutils.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getEllipseProperties } from '../lib/svgo/tools.js';
-import { setElementName } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeHiddenElems';
@@ -38,7 +37,6 @@ export const fn = (info) => {
    */
   function convertToDefs(element) {
     element.local = 'defs';
-    setElementName(element);
     element.attributes = {};
     processDefsChildren(element);
     if (element.children.length === 0) {

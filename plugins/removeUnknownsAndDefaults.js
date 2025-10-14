@@ -322,7 +322,7 @@ export const fn = (info, params) => {
             const parentProperties = styleData.computeParentStyle(parentList);
             const parentClipPath = parentProperties.get(name);
             if (parentClipPath && parentClipPath === attValue.toString()) {
-              delete element.attributes[name];
+              element.svgAtts.delete(name);
               continue;
             }
           }

@@ -133,7 +133,10 @@ export const fn = (info, params) => {
     return;
   }
 
-  /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
+  /**
+   * @type {Map<import('../lib/types.js').XastElement,string[]>}
+   * @deprecated - merge with propsToDeleteIfUnused
+   */
   const attsToDeleteIfUnused = new Map();
   /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
   const propsToDeleteIfUnused = new Map();
@@ -233,7 +236,7 @@ export const fn = (info, params) => {
         );
 
         // Remove any unnecessary style properties.
-        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        const styleAttValue = StyleAttValue.getAttValue(element);
         if (styleAttValue) {
           // Delete the associated attributes, since they will always be overridden by the style property.
           for (let p of styleAttValue.keys()) {
@@ -248,7 +251,7 @@ export const fn = (info, params) => {
                   break;
               }
             }
-            delete element.attributes[p];
+            element.svgAtts.delete(p);
           }
 
           // Calculate the style if we remove all properties.

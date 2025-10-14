@@ -122,6 +122,7 @@ type CSSFeatures =
   | 'type-selectors';
 
 export class AttValue {
+  static getObj(value: string | AttValue): AttValue;
   round(numDigits: number): AttValue;
   toString(): string;
   toStyleAttString(): string;

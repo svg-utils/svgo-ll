@@ -1,3 +1,4 @@
+import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { ColorValue } from '../lib/attrs/colorValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
@@ -22,15 +23,19 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         // Minify attribute values.
-        for (const [attName, attVal] of Object.entries(element.attributes)) {
+        for (const [attName, attVal] of element.svgAtts.entries()) {
           switch (attName) {
             case 'fill':
             case 'stroke':
               {
                 const value = PaintAttValue.getAttValue(element, attName);
                 if (value) {
-                  element.attributes[attName] = value.getMinifiedValue();
+                  element.svgAtts.set(attName, value.getMinifiedValue());
                 }
               }
               break;
@@ -39,18 +44,15 @@ export const fn = (info) => {
             case 'lighting-color':
             case 'stop-color':
               {
-                const value = ColorValue.getColorObj(attVal);
-                const min = value.getMinifiedValue();
-                if (min) {
-                  element.attributes[attName] = min;
-                }
+                const value = ColorAttValue.getObj(attVal);
+                element.svgAtts.set(attName, value.getMinifiedValue());
               }
               break;
           }
         }
 
         // Minify style properties.
-        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        const styleAttValue = StyleAttValue.getAttValue(element);
         if (!styleAttValue) {
           return;
         }

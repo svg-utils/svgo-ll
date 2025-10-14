@@ -1,4 +1,3 @@
-import { ColorValue } from '../lib/attrs/colorValue.js';
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
@@ -12,6 +11,7 @@ import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { TransformValue } from '../lib/attrs/transformValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
+import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -266,10 +266,10 @@ function isTranslation(transform) {
 
 /**
  * @param {import('../lib/types.js').SVGAttValue} attValue
- * @returns {ColorValue|null}
+ * @returns {ColorAttValue|null}
  */
 function roundColor(attValue) {
-  const value = ColorValue.getColorObj(attValue);
+  const value = ColorAttValue.getObj(attValue);
   return value.round();
 }
 

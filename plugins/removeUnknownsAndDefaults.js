@@ -433,7 +433,7 @@ export const fn = (info, params) => {
               styleData.computeOwnStyle(referencedElement);
 
             // Delete any attributes or style properties that are directly present in the referenced element.
-            for (const attName of Object.keys(element.attributes)) {
+            for (const attName of element.svgAtts.keys()) {
               if (attrsGroups.presentation.has(attName)) {
                 if (attName === 'transform') {
                   continue;
@@ -443,7 +443,7 @@ export const fn = (info, params) => {
                 }
               }
             }
-            const styleAttValue = StyleAttValue.getStyleAttValue(element);
+            const styleAttValue = StyleAttValue.getAttValue(element);
             if (styleAttValue) {
               for (const [propName, propValue] of styleAttValue.entries()) {
                 if (

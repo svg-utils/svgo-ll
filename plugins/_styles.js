@@ -26,6 +26,15 @@ export function getPresentationProperties(element) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @param {string} propName
+ * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+ */
+export function getProperty(element, propName) {
+  return _getProperties(element, (name) => name === propName);
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
  * @param {function(string):boolean} fnInclude
  * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
  */
@@ -34,7 +43,7 @@ function _getProperties(element, fnInclude) {
   const props = new Map();
 
   // Gather all attributes.
-  for (const [name, value] of Object.entries(element.attributes)) {
+  for (const [name, value] of element.svgAtts.entries()) {
     if (!fnInclude(name)) {
       continue;
     }

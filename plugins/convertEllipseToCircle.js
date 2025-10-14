@@ -1,5 +1,3 @@
-import { setElementName } from '../lib/tools-ast.js';
-
 export const name = 'convertEllipseToCircle';
 export const description = 'converts non-eccentric <ellipse>s to <circle>s';
 
@@ -28,7 +26,6 @@ export const fn = () => {
             ry === 'auto' // SVG2
           ) {
             element.local = 'circle';
-            setElementName(element);
             const radius = rx === 'auto' ? ry : rx;
             delete element.attributes.rx;
             delete element.attributes.ry;

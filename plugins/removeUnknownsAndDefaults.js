@@ -9,11 +9,24 @@ import { visitSkip } from '../lib/xast.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
+import { getPresentationProperties, getProperty } from './_styles.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
-  'removes unknown elements content and attributes, removes attrs with default values';
+  'removes unknown elements, removes attributes and properties with default values or unused values';
+
+/**
+ * @typedef {Map<string,{element:import('../lib/types.js').XastElement,hasColor:boolean}[]>} UsedElMap
+ */
+
+// https://svgwg.org/svg2-draft/painting.html#ColorProperty
+const ALLOWED_CURRENTCOLOR_PROPS = [
+  'fill',
+  'stroke',
+  'stop-color',
+  'flood-color',
+  'lighting-color',
+];
 
 /** @type {Map<string, Set<string>>} */
 const allowedChildrenPerElement = new Map();
@@ -101,65 +114,12 @@ for (const [name, config] of Object.entries(elems)) {
 }
 
 /**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} propName
- * @param {string|undefined} value
- * @param {Map<string,string>|undefined} defaults
- * @returns {boolean}
- */
-function isDefaultPropertyValue(element, propName, value, defaults) {
-  if (defaults === undefined) {
-    return false;
-  }
-  const defaultVals = defaults.get(propName);
-  if (value === defaultVals) {
-    return true;
-  }
-  if (propName === 'word-spacing' && (value === '0' || value === '0px')) {
-    // 'normal' is equivalent to 0
-    return true;
-  }
-  if (
-    propName === 'overflow' &&
-    value === 'visible' &&
-    !preserveOverflowElements.has(element.local)
-  ) {
-    return true;
-  }
-  return false;
-}
-
-/**
  * Remove unknown elements content and attributes,
  * remove attributes with default values.
  *
  * @type {import('./plugins-types.js').Plugin<'removeUnknownsAndDefaults'>}
  */
 export const fn = (info, params) => {
-  /**
-   * @param {import('../lib/types.js').XastElement} element
-   * @returns {boolean}
-   */
-  function elementIsUsed(element) {
-    if (usedIDs.size === 0) {
-      return false;
-    }
-    // See if the element or any of its parents are used.
-    while (true) {
-      if (
-        element.attributes.id &&
-        usedIDs.has(element.attributes.id.toString())
-      ) {
-        return true;
-      }
-      const parent = element.parentNode;
-      if (parent.type === 'root') {
-        return false;
-      }
-      element = parent;
-    }
-  }
-
   const {
     unknownAttrs = true,
     defaultMarkupDeclarations = true,
@@ -173,16 +133,21 @@ export const fn = (info, params) => {
     return;
   }
 
-  /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
+  /**
+   * @type {Map<import('../lib/types.js').XastElement,string[]>}
+   * @deprecated - merge with propsToDeleteIfUnused
+   */
   const attsToDeleteIfUnused = new Map();
   /** @type {Map<import('../lib/types.js').XastElement,string[]>} */
   const propsToDeleteIfUnused = new Map();
-  /** @type {Set<string>} */
-  const usedIDs = new Set();
   /** @type {Map<string,import('../lib/types.js').XastElement>} */
   const elementsById = new Map();
-  /** @type {Set<import('../lib/types.js').XastElement>} */
-  const useElements = new Set();
+  /** @type {UsedElMap} */
+  const usedElsById = new Map();
+
+  const elsWithColorAtt = new Set();
+  const elsWithCurrentColor = new Set();
+  const elsWithCurrentColorToDelete = new Set();
 
   return {
     instruction: {
@@ -205,25 +170,47 @@ export const fn = (info, params) => {
           return visitSkip;
         }
 
-        if (element.attributes.id) {
-          elementsById.set(element.attributes.id.toString(), element);
+        const id = element.svgAtts.get('id')?.toString();
+        if (id) {
+          elementsById.set(id, element);
         }
+
+        /** @type {Map<string, string | null>} */
+        const computedStyle = styleData.computeStyle(element, parentList);
 
         if (element.local === 'use') {
           const id = getHrefId(element);
           if (id) {
-            usedIDs.add(id);
-            useElements.add(element);
+            let els = usedElsById.get(id);
+            if (els === undefined) {
+              els = [];
+              usedElsById.set(id, els);
+            }
+            els.push({
+              element: element,
+              hasColor: !!computedStyle.get('color'),
+            });
           }
+          addElsWhichHaveCurrentColor(
+            elsWithCurrentColor,
+            elsWithCurrentColorToDelete,
+            element,
+            computedStyle,
+          );
           // x="0" and y="0" can be removed; otherwise leave attributes alone.
           ['x', 'y'].forEach((attName) => {
-            if (
-              element.attributes[attName] !== undefined &&
-              element.attributes[attName].toString() === '0'
-            ) {
-              delete element.attributes[attName];
+            const val = element.svgAtts.get(attName)?.toString();
+            if (val === '0') {
+              element.svgAtts.delete(attName);
             }
           });
+
+          // If there is a color attribute, save it to see if it is necessary.
+          const props = getPresentationProperties(element);
+          if (props.get('color')) {
+            elsWithColorAtt.add(element);
+          }
+
           return;
         }
 
@@ -253,11 +240,9 @@ export const fn = (info, params) => {
         const attributesDefaults = attributesDefaultsPerElement.get(
           element.local,
         );
-        /** @type {Map<string, string | null>} */
-        const computedStyle = styleData.computeStyle(element, parentList);
 
         // Remove any unnecessary style properties.
-        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        const styleAttValue = StyleAttValue.getAttValue(element);
         if (styleAttValue) {
           // Delete the associated attributes, since they will always be overridden by the style property.
           for (let p of styleAttValue.keys()) {
@@ -272,7 +257,7 @@ export const fn = (info, params) => {
                   break;
               }
             }
-            delete element.attributes[p];
+            element.svgAtts.delete(p);
           }
 
           // Calculate the style if we remove all properties.
@@ -342,7 +327,7 @@ export const fn = (info, params) => {
             const parentProperties = styleData.computeParentStyle(parentList);
             const parentClipPath = parentProperties.get(name);
             if (parentClipPath && parentClipPath === attValue.toString()) {
-              delete element.attributes[name];
+              element.svgAtts.delete(name);
               continue;
             }
           }
@@ -354,13 +339,14 @@ export const fn = (info, params) => {
               case 'rx':
               case 'ry':
                 if (strValue === '0') {
-                  const otherValue =
-                    element.attributes[name === 'rx' ? 'ry' : 'rx'];
+                  const otherValue = element.svgAtts.get(
+                    name === 'rx' ? 'ry' : 'rx',
+                  );
                   if (
                     otherValue === undefined ||
                     otherValue.toString() === '0'
                   ) {
-                    delete element.attributes[name];
+                    element.svgAtts.delete(name);
                     continue;
                   }
                 }
@@ -394,74 +380,87 @@ export const fn = (info, params) => {
         if (attsToDelete.length > 0) {
           attsToDeleteIfUnused.set(element, attsToDelete);
         }
+
+        // Remove attribute if value is "currentColor" and color is not set.
+        if (computedStyle.get('color') !== undefined) {
+          elsWithColorAtt.add(element);
+        }
+        addElsWhichHaveCurrentColor(
+          elsWithCurrentColor,
+          elsWithCurrentColorToDelete,
+          element,
+          computedStyle,
+        );
       },
     },
     root: {
       exit: () => {
         for (const [element, attNames] of attsToDeleteIfUnused.entries()) {
-          if (elementIsUsed(element)) {
+          if (elementIsUsed(element, usedElsById)) {
             continue;
           }
           for (const attName of attNames) {
-            delete element.attributes[attName];
+            element.svgAtts.delete(attName);
           }
         }
         for (const [element, propNames] of propsToDeleteIfUnused.entries()) {
-          if (elementIsUsed(element)) {
+          if (elementIsUsed(element, usedElsById)) {
             continue;
           }
-          const styleAttValue = StyleAttValue.getStyleAttValue(element);
-          if (styleAttValue) {
-            for (const propName of propNames) {
-              styleAttValue.delete(propName);
-            }
-            updateStyleAttribute(element, styleAttValue);
-          }
+          StyleAttValue.deleteProps(element, propNames.values());
         }
 
+        // Delete color property from elements where it is not needed.
+        deleteColorAtts(elsWithColorAtt, elsWithCurrentColor, usedElsById);
+
+        // Delete attributes with currentColor if they are not used by something with a color.
+        deleteUnusedCurrentColors(elsWithCurrentColorToDelete, usedElsById);
+
         const childrenToDelete = new ChildDeletionQueue();
-        for (const element of useElements) {
-          // If the element has attributes which are present in the referenced element, delete them.
-          const referencedId = getHrefId(element);
-          if (referencedId === undefined) {
-            throw new Error();
-          }
-          const referencedElement = elementsById.get(referencedId);
-          if (!referencedElement) {
-            childrenToDelete.add(element);
-            continue;
-          }
+        for (const elements of usedElsById.values()) {
+          for (const { element } of elements) {
+            // If the element has attributes which are present in the referenced element, delete them.
+            const referencedId = getHrefId(element);
+            if (referencedId === undefined) {
+              throw new Error();
+            }
+            const referencedElement = elementsById.get(referencedId);
+            if (!referencedElement) {
+              childrenToDelete.add(element);
+              continue;
+            }
 
-          const referencedElementProps =
-            styleData.computeOwnStyle(referencedElement);
+            const referencedElementProps =
+              styleData.computeOwnStyle(referencedElement);
 
-          // Delete any attributes or style properties that are directly present in the referenced element.
-          for (const attName of Object.keys(element.attributes)) {
-            if (attrsGroups.presentation.has(attName)) {
-              if (attName === 'transform') {
-                continue;
-              }
-              if (referencedElementProps.has(attName)) {
-                delete element.attributes[attName];
+            // Delete any attributes or style properties that are directly present in the referenced element.
+            for (const attName of element.svgAtts.keys()) {
+              if (attrsGroups.presentation.has(attName)) {
+                if (attName === 'transform') {
+                  continue;
+                }
+                if (referencedElementProps.has(attName)) {
+                  element.svgAtts.delete(attName);
+                }
               }
             }
-          }
-          const styleAttValue = StyleAttValue.getStyleAttValue(element);
-          if (styleAttValue) {
-            for (const [propName, propValue] of styleAttValue.entries()) {
-              if (
-                referencedElementProps.has(propName) ||
-                isDefaultPropertyValue(
-                  element,
-                  propName,
-                  propValue.value.toString(),
-                  attributesDefaultsPerElement.get(element.local),
-                )
-              ) {
-                styleAttValue.delete(propName);
+            const styleAttValue = StyleAttValue.getAttValue(element);
+            if (styleAttValue) {
+              for (const [propName, propValue] of styleAttValue.entries()) {
+                if (
+                  referencedElementProps.has(propName) ||
+                  isDefaultPropertyValue(
+                    element,
+                    propName,
+                    propValue.value.toString(),
+                    attributesDefaultsPerElement.get(element.local),
+                  )
+                ) {
+                  styleAttValue.delete(propName);
+                }
               }
+              styleAttValue.updateElement(element);
             }
-            updateStyleAttribute(element, styleAttValue);
           }
         }
 
@@ -470,6 +469,73 @@ export const fn = (info, params) => {
     },
   };
 };
+
+/**
+ * @param {Set<import('../lib/types.js').XastElement>} elsWhichCanHaveColorAtt
+ * @param {IterableIterator<import('../lib/types.js').XastElement>} elsWithCurrentColor
+ * @param {UsedElMap} usedElsById
+ */
+function addElsWhichCanHaveColorAtt(
+  elsWhichCanHaveColorAtt,
+  elsWithCurrentColor,
+  usedElsById,
+) {
+  for (const element of elsWithCurrentColor) {
+    // This element has currentColor; add all its parents as allowed to have color.
+    /** @type {import('../lib/types.js').XastElement|undefined} */
+    let el = element;
+    let includeUses = true;
+    while (el) {
+      elsWhichCanHaveColorAtt.add(el);
+
+      if (includeUses) {
+        // See if it has a color property. If so, it will override any <use>ing element.
+        includeUses = getProperty(el, 'color').size === 0;
+      }
+
+      if (includeUses) {
+        // If the element has an id, and it is <use>d, add the <use>ing element and its parents as allowed to have color.
+        const id = el.svgAtts.get('id')?.toString();
+        if (id) {
+          const usingEls = usedElsById.get(id);
+          if (usingEls) {
+            addElsWhichCanHaveColorAtt(
+              elsWhichCanHaveColorAtt,
+              usingEls.map((info) => info.element).values(),
+              usedElsById,
+            );
+          }
+        }
+      }
+      el = el.parentNode.type === 'root' ? undefined : el.parentNode;
+    }
+  }
+}
+
+/**
+ *
+ * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColor
+ * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColorToDelete
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {Map<string,string|null>} computedStyle
+ */
+function addElsWhichHaveCurrentColor(
+  elsWithCurrentColor,
+  elsWithCurrentColorToDelete,
+  element,
+  computedStyle,
+) {
+  ALLOWED_CURRENTCOLOR_PROPS.forEach((attName) => {
+    const attValue = computedStyle.get(attName);
+    if (attValue === 'currentColor') {
+      elsWithCurrentColor.add(element);
+      // If color is not set, delete it at the end if it is not used by an element with color property.
+      if (computedStyle.get('color') === undefined) {
+        elsWithCurrentColorToDelete.add(element);
+      }
+    }
+  });
+}
 
 /**
  * @param {string} propName
@@ -490,5 +556,143 @@ function canHaveProperty(propName, allowedAttributes) {
       // this element.
       return allowedAttributes.has('marker-start');
   }
+  return false;
+}
+
+/**
+ * @param {Set<import('../lib/types.js').XastElement>} elsWithColorAtt
+ * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColor
+ * @param {UsedElMap} usedElsById
+ */
+function deleteColorAtts(elsWithColorAtt, elsWithCurrentColor, usedElsById) {
+  if (elsWithColorAtt.size === 0) {
+    return;
+  }
+
+  const elsWhichCanHaveColorAtt = new Set();
+
+  addElsWhichCanHaveColorAtt(
+    elsWhichCanHaveColorAtt,
+    elsWithCurrentColor.values(),
+    usedElsById,
+  );
+
+  elsWithColorAtt.forEach((element) => {
+    if (!elsWhichCanHaveColorAtt.has(element)) {
+      element.svgAtts.delete('color');
+      const styleAttValue = StyleAttValue.getAttValue(element);
+      if (styleAttValue) {
+        styleAttValue.delete('color');
+        styleAttValue.updateElement(element);
+      }
+    }
+  });
+}
+
+/**
+ * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColorToDelete
+ * @param {UsedElMap} usedElsById
+ */
+function deleteUnusedCurrentColors(elsWithCurrentColorToDelete, usedElsById) {
+  elsWithCurrentColorToDelete.forEach((element) => {
+    // Check the element and each parent to see if it is used by an element with color set.
+    /** @type {import('../lib/types.js').XastElement|undefined} */
+    let el = element;
+    while (el) {
+      const id = el.svgAtts.get('id')?.toString();
+      if (id) {
+        if (usingElHasColor(id, usedElsById)) {
+          return;
+        }
+      }
+      el = el.parentNode.type === 'root' ? undefined : el.parentNode;
+    }
+    ALLOWED_CURRENTCOLOR_PROPS.forEach((attName) => {
+      element.svgAtts.delete(attName);
+    });
+    StyleAttValue.deleteProps(element, ALLOWED_CURRENTCOLOR_PROPS.values());
+  });
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {UsedElMap} usedIDs
+ * @returns {boolean}
+ */
+function elementIsUsed(element, usedIDs) {
+  if (usedIDs.size === 0) {
+    return false;
+  }
+  // See if the element or any of its parents are used.
+  while (true) {
+    const id = element.svgAtts.get('id')?.toString();
+    if (id !== undefined && usedIDs.has(id)) {
+      return true;
+    }
+    const parent = element.parentNode;
+    if (parent.type === 'root') {
+      return false;
+    }
+    element = parent;
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} propName
+ * @param {string|undefined} value
+ * @param {Map<string,string>|undefined} defaults
+ * @returns {boolean}
+ */
+function isDefaultPropertyValue(element, propName, value, defaults) {
+  if (defaults === undefined) {
+    return false;
+  }
+  const defaultVals = defaults.get(propName);
+  if (value === defaultVals) {
+    return true;
+  }
+  if (propName === 'word-spacing' && (value === '0' || value === '0px')) {
+    // 'normal' is equivalent to 0
+    return true;
+  }
+  if (
+    propName === 'overflow' &&
+    value === 'visible' &&
+    !preserveOverflowElements.has(element.local)
+  ) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * @param {string} id
+ * @param {UsedElMap} usedElsById
+ * @returns {boolean}
+ */
+function usingElHasColor(id, usedElsById) {
+  const usingEls = usedElsById.get(id);
+  if (!usingEls) {
+    return false;
+  }
+
+  if (usingEls.some((info) => info.hasColor)) {
+    return true;
+  }
+
+  // See if any of the using elements are used by something with color.
+  if (
+    usingEls.some((info) => {
+      const id = info.element.svgAtts.get('id')?.toString();
+      if (!id) {
+        return false;
+      }
+      return usingElHasColor(id, usedElsById);
+    })
+  ) {
+    return true;
+  }
+
   return false;
 }

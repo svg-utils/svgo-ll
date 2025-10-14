@@ -1,0 +1,27 @@
+Preserve color when referenced by <use>.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <g id="a">
+      <rect width="18" height="18"/>
+    </g>
+  </defs>
+  <g color="red">
+    <use href="#a" x="22" y="2" fill="currentColor"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <g id="a">
+      <rect width="18" height="18"/>
+    </g>
+  </defs>
+  <g color="red">
+    <use href="#a" x="22" y="2" fill="currentColor"/>
+  </g>
+</svg>

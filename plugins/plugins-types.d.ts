@@ -106,10 +106,6 @@ type BuiltinPlugins = {
     stopOffsetDigits?: number;
     stdDeviationDigits?: number;
   };
-  sortAttrs: {
-    order?: string[];
-    xmlnsOrder?: 'front' | 'alphabetical';
-  };
   stylesToClasses: void;
 };
 

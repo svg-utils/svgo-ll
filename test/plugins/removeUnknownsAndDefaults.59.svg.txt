@@ -1,0 +1,23 @@
+Remove unnecessary currentColor in <use>.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <g id="a">
+      <rect width="18" height="18"/>
+    </g>
+  </defs>
+  <use href="#a" x="2" y="2" fill="currentColor"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <g id="a">
+      <rect width="18" height="18"/>
+    </g>
+  </defs>
+  <use href="#a" x="2" y="2"/>
+</svg>

@@ -1,0 +1,31 @@
+Preserve <use>d colors when <use>s are nested.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <g id="a" color="blue">
+      <rect id="c" width="18" height="18" fill="currentColor"/>
+    </g>
+    <g color="yellow">
+      <use id="b" href="#a"/>
+    </g>
+  </defs>
+  <use href="#b" x="2" y="2" color="red"/>
+  <use href="#c" x="22" y="2" color="red"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80">
+  <defs>
+    <g id="a" color="blue">
+      <rect id="c" width="18" height="18" fill="currentColor"/>
+    </g>
+    <g>
+      <use id="b" href="#a"/>
+    </g>
+  </defs>
+  <use href="#b" x="2" y="2"/>
+  <use href="#c" x="22" y="2" color="red"/>
+</svg>

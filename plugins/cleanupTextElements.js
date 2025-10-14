@@ -1,10 +1,6 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import {
-  deleteOtherAtt,
-  getXmlNSAtt,
-  setElementName,
-} from '../lib/tools-ast.js';
+import { deleteOtherAtt, getXmlNSAtt } from '../lib/tools-ast.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
@@ -130,7 +126,6 @@ export const fn = (info) => {
               }
               textChild.parentNode = parent;
               textChild.local = 'text';
-              setElementName(textChild);
               newChildren.push(textChild);
             }
           }

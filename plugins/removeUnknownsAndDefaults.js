@@ -334,13 +334,14 @@ export const fn = (info, params) => {
               case 'rx':
               case 'ry':
                 if (strValue === '0') {
-                  const otherValue =
-                    element.attributes[name === 'rx' ? 'ry' : 'rx'];
+                  const otherValue = element.svgAtts.get(
+                    name === 'rx' ? 'ry' : 'rx',
+                  );
                   if (
                     otherValue === undefined ||
                     otherValue.toString() === '0'
                   ) {
-                    delete element.attributes[name];
+                    element.svgAtts.delete(name);
                     continue;
                   }
                 }

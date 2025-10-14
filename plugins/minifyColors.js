@@ -1,5 +1,4 @@
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
-import { ColorValue } from '../lib/attrs/colorValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 
@@ -73,14 +72,11 @@ export const fn = (info) => {
             case 'lighting-color':
             case 'stop-color':
               {
-                const value = ColorValue.getColorObj(propValue.value);
-                const min = value.getMinifiedValue();
-                if (min) {
-                  styleAttValue.set(propName, {
-                    value: min,
-                    important: propValue.important,
-                  });
-                }
+                const value = ColorAttValue.getObj(propValue.value);
+                styleAttValue.set(propName, {
+                  value: value.getMinifiedValue(),
+                  important: propValue.important,
+                });
               }
               break;
           }

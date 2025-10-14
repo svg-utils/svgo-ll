@@ -569,15 +569,11 @@ function deleteUnusedCurrentColors(elsWithCurrentColorToDelete, usedElsById) {
     /** @type {import('../lib/types.js').XastElement|undefined} */
     let el = element;
     while (el) {
-      const id = element.svgAtts.get('id')?.toString();
+      const id = el.svgAtts.get('id')?.toString();
       if (id) {
         const usingEls = usedElsById.get(id);
         if (usingEls) {
-          if (
-            usingEls.some((info) => {
-              info.hasColor;
-            })
-          ) {
+          if (usingEls.some((info) => info.hasColor)) {
             return;
           }
         }

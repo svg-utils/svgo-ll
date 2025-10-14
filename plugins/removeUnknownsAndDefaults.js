@@ -575,11 +575,8 @@ function deleteUnusedCurrentColors(elsWithCurrentColorToDelete, usedElsById) {
     while (el) {
       const id = el.svgAtts.get('id')?.toString();
       if (id) {
-        const usingEls = usedElsById.get(id);
-        if (usingEls) {
-          if (usingEls.some((info) => info.hasColor)) {
-            return;
-          }
+        if (usingElHasColor(id, usedElsById)) {
+          return;
         }
       }
       el = el.parentNode.type === 'root' ? undefined : el.parentNode;
@@ -640,5 +637,36 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
   ) {
     return true;
   }
+  return false;
+}
+
+/**
+ * @param {string} id
+ * @param {UsedElMap} usedElsById
+ * @returns {boolean}
+ */
+function usingElHasColor(id, usedElsById) {
+  const usingEls = usedElsById.get(id);
+  if (!usingEls) {
+    return false;
+  }
+
+  if (usingEls.some((info) => info.hasColor)) {
+    return true;
+  }
+
+  // See if any of the using elements are used by something with color.
+  if (
+    usingEls.some((info) => {
+      const id = info.element.svgAtts.get('id')?.toString();
+      if (!id) {
+        return false;
+      }
+      return usingElHasColor(id, usedElsById);
+    })
+  ) {
+    return true;
+  }
+
   return false;
 }

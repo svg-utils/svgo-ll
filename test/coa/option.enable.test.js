@@ -27,8 +27,8 @@ const EXPECT_TRANS =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" id="abc" transform="translate(10 20)"/></svg>';
 const EXPECT_TRANS_PATH =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path id="abc" transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>';
-const EXPECT_TRANS_PATH_SORTED =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M10 20h10v20H10z" transform="translate(10 20)"/></svg>';
+const EXPECT_TRANS_PATH_NO_ID =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>';
 
 describe('test --enable option', function () {
   afterAll(() => {
@@ -112,9 +112,11 @@ describe('test --enable option', function () {
       PLUGINOPT_FILE1_OPT,
       '--quiet',
       '--enable',
-      'sortAttrs',
+      'removeDimensions',
     ]);
-    const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
-    expect(opt).toBe(EXPECT_TRANS_PATH_SORTED);
+    const opt = fs.readFileSync(path.resolve(tempFolder, 'test1.svg'), {
+      encoding: 'utf8',
+    });
+    expect(opt).toBe(EXPECT_TRANS_PATH_NO_ID);
   });
 });

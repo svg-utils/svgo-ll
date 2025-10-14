@@ -36,7 +36,6 @@ import * as removeUnusedNS from '../plugins/removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from '../plugins/removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from '../plugins/removeXMLProcInst.js';
 import * as round from '../plugins/round.js';
-import * as sortAttrs from '../plugins/sortAttrs.js';
 import * as stylesToClasses from '../plugins/stylesToClasses.js';
 
 /**
@@ -125,7 +124,6 @@ const pluginList = [
   removeUselessStrokeAndFill,
   removeXMLProcInst,
   round,
-  sortAttrs,
   stylesToClasses,
 ].map((p) => [p.name, p]);
 

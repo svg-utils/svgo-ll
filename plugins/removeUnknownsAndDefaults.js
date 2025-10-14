@@ -381,7 +381,7 @@ export const fn = (info, params) => {
           elsWithColorAtt.add(element);
         }
         ALLOWED_CURRENTCOLOR_PROPS.forEach((attName) => {
-          const attValue = props.get(attName)?.value.toString();
+          const attValue = computedStyle.get(attName);
           if (attValue === 'currentColor') {
             elsWithCurrentColor.add(element);
             // If color is not set, delete it at the end if it is not used by an element with color property.

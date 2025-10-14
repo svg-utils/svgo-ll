@@ -1,4 +1,4 @@
-Preserve <use>d colors when fill is specifiefd by <style>.
+Preserve <use>d colors when fill is specified by <style>.
 
 ===
 
@@ -8,14 +8,14 @@ Preserve <use>d colors when fill is specifiefd by <style>.
     <g id="a">
       <rect width="18" height="18"/>
     </g>
-    <g id="b">
+    <g id="b" color="blue">
       <rect width="18" height="18"/>
     </g>
     <g id="c">
       <rect width="18" height="18"/>
     </g>
     <g id="d">
-      <g>
+      <g color="yellow">
         <rect width="18" height="18"/>
       </g>
     </g>
@@ -23,11 +23,11 @@ Preserve <use>d colors when fill is specifiefd by <style>.
       <rect width="18" height="18"/>
     </g>
   </defs>
-  <use href="#a" x="2" y="2"/>
-  <use href="#b" x="22" y="2"/>
+  <use href="#a" x="2" y="2" color="red"/>
+  <use href="#b" x="22" y="2" color="red"/>
   <use href="#c" x="42" y="2"/>
-  <use href="#d" x="62" y="2"/>
-  <g>
+  <use href="#d" x="62" y="2" color="red"/>
+  <g color="red">
     <use href="#e" x="2" y="22"/>
   </g>
 </svg>

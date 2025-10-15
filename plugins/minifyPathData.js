@@ -2,7 +2,6 @@ import { ExactNum } from '../lib/exactnum.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import {
   getCmdArgs,
-  parsePathCommands,
   PathParseError,
   stringifyPathCommand,
   stringifyPathCommands,
@@ -31,32 +30,34 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        if (
-          element.uri === undefined &&
-          pathElems.has(element.local) &&
-          element.attributes.d !== undefined
-        ) {
-          if (PathAttValue.isMinified(element.attributes.d)) {
+        if (element.uri !== undefined || !pathElems.has(element.local)) {
+          return;
+        }
+
+        const d = PathAttValue.getAttValue(element);
+        if (d === undefined) {
+          return;
+        }
+        if (d.isMinified()) {
+          return;
+        }
+
+        let data;
+        try {
+          data = d.getParsedPath();
+        } catch (error) {
+          if (error instanceof PathParseError) {
+            console.warn(error.message);
             return;
           }
-
-          let data;
-          try {
-            data = parsePathCommands(element.attributes.d.toString());
-          } catch (error) {
-            if (error instanceof PathParseError) {
-              console.warn(error.message);
-              return;
-            }
-            throw error;
-          }
-          data = optimize(data);
-          if (data) {
-            element.attributes.d = new PathAttValue(
-              stringifyPathCommands(data),
-              true,
-            );
-          }
+          throw error;
+        }
+        data = optimize(data);
+        if (data) {
+          element.svgAtts.set(
+            'd',
+            new PathAttValue(stringifyPathCommands(data), true),
+          );
         }
       },
     },

@@ -1,6 +1,6 @@
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
-import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
+import { stringifyPathCommands } from '../lib/pathutils.js';
 import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
@@ -91,14 +91,11 @@ export const fn = (info, params) => {
 
         // Round attributes.
         for (const [attName, attValue] of element.svgAtts.entries()) {
+          /** @deprecated - anything roundable should return a rounded value */
           let newVal;
           switch (attName) {
             case 'd':
-              newVal = roundPath(
-                attValue,
-                coordContext.xDigits,
-                coordContext.yDigits,
-              );
+              roundPath(element, coordContext.xDigits, coordContext.yDigits);
               break;
             case 'fill':
             case 'stroke':
@@ -314,31 +311,22 @@ function roundOpacity(attValue, digits) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValueIn
+ * @param {import('../lib/types.js').XastElement} element
  * @param {number|null} xDigits
  * @param {number|null} yDigits
- * @returns {import('../lib/types.js').SVGAttValue|null}
+ * @returns {void}
  */
-function roundPath(attValueIn, xDigits, yDigits) {
+function roundPath(element, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
-    return null;
+    return;
   }
 
-  const inputIsString = typeof attValueIn === 'string';
-
-  let strAttValue;
-  if (inputIsString) {
-    strAttValue = attValueIn;
-  } else if (attValueIn instanceof PathAttValue) {
-    if (attValueIn.isRounded()) {
-      return null;
-    }
-    strAttValue = attValueIn.toString();
-  } else {
-    throw new Error();
+  const attValue = PathAttValue.getAttValue(element);
+  if (attValue === undefined || attValue.isRounded()) {
+    return;
   }
 
-  const commands = parsePathCommands(strAttValue);
+  const commands = attValue.getParsedPath();
   for (const command of commands) {
     switch (command.command) {
       case 'l':
@@ -368,13 +356,7 @@ function roundPath(attValueIn, xDigits, yDigits) {
 
   const rounded = stringifyPathCommands(commands);
 
-  if (inputIsString || rounded !== strAttValue) {
-    return new PathAttValue(rounded, false, true);
-  }
-
-  // Value hasn't changed by rounding, just note that we've already rounded.
-  attValueIn.setRounded(true);
-  return null;
+  element.svgAtts.set('d', new PathAttValue(rounded, false, true));
 }
 
 /**

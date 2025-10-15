@@ -2,7 +2,8 @@ import { ExactNum } from '../lib/exactnum.js';
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
 import { isNumber } from '../lib/svgo/tools.js';
-import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
+import { PathAttValue } from '../lib/attrs/pathAttValue.js';
+import { RectDimensionAttValue } from '../lib/attrs/rectDimensionAttValue.js';
 
 export const name = 'convertShapeToPath';
 export const description = 'converts basic shapes to more compact path form';
@@ -90,11 +91,10 @@ function convertLine(element) {
     { command: 'L', x: new ExactNum(x2), y: new ExactNum(y2) },
   ];
   element.local = 'path';
-  element.attributes.d = stringifyPathCommands(pathData);
-  delete element.attributes.x1;
-  delete element.attributes.y1;
-  delete element.attributes.x2;
-  delete element.attributes.y2;
+  element.svgAtts.set('d', new PathAttValue(undefined, pathData));
+  ['x1', 'y1', 'x2', 'y2'].forEach((attName) =>
+    element.svgAtts.delete(attName),
+  );
 }
 
 /**
@@ -102,11 +102,12 @@ function convertLine(element) {
  * @returns {void}
  */
 function convertPolyline(element) {
-  if (element.attributes.points === undefined) {
+  const points = element.svgAtts.get('points');
+  if (points === undefined) {
     return;
   }
 
-  const coords = element.attributes.points.toString().match(regNumber) || [];
+  const coords = points.toString().match(regNumber) || [];
   if (coords.length < 4) {
     return;
   }
@@ -129,8 +130,8 @@ function convertPolyline(element) {
     pathData.push({ command: 'z' });
   }
   element.local = 'path';
-  element.attributes.d = stringifyPathCommands(pathData);
-  delete element.attributes.points;
+  element.svgAtts.set('d', new PathAttValue(undefined, pathData));
+  element.svgAtts.delete('points');
 }
 
 /**
@@ -138,31 +139,26 @@ function convertPolyline(element) {
  * @returns {void}
  */
 function convertRect(element) {
+  const attWidth = RectDimensionAttValue.getAttValue(element, 'width');
+  const attHeight = RectDimensionAttValue.getAttValue(element, 'height');
   if (
-    element.attributes.width === undefined ||
-    element.attributes.height === undefined ||
-    element.attributes.rx !== undefined ||
-    element.attributes.ry !== undefined
+    attWidth === undefined ||
+    attHeight === undefined ||
+    element.svgAtts.get('rx') !== undefined ||
+    element.svgAtts.get('ry') !== undefined
   ) {
     return;
   }
 
   const x = getPixelsWithDefault(element, 'x');
   const y = getPixelsWithDefault(element, 'y');
-  const widthValue = LengthOrPctValue.getAttValue(element, 'width');
-  const heightValue = LengthOrPctValue.getAttValue(element, 'height');
 
-  if (
-    x === null ||
-    y === null ||
-    !(typeof widthValue === 'object') ||
-    !(typeof heightValue === 'object')
-  ) {
+  if (x === null || y === null) {
     return;
   }
 
-  const width = widthValue.getPixels();
-  const height = heightValue.getPixels();
+  const width = attWidth.getPixels();
+  const height = attHeight.getPixels();
 
   if (width === 0 || width === null || height === 0 || height === null) {
     return;

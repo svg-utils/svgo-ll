@@ -4,7 +4,6 @@ import {
   getCmdArgs,
   PathParseError,
   stringifyPathCommand,
-  stringifyPathCommands,
 } from '../lib/pathutils.js';
 import { pathElems } from './_collections.js';
 
@@ -54,10 +53,7 @@ export const fn = (info) => {
         }
         data = optimize(data);
         if (data) {
-          element.svgAtts.set(
-            'd',
-            new PathAttValue(stringifyPathCommands(data), true),
-          );
+          element.svgAtts.set('d', new PathAttValue(undefined, data, true));
         }
       },
     },

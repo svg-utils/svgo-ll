@@ -1,6 +1,5 @@
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
-import { stringifyPathCommands } from '../lib/pathutils.js';
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
@@ -371,9 +370,7 @@ function roundPath(element, xDigits, yDigits) {
     }
   }
 
-  const rounded = stringifyPathCommands(commands);
-
-  element.svgAtts.set('d', new PathAttValue(rounded, false, true));
+  element.svgAtts.set('d', new PathAttValue(undefined, commands, false, true));
 }
 
 /**

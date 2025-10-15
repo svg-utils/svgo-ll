@@ -10,7 +10,7 @@ describe('test parsing', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const color = Color.parseColor(testCase.in);
+      const color = Color.parse(testCase.in);
       expect(color.toString()).toBe(testCase.str ?? testCase.in);
     });
   }
@@ -36,7 +36,7 @@ describe('test minifying', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const color = Color.parseColor(testCase.in);
+      const color = Color.parse(testCase.in);
       const minified = color.getMinifiedValue();
       expect(minified.toString()).toBe(testCase.minified ?? testCase.in);
     });

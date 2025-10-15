@@ -1,4 +1,4 @@
-import { StrokeDasharrayValue } from '../../lib/attrs/strokeDashArrayValue.js';
+import { StrokeDasharrayAttValue } from '../../lib/attrs/strokeDashArrayAttValue.js';
 
 describe('test parsing and minifying', () => {
   /** @type {{in:string,out:string}[]} */
@@ -11,7 +11,7 @@ describe('test parsing and minifying', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const attValue = StrokeDasharrayValue.getObj(testCase.in);
+      const attValue = new StrokeDasharrayAttValue(testCase.in);
       expect(attValue.toString()).toBe(testCase.out);
     });
   }

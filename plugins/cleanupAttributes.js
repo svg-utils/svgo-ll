@@ -5,7 +5,7 @@ import { ListOfLengthOrPctValue } from '../lib/attrs/listOfLengthOrPctValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
-import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
+import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { WordSpacingValue } from '../lib/attrs/wordSpacingValue.js';
@@ -98,7 +98,7 @@ export const fn = (info) => {
               cleanupHref(element);
               break;
             case 'stroke-dasharray':
-              cleanupStrokeDasharrayAttribute(element);
+              StrokeDasharrayAttValue.getAttValue(element);
               break;
             case 'viewBox':
               ViewBoxValue.getAttValue(element);
@@ -166,17 +166,10 @@ function cleanupOpacityAttribute(element, attName) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- */
-function cleanupStrokeDasharrayAttribute(element) {
-  StrokeDasharrayValue.getAttValue(element);
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
  * @returns {void}
  */
 function cleanupStyleAttribute(element) {
-  const styleAttValue = StyleAttValue.getStyleAttValue(element);
+  const styleAttValue = StyleAttValue.getAttValue(element);
   if (styleAttValue === undefined) {
     return;
   }

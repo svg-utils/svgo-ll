@@ -41,7 +41,7 @@ export class SvgAttValues {
   keys(): IterableIterator<string>;
   delete(name: string): void;
   entries(): IterableIterator<[string, string | AttValue]>;
-  get(name: string): string | AttValue | undefined;
+  get<T = AttValue>(name: string): string | T | undefined;
   set(name: string, value: string | AttValue): void;
 }
 export type XastElement = {
@@ -122,6 +122,7 @@ type CSSFeatures =
   | 'type-selectors';
 
 export class AttValue {
+  /** @deprecated */
   static getObj(value: string | AttValue): AttValue;
   round(numDigits: number): AttValue;
   toString(): string;

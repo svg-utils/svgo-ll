@@ -1,7 +1,6 @@
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { stringifyPathCommands } from '../lib/pathutils.js';
-import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
@@ -12,6 +11,7 @@ import { TransformValue } from '../lib/attrs/transformValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
+import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -121,8 +121,10 @@ export const fn = (info, params) => {
               break;
             case 'offset':
               if (element.local === 'stop') {
-                const stopOffset = StopOffsetValue.getObj(attValue);
-                newVal = stopOffset.round(stopOffsetDigits);
+                const att = StopOffsetAttValue.getAttValue(element);
+                if (att) {
+                  element.svgAtts.set('offset', att.round(stopOffsetDigits));
+                }
               }
               break;
             case 'stdDeviation':

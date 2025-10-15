@@ -1,4 +1,4 @@
-import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
+import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getReferencedIdInStyleProperty } from '../lib/svgo/tools.js';
@@ -60,13 +60,7 @@ export const fn = (info) => {
             }
             break;
           case 'stop':
-            {
-              const offset = element.svgAtts.get('offset');
-              if (offset) {
-                const value = StopOffsetValue.getObj(offset);
-                element.svgAtts.set('offset', value);
-              }
-            }
+            StopOffsetAttValue.getAttValue(element);
             break;
         }
       },

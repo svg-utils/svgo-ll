@@ -1,4 +1,3 @@
-import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
@@ -11,6 +10,7 @@ import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { FontSizeAttValue } from '../lib/attrs/fontSizeAttValue.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -149,7 +149,7 @@ export const fn = (info, params) => {
                 !ROUNDABLE_XY_ELEMENTS[attName] ||
                 ROUNDABLE_XY_ELEMENTS[attName].has(element.local)
               ) {
-                newVal = roundCoord(attValue, coordContext.xDigits);
+                roundCoord(element, attName, coordContext.xDigits);
               }
               break;
             case 'y':
@@ -160,7 +160,7 @@ export const fn = (info, params) => {
                 !ROUNDABLE_XY_ELEMENTS[attName] ||
                 ROUNDABLE_XY_ELEMENTS[attName].has(element.local)
               ) {
-                newVal = roundCoord(attValue, coordContext.yDigits);
+                roundCoord(element, attName, coordContext.yDigits);
               }
               break;
           }
@@ -238,18 +238,20 @@ function getCoordContext(element, digits) {
         yDigits: scaleDigits(height, digits),
       };
     }
-  } else if (element.attributes.width && element.attributes.height) {
-    const width = LengthValue.getObj(element.attributes.width);
-    const height = LengthValue.getObj(element.attributes.height);
-    const x = width.getPixels();
-    const y = height.getPixels();
-    if (x !== null && y !== null) {
-      return {
-        width: x,
-        height: y,
-        xDigits: scaleDigits(x, digits),
-        yDigits: scaleDigits(y, digits),
-      };
+  } else {
+    const attWidth = LengthPercentageAttValue.getAttValue(element, 'width');
+    const attHeight = LengthPercentageAttValue.getAttValue(element, 'height');
+    if (attWidth !== undefined && attHeight !== undefined) {
+      const x = attWidth.getPixels();
+      const y = attHeight.getPixels();
+      if (x !== null && y !== null) {
+        return {
+          width: x,
+          height: y,
+          xDigits: scaleDigits(x, digits),
+          yDigits: scaleDigits(y, digits),
+        };
+      }
     }
   }
   return NULL_COORD_CONTEXT;
@@ -268,16 +270,19 @@ function isTranslation(transform) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} attName
  * @param {number|null} digits
- * @returns {LengthValue|null}
+ * @returns {void}
  */
-function roundCoord(attValue, digits) {
+function roundCoord(element, attName, digits) {
   if (digits === null) {
-    return null;
+    return;
   }
-  const value = LengthValue.getObj(attValue);
-  return value.round(digits);
+  const value = LengthPercentageAttValue.getAttValue(element, attName);
+  if (value) {
+    element.svgAtts.set(attName, value.round(digits));
+  }
 }
 
 /**

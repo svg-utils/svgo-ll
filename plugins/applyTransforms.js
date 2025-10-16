@@ -1,5 +1,5 @@
+import { LengthAttValue } from '../lib/attrs/lengthAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
-import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
@@ -112,12 +112,9 @@ function applyToRect(element, gradientMap) {
     return;
   }
 
-  // @ts-ignore
-  element.attributes.x = new LengthValue(newX);
-  // @ts-ignore
-  element.attributes.y = new LengthValue(newY);
-
-  delete element.attributes.transform;
+  element.svgAtts.set('x', new LengthAttValue(newX));
+  element.svgAtts.set('y', new LengthAttValue(newY));
+  element.svgAtts.delete('transform');
 
   const styleAtt = StyleAttValue.getAttValue(element);
   if (styleAtt) {

@@ -1,6 +1,6 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
-import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
+import { LetterSpacingAttValue } from '../lib/attrs/letterSpacingAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
@@ -110,7 +110,7 @@ export const fn = (info) => {
               WordSpacingValue.getAttValue(element);
               break;
             case 'letter-spacing':
-              LetterSpacingValue.getAttValue(element);
+              LetterSpacingAttValue.getAttValue(element);
               break;
           }
         }

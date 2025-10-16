@@ -1,5 +1,5 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
-import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
 import { ListOfLengthOrPctValue } from '../lib/attrs/listOfLengthOrPctValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
@@ -153,7 +153,7 @@ function cleanupHref(element) {
  * @param {string} attName
  */
 function cleanupLengthPct(element, attName) {
-  LengthOrPctValue.getAttValue(element, attName);
+  LengthPercentageAttValue.getAttValue(element, attName);
 }
 
 /**

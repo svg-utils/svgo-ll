@@ -108,7 +108,12 @@ export const fn = (info, params) => {
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              newVal = roundColor(attValue);
+              {
+                const att = ColorAttValue.getAttValue(element, attName);
+                if (att) {
+                  element.svgAtts.set(attName, att.round());
+                }
+              }
               break;
             case 'fill-opacity':
             case 'opacity':
@@ -179,7 +184,7 @@ export const fn = (info, params) => {
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              newVal = roundColor(propValue.value);
+              newVal = ColorAttValue.getObj(propValue.value).round();
               break;
             case 'fill-opacity':
             case 'opacity':
@@ -260,15 +265,6 @@ function isTranslation(transform) {
   }
   const transforms = svgParseTransform(transform.toString());
   return transforms.length === 1 && transforms[0].name === 'translate';
-}
-
-/**
- * @param {import('../lib/types.js').SVGAttValue} attValue
- * @returns {ColorAttValue|null}
- */
-function roundColor(attValue) {
-  const value = ColorAttValue.getObj(attValue);
-  return value.round();
 }
 
 /**

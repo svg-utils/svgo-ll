@@ -3,7 +3,6 @@ import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -85,7 +84,7 @@ function applyToRect(element, gradientMap) {
     return;
   }
   const fill = props.get('fill');
-  if (fill && !canTransformFill(fill, gradientMap)) {
+  if (fill && !canTransformFill(fill.value, gradientMap)) {
     return;
   }
 
@@ -120,20 +119,20 @@ function applyToRect(element, gradientMap) {
 
   delete element.attributes.transform;
 
-  const styleAtt = StyleAttValue.getStyleAttValue(element);
+  const styleAtt = StyleAttValue.getAttValue(element);
   if (styleAtt) {
     styleAtt.delete('transform');
-    updateStyleAttribute(element, styleAtt);
+    styleAtt.updateElement(element);
   }
 }
 
 /**
- * @param {import('../lib/types.js').CSSPropertyValue} fill
+ * @param {import('../lib/types.js').SVGAttValue} fill
  * @param {GradientMap} gradientMap
  * @returns {boolean}
  */
 function canTransformFill(fill, gradientMap) {
-  const attValue = PaintAttValue.getObj(fill.value);
+  const attValue = PaintAttValue.getObj(fill);
   const url = attValue.getURL();
   if (url === undefined) {
     return true;

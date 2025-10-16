@@ -1,9 +1,8 @@
 import { ExactNum } from '../lib/exactnum.js';
-import { LengthValue } from '../lib/attrs/lengthValue.js';
-import { stringifyPathCommands } from '../lib/pathutils.js';
 import { isNumber } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { RectDimensionAttValue } from '../lib/attrs/rectDimensionAttValue.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 
 export const name = 'convertShapeToPath';
 export const description = 'converts basic shapes to more compact path form';
@@ -184,11 +183,10 @@ function convertRect(element) {
     { command: 'z' },
   ];
   element.local = 'path';
-  element.attributes.d = stringifyPathCommands(pathData);
-  delete element.attributes.x;
-  delete element.attributes.y;
-  delete element.attributes.width;
-  delete element.attributes.height;
+  element.svgAtts.set('d', new PathAttValue(undefined, pathData));
+  ['x', 'y', 'width', 'height'].forEach((attName) =>
+    element.svgAtts.delete(attName),
+  );
 }
 
 /**
@@ -197,7 +195,6 @@ function convertRect(element) {
  * @returns {number|null}
  */
 function getPixelsWithDefault(element, attName) {
-  return element.attributes[attName] === undefined
-    ? 0
-    : LengthValue.getObj(element.attributes[attName]).getPixels();
+  const att = LengthPercentageAttValue.getAttValue(element, attName);
+  return att === undefined ? 0 : att.getPixels();
 }

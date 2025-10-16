@@ -1,4 +1,4 @@
-import { ClassValue } from '../lib/attrs/classValue.js';
+import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
@@ -122,7 +122,7 @@ export const fn = (info) => {
  */
 function cleanupClassAttribute(element, styleData) {
   // If there is a class attribute, delete any classes not referenced in the style element.
-  const cv = ClassValue.getAttValue(element);
+  const cv = ClassAttValue.getAttValue(element);
   if (cv === undefined) {
     return;
   }
@@ -134,7 +134,7 @@ function cleanupClassAttribute(element, styleData) {
   }
 
   if (cv.getClassNames().length === 0) {
-    delete element.attributes.class;
+    element.svgAtts.delete('class');
   }
 }
 

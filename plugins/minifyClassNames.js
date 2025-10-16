@@ -1,4 +1,4 @@
-import { ClassValue } from '../lib/attrs/classValue.js';
+import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { generateId } from '../lib/svgo/tools.js';
 
 export const name = 'minifyClassNames';
@@ -25,7 +25,7 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        const cv = ClassValue.getAttValue(element);
+        const cv = ClassAttValue.getAttValue(element);
         if (cv) {
           // Record existing class names.
           for (const className of cv.getClassNames()) {
@@ -72,7 +72,7 @@ export const fn = (info) => {
         for (const [oldId, elements] of referencedClassNames.entries()) {
           const newId = renameMap.get(oldId);
           for (const element of elements) {
-            const cv = ClassValue.getAttValue(element);
+            const cv = ClassAttValue.getAttValue(element);
             // @ts-ignore
             cv.rename(oldId, newId);
           }

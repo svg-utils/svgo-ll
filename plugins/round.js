@@ -1,17 +1,16 @@
-import { ColorValue } from '../lib/attrs/colorValue.js';
-import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
-import { parsePathCommands, stringifyPathCommands } from '../lib/pathutils.js';
-import { StopOffsetValue } from '../lib/attrs/stopOffsetValue.js';
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
-import { FontSizeValue } from '../lib/attrs/fontSizeValue.js';
 import { TransformValue } from '../lib/attrs/transformValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
+import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
+import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
+import { FontSizeAttValue } from '../lib/attrs/fontSizeAttValue.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -91,14 +90,11 @@ export const fn = (info, params) => {
 
         // Round attributes.
         for (const [attName, attValue] of element.svgAtts.entries()) {
+          /** @deprecated - anything roundable should return a rounded value */
           let newVal;
           switch (attName) {
             case 'd':
-              newVal = roundPath(
-                attValue,
-                coordContext.xDigits,
-                coordContext.yDigits,
-              );
+              roundPath(element, coordContext.xDigits, coordContext.yDigits);
               break;
             case 'fill':
             case 'stroke':
@@ -112,7 +108,12 @@ export const fn = (info, params) => {
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              newVal = roundColor(attValue);
+              {
+                const att = ColorAttValue.getAttValue(element, attName);
+                if (att) {
+                  element.svgAtts.set(attName, att.round());
+                }
+              }
               break;
             case 'fill-opacity':
             case 'opacity':
@@ -120,12 +121,14 @@ export const fn = (info, params) => {
               newVal = roundOpacity(attValue, opacityDigits);
               break;
             case 'font-size':
-              newVal = roundFontSize(attValue, fontSizeDigits);
+              roundFontSizeAtt(element, fontSizeDigits);
               break;
             case 'offset':
               if (element.local === 'stop') {
-                const stopOffset = StopOffsetValue.getObj(attValue);
-                newVal = stopOffset.round(stopOffsetDigits);
+                const att = StopOffsetAttValue.getAttValue(element);
+                if (att) {
+                  element.svgAtts.set('offset', att.round(stopOffsetDigits));
+                }
               }
               break;
             case 'stdDeviation':
@@ -146,7 +149,7 @@ export const fn = (info, params) => {
                 !ROUNDABLE_XY_ELEMENTS[attName] ||
                 ROUNDABLE_XY_ELEMENTS[attName].has(element.local)
               ) {
-                newVal = roundCoord(attValue, coordContext.xDigits);
+                roundCoord(element, attName, coordContext.xDigits);
               }
               break;
             case 'y':
@@ -157,7 +160,7 @@ export const fn = (info, params) => {
                 !ROUNDABLE_XY_ELEMENTS[attName] ||
                 ROUNDABLE_XY_ELEMENTS[attName].has(element.local)
               ) {
-                newVal = roundCoord(attValue, coordContext.yDigits);
+                roundCoord(element, attName, coordContext.yDigits);
               }
               break;
           }
@@ -167,7 +170,7 @@ export const fn = (info, params) => {
         }
 
         // Round style attribute properties.
-        const styleAttValue = StyleAttValue.getStyleAttValue(element);
+        const styleAttValue = StyleAttValue.getAttValue(element);
         if (!styleAttValue) {
           return;
         }
@@ -181,7 +184,7 @@ export const fn = (info, params) => {
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              newVal = roundColor(propValue.value);
+              newVal = ColorAttValue.getObj(propValue.value).round();
               break;
             case 'fill-opacity':
             case 'opacity':
@@ -189,7 +192,7 @@ export const fn = (info, params) => {
               newVal = roundOpacity(propValue.value, opacityDigits);
               break;
             case 'font-size':
-              newVal = roundFontSize(propValue.value, fontSizeDigits);
+              newVal = roundFontSizeProp(propValue.value, fontSizeDigits);
               break;
           }
           if (newVal) {
@@ -235,18 +238,20 @@ function getCoordContext(element, digits) {
         yDigits: scaleDigits(height, digits),
       };
     }
-  } else if (element.attributes.width && element.attributes.height) {
-    const width = LengthValue.getObj(element.attributes.width);
-    const height = LengthValue.getObj(element.attributes.height);
-    const x = width.getPixels();
-    const y = height.getPixels();
-    if (x !== null && y !== null) {
-      return {
-        width: x,
-        height: y,
-        xDigits: scaleDigits(x, digits),
-        yDigits: scaleDigits(y, digits),
-      };
+  } else {
+    const attWidth = LengthPercentageAttValue.getAttValue(element, 'width');
+    const attHeight = LengthPercentageAttValue.getAttValue(element, 'height');
+    if (attWidth !== undefined && attHeight !== undefined) {
+      const x = attWidth.getPixels();
+      const y = attHeight.getPixels();
+      if (x !== null && y !== null) {
+        return {
+          width: x,
+          height: y,
+          xDigits: scaleDigits(x, digits),
+          yDigits: scaleDigits(y, digits),
+        };
+      }
     }
   }
   return NULL_COORD_CONTEXT;
@@ -265,35 +270,44 @@ function isTranslation(transform) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValue
- * @returns {ColorValue|null}
- */
-function roundColor(attValue) {
-  const value = ColorValue.getColorObj(attValue);
-  return value.round();
-}
-
-/**
- * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} attName
  * @param {number|null} digits
- * @returns {LengthValue|null}
+ * @returns {void}
  */
-function roundCoord(attValue, digits) {
+function roundCoord(element, attName, digits) {
   if (digits === null) {
-    return null;
+    return;
   }
-  const value = LengthValue.getObj(attValue);
-  return value.round(digits);
+  const value = LengthPercentageAttValue.getAttValue(element, attName);
+  if (value) {
+    element.svgAtts.set(attName, value.round(digits));
+  }
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {import('../lib/types.js').XastElement} element
  * @param {number} numDigits
- * @returns {FontSizeValue|null}
+ * @returns {void}
  */
-function roundFontSize(attValue, numDigits) {
-  const fontSize = FontSizeValue.getObj(attValue);
-  return fontSize.round(numDigits);
+function roundFontSizeAtt(element, numDigits) {
+  const att = FontSizeAttValue.getAttValue(element);
+  if (att) {
+    element.svgAtts.set('font-size', att.round(numDigits));
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').SVGAttValue} value
+ * @param {number} numDigits
+ * @returns {FontSizeAttValue}
+ */
+function roundFontSizeProp(value, numDigits) {
+  if (typeof value === 'string') {
+    value = new FontSizeAttValue(value);
+  }
+  // @ts-ignore
+  return value.round(numDigits);
 }
 
 /**
@@ -314,31 +328,22 @@ function roundOpacity(attValue, digits) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValueIn
+ * @param {import('../lib/types.js').XastElement} element
  * @param {number|null} xDigits
  * @param {number|null} yDigits
- * @returns {import('../lib/types.js').SVGAttValue|null}
+ * @returns {void}
  */
-function roundPath(attValueIn, xDigits, yDigits) {
+function roundPath(element, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
-    return null;
+    return;
   }
 
-  const inputIsString = typeof attValueIn === 'string';
-
-  let strAttValue;
-  if (inputIsString) {
-    strAttValue = attValueIn;
-  } else if (attValueIn instanceof PathAttValue) {
-    if (attValueIn.isRounded()) {
-      return null;
-    }
-    strAttValue = attValueIn.toString();
-  } else {
-    throw new Error();
+  const attValue = PathAttValue.getAttValue(element);
+  if (attValue === undefined || attValue.isRounded()) {
+    return;
   }
 
-  const commands = parsePathCommands(strAttValue);
+  const commands = attValue.getParsedPath();
   for (const command of commands) {
     switch (command.command) {
       case 'l':
@@ -366,15 +371,7 @@ function roundPath(attValueIn, xDigits, yDigits) {
     }
   }
 
-  const rounded = stringifyPathCommands(commands);
-
-  if (inputIsString || rounded !== strAttValue) {
-    return new PathAttValue(rounded, false, true);
-  }
-
-  // Value hasn't changed by rounding, just note that we've already rounded.
-  attValueIn.setRounded(true);
-  return null;
+  element.svgAtts.set('d', new PathAttValue(undefined, commands, false, true));
 }
 
 /**

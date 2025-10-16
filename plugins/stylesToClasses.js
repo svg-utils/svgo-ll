@@ -1,6 +1,5 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { generateId } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -49,7 +48,7 @@ export class StyleToClassData {
         : ' class=""'.length + className.length;
 
       // If there is a style attribute, see how much it is reduced.
-      const styleAtt = StyleAttValue.getStyleAttValue(element);
+      const styleAtt = StyleAttValue.getAttValue(element);
       if (styleAtt) {
         const origSize = ' style=""'.length + styleAtt.toString().length;
         const newSize = 0;
@@ -200,18 +199,23 @@ export const fn = (info) => {
           }
 
           for (const element of info.getElements()) {
-            const cv = ClassValue.getObj(element.attributes['class']);
+            let cv = ClassValue.getAttValue(element);
+            if (cv === undefined) {
+              cv = new ClassValue('');
+            }
             cv.addClass(className);
-            element.attributes.class = cv;
+            element.svgAtts.set('class', cv);
 
-            const origProps = StyleAttValue.getStyleAttValue(element);
+            const origProps = StyleAttValue.getAttValue(element);
             for (const propName of info.getProperties().keys()) {
               if (origProps) {
                 origProps.delete(propName);
               }
-              delete element.attributes[propName];
+              element.svgAtts.delete(propName);
             }
-            updateStyleAttribute(element, origProps);
+            if (origProps) {
+              origProps.updateElement(element);
+            }
           }
           rules.push(`.${info.getClassName()}{${info.getPropertyString()}}`);
         }

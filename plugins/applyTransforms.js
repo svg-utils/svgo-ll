@@ -1,9 +1,8 @@
-import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
-import { LengthValue } from '../lib/attrs/lengthValue.js';
+import { LengthAttValue } from '../lib/attrs/lengthAttValue.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -43,9 +42,9 @@ export const fn = (info) => {
           case 'linearGradient':
           case 'radialGradient':
             {
-              const id = element.attributes.id;
+              const id = element.svgAtts.get('id')?.toString();
               if (id) {
-                gradientIds.set(id.toString(), {
+                gradientIds.set(id, {
                   element: element,
                   href: getHrefId(element),
                 });
@@ -85,7 +84,7 @@ function applyToRect(element, gradientMap) {
     return;
   }
   const fill = props.get('fill');
-  if (fill && !canTransformFill(fill, gradientMap)) {
+  if (fill && !canTransformFill(fill.value, gradientMap)) {
     return;
   }
 
@@ -113,27 +112,24 @@ function applyToRect(element, gradientMap) {
     return;
   }
 
-  // @ts-ignore
-  element.attributes.x = new LengthValue(newX);
-  // @ts-ignore
-  element.attributes.y = new LengthValue(newY);
+  element.svgAtts.set('x', new LengthAttValue(newX));
+  element.svgAtts.set('y', new LengthAttValue(newY));
+  element.svgAtts.delete('transform');
 
-  delete element.attributes.transform;
-
-  const styleAtt = StyleAttValue.getStyleAttValue(element);
+  const styleAtt = StyleAttValue.getAttValue(element);
   if (styleAtt) {
     styleAtt.delete('transform');
-    updateStyleAttribute(element, styleAtt);
+    styleAtt.updateElement(element);
   }
 }
 
 /**
- * @param {import('../lib/types.js').CSSPropertyValue} fill
+ * @param {import('../lib/types.js').SVGAttValue} fill
  * @param {GradientMap} gradientMap
  * @returns {boolean}
  */
 function canTransformFill(fill, gradientMap) {
-  const attValue = PaintAttValue.getObj(fill.value);
+  const attValue = PaintAttValue.getObj(fill);
   const url = attValue.getURL();
   if (url === undefined) {
     return true;
@@ -158,7 +154,10 @@ function canTransformGradient(gradientMap, id) {
   if (gradient.href) {
     return canTransformGradient(gradientMap, gradient.href);
   }
-  return gradient.element.attributes.gradientUnits !== 'userSpaceOnUse';
+  return (
+    gradient.element.svgAtts.get('gradientUnits')?.toString() !==
+    'userSpaceOnUse'
+  );
 }
 
 /**
@@ -167,7 +166,7 @@ function canTransformGradient(gradientMap, id) {
  * @returns {number|null}
  */
 function getPixelLength(element, attName) {
-  const attValue = LengthOrPctValue.getAttValue(element, attName);
+  const attValue = LengthPercentageAttValue.getAttValue(element, attName);
   if (attValue === undefined) {
     return 0;
   }

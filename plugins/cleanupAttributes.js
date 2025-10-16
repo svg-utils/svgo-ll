@@ -1,14 +1,13 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
-import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
-import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
-import { ListOfLengthOrPctValue } from '../lib/attrs/listOfLengthOrPctValue.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
+import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
-import { StrokeDasharrayValue } from '../lib/attrs/strokeDashArrayValue.js';
+import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { TextSpacingAttValue } from '../lib/attrs/textSpacingAttValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
-import { WordSpacingValue } from '../lib/attrs/wordSpacingValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -83,7 +82,10 @@ export const fn = (info) => {
                 switch (element.local) {
                   case 'text':
                   case 'tspan':
-                    ListOfLengthOrPctValue.getAttValue(element, attName);
+                    ListOfLengthPercentageAttValue.getAttValue(
+                      element,
+                      attName,
+                    );
                     break;
                   default:
                     cleanupLengthPct(element, attName);
@@ -98,16 +100,14 @@ export const fn = (info) => {
               cleanupHref(element);
               break;
             case 'stroke-dasharray':
-              cleanupStrokeDasharrayAttribute(element);
+              StrokeDasharrayAttValue.getAttValue(element);
               break;
             case 'viewBox':
               ViewBoxValue.getAttValue(element);
               break;
-            case 'word-spacing':
-              WordSpacingValue.getAttValue(element);
-              break;
             case 'letter-spacing':
-              LetterSpacingValue.getAttValue(element);
+            case 'word-spacing':
+              TextSpacingAttValue.getAttValue(element, attName);
               break;
           }
         }
@@ -153,7 +153,7 @@ function cleanupHref(element) {
  * @param {string} attName
  */
 function cleanupLengthPct(element, attName) {
-  LengthOrPctValue.getAttValue(element, attName);
+  LengthPercentageAttValue.getAttValue(element, attName);
 }
 
 /**
@@ -166,17 +166,10 @@ function cleanupOpacityAttribute(element, attName) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- */
-function cleanupStrokeDasharrayAttribute(element) {
-  StrokeDasharrayValue.getAttValue(element);
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
  * @returns {void}
  */
 function cleanupStyleAttribute(element) {
-  const styleAttValue = StyleAttValue.getStyleAttValue(element);
+  const styleAttValue = StyleAttValue.getAttValue(element);
   if (styleAttValue === undefined) {
     return;
   }

@@ -9,5 +9,5 @@ Don't convert <rect> with cm units
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
-  <rect x="1px" y="2px" width="2cm" height="1.5"/>
+  <rect x="1" y="2" width="2cm" height="1.5"/>
 </svg>

@@ -1,7 +1,7 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
-import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
@@ -57,7 +57,7 @@ export const fn = (info) => {
             case 'opacity':
             case 'stop-opacity':
             case 'stroke-opacity':
-              cleanupOpacityAttribute(element, attName);
+              OpacityAttValue.getAttValue(element, attName);
               break;
             case 'x1':
             case 'x2':
@@ -154,14 +154,6 @@ function cleanupHref(element) {
  */
 function cleanupLengthPct(element, attName) {
   LengthPercentageAttValue.getAttValue(element, attName);
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} attName
- */
-function cleanupOpacityAttribute(element, attName) {
-  OpacityValue.getAttValue(element, attName);
 }
 
 /**

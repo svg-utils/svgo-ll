@@ -1,6 +1,4 @@
-import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { svgParseTransform } from '../lib/svg-parse-att.js';
-import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
@@ -11,6 +9,7 @@ import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { FontSizeAttValue } from '../lib/attrs/fontSizeAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
+import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -118,7 +117,12 @@ export const fn = (info, params) => {
             case 'fill-opacity':
             case 'opacity':
             case 'stop-opacity':
-              newVal = roundOpacity(attValue, opacityDigits);
+              {
+                const att = OpacityAttValue.getAttValue(element, attName);
+                if (att) {
+                  element.svgAtts.set(attName, att.round(opacityDigits));
+                }
+              }
               break;
             case 'font-size':
               roundFontSizeAtt(element, fontSizeDigits);
@@ -189,7 +193,8 @@ export const fn = (info, params) => {
             case 'fill-opacity':
             case 'opacity':
             case 'stop-opacity':
-              newVal = roundOpacity(propValue.value, opacityDigits);
+              // @ts-ignore
+              newVal = propValue.value.round(opacityDigits);
               break;
             case 'font-size':
               newVal = roundFontSizeProp(propValue.value, fontSizeDigits);
@@ -308,23 +313,6 @@ function roundFontSizeProp(value, numDigits) {
   }
   // @ts-ignore
   return value.round(numDigits);
-}
-
-/**
- * @param {import('../lib/types.js').SVGAttValue} attValue
- * @param {number} digits
- * @returns {OpacityValue|null}
- */
-function roundOpacity(attValue, digits) {
-  const value = OpacityValue.getObj(attValue);
-  const opacity = value.getOpacity();
-  if (opacity >= 1) {
-    return new OpacityValue('1', 1);
-  }
-  if (opacity <= 0) {
-    return new OpacityValue('0', 0);
-  }
-  return new OpacityValue(undefined, toFixed(opacity, digits));
 }
 
 /**

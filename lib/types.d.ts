@@ -130,10 +130,6 @@ export class AttValue {
   toStyleElementString(): string;
 }
 
-export class LengthValue extends AttValue {
-  constructor(value: string | ExactNum, units?: string);
-}
-
 export class StyleData {
   addStyleSection(css: string): void;
   computeOwnStyle(node: XastElement): Map<string, string | null>;

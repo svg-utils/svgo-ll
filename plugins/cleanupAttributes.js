@@ -1,14 +1,13 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
-import { LetterSpacingAttValue } from '../lib/attrs/letterSpacingAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { TextSpacingAttValue } from '../lib/attrs/textSpacingAttValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
-import { WordSpacingValue } from '../lib/attrs/wordSpacingValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -106,11 +105,9 @@ export const fn = (info) => {
             case 'viewBox':
               ViewBoxValue.getAttValue(element);
               break;
-            case 'word-spacing':
-              WordSpacingValue.getAttValue(element);
-              break;
             case 'letter-spacing':
-              LetterSpacingAttValue.getAttValue(element);
+            case 'word-spacing':
+              TextSpacingAttValue.getAttValue(element, attName);
               break;
           }
         }

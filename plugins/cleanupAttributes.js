@@ -1,7 +1,7 @@
 import { ClassValue } from '../lib/attrs/classValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { LetterSpacingValue } from '../lib/attrs/letterSpacingValue.js';
-import { ListOfLengthOrPctValue } from '../lib/attrs/listOfLengthOrPctValue.js';
+import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
@@ -83,7 +83,10 @@ export const fn = (info) => {
                 switch (element.local) {
                   case 'text':
                   case 'tspan':
-                    ListOfLengthOrPctValue.getAttValue(element, attName);
+                    ListOfLengthPercentageAttValue.getAttValue(
+                      element,
+                      attName,
+                    );
                     break;
                   default:
                     cleanupLengthPct(element, attName);

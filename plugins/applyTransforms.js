@@ -1,4 +1,4 @@
-import { LengthOrPctValue } from '../lib/attrs/lengthOrPct.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { LengthValue } from '../lib/attrs/lengthValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
@@ -42,9 +42,9 @@ export const fn = (info) => {
           case 'linearGradient':
           case 'radialGradient':
             {
-              const id = element.attributes.id;
+              const id = element.svgAtts.get('id')?.toString();
               if (id) {
-                gradientIds.set(id.toString(), {
+                gradientIds.set(id, {
                   element: element,
                   href: getHrefId(element),
                 });
@@ -157,7 +157,10 @@ function canTransformGradient(gradientMap, id) {
   if (gradient.href) {
     return canTransformGradient(gradientMap, gradient.href);
   }
-  return gradient.element.attributes.gradientUnits !== 'userSpaceOnUse';
+  return (
+    gradient.element.svgAtts.get('gradientUnits')?.toString() !==
+    'userSpaceOnUse'
+  );
 }
 
 /**
@@ -166,7 +169,7 @@ function canTransformGradient(gradientMap, id) {
  * @returns {number|null}
  */
 function getPixelLength(element, attName) {
-  const attValue = LengthOrPctValue.getAttValue(element, attName);
+  const attValue = LengthPercentageAttValue.getAttValue(element, attName);
   if (attValue === undefined) {
     return 0;
   }

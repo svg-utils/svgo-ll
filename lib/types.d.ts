@@ -133,7 +133,6 @@ export class AttValue {
 export class LengthValue extends AttValue {
   constructor(value: string | ExactNum, units?: string);
 }
-export class PctValue extends AttValue {}
 
 export class StyleData {
   addStyleSection(css: string): void;

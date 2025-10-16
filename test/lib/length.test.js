@@ -1,4 +1,4 @@
-import { LengthOrPctValue } from '../../lib/attrs/lengthOrPct.js';
+import { LengthPercentageAttValue } from '../../lib/attrs/lengthPercentageAttValue.js';
 
 describe('test parsing and minifying', () => {
   /** @type {{in:string,minified?:string}[]} */
@@ -9,7 +9,7 @@ describe('test parsing and minifying', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const attValue = LengthOrPctValue.getObj(testCase.in);
+      const attValue = new LengthPercentageAttValue(testCase.in);
       expect(attValue.toString()).toBe(testCase.minified);
     });
   }

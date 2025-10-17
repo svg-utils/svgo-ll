@@ -1,7 +1,6 @@
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
@@ -10,6 +9,7 @@ import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
+import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -238,7 +238,7 @@ function getCoordContext(element, digits) {
     return Math.max(baseDigits - Math.floor(Math.log10(size)) + 2, baseDigits);
   }
 
-  const viewBox = ViewBoxValue.getAttValue(element);
+  const viewBox = ViewBoxAttValue.getAttValue(element);
   if (viewBox) {
     const coords = viewBox.getCoordinates();
     if (coords.length === 4) {

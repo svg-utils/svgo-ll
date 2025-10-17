@@ -7,7 +7,7 @@ import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { TextSpacingAttValue } from '../lib/attrs/textSpacingAttValue.js';
-import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
+import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -103,7 +103,7 @@ export const fn = (info) => {
               StrokeDasharrayAttValue.getAttValue(element);
               break;
             case 'viewBox':
-              ViewBoxValue.getAttValue(element);
+              ViewBoxAttValue.getAttValue(element);
               break;
             case 'letter-spacing':
             case 'word-spacing':

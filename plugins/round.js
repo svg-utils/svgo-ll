@@ -1,7 +1,6 @@
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
 import { TransformValue } from '../lib/attrs/transformValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
@@ -10,6 +9,7 @@ import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { FontSizeAttValue } from '../lib/attrs/fontSizeAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
+import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -136,7 +136,15 @@ export const fn = (info, params) => {
               }
               break;
             case 'stdDeviation':
-              newVal = roundStdDeviation(element, stdDeviationDigits);
+              {
+                const att = StdDeviationAttValue.getAttValue(element);
+                if (att) {
+                  element.svgAtts.set(
+                    'stdDeviation',
+                    att.round(stdDeviationDigits),
+                  );
+                }
+              }
               break;
             case 'transform':
               newVal = roundTransform(
@@ -360,16 +368,6 @@ function roundPath(element, xDigits, yDigits) {
   }
 
   element.svgAtts.set('d', new PathAttValue(undefined, commands, false, true));
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {number} digits
- * @returns {StdDeviationValue|null}
- */
-function roundStdDeviation(element, digits) {
-  const stdDeviation = StdDeviationValue.getAttValue(element);
-  return stdDeviation ? stdDeviation.round(digits) : null;
 }
 
 /**

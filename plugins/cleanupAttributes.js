@@ -3,7 +3,7 @@ import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
-import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
+import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { TextSpacingAttValue } from '../lib/attrs/textSpacingAttValue.js';
@@ -94,7 +94,7 @@ export const fn = (info) => {
               }
               break;
             case 'stdDeviation':
-              StdDeviationValue.getAttValue(element);
+              StdDeviationAttValue.getAttValue(element);
               break;
             case 'href':
               cleanupHref(element);

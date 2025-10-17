@@ -1,6 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TransformValue } from '../lib/attrs/transformValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'moveElemsStylesToGroup';
@@ -114,10 +112,8 @@ export const fn = (info) => {
         if (groupTransform && childTransform) {
           // We need to merge the two transforms rather than overwriting.
           commonProperties.set('transform', {
-            value: TransformValue.mergeTransforms(
-              groupTransform.value,
-              childTransform.value,
-            ),
+            // @ts-ignore
+            value: groupTransform.value.mergeTransforms(childTransform.value),
             important: false,
           });
         }
@@ -127,24 +123,26 @@ export const fn = (info) => {
         }
 
         let groupStyleAttValue =
-          StyleAttValue.getStyleAttValue(element) || new StyleAttValue('');
+          StyleAttValue.getAttValue(element) || new StyleAttValue('');
         for (const [name, value] of groupProperties.entries()) {
           groupStyleAttValue.set(name, value);
-          delete element.attributes[name];
+          element.svgAtts.delete(name);
         }
-        updateStyleAttribute(element, groupStyleAttValue);
+        groupStyleAttValue.updateElement(element);
 
         // Delete common properties from children.
         for (const child of element.children) {
           if (child.type === 'element') {
-            const childStyleAttValue = StyleAttValue.getStyleAttValue(child);
+            const childStyleAttValue = StyleAttValue.getAttValue(child);
             for (const [name] of commonProperties) {
               if (childStyleAttValue) {
                 childStyleAttValue.delete(name);
               }
-              delete child.attributes[name];
+              child.svgAtts.delete(name);
             }
-            updateStyleAttribute(child, childStyleAttValue);
+            if (childStyleAttValue) {
+              childStyleAttValue.updateElement(child);
+            }
           }
         }
       },

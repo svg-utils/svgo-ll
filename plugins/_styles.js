@@ -1,5 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TransformValue } from '../lib/attrs/transformValue.js';
+import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 import { MARKER_PROP_NAMES } from '../lib/css-tools.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 
@@ -51,7 +51,7 @@ function _getProperties(element, fnInclude) {
     switch (name) {
       case 'transform':
         {
-          const attValue = TransformValue.getAttValue(element, 'transform');
+          const attValue = TransformAttValue.getAttValue(element, 'transform');
           if (!attValue) {
             throw new Error();
           }
@@ -65,7 +65,7 @@ function _getProperties(element, fnInclude) {
   }
 
   // Overwrite with properties.
-  const styleAttValue = StyleAttValue.getStyleAttValue(element);
+  const styleAttValue = StyleAttValue.getAttValue(element);
   if (styleAttValue) {
     for (const [name, prop] of styleAttValue.entries()) {
       const nameToCheck = name === 'marker' ? 'marker-start' : name;

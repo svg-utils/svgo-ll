@@ -1,7 +1,6 @@
 import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TransformValue } from '../lib/attrs/transformValue.js';
 import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
@@ -10,6 +9,7 @@ import { FontSizeAttValue } from '../lib/attrs/fontSizeAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
+import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -148,7 +148,7 @@ export const fn = (info, params) => {
               break;
             case 'transform':
               newVal = roundTransform(
-                attValue,
+                TransformAttValue.createTransform(attValue),
                 coordContext.xDigits,
                 coordContext.yDigits,
               );
@@ -371,22 +371,21 @@ function roundPath(element, xDigits, yDigits) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {TransformAttValue} attValue
  * @param {number|null} xDigits
  * @param {number|null} yDigits
- * @returns {TransformValue|null}
+ * @returns {TransformAttValue|null}
  */
 function roundTransform(attValue, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
     return null;
   }
-  const transforms = TransformValue.getObj(attValue);
-  for (const transform of transforms.getTransforms()) {
+  for (const transform of attValue.getTransforms()) {
     if (transform.name !== 'translate') {
       return null;
     }
     transform.x.n = transform.x.n.round(xDigits);
     transform.y.n = transform.y.n.round(yDigits);
   }
-  return new TransformValue(transforms.getTransforms());
+  return new TransformAttValue(attValue.getTransforms());
 }

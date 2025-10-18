@@ -68,6 +68,7 @@ export const fn = (info) => {
       exit: () => {
         const rulesToDelete = new Set();
 
+        /** @type {Set<import('../lib/types.js').XastElement>} */
         const classAttsToCheck = new Set();
 
         for (const [rule, elements] of elementsPerRule.entries()) {
@@ -99,7 +100,7 @@ export const fn = (info) => {
               cv.getClassNames().length === 1 &&
               !styleData.hasClassReference(cv.getClassNames()[0])
             ) {
-              delete element.attributes.class;
+              element.svgAtts.delete('class');
             }
           }
         }

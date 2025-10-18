@@ -19,15 +19,15 @@ export const fn = () => {
       enter: (element) => {
         /** @param {string} attName */
         function processAttribute(attName) {
-          const input = element.attributes[attName];
+          const input = element.svgAtts.get(attName);
           if (input === undefined) {
             return;
           }
           const output = minifyTransforms(input.toString());
           if (output) {
-            element.attributes[attName] = output;
+            element.svgAtts.set(attName, output);
           } else {
-            delete element.attributes[attName];
+            element.svgAtts.delete(attName);
           }
         }
         ['transform', 'gradientTransform', 'patternTransform'].forEach(

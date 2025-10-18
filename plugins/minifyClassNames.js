@@ -1,5 +1,6 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { generateId } from '../lib/svgo/tools.js';
+import { getOtherAtt } from '../lib/tools-ast.js';
 
 export const name = 'minifyClassNames';
 export const description = 'minify class names';
@@ -18,6 +19,9 @@ export const fn = (info) => {
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const referencedClassNames = new Map();
 
+  /** @type {Set<string>} */
+  const preservedClassNames = new Set();
+
   for (const className of styleData.getReferencedClasses()) {
     referencedClassNames.set(className, []);
   }
@@ -25,6 +29,18 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          // If there's a class, record the classes so that they aren't overwritten.
+          const att = getOtherAtt(element, 'class', '');
+          if (att) {
+            const cv = new ClassAttValue(att.value);
+            for (const className of cv.getClassNames()) {
+              preservedClassNames.add(className);
+            }
+          }
+          return;
+        }
+
         const cv = ClassAttValue.getAttValue(element);
         if (cv) {
           // Record existing class names.
@@ -47,7 +63,9 @@ export const fn = (info) => {
         function getNextId() {
           while (true) {
             const classId = generateId(classNameCounter++);
-            return classId;
+            if (!preservedClassNames.has(classId)) {
+              return classId;
+            }
           }
         }
 

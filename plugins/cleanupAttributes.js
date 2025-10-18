@@ -1,4 +1,5 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
+import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
@@ -38,7 +39,7 @@ export const fn = (info) => {
           return visitSkip;
         }
 
-        for (const attName of Object.keys(element.attributes)) {
+        for (const attName of element.svgAtts.keys()) {
           if (styleData.hasAttributeSelector(attName)) {
             continue;
           }
@@ -97,7 +98,7 @@ export const fn = (info) => {
               StdDeviationAttValue.getAttValue(element);
               break;
             case 'href':
-              cleanupHref(element);
+              HrefAttValue.getAttValue(element);
               break;
             case 'stroke-dasharray':
               StrokeDasharrayAttValue.getAttValue(element);
@@ -140,16 +141,6 @@ function cleanupClassAttribute(element, styleData) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- */
-function cleanupHref(element) {
-  const href = element.attributes.href;
-  if (typeof href === 'string' && href.startsWith('data:')) {
-    element.attributes.href = href.replaceAll('\n', '');
-  }
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
  * @param {string} attName
  */
 function cleanupLengthPct(element, attName) {
@@ -168,7 +159,7 @@ function cleanupStyleAttribute(element) {
 
   if (elemsGroups.animation.has(element.local)) {
     // Style attributes have no effect on animation elements.
-    delete element.attributes.style;
+    element.svgAtts.delete('style');
     return;
   }
 
@@ -184,9 +175,7 @@ function cleanupStyleAttribute(element) {
     }
   }
 
-  if (styleAttValue.isEmpty()) {
-    delete element.attributes.style;
-  }
+  styleAttValue.updateElement(element);
 }
 
 /**

@@ -1,6 +1,8 @@
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { parsePathCommands, PathParseError } from '../lib/pathutils.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getEllipseProperties } from '../lib/svgo/tools.js';
+import { deleteAllAtts } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeHiddenElems';
@@ -37,7 +39,7 @@ export const fn = (info) => {
    */
   function convertToDefs(element) {
     element.local = 'defs';
-    element.attributes = {};
+    deleteAllAtts(element);
     processDefsChildren(element);
     if (element.children.length === 0) {
       // If there are no children, delete the element; otherwise it may limit opportunities for compression of siblings.
@@ -121,16 +123,23 @@ export const fn = (info) => {
         return false;
       }
       case 'rect':
-        // https://svgwg.org/svg2-draft/shapes.html#RectElement
-        if (
-          element.children.length === 0 &&
-          (!element.attributes.width ||
-            !element.attributes.height ||
-            element.attributes.width.toString() === '0' ||
-            element.attributes.height.toString() === '0')
-        ) {
-          removeElement(element);
-          return true;
+        {
+          const width = LengthPercentageAttValue.getAttValue(element, 'width');
+          const height = LengthPercentageAttValue.getAttValue(
+            element,
+            'height',
+          );
+          // https://svgwg.org/svg2-draft/shapes.html#RectElement
+          if (
+            element.children.length === 0 &&
+            (width === undefined ||
+              height === undefined ||
+              width.toString() === '0' ||
+              height.toString() === '0')
+          ) {
+            removeElement(element);
+            return true;
+          }
         }
         break;
     }
@@ -152,7 +161,7 @@ export const fn = (info) => {
 
         // Process non-rendering elements.
         if (elemsGroups.nonRendering.has(element.local)) {
-          if (!element.attributes.id) {
+          if (element.svgAtts.get('id') === undefined) {
             // If the element doesn't have an id, it can't be referenced; but it may contain referenced elements. Change it to <defs>.
             convertToDefs(element);
           } else {
@@ -161,7 +170,7 @@ export const fn = (info) => {
           return;
         }
 
-        if (element.attributes.id) {
+        if (element.svgAtts.get('id')) {
           // Never delete elements with an id.
           return;
         }
@@ -219,7 +228,7 @@ function getChildrenWithIds(child) {
     case 'comment':
       return [child];
     case 'element':
-      if (child.attributes.id) {
+      if (child.svgAtts.get('id') !== undefined) {
         return [child];
       }
       break;

@@ -43,7 +43,7 @@ export class StyleToClassData {
 
     for (const element of this.#elements) {
       // Add class to element.
-      cost += element.attributes.class
+      cost += element.svgAtts.get('class')
         ? className.length + 1
         : ' class=""'.length + className.length;
 
@@ -57,11 +57,9 @@ export class StyleToClassData {
 
       // Remove attribute if present.
       for (const propName of this.#props.keys()) {
-        if (element.attributes[propName] !== undefined) {
-          savings +=
-            ' =""'.length +
-            propName.length +
-            element.attributes[propName].toString().length;
+        const att = element.svgAtts.get(propName);
+        if (att !== undefined) {
+          savings += ' =""'.length + propName.length + att.toString().length;
         }
       }
     }

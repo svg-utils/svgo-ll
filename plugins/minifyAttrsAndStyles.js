@@ -1,5 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'minifyAttrsAndStyles';
@@ -33,17 +32,16 @@ export const fn = (info) => {
           // Attributes are shorter; remove the style attribute and use individual attributes.
 
           for (const [name, value] of props.entries()) {
-            element.attributes[name] = value.value;
+            element.svgAtts.set(name, value.value);
           }
 
-          updateStyleAttribute(element, undefined);
+          element.svgAtts.delete('style');
         } else {
           // Style is at least as short; remove the individual attributes and convert to style properties.
           for (const name of props.keys()) {
-            delete element.attributes[name];
+            element.svgAtts.delete(name);
           }
-
-          updateStyleAttribute(element, new StyleAttValue(props));
+          new StyleAttValue(props).updateElement(element);
         }
       },
     },

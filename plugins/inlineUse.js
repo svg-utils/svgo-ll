@@ -1,5 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getHrefId, getReferencedIds } from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -39,8 +38,11 @@ export const fn = (info) => {
         if (element.local === 'defs') {
           // Record the ids of all <defs> children as potential candidates for inlining.
           for (const child of element.children) {
-            if (child.type === 'element' && child.attributes.id) {
-              defIds.set(child.attributes.id.toString(), child);
+            if (child.type === 'element') {
+              const id = child.svgAtts.get('id')?.toString();
+              if (id !== undefined) {
+                defIds.set(id, child);
+              }
             }
           }
         } else if (element.local === 'use') {
@@ -117,7 +119,7 @@ function inlineUse(use, def) {
 
   // Don't inline symbols that are <use>d with a width/height.
   if (
-    (use.attributes.width || use.attributes.height) &&
+    (use.svgAtts.get('width') || use.svgAtts.get('height')) &&
     def.local === 'symbol'
   ) {
     return false;
@@ -172,7 +174,7 @@ function inlineUse(use, def) {
   // Update attributes.
   let tx = '0';
   let ty = '0';
-  for (const [attName, attValue] of Object.entries(use.attributes)) {
+  for (const [attName, attValue] of use.svgAtts.entries()) {
     switch (attName) {
       case 'x':
         tx = attValue.toString();
@@ -185,7 +187,7 @@ function inlineUse(use, def) {
   }
 
   // Copy any non-presentation properties from def.
-  for (const [attName, attValue] of Object.entries(def.attributes)) {
+  for (const [attName, attValue] of def.svgAtts.entries()) {
     switch (attName) {
       case 'id':
       case 'overflow':
@@ -195,7 +197,7 @@ function inlineUse(use, def) {
         continue;
       default:
         if (!useProperties.has(attName)) {
-          use.attributes[attName] = attValue.toString();
+          use.svgAtts.set(attName, attValue);
         }
         break;
     }
@@ -209,7 +211,7 @@ function inlineUse(use, def) {
   if (transform !== '') {
     use.svgAtts.set('transform', transform);
   }
-  updateStyleAttribute(use, new StyleAttValue(useProperties));
+  new StyleAttValue(useProperties).updateElement(use);
 
   use.children = def.children;
   use.children.forEach((c) => (c.parentNode = use));

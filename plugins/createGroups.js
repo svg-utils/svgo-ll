@@ -1,6 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { hasMarkerProperties } from '../lib/css-tools.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
@@ -131,7 +130,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     );
 
     // Add styles to group.
-    updateStyleAttribute(groupElement, new StyleAttValue(sharedProps));
+    new StyleAttValue(sharedProps).updateElement(groupElement);
 
     // Remove properties from children.
     groupChildren.forEach((child) => {
@@ -139,10 +138,10 @@ function createGroups(element, usedIds, elementsToCheck) {
       if (child.type !== 'element') {
         return;
       }
-      const styleAttValue = StyleAttValue.getStyleAttValue(child);
+      const styleAttValue = StyleAttValue.getAttValue(child);
 
       for (const name of sharedProps.keys()) {
-        delete child.attributes[name];
+        child.svgAtts.delete(name);
         if (styleAttValue) {
           styleAttValue.delete(name);
         }
@@ -153,7 +152,7 @@ function createGroups(element, usedIds, elementsToCheck) {
         if (hasMarkerProperties(sharedProps)) {
           styleAttValue.delete('marker');
         }
-        updateStyleAttribute(child, styleAttValue);
+        styleAttValue.updateElement(child);
       }
     });
 
@@ -186,7 +185,8 @@ function createGroups(element, usedIds, elementsToCheck) {
       continue;
     }
 
-    if (usedIds.has(String(child.attributes.id))) {
+    const id = child.svgAtts.get('id')?.toString();
+    if (id !== undefined && usedIds.has(id)) {
       // If the element is <use>d, we can't move any properties to a group, so it needs to be on its own.
       writeGroup(index);
       sharedProps = new Map();

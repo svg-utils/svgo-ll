@@ -1,4 +1,4 @@
-import { UrlAttValue } from '../../../lib/attrs/urlAttValue.js';
+import { PresentationAttUrl } from '../../../lib/types/presentationAttUrl.js';
 
 describe('test getID()', () => {
   const tests = [
@@ -9,7 +9,7 @@ describe('test getID()', () => {
 
   for (const test of tests) {
     it(`${test.in}`, () => {
-      const obj = new UrlAttValue(test.in);
+      const obj = new PresentationAttUrl(test.in);
       expect(obj.getID()).toBe(test.exp);
     });
   }

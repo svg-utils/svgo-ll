@@ -215,7 +215,7 @@ function inlineGradient(
 
 /**
  * @param {Map<string,ColorData>} solidGradients
- * @param {import('../lib/svgo/tools-svg.js').IdReferenceMap} allReferencedIds
+ * @param {import('../lib/tools-ast.js').IdReferenceMap} allReferencedIds
  */
 function updateSolidGradients(solidGradients, allReferencedIds) {
   /** @type {Map<string,ColorData>} */

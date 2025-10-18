@@ -1,4 +1,4 @@
-import * as csso from 'csso';
+import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 
 export const name = 'minifyStyles';
 export const description = 'minifies styles and removes unused styles';
@@ -38,22 +38,15 @@ export const fn = (info) => {
       enter: (element) => {
         // collect tags, ids and classes usage
         tagsUsage.add(element.local);
-        if (element.attributes.id != null) {
-          idsUsage.add(element.attributes.id.toString());
+        const id = element.svgAtts.get('id')?.toString();
+        if (id !== undefined) {
+          idsUsage.add(id);
         }
-        if (element.attributes.class != null) {
-          for (const className of element.attributes.class
-            .toString()
-            .split(/\s+/)) {
+        const classAtt = ClassAttValue.getAttValue(element);
+        if (classAtt !== undefined) {
+          for (const className of classAtt.getClassNames()) {
             classesUsage.add(className);
           }
-        }
-
-        if (element.attributes.style) {
-          element.attributes.style = csso.minifyBlock(
-            element.attributes.style.toString(),
-            {},
-          ).css;
         }
       },
     },

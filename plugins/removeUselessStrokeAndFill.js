@@ -1,5 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
@@ -88,14 +87,14 @@ function removePrefixedProperties(element, prefix) {
   }
 
   // Remove style attribute properties.
-  const style = StyleAttValue.getStyleAttValue(element);
+  const style = StyleAttValue.getAttValue(element);
   if (style) {
     for (const propName of style.keys()) {
       if (propName.startsWith(prefix)) {
         style.delete(propName);
       }
     }
-    updateStyleAttribute(element, style);
+    style.updateElement(element);
   }
 }
 
@@ -111,10 +110,9 @@ function setNone(element, propName, styleData, parentList, allowUndefined) {
   const computedStyle = styleData.computeStyle(element, parentList);
   const value = computedStyle.get(propName);
   if (value !== 'none' && (!allowUndefined || value !== undefined)) {
-    const style =
-      StyleAttValue.getStyleAttValue(element) ?? new StyleAttValue('');
+    const style = StyleAttValue.getAttValue(element) ?? new StyleAttValue('');
     style.set(propName, { value: 'none', important: false });
-    updateStyleAttribute(element, style);
+    style.updateElement(element);
     element.svgAtts.delete(propName);
   }
 }

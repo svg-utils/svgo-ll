@@ -110,11 +110,12 @@ export const fn = (info, params) => {
           return visitSkip;
         }
 
-        if (element.attributes.id) {
-          if (foundIds.has(element.attributes.id.toString())) {
-            throw new SVGOError(`Duplicate id "${element.attributes.id}"`);
+        const id = element.svgAtts.get('id')?.toString();
+        if (id !== undefined) {
+          if (foundIds.has(id)) {
+            throw new SVGOError(`Duplicate id "${id}"`);
           }
-          foundIds.set(element.attributes.id.toString(), element);
+          foundIds.set(id.toString(), element);
         }
 
         recordReferencedIds(element, allReferencedIds);

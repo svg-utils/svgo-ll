@@ -38,6 +38,10 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         // Record any referenced ids.
         recordReferencedIds(element, allReferencedIds);
 

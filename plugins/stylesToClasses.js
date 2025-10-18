@@ -121,6 +121,10 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         const cv = ClassAttValue.getAttValue(element);
         if (cv) {
           // Record existing class names.

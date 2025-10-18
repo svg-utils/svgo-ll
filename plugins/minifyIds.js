@@ -101,6 +101,10 @@ export const fn = (info, params) => {
           return visitSkip;
         }
 
+        if (element.uri !== undefined) {
+          return;
+        }
+
         if (
           elemsGroups.animation.has(element.local) &&
           element.svgAtts.get('begin') !== undefined

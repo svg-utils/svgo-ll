@@ -1,4 +1,4 @@
-import { RawUrlAttValue } from '../lib/attrs/rawUrlAttValue.js';
+import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { deleteOtherAtt, getXlinkHref } from '../lib/tools-ast.js';
 
 export const name = 'cleanupXlink';
@@ -28,7 +28,7 @@ export const fn = (info) => {
         if (att) {
           const href = element.svgAtts.get('href');
           if (!href) {
-            element.svgAtts.set('href', new RawUrlAttValue(att.value));
+            element.svgAtts.set('href', new HrefAttValue(att.value));
           }
           deleteOtherAtt(element, att);
         }

@@ -1,4 +1,4 @@
-import { RawUrlAttValue } from '../../../lib/attrs/rawUrlAttValue.js';
+import { HrefAttValue } from '../../../lib/attrs/hrefAttValue.js';
 
 describe('test getID()', () => {
   const tests = [
@@ -9,7 +9,7 @@ describe('test getID()', () => {
 
   for (const test of tests) {
     it(`${test.in}`, () => {
-      const obj = new RawUrlAttValue(test.in);
+      const obj = new HrefAttValue(test.in);
       expect(obj.getID()).toBe(test.exp);
     });
   }
@@ -28,7 +28,7 @@ describe('test getURL()', () => {
 
   for (const test of tests) {
     it(`${test.in}`, () => {
-      const obj = new RawUrlAttValue(test.in);
+      const obj = new HrefAttValue(test.in);
       expect(obj.getURL()).toBe(test.exp);
     });
   }

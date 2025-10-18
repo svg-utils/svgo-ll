@@ -23,9 +23,10 @@ export function generateTreeData(root) {
   const data = new Map();
   visit(root, {
     element: {
-      enter: (node) => {
-        if (node.attributes.id) {
-          data.set(node.attributes.id, node);
+      enter: (element) => {
+        const id = element.svgAtts.get('id');
+        if (id) {
+          data.set(id, element);
         }
       },
     },

@@ -13,7 +13,7 @@ Don't remove empty nodes for xml:space="preserve".
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 40">
-  <text x="10" y="10" xml:space="preserve">
+  <text xml:space="preserve" x="10" y="10">
     <tspan>this is a</tspan>
         test    
     <tspan>of lots of spaces around test</tspan>

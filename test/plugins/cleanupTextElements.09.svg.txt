@@ -13,7 +13,7 @@ Remove xml:space="preserve" when not needed.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
   <text y="20">1</text>
-  <text y="40" xml:space="preserve">2    3 4</text>
-  <text y="60" xml:space="preserve"> 5 6 </text>
+  <text xml:space="preserve" y="40">2    3 4</text>
+  <text xml:space="preserve" y="60"> 5 6 </text>
   <text y="80">7 8</text>
 </svg>

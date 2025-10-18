@@ -1,4 +1,4 @@
-<svg id="test" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.285 81.285">
+<svg xmlns="http://www.w3.org/2000/svg" id="test" viewBox="0 0 81.285 81.285">
     <defs>
         <style>
             @media only screen
@@ -16,7 +16,7 @@
 
 @@@
 
-<svg id="test" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 81.285 81.285">
+<svg xmlns="http://www.w3.org/2000/svg" id="test" viewBox="0 0 81.285 81.285">
     <defs>
         <style>
             @media only screen

@@ -85,19 +85,29 @@ function correct(expected) {
     }
     if (ns > 1) {
       const before = ns === 1 ? [] : cols.slice(1, ns);
-      if (before.length && before[before.length - 1].endsWith('>')) {
-        before[before.length - 1] = before[before.length - 1].substring(
-          0,
-          before[before.length - 1].length - 1,
-        );
-      }
+      correctLastItem(before);
+      const after = cols.slice(ns + 1);
+      correctLastItem(after);
       const newCols = [cols[0]]
         .concat('xmlns="http://www.w3.org/2000/svg"')
-        .concat(...before);
+        .concat(...before)
+        .concat(...after);
       lines[0] = newCols.join(' ') + (selfClose ? '/>' : '>');
     }
   }
   return lines.join('\n');
+}
+
+/**
+ * @param {string[]} items
+ */
+function correctLastItem(items) {
+  if (items.length && items[items.length - 1].endsWith('>')) {
+    items[items.length - 1] = items[items.length - 1].substring(
+      0,
+      items[items.length - 1].length - 1,
+    );
+  }
 }
 
 /**

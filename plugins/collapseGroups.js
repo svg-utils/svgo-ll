@@ -1,6 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TransformValue } from '../lib/attrs/transformValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
+import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -74,11 +73,15 @@ export function fn(info) {
               for (const [propName, value] of moveableParentProps.entries()) {
                 const childProp = newChildElemProps.get(propName);
                 if (propName === 'transform') {
+                  const t1 = TransformAttValue.createTransform(value.value);
+                  const merged =
+                    childProp === undefined
+                      ? t1
+                      : t1.mergeTransforms(
+                          TransformAttValue.createTransform(childProp.value),
+                        );
                   newChildElemProps.set(propName, {
-                    value: TransformValue.mergeTransforms(
-                      value.value,
-                      childProp?.value,
-                    ),
+                    value: merged,
                     important: false,
                   });
                 } else if (
@@ -88,23 +91,20 @@ export function fn(info) {
                   newChildElemProps.set(propName, value);
                 }
 
-                delete element.attributes[propName];
-                delete firstChild.attributes[propName];
+                element.svgAtts.delete(propName);
+                firstChild.svgAtts.delete(propName);
               }
 
-              delete element.attributes.style;
-              updateStyleAttribute(
-                firstChild,
-                new StyleAttValue(newChildElemProps),
-              );
+              element.svgAtts.delete('style');
+              new StyleAttValue(newChildElemProps).updateElement(firstChild);
 
               // Remove any child attributes that are overwritten by style properties.
               for (const name of newChildElemProps.keys()) {
-                delete firstChild.attributes[name];
+                firstChild.svgAtts.delete(name);
               }
 
               // Move any remaining attributes from the parent to the child.
-              for (const [name, value] of Object.entries(element.attributes)) {
+              for (const [name, value] of element.svgAtts.entries()) {
                 if (
                   firstChild.attributes[name] === undefined ||
                   firstChild.attributes[name].toString() === value.toString()
@@ -210,7 +210,7 @@ const hasAnimatedAttr = (node, name) => {
   if (node.type === 'element') {
     if (
       elemsGroups.animation.has(node.local) &&
-      node.attributes.attributeName === name
+      node.svgAtts.get('attributeName')?.toString() === name
     ) {
       return true;
     }

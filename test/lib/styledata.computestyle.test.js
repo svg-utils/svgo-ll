@@ -11,12 +11,13 @@ function generateTreeData(root) {
   const parents = [];
   visit(root, {
     element: {
-      enter: (node) => {
-        parentMap.set(node, parents.slice());
-        if (node.attributes.id) {
-          idMap.set(node.attributes.id, node);
+      enter: (element) => {
+        parentMap.set(element, parents.slice());
+        const id = element.svgAtts.get('id');
+        if (id) {
+          idMap.set(id.toString(), element);
         }
-        parents.push({ element: node });
+        parents.push({ element: element });
       },
       exit: () => {
         parents.pop();

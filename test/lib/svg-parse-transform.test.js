@@ -1,9 +1,8 @@
-import { TransformValue } from '../../lib/attrs/transformValue.js';
+import { TransformAttValue } from '../../lib/attrs/transformAttValue.js';
 import {
   svgParseTransform,
   svgStringifyTransform,
 } from '../../lib/svg-parse-att.js';
-import { createElement, createRoot } from '../../lib/xast.js';
 
 describe('test svg transform parsing', () => {
   /** @type {{in:string,out?:string}[]} */
@@ -54,14 +53,7 @@ describe('test transform conversion between attributes and properties', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const root = createRoot();
-      const element = createElement(root, 'g', '', undefined, {
-        transform: testCase.in,
-      });
-      const attValue = TransformValue.getAttValue(element, 'transform');
-      if (!attValue) {
-        throw new Error();
-      }
+      const attValue = new TransformAttValue(testCase.in);
       expect(attValue.toStyleAttString()).toBe(testCase.out ?? testCase.in);
     });
   }

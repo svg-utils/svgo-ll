@@ -1,6 +1,5 @@
-import { ClassValue } from '../lib/attrs/classValue.js';
+import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { updateStyleAttribute } from '../lib/svgo/tools-svg.js';
 
 export const name = 'inlineStyles';
 export const description =
@@ -76,14 +75,11 @@ export const fn = (info) => {
             const element = elements[0];
             // Only move if there's a single matching rule, and the element doesn't have a style currently.
             if (
-              !element.attributes.style &&
+              element.svgAtts.get('style') === undefined &&
               // @ts-ignore - there should always be an entry in rulesPerElement
               rulesPerElement.get(element).length === 1
             ) {
-              updateStyleAttribute(
-                element,
-                new StyleAttValue(rule.getDeclarations()),
-              );
+              new StyleAttValue(rule.getDeclarations()).updateElement(element);
               rulesToDelete.add(rule);
 
               classAttsToCheck.add(element);
@@ -97,7 +93,7 @@ export const fn = (info) => {
 
           // If any class attributes are no longer referenced in the styles, delete them.
           for (const element of classAttsToCheck.values()) {
-            const cv = ClassValue.getAttValue(element);
+            const cv = ClassAttValue.getAttValue(element);
             if (
               cv &&
               cv.getClassNames().length === 1 &&

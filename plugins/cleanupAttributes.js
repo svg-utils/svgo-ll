@@ -1,13 +1,13 @@
-import { ClassValue } from '../lib/attrs/classValue.js';
+import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
-import { OpacityValue } from '../lib/attrs/opacityValue.js';
+import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
-import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
+import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { TextSpacingAttValue } from '../lib/attrs/textSpacingAttValue.js';
-import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
+import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -57,7 +57,7 @@ export const fn = (info) => {
             case 'opacity':
             case 'stop-opacity':
             case 'stroke-opacity':
-              cleanupOpacityAttribute(element, attName);
+              OpacityAttValue.getAttValue(element, attName);
               break;
             case 'x1':
             case 'x2':
@@ -94,7 +94,7 @@ export const fn = (info) => {
               }
               break;
             case 'stdDeviation':
-              StdDeviationValue.getAttValue(element);
+              StdDeviationAttValue.getAttValue(element);
               break;
             case 'href':
               cleanupHref(element);
@@ -103,7 +103,7 @@ export const fn = (info) => {
               StrokeDasharrayAttValue.getAttValue(element);
               break;
             case 'viewBox':
-              ViewBoxValue.getAttValue(element);
+              ViewBoxAttValue.getAttValue(element);
               break;
             case 'letter-spacing':
             case 'word-spacing':
@@ -122,7 +122,7 @@ export const fn = (info) => {
  */
 function cleanupClassAttribute(element, styleData) {
   // If there is a class attribute, delete any classes not referenced in the style element.
-  const cv = ClassValue.getAttValue(element);
+  const cv = ClassAttValue.getAttValue(element);
   if (cv === undefined) {
     return;
   }
@@ -134,7 +134,7 @@ function cleanupClassAttribute(element, styleData) {
   }
 
   if (cv.getClassNames().length === 0) {
-    delete element.attributes.class;
+    element.svgAtts.delete('class');
   }
 }
 
@@ -154,14 +154,6 @@ function cleanupHref(element) {
  */
 function cleanupLengthPct(element, attName) {
   LengthPercentageAttValue.getAttValue(element, attName);
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} attName
- */
-function cleanupOpacityAttribute(element, attName) {
-  OpacityValue.getAttValue(element, attName);
 }
 
 /**

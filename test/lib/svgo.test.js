@@ -214,8 +214,11 @@ test('plugins should run 10 times by default', () => {
       list.push(info.passNumber);
       return {
         element: {
-          enter: (node) => {
-            node.attributes.id = node.attributes.id.toString().slice(1);
+          enter: (element) => {
+            const id = element.svgAtts.get('id')?.toString();
+            if (id) {
+              element.svgAtts.set('id', id.slice(1));
+            }
           },
         },
       };

@@ -1,4 +1,4 @@
-import { ClassValue } from '../../lib/attrs/classValue.js';
+import { ClassAttValue } from '../../lib/attrs/classAttValue.js';
 import { CSSSelector, CSSSelectorSequence } from '../../lib/css.js';
 import { CSSRuleConcrete } from '../../lib/style-css-tree.js';
 import { createElement, createRoot } from '../../lib/xast.js';
@@ -107,17 +107,22 @@ describe('test parsing and stringifying of selectors', function () {
       /** @type {Object<string,import('../../lib/types.js').SVGAttValue>} */
       const obj = {};
       test.elData.atts.forEach((v) => (obj[v[0]] = v[1]));
-      const element = createElement(root, test.elData.elName);
-      element.attributes = obj;
+      const element = createElement(
+        root,
+        test.elData.elName,
+        '',
+        undefined,
+        obj,
+      );
       expect(rule._matches(element)).toBe(test.expected);
       if (test.expectedComplex !== undefined) {
         expect(rule.matches(element)).toBe(test.expectedComplex);
       }
 
       // If attribute is parseable, make sure the parsed version behaves the same.
-      for (const attName of Object.keys(element.attributes)) {
+      for (const attName of element.svgAtts.keys()) {
         if (attName === 'class') {
-          ClassValue.getAttValue(element);
+          ClassAttValue.getAttValue(element);
         }
       }
       expect(rule._matches(element)).toBe(test.expected);

@@ -28,7 +28,7 @@ test('make sure compiled query cache is cleared correctly when style ids are cha
   expect(styleData.getMatchingRules(element).length).toBe(0);
 
   // Change the id of the element; it should match again.
-  element.attributes.id = 'a';
+  element.svgAtts.set('id', 'a');
   expect(rule.matches(element)).toBe(true);
   expect(styleData.getMatchingRules(element).length).toBe(1);
 });

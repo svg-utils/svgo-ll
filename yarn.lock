@@ -952,9 +952,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rollup/plugin-commonjs@npm:^28.0.7":
-  version: 28.0.7
-  resolution: "@rollup/plugin-commonjs@npm:28.0.7"
+"@rollup/plugin-commonjs@npm:^28.0.8":
+  version: 28.0.8
+  resolution: "@rollup/plugin-commonjs@npm:28.0.8"
   dependencies:
     "@rollup/pluginutils": ^5.0.1
     commondir: ^1.0.1
@@ -968,7 +968,7 @@ __metadata:
   peerDependenciesMeta:
     rollup:
       optional: true
-  checksum: a2096b9053daea8439ca0a09a4bd283c489611a64ff11099d1637975ed5895d8972224b97a963eed6774acf0ec2ee56e953c0f1a2a8ce0bc41b4631b52302acf
+  checksum: 048577825668c2aa30bbe268f63a811467892ce6123a920e1bcbcc1f0cbfc2239cc6d6a6271d6e14ce8b4d3f1a1fecf1ff9a297f57b4c36ef79c013d3a1ee233
   languageName: node
   linkType: hard
 
@@ -1316,12 +1316,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^24.7.2":
-  version: 24.7.2
-  resolution: "@types/node@npm:24.7.2"
+"@types/node@npm:*, @types/node@npm:^24.8.0":
+  version: 24.8.0
+  resolution: "@types/node@npm:24.8.0"
   dependencies:
     undici-types: ~7.14.0
-  checksum: dd676a9041e36825e9c6917b34105da0c3f390ee95cca8e050a9efb7d55851dcb48d05f23700eb5540a22a8d4fd3da289b4c07a3888aeb74d3304dcb07b813b0
+  checksum: 34a0bff50f96c704310fdcab6e2f04e67745a4ead63faadaeea578b306c59b192d19160b42fa69f59976206e6696a45363c395298d8b3a1eb0caa50750ecd5e2
   languageName: node
   linkType: hard
 
@@ -3843,8 +3843,8 @@ __metadata:
   linkType: hard
 
 "node-gyp@npm:latest":
-  version: 11.4.2
-  resolution: "node-gyp@npm:11.4.2"
+  version: 11.5.0
+  resolution: "node-gyp@npm:11.5.0"
   dependencies:
     env-paths: ^2.2.0
     exponential-backoff: ^3.1.1
@@ -3858,7 +3858,7 @@ __metadata:
     which: ^5.0.0
   bin:
     node-gyp: bin/node-gyp.js
-  checksum: d8041cee7ec60c86fb2961d77c12a2d083a481fb28b08e6d9583153186c0e7766044dc30bdb1f3ac01ddc5763b83caeed3d1ea35787ec4ffd8cc4aeedfc34f2b
+  checksum: 6cc29b9d454d9a684c8fe299668db618875bb4282e37717ca5b79689cc5ce99cd553c70944bb367979f2eba40ad6a50afaf7b12a6b214172edc7377384efa051
   languageName: node
   linkType: hard
 
@@ -4125,27 +4125,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.55.1":
-  version: 1.55.1
-  resolution: "playwright-core@npm:1.55.1"
+"playwright-core@npm:1.56.0":
+  version: 1.56.0
+  resolution: "playwright-core@npm:1.56.0"
   bin:
     playwright-core: cli.js
-  checksum: a2b981223fd8f5c50a4e0b6cc36a3ce40b41919d418b564561f085bcd6c8ce9df2354e687fbc76e662fddb9f2b28d0bc1f0124c085958406fcab6c6cf3b8228f
+  checksum: 29240317dc8ddcfa389899ac9dbce8a6f451e85b50c9ee105282c72d7a4cc37dad274b18037c8021d88e1317ebd5a779d56e3dc15aa358a5a8a9de87762918ef
   languageName: node
   linkType: hard
 
-"playwright@npm:^1.55.1":
-  version: 1.55.1
-  resolution: "playwright@npm:1.55.1"
+"playwright@npm:^1.56.0":
+  version: 1.56.0
+  resolution: "playwright@npm:1.56.0"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.55.1
+    playwright-core: 1.56.0
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 4935122ed687cd14861d64e6fdc79613d36d45f1363e911213a338da9993525d3872d7379300471f70209e1ad68ec91c0d65f0136e6c09c0775477943aaf7fb3
+  checksum: 1756504fb60338dc18d8887866b3ef079b24e150c54052ba6a94099c6fc8fa018ebbe9aa93e618b703cfa357fd55193f990d080dbb173529c93a0e3df49f1d01
   languageName: node
   linkType: hard
 
@@ -4697,12 +4697,12 @@ __metadata:
   resolution: "svgo-ll@workspace:."
   dependencies:
     "@eslint/js": ^9.15.0
-    "@rollup/plugin-commonjs": ^28.0.7
+    "@rollup/plugin-commonjs": ^28.0.8
     "@rollup/plugin-node-resolve": ^16.0.3
     "@rollup/plugin-terser": ^0.4.4
     "@types/csso": ^5.0.4
     "@types/jest": ^30.0.0
-    "@types/node": ^24.7.2
+    "@types/node": ^24.8.0
     "@types/pixelmatch": ^5.2.6
     "@types/pngjs": ^6.0.5
     "@types/sax": ^1.2.7
@@ -4718,7 +4718,7 @@ __metadata:
     jest: ^30.2.0
     picocolors: ^1.1.1
     pixelmatch: ^7.1.0
-    playwright: ^1.55.1
+    playwright: ^1.56.0
     pngjs: ^7.0.0
     prettier: ^3.6.2
     rimraf: ^6.0.1

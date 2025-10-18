@@ -1,16 +1,15 @@
-import { OpacityValue } from '../lib/attrs/opacityValue.js';
 import { svgParseTransform } from '../lib/svg-parse-att.js';
-import { toFixed } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { StdDeviationValue } from '../lib/attrs/stdDeviationValue.js';
-import { TransformValue } from '../lib/attrs/transformValue.js';
-import { ViewBoxValue } from '../lib/attrs/viewBoxValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { FontSizeAttValue } from '../lib/attrs/fontSizeAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
+import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
+import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
+import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
+import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -118,7 +117,12 @@ export const fn = (info, params) => {
             case 'fill-opacity':
             case 'opacity':
             case 'stop-opacity':
-              newVal = roundOpacity(attValue, opacityDigits);
+              {
+                const att = OpacityAttValue.getAttValue(element, attName);
+                if (att) {
+                  element.svgAtts.set(attName, att.round(opacityDigits));
+                }
+              }
               break;
             case 'font-size':
               roundFontSizeAtt(element, fontSizeDigits);
@@ -132,11 +136,19 @@ export const fn = (info, params) => {
               }
               break;
             case 'stdDeviation':
-              newVal = roundStdDeviation(element, stdDeviationDigits);
+              {
+                const att = StdDeviationAttValue.getAttValue(element);
+                if (att) {
+                  element.svgAtts.set(
+                    'stdDeviation',
+                    att.round(stdDeviationDigits),
+                  );
+                }
+              }
               break;
             case 'transform':
               newVal = roundTransform(
-                attValue,
+                TransformAttValue.createTransform(attValue),
                 coordContext.xDigits,
                 coordContext.yDigits,
               );
@@ -189,7 +201,8 @@ export const fn = (info, params) => {
             case 'fill-opacity':
             case 'opacity':
             case 'stop-opacity':
-              newVal = roundOpacity(propValue.value, opacityDigits);
+              // @ts-ignore
+              newVal = propValue.value.round(opacityDigits);
               break;
             case 'font-size':
               newVal = roundFontSizeProp(propValue.value, fontSizeDigits);
@@ -225,7 +238,7 @@ function getCoordContext(element, digits) {
     return Math.max(baseDigits - Math.floor(Math.log10(size)) + 2, baseDigits);
   }
 
-  const viewBox = ViewBoxValue.getAttValue(element);
+  const viewBox = ViewBoxAttValue.getAttValue(element);
   if (viewBox) {
     const coords = viewBox.getCoordinates();
     if (coords.length === 4) {
@@ -311,23 +324,6 @@ function roundFontSizeProp(value, numDigits) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} attValue
- * @param {number} digits
- * @returns {OpacityValue|null}
- */
-function roundOpacity(attValue, digits) {
-  const value = OpacityValue.getObj(attValue);
-  const opacity = value.getOpacity();
-  if (opacity >= 1) {
-    return new OpacityValue('1', 1);
-  }
-  if (opacity <= 0) {
-    return new OpacityValue('0', 0);
-  }
-  return new OpacityValue(undefined, toFixed(opacity, digits));
-}
-
-/**
  * @param {import('../lib/types.js').XastElement} element
  * @param {number|null} xDigits
  * @param {number|null} yDigits
@@ -375,32 +371,21 @@ function roundPath(element, xDigits, yDigits) {
 }
 
 /**
- * @param {import('../lib/types.js').XastElement} element
- * @param {number} digits
- * @returns {StdDeviationValue|null}
- */
-function roundStdDeviation(element, digits) {
-  const stdDeviation = StdDeviationValue.getAttValue(element);
-  return stdDeviation ? stdDeviation.round(digits) : null;
-}
-
-/**
- * @param {import('../lib/types.js').SVGAttValue} attValue
+ * @param {TransformAttValue} attValue
  * @param {number|null} xDigits
  * @param {number|null} yDigits
- * @returns {TransformValue|null}
+ * @returns {TransformAttValue|null}
  */
 function roundTransform(attValue, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
     return null;
   }
-  const transforms = TransformValue.getObj(attValue);
-  for (const transform of transforms.getTransforms()) {
+  for (const transform of attValue.getTransforms()) {
     if (transform.name !== 'translate') {
       return null;
     }
     transform.x.n = transform.x.n.round(xDigits);
     transform.y.n = transform.y.n.round(yDigits);
   }
-  return new TransformValue(transforms.getTransforms());
+  return new TransformAttValue(attValue.getTransforms());
 }

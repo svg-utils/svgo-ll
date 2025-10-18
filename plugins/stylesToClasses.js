@@ -1,4 +1,4 @@
-import { ClassValue } from '../lib/attrs/classValue.js';
+import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { generateId } from '../lib/svgo/tools.js';
 import { getPresentationProperties } from './_styles.js';
@@ -123,7 +123,7 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
-        const cv = ClassValue.getAttValue(element);
+        const cv = ClassAttValue.getAttValue(element);
         if (cv) {
           // Record existing class names.
           for (const className of cv.getClassNames()) {
@@ -199,9 +199,9 @@ export const fn = (info) => {
           }
 
           for (const element of info.getElements()) {
-            let cv = ClassValue.getAttValue(element);
+            let cv = ClassAttValue.getAttValue(element);
             if (cv === undefined) {
-              cv = new ClassValue('');
+              cv = new ClassAttValue('');
             }
             cv.addClass(className);
             element.svgAtts.set('class', cv);

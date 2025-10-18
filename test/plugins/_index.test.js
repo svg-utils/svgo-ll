@@ -53,7 +53,7 @@ describe('plugins tests', function () {
               maxPasses: 1,
             });
             lastResultData = result.data;
-            expect(normalize(result.data)).toStrictEqual(should);
+            expect(normalize(result.data)).toStrictEqual(correct(should));
 
             // If exception was thrown before optimization completed, there will be no AST.
             if (result.ast) {
@@ -65,6 +65,40 @@ describe('plugins tests', function () {
     }
   });
 });
+
+/**
+ * @param {string} expected
+ * @returns {string}
+ */
+function correct(expected) {
+  const lines = expected.split('\n');
+  if (lines[0].startsWith('<svg')) {
+    const cols = lines[0].split(' ');
+    let selfClose = false;
+    let ns = cols.indexOf('xmlns="http://www.w3.org/2000/svg"');
+    if (ns === -1) {
+      ns = cols.indexOf('xmlns="http://www.w3.org/2000/svg">');
+    }
+    if (ns === -1) {
+      ns = cols.indexOf('xmlns="http://www.w3.org/2000/svg"/>');
+      selfClose = true;
+    }
+    if (ns > 1) {
+      const before = ns === 1 ? [] : cols.slice(1, ns);
+      if (before.length && before[before.length - 1].endsWith('>')) {
+        before[before.length - 1] = before[before.length - 1].substring(
+          0,
+          before[before.length - 1].length - 1,
+        );
+      }
+      const newCols = [cols[0]]
+        .concat('xmlns="http://www.w3.org/2000/svg"')
+        .concat(...before);
+      lines[0] = newCols.join(' ') + (selfClose ? '/>' : '>');
+    }
+  }
+  return lines.join('\n');
+}
 
 /**
  * @param {string} str

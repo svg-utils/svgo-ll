@@ -17,7 +17,7 @@ Remove default word-spacing attributes.
 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <text x="2" y="8">x x x</text>
   <text x="2" y="16" word-spacing="4">x x x</text>
-  <text x="2" y="24" word-spacing="4px">x x x</text>
+  <text x="2" y="24" word-spacing="4">x x x</text>
   <text x="2" y="32">x x x</text>
   <text x="2" y="40">x x x</text>
   <text x="2" y="48" word-spacing="4rem">x x x</text>

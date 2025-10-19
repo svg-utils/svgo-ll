@@ -1,11 +1,8 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
-import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
-import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TextSpacingAttValue } from '../lib/attrs/textSpacingAttValue.js';
 import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
@@ -62,8 +59,7 @@ export const fn = (info) => {
             case 'fx':
             case 'fy':
             case 'fr':
-            case 'stroke-width':
-              cleanupLengthPct(element, attName);
+              LengthPercentageAttValue.getAttValue(element, attName);
               break;
             case 'x':
             case 'y':
@@ -77,7 +73,7 @@ export const fn = (info) => {
                     );
                     break;
                   default:
-                    cleanupLengthPct(element, attName);
+                    LengthPercentageAttValue.getAttValue(element, attName);
                     break;
                 }
               }
@@ -85,18 +81,8 @@ export const fn = (info) => {
             case 'stdDeviation':
               StdDeviationAttValue.getAttValue(element);
               break;
-            case 'href':
-              HrefAttValue.getAttValue(element);
-              break;
-            case 'stroke-dasharray':
-              StrokeDasharrayAttValue.getAttValue(element);
-              break;
             case 'viewBox':
               ViewBoxAttValue.getAttValue(element);
-              break;
-            case 'letter-spacing':
-            case 'word-spacing':
-              TextSpacingAttValue.getAttValue(element, attName);
               break;
           }
         }
@@ -125,14 +111,6 @@ function cleanupClassAttribute(element, styleData) {
   if (cv.getClassNames().length === 0) {
     element.svgAtts.delete('class');
   }
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} attName
- */
-function cleanupLengthPct(element, attName) {
-  LengthPercentageAttValue.getAttValue(element, attName);
 }
 
 /**

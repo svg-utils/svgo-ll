@@ -1,3 +1,4 @@
+import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
@@ -9,7 +10,7 @@ export const description =
   'minify stop offsets and remove stops where possible';
 
 /**
- * @typedef {{color:import('../lib/types.js').SVGAttValue,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
+ * @typedef {{color:import('../lib/types.js').AttValue,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
  */
 
 /**
@@ -128,7 +129,6 @@ function checkStops(element, styleData) {
   if (!color || opacity === null) {
     return;
   }
-  const colorData = { color: color, opacity: opacity };
   for (let index = 1; index < element.children.length; index++) {
     const child = element.children[index];
     if (child.type !== 'element' || child.local !== 'stop') {
@@ -136,13 +136,13 @@ function checkStops(element, styleData) {
     }
     const props = styleData.computeOwnStyle(child);
     if (
-      props.get('stop-color') !== colorData.color ||
-      props.get('stop-opacity') !== colorData.opacity
+      props.get('stop-color') !== color ||
+      props.get('stop-opacity') !== opacity
     ) {
       return;
     }
   }
-  return colorData;
+  return { color: new ColorAttValue(color), opacity: opacity };
 }
 
 /**
@@ -238,7 +238,7 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
           break;
         case 'style':
           {
-            const styleAttValue = StyleAttValue.getStyleAttValue(referencingEl);
+            const styleAttValue = StyleAttValue.getAttValue(referencingEl);
             if (!styleAttValue) {
               continue;
             }

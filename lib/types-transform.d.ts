@@ -4,7 +4,10 @@ export type TransTypeAngle = {
   n: ExactNum;
   unit: 'deg' | 'grad' | 'rad' | 'turn';
 };
-export type TransTypeLength = { n: ExactNum; unit: 'px' };
+export type TransTypeLength = {
+  n: ExactNum;
+  unit: 'px' | 'cm' | 'mm' | 'Q' | 'in' | 'pc' | 'pt';
+};
 
 export type TransformFnMatrix = {
   name: 'matrix';

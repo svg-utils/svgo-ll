@@ -51,8 +51,6 @@ export type XastElement = {
   local: string;
   prefix: string;
   uri: string | undefined;
-  /** @deprecated */
-  attributes: Record<string, SVGAttValue>;
   svgAtts: SvgAttValues;
   otherAtts: XastAttOther[] | undefined;
   children: XastChild[];

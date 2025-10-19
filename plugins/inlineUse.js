@@ -141,7 +141,7 @@ function inlineUse(use, def) {
   // Don't convert <symbol> unless overflow is visible.
   if (def.local === 'symbol') {
     const overflow = defProperties.get('overflow');
-    if (!overflow || overflow.value !== 'visible') {
+    if (!overflow || overflow.value.toString() !== 'visible') {
       return false;
     }
     // Remove overflow since there is no need to carry it over to <use>; remove transform properties since they are ignored.

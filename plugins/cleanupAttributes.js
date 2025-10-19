@@ -2,7 +2,6 @@ import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
-import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
@@ -48,12 +47,6 @@ export const fn = (info) => {
               break;
             case 'style':
               cleanupStyleAttribute(element);
-              break;
-            case 'fill-opacity':
-            case 'opacity':
-            case 'stop-opacity':
-            case 'stroke-opacity':
-              OpacityAttValue.getAttValue(element, attName);
               break;
             case 'x1':
             case 'x2':

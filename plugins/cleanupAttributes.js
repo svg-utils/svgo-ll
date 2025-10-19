@@ -47,8 +47,6 @@ export const fn = (info) => {
             case 'x2':
             case 'y1':
             case 'y2':
-            case 'width':
-            case 'height':
             case 'cx':
             case 'cy':
             case 'r':

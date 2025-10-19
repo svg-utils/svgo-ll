@@ -205,7 +205,7 @@ function inlineUse(use, def) {
 
   // Add translation if necessary.
   if (tx !== '0' || ty !== '0') {
-    const translate = `translate(${tx},${ty})`;
+    const translate = `translate(${tx} ${ty})`;
     transform = isContainer ? transform + translate : translate + transform;
   }
   if (transform !== '') {

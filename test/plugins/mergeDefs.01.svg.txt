@@ -23,11 +23,11 @@ Merge <defs>
     <defs>
         <linearGradient id="gradient001">
             <stop offset="5%" stop-color="#f60"/>
-            <stop offset="95%" stop-color="#ff6"/>
+            <stop offset=".95" stop-color="#ff6"/>
         </linearGradient>
         <linearGradient id="gradient002">
             <stop offset="5%" stop-color="#f60"/>
-            <stop offset="95%" stop-color="#ff6"/>
+            <stop offset=".95" stop-color="#ff6"/>
         </linearGradient>
     </defs>
 </svg>

@@ -1,9 +1,7 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
-import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
@@ -77,12 +75,6 @@ export const fn = (info) => {
                     break;
                 }
               }
-              break;
-            case 'stdDeviation':
-              StdDeviationAttValue.getAttValue(element);
-              break;
-            case 'viewBox':
-              ViewBoxAttValue.getAttValue(element);
               break;
           }
         }

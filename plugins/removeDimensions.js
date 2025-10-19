@@ -1,4 +1,5 @@
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
+import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 
 export const name = 'removeDimensions';
@@ -35,7 +36,10 @@ export const fn = () => {
           const pxWidth = width.getPixels();
           const pxHeight = height.getPixels();
           if (pxWidth !== null && pxHeight !== null) {
-            element.svgAtts.set('viewBox', `0 0 ${pxWidth} ${pxHeight}`);
+            element.svgAtts.set(
+              'viewBox',
+              new ViewBoxAttValue(`0 0 ${pxWidth} ${pxHeight}`),
+            );
             element.svgAtts.delete('width');
             element.svgAtts.delete('height');
           }

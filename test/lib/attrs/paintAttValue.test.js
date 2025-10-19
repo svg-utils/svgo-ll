@@ -9,7 +9,7 @@ describe('test getURL()', () => {
 
   for (const test of tests) {
     it(`${test.in}`, () => {
-      const obj = PaintAttValue.getObj(test.in);
+      const obj = new PaintAttValue(test.in);
       if (test.exp) {
         expect(obj.getURL()).toBeDefined();
       } else {
@@ -24,7 +24,7 @@ describe('test toString()', () => {
 
   for (const test of tests) {
     it(`${test.in}`, () => {
-      const obj = PaintAttValue.getObj(test.in);
+      const obj = new PaintAttValue(test.in);
       expect(obj.toString()).toBe(test.in);
     });
   }
@@ -38,7 +38,7 @@ describe('test getMinifiedValue()', () => {
 
   for (const test of tests) {
     it(`${test.in}`, () => {
-      const obj = PaintAttValue.getObj(test.in).getMinifiedValue();
+      const obj = new PaintAttValue(test.in).getMinifiedValue();
       expect(obj.toString()).toBe(test.out ?? test.in);
     });
   }

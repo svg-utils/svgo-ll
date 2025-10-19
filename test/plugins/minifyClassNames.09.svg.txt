@@ -1,0 +1,21 @@
+Don't minify classes in non-SVG namespace, but don't overwrite them.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.long{fill:red}.longer{fill:green}</style>
+  <rect class="long" y="1" width="2" height="2"/>
+  <rect class="longer" y="4" width="2" height="2"/>
+  <rect class="longer" y="7" width="2" height="2"/>
+  <x xmlns="z" class="a"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>.c{fill:red}.b{fill:green}</style>
+  <rect class="c" y="1" width="2" height="2"/>
+  <rect class="b" y="4" width="2" height="2"/>
+  <rect class="b" y="7" width="2" height="2"/>
+  <x xmlns="z" class="a"/>
+</svg>

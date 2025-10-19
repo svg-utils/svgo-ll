@@ -1,6 +1,10 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { deleteOtherAtt, getXmlNSAtt } from '../lib/tools-ast.js';
+import {
+  deleteOtherAtt,
+  getXmlNSAtt,
+  hasAttributes,
+} from '../lib/tools-ast.js';
 
 export const name = 'cleanupTextElements';
 export const description = 'simplify <text> elements and content';
@@ -55,40 +59,38 @@ export const fn = (info) => {
             child.parentNode = element;
           }
           for (const attributeName of ['x', 'y']) {
-            if (hoistableChild.attributes[attributeName] !== undefined) {
-              element.attributes[attributeName] =
-                hoistableChild.attributes[attributeName];
+            const att = hoistableChild.svgAtts.get(attributeName);
+            if (att !== undefined) {
+              element.svgAtts.set(attributeName, att);
             }
           }
           // Update style attribute.
-          const childStyleAttValues =
-            StyleAttValue.getStyleAttValue(hoistableChild);
+          const childStyleAttValues = StyleAttValue.getAttValue(hoistableChild);
           if (childStyleAttValues) {
-            const parentStyleAttValues =
-              StyleAttValue.getStyleAttValue(element);
+            const parentStyleAttValues = StyleAttValue.getAttValue(element);
             if (parentStyleAttValues) {
               for (const [k, v] of childStyleAttValues.entries()) {
                 parentStyleAttValues.set(k, v);
               }
             } else {
-              element.attributes.style = childStyleAttValues;
+              childStyleAttValues.updateElement(element);
             }
           }
         }
 
         // If the <text> element has x/y, and so do all children, remove x/y from <text>.
         if (
-          element.attributes.x !== undefined &&
-          element.attributes.y !== undefined &&
+          element.svgAtts.get('x') !== undefined &&
+          element.svgAtts.get('y') !== undefined &&
           childrenAllHaveXY(element)
         ) {
-          delete element.attributes.x;
-          delete element.attributes.y;
+          element.svgAtts.delete('x');
+          element.svgAtts.delete('y');
         }
 
         // If the <text> has no attributes, and all of the children can be hoisted, add this element to the list to be updated
         // at the end.
-        if (Object.keys(element.attributes).length === 0) {
+        if (!hasAttributes(element)) {
           if (
             element.parentNode.type === 'element' &&
             element.parentNode.local !== 'switch'
@@ -197,7 +199,10 @@ function childHasXY(child) {
   if (child.local !== 'tspan') {
     return false;
   }
-  if (child.attributes.x === undefined || child.attributes.y === undefined) {
+  if (
+    child.svgAtts.get('x') === undefined ||
+    child.svgAtts.get('y') === undefined
+  ) {
     return false;
   }
   return true;

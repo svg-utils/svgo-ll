@@ -9,6 +9,6 @@ Remove enable-background attribute.
 
 @@@
 
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:test="http://" y="10" test:attr="val" xml:space="preserve" viewBox="0 0 20 20">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:test="http://" test:attr="val" xml:space="preserve" y="10" viewBox="0 0 20 20">
     <rect width="22" height="3"/>
 </svg>

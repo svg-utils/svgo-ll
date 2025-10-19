@@ -1,5 +1,6 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
+import { hasAttributes } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -38,16 +39,13 @@ export function fn(info) {
         }
 
         // move group attributes to the single child element
-        if (
-          Object.keys(element.attributes).length !== 0 &&
-          element.children.length === 1
-        ) {
+        if (hasAttributes(element) && element.children.length === 1) {
           const firstChild = element.children[0];
           if (
             firstChild.type === 'element' &&
-            firstChild.attributes.id === undefined &&
-            (element.attributes.class === undefined ||
-              firstChild.attributes.class === undefined)
+            firstChild.svgAtts.get('id') === undefined &&
+            (element.svgAtts.get('class') === undefined ||
+              firstChild.svgAtts.get('class') === undefined)
           ) {
             const parentStyle = styles.computeStyle(element, parentList);
             /** @type {import('../lib/types.js').ParentList} */
@@ -105,12 +103,13 @@ export function fn(info) {
 
               // Move any remaining attributes from the parent to the child.
               for (const [name, value] of element.svgAtts.entries()) {
+                const childAtt = firstChild.svgAtts.get(name);
                 if (
-                  firstChild.attributes[name] === undefined ||
-                  firstChild.attributes[name].toString() === value.toString()
+                  childAtt === undefined ||
+                  childAtt.toString() === value.toString()
                 ) {
-                  firstChild.attributes[name] = value;
-                  delete element.attributes[name];
+                  firstChild.svgAtts.set(name, value);
+                  element.svgAtts.delete(name);
                 }
               }
             }
@@ -118,7 +117,7 @@ export function fn(info) {
         }
 
         // collapse groups without attributes
-        if (Object.keys(element.attributes).length === 0) {
+        if (!hasAttributes(element)) {
           // animation elements "add" attributes to group
           // group should be preserved
           for (const child of element.children) {

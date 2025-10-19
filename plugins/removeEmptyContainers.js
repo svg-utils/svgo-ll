@@ -1,5 +1,5 @@
 import { addChildToDelete, deleteChildren } from '../lib/svgo/tools.js';
-import { getHrefId } from '../lib/tools-ast.js';
+import { getHrefId, hasAttributes } from '../lib/tools-ast.js';
 import { detachNodeFromParent } from '../lib/xast.js';
 
 export const name = 'removeEmptyContainers';
@@ -33,6 +33,7 @@ export const fn = (info) => {
     return;
   }
 
+  /** @type {Set<string>} */
   const removedIds = new Set();
   /** @type {Map<string, import('../lib/types.js').XastElement[]>} */
   const usesById = new Map();
@@ -63,10 +64,7 @@ export const fn = (info) => {
           return;
         }
         // empty patterns may contain reusable configuration
-        if (
-          element.local === 'pattern' &&
-          Object.keys(element.attributes).length !== 0
-        ) {
+        if (element.local === 'pattern' && hasAttributes(element)) {
           return;
         }
         // The <g> may not have content, but the filter may cause a rectangle
@@ -91,8 +89,10 @@ export const fn = (info) => {
         // root exit; this is running in element exit so that nested empty elements are removed from bottom up, the nesting
         // would be hard to detect in root exit.
         detachNodeFromParent(element);
-        if (element.attributes.id) {
-          removedIds.add(element.attributes.id);
+
+        const id = element.svgAtts.get('id')?.toString();
+        if (id) {
+          removedIds.add(id);
         }
       },
     },

@@ -16,7 +16,7 @@ Merge transform in style attribute and gradientTransform correctly when xlink us
 
 @@@
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 10 10">
     <defs>
         <linearGradient id="b" x1="1" x2="3" gradientUnits="userSpaceOnUse" gradientTransform="rotate(30)">
             <stop offset="5%" stop-color="gold"/>

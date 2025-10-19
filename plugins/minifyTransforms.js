@@ -16,18 +16,18 @@ export const description = 'Make transform expressions as short as possible';
 export const fn = () => {
   return {
     element: {
-      enter: (node) => {
+      enter: (element) => {
         /** @param {string} attName */
         function processAttribute(attName) {
-          const input = node.attributes[attName];
+          const input = element.svgAtts.get(attName);
           if (input === undefined) {
             return;
           }
           const output = minifyTransforms(input.toString());
           if (output) {
-            node.attributes[attName] = output;
+            element.svgAtts.set(attName, output);
           } else {
-            delete node.attributes[attName];
+            element.svgAtts.delete(attName);
           }
         }
         ['transform', 'gradientTransform', 'patternTransform'].forEach(

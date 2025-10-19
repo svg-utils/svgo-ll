@@ -1,3 +1,4 @@
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 
 export const name = 'removeDimensions';
@@ -18,23 +19,28 @@ export const fn = () => {
   return {
     element: {
       enter: (element) => {
-        if (element.uri === undefined && element.local === 'svg') {
-          if (element.attributes.viewBox) {
-            delete element.attributes.width;
-            delete element.attributes.height;
-          } else if (
-            element.attributes.width &&
-            element.attributes.height &&
-            Number.isNaN(Number(element.attributes.width)) === false &&
-            Number.isNaN(Number(element.attributes.height)) === false
-          ) {
-            const width = Number(element.attributes.width);
-            const height = Number(element.attributes.height);
-            element.attributes.viewBox = `0 0 ${width} ${height}`;
-            delete element.attributes.width;
-            delete element.attributes.height;
+        if (element.uri !== undefined || element.local !== 'svg') {
+          return;
+        }
+
+        if (element.svgAtts.get('viewBox')) {
+          element.svgAtts.delete('width');
+          element.svgAtts.delete('height');
+          return visitSkip;
+        }
+
+        const width = LengthPercentageAttValue.getAttValue(element, 'width');
+        const height = LengthPercentageAttValue.getAttValue(element, 'height');
+        if (width !== undefined && height !== undefined) {
+          const pxWidth = width.getPixels();
+          const pxHeight = height.getPixels();
+          if (pxWidth !== null && pxHeight !== null) {
+            element.svgAtts.set('viewBox', `0 0 ${pxWidth} ${pxHeight}`);
+            element.svgAtts.delete('width');
+            element.svgAtts.delete('height');
           }
         }
+
         return visitSkip;
       },
     },

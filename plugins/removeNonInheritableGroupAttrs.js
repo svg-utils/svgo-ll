@@ -27,7 +27,7 @@ export const fn = () => {
         }
 
         const candidates = new Set();
-        for (const name of Object.keys(element.attributes)) {
+        for (const name of element.svgAtts.keys()) {
           if (
             attrsGroups.presentation.has(name) &&
             !inheritableAttrs.has(name) &&
@@ -58,7 +58,7 @@ export const fn = () => {
         }
 
         for (const attName of candidates.values()) {
-          delete element.attributes[attName];
+          element.svgAtts.delete(attName);
         }
       },
     },

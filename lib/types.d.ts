@@ -42,6 +42,7 @@ export class SvgAttValues {
   delete(name: string): void;
   entries(): IterableIterator<[string, string | AttValue]>;
   get<T = AttValue>(name: string): string | T | undefined;
+  hasAttributes(): boolean;
   set(name: string, value: string | AttValue): void;
 }
 export type XastElement = {
@@ -50,8 +51,6 @@ export type XastElement = {
   local: string;
   prefix: string;
   uri: string | undefined;
-  /** @deprecated */
-  attributes: Record<string, SVGAttValue>;
   svgAtts: SvgAttValues;
   otherAtts: XastAttOther[] | undefined;
   children: XastChild[];

@@ -1,3 +1,5 @@
+import { deleteAtts } from '../lib/tools-ast.js';
+
 export const name = 'convertEllipseToCircle';
 export const description = 'converts non-eccentric <ellipse>s to <circle>s';
 
@@ -18,8 +20,8 @@ export const fn = () => {
         }
 
         if (element.local === 'ellipse') {
-          const rx = element.attributes.rx || '0';
-          const ry = element.attributes.ry || '0';
+          const rx = element.svgAtts.get('rx') || '0';
+          const ry = element.svgAtts.get('ry') || '0';
           if (
             rx === ry ||
             rx === 'auto' ||
@@ -27,9 +29,8 @@ export const fn = () => {
           ) {
             element.local = 'circle';
             const radius = rx === 'auto' ? ry : rx;
-            delete element.attributes.rx;
-            delete element.attributes.ry;
-            element.attributes.r = radius;
+            deleteAtts(element, 'rx', 'ry');
+            element.svgAtts.set('r', radius);
           }
         }
       },

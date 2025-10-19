@@ -38,6 +38,10 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         // Record any referenced ids.
         recordReferencedIds(element, allReferencedIds);
 
@@ -215,7 +219,7 @@ function inlineGradient(
 
 /**
  * @param {Map<string,ColorData>} solidGradients
- * @param {import('../lib/svgo/tools-svg.js').IdReferenceMap} allReferencedIds
+ * @param {import('../lib/tools-ast.js').IdReferenceMap} allReferencedIds
  */
 function updateSolidGradients(solidGradients, allReferencedIds) {
   /** @type {Map<string,ColorData>} */

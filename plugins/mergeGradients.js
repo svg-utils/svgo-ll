@@ -30,6 +30,10 @@ export const fn = (info) => {
   return {
     element: {
       enter: (element) => {
+        if (element.uri !== undefined) {
+          return;
+        }
+
         // Record all referenced ids.
         recordReferencedIds(element, referencedIds);
 
@@ -116,8 +120,9 @@ function getGradientKey(element) {
    */
   function addParts(element, excludeId) {
     parts.push(element.local);
-    for (const [attName, attVal] of Object.entries(element.attributes).sort(
-      (a, b) => a[0].localeCompare(b[0]),
+    const array = Array.from(element.svgAtts.entries());
+    for (const [attName, attVal] of array.sort((a, b) =>
+      a[0].localeCompare(b[0]),
     )) {
       if (excludeId && attName === 'id') {
         continue;

@@ -16,7 +16,7 @@ Test with ellipses.
       <ellipse cx="1" cy="2" rx="2" ry="2" />
     </g>
     <g transform="translate(0,5)">
-      <ellipse cx="1" cy="2" rx="2" ry=""/>
+      <ellipse cx="1" cy="2" rx="2"/>
     </g>
     <g transform="translate(0,10)">
       <ellipse cx="1" cy="2" rx="2" />
@@ -76,47 +76,47 @@ Test with ellipses.
       .e5{ry:2}
   </style>
     <g>
-        <g transform="translate(0,0)">
+        <g transform="translate(0)">
             <ellipse cx="1" cy="2" rx="2" ry="2"/>
         </g>
-        <g transform="translate(0,5)">
-            <ellipse cx="1" cy="2" rx="2" ry=""/>
-        </g>
-        <g transform="translate(0,10)">
+        <g transform="translate(0 5)">
             <ellipse cx="1" cy="2" rx="2"/>
         </g>
-        <g transform="translate(0,15)"/>
-        <g transform="translate(0,20)">
+        <g transform="translate(0 10)">
+            <ellipse cx="1" cy="2" rx="2"/>
+        </g>
+        <g transform="translate(0 15)"/>
+        <g transform="translate(0 20)">
             <ellipse cx="1" cy="2" ry="2"/>
         </g>
     </g>
-    <g transform="translate(10,0)">
-        <g transform="translate(0,0)">
+    <g transform="translate(10)">
+        <g transform="translate(0)">
             <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:2"/>
         </g>
-        <g transform="translate(0,5)">
+        <g transform="translate(0 5)">
             <ellipse cx="1" cy="2" rx="0" ry="0" style="rx:2;ry:0"/>
         </g>
-        <g transform="translate(0,10)">
+        <g transform="translate(0 10)">
             <ellipse cx="1" cy="2" rx="0" style="rx:2"/>
         </g>
-        <g transform="translate(0,15)"/>
-        <g transform="translate(0,20)">
+        <g transform="translate(0 15)"/>
+        <g transform="translate(0 20)">
             <ellipse cx="1" cy="2" ry="0" style="ry:2"/>
         </g>
     </g>
-    <g transform="translate(20,0)">
-        <g transform="translate(0,0)">
+    <g transform="translate(20)">
+        <g transform="translate(0)">
             <ellipse cx="1" cy="2" rx="0" ry="0" class="e1"/>
         </g>
-        <g transform="translate(0,5)">
+        <g transform="translate(0 5)">
             <ellipse cx="1" cy="2" rx="0" ry="0" class="e2"/>
         </g>
-        <g transform="translate(0,10)">
+        <g transform="translate(0 10)">
             <ellipse cx="1" cy="2" rx="0" class="e3"/>
         </g>
-        <g transform="translate(0,15)"/>
-        <g transform="translate(0,20)">
+        <g transform="translate(0 15)"/>
+        <g transform="translate(0 20)">
             <ellipse cx="1" cy="2" ry="0" class="e5"/>
         </g>
     </g>

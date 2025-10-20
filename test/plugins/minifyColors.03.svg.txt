@@ -31,5 +31,5 @@ Convert lighting-color values.
         </feDiffuseLighting>
     </filter>
     <rect width="200" height="200" style="filter:url(#diffuseLighting1)"/>
-    <rect width="200" height="200" style="filter:url(#diffuseLighting2);transform:translateX(220px)"/>
+    <rect width="200" height="200" style="filter:url(#diffuseLighting2);transform:translate(220px)"/>
 </svg>

@@ -15,7 +15,7 @@ If use has a transform, include it as an attribute rather than property.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
     <defs/>
-    <g transform="rotate(30)translate(2,2)" style="fill:red">
+    <g transform="rotate(30)translate(2 2)" style="fill:red">
         <rect x="2" width="2" height="3"/>
     </g>
 </svg>

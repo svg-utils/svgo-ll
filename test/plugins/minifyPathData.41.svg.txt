@@ -14,10 +14,10 @@ Convert L to shortest format.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 30">
-    <g transform="translate(0,0)">
+    <g transform="translate(0)">
         <path d="M1 1l9 9" stroke="black" fill="none"/>
     </g>
-    <g transform="translate(0,10)">
+    <g transform="translate(0 10)">
         <path d="M1 1l9 9" stroke="black" fill="none"/>
     </g>
 </svg>

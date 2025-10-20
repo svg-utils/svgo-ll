@@ -141,7 +141,7 @@ function inlineUse(use, def) {
   // Don't convert <symbol> unless overflow is visible.
   if (def.local === 'symbol') {
     const overflow = defProperties.get('overflow');
-    if (!overflow || overflow.value !== 'visible') {
+    if (!overflow || overflow.value.toString() !== 'visible') {
       return false;
     }
     // Remove overflow since there is no need to carry it over to <use>; remove transform properties since they are ignored.
@@ -205,7 +205,7 @@ function inlineUse(use, def) {
 
   // Add translation if necessary.
   if (tx !== '0' || ty !== '0') {
-    const translate = `translate(${tx},${ty})`;
+    const translate = `translate(${tx} ${ty})`;
     transform = isContainer ? transform + translate : translate + transform;
   }
   if (transform !== '') {

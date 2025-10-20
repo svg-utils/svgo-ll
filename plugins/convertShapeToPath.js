@@ -1,8 +1,8 @@
 import { ExactNum } from '../lib/exactnum.js';
 import { isNumber } from '../lib/svgo/tools.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
-import { RectDimensionAttValue } from '../lib/attrs/rectDimensionAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
+import { LengthPercentageAutoAttValue } from '../lib/attrs/lengthPercentageAutoAttValue.js';
 
 export const name = 'convertShapeToPath';
 export const description = 'converts basic shapes to more compact path form';
@@ -138,8 +138,8 @@ function convertPolyline(element) {
  * @returns {void}
  */
 function convertRect(element) {
-  const attWidth = RectDimensionAttValue.getAttValue(element, 'width');
-  const attHeight = RectDimensionAttValue.getAttValue(element, 'height');
+  const attWidth = LengthPercentageAutoAttValue.getAttValue(element, 'width');
+  const attHeight = LengthPercentageAutoAttValue.getAttValue(element, 'height');
   if (
     attWidth === undefined ||
     attHeight === undefined ||

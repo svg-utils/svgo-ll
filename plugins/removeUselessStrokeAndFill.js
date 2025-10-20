@@ -1,3 +1,4 @@
+import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { visitSkip } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
@@ -111,7 +112,7 @@ function setNone(element, propName, styleData, parentList, allowUndefined) {
   const value = computedStyle.get(propName);
   if (value !== 'none' && (!allowUndefined || value !== undefined)) {
     const style = StyleAttValue.getAttValue(element) ?? new StyleAttValue('');
-    style.set(propName, { value: 'none', important: false });
+    style.set(propName, { value: new PaintAttValue('none'), important: false });
     style.updateElement(element);
     element.svgAtts.delete(propName);
   }

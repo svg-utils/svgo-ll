@@ -23,5 +23,5 @@ Convert flood-color values.
         <feFlood flood-color="#2e8b57" x="0" y="0" width="200" height="200"/>
     </filter>
     <rect width="200" height="200" style="filter:url(#flood1)"/>
-    <rect width="200" height="200" style="filter:url(#flood2);transform:translateX(220px)"/>
+    <rect width="200" height="200" style="filter:url(#flood2);transform:translate(220px)"/>
 </svg>

@@ -551,10 +551,6 @@ function canHaveProperty(propName, allowedAttributes) {
       // "font" is allowed as a style property but not as an attribute; allow it only if the font attributes are allowed for
       // this element.
       return allowedAttributes.has('font-size');
-    case 'marker':
-      // "marker" is allowed as a style property but not as an attribute; allow it only if the marker attributes are allowed for
-      // this element.
-      return allowedAttributes.has('marker-start');
   }
   return false;
 }

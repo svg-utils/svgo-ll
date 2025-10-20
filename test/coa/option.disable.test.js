@@ -24,7 +24,7 @@ const PLUGINOPT_FILE1 = path.resolve(PLUGINOPT_DIR, 'test1.svg');
 const PLUGINOPT_FILE1_OPT = path.resolve(tempFolder, 'test1.svg');
 
 const EXPECT_NO_CHANGE =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" id="abc" transform="matrix(1 0 0 1 10 20) "/></svg>';
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" id="abc" transform="matrix(1 0 0 1 10 20)"/></svg>';
 const EXPECT_NO_ID =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" transform="matrix(1 0 0 1 10 20)"/></svg>';
 const EXPECT_TRANS =

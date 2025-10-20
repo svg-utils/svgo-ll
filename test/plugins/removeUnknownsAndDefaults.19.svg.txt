@@ -18,11 +18,11 @@ Preserve defaults on linearGradient elements.
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
     <linearGradient y2="69" x2="220" y1="69" x1="26" gradientUnits="userSpaceOnUse" id="b">
         <stop id="stop5458" style="stop-color:#959ba3"/>
-        <stop offset="0.09090909" style="stop-color:#f4f5f5" id="stop5460"/>
-        <stop id="stop5462" style="stop-color:#9da5ac" offset="0.18181819"/>
+        <stop offset=".09090909" style="stop-color:#f4f5f5" id="stop5460"/>
+        <stop id="stop5462" style="stop-color:#9da5ac" offset=".18181819"/>
         <stop id="stop5464" style="stop-color:#8b96a1" offset="1"/>
     </linearGradient>
-    <linearGradient href="#b" id="a" gradientUnits="userSpaceOnUse" spreadMethod="reflect" x1="0" y1="90.18235" x2="63.9991" y2="90.18235" gradientTransform="matrix(1,0,0,0.91756261,0,21.247322)"/>
+    <linearGradient href="#b" id="a" gradientUnits="userSpaceOnUse" spreadMethod="reflect" x1="0" y1="90.18235" x2="63.9991" y2="90.18235" gradientTransform="matrix(1 0 0 .91756261 0 21.247322)"/>
     <path style="fill:url(#a);stroke-width:0" d="m 0,96 0,5.33334 0,13.33332 C 0,117.62418 2.5892726,120 5.8125,120 l 116.375,0 C 125.41073,120 128,117.62418 128,114.66666 L 128,101.33334 128,96 122.1875,96 5.8125,96 z"/>
 </svg>
 

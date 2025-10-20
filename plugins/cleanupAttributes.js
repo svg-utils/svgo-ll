@@ -1,15 +1,5 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
-import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
-import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
-import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
-import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
-import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
-import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
-import { StrokeDasharrayAttValue } from '../lib/attrs/strokeDashArrayAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TextSpacingAttValue } from '../lib/attrs/textSpacingAttValue.js';
-import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
-import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
   geometryProperties,
@@ -35,10 +25,6 @@ export const fn = (info) => {
           return;
         }
 
-        if (element.local === 'foreignObject') {
-          return visitSkip;
-        }
-
         for (const attName of element.svgAtts.keys()) {
           if (styleData.hasAttributeSelector(attName)) {
             continue;
@@ -49,66 +35,6 @@ export const fn = (info) => {
               break;
             case 'style':
               cleanupStyleAttribute(element);
-              break;
-            case 'fill':
-            case 'stroke':
-              PaintAttValue.getAttValue(element, attName);
-              break;
-            case 'fill-opacity':
-            case 'opacity':
-            case 'stop-opacity':
-            case 'stroke-opacity':
-              OpacityAttValue.getAttValue(element, attName);
-              break;
-            case 'x1':
-            case 'x2':
-            case 'y1':
-            case 'y2':
-            case 'width':
-            case 'height':
-            case 'cx':
-            case 'cy':
-            case 'r':
-            case 'rx':
-            case 'ry':
-            case 'fx':
-            case 'fy':
-            case 'fr':
-            case 'stroke-width':
-              cleanupLengthPct(element, attName);
-              break;
-            case 'x':
-            case 'y':
-              {
-                switch (element.local) {
-                  case 'text':
-                  case 'tspan':
-                    ListOfLengthPercentageAttValue.getAttValue(
-                      element,
-                      attName,
-                    );
-                    break;
-                  default:
-                    cleanupLengthPct(element, attName);
-                    break;
-                }
-              }
-              break;
-            case 'stdDeviation':
-              StdDeviationAttValue.getAttValue(element);
-              break;
-            case 'href':
-              HrefAttValue.getAttValue(element);
-              break;
-            case 'stroke-dasharray':
-              StrokeDasharrayAttValue.getAttValue(element);
-              break;
-            case 'viewBox':
-              ViewBoxAttValue.getAttValue(element);
-              break;
-            case 'letter-spacing':
-            case 'word-spacing':
-              TextSpacingAttValue.getAttValue(element, attName);
               break;
           }
         }
@@ -137,14 +63,6 @@ function cleanupClassAttribute(element, styleData) {
   if (cv.getClassNames().length === 0) {
     element.svgAtts.delete('class');
   }
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} attName
- */
-function cleanupLengthPct(element, attName) {
-  LengthPercentageAttValue.getAttValue(element, attName);
 }
 
 /**
@@ -192,11 +110,6 @@ function elementCanHaveProperty(elName, propName) {
         return false;
       }
     }
-    return true;
-  }
-
-  // "marker" is allowed as a style property but not as an attribute.
-  if (propName === 'marker') {
     return true;
   }
 

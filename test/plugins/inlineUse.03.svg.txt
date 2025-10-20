@@ -15,7 +15,7 @@ Inline symbol, include <use> properties that are not overridden.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
     <defs/>
-    <g transform="translate(5,5)" style="stroke:black;fill:red;stroke-opacity:.2;fill-opacity:.5">
+    <g transform="translate(5 5)" style="stroke:black;fill:red;stroke-opacity:.2;fill-opacity:.5">
         <rect x="2" width="2" height="3"/>
     </g>
 </svg>

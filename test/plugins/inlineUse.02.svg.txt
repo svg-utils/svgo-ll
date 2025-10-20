@@ -15,7 +15,7 @@ Inline symbol, and make sure attribute in symbol takes priority over style in <u
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
     <defs/>
-    <g transform="translate(5,5)" style="fill:red">
+    <g transform="translate(5 5)" style="fill:red">
         <rect x="2" width="2" height="3"/>
     </g>
 </svg>

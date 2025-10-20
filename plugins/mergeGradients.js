@@ -90,7 +90,6 @@ export const fn = (info) => {
             updateReferencedId(
               dupReferencingEl.referencingEl,
               dupReferencingEl.referencingAtt,
-              dupReferencingEl.uri,
               idMap,
             );
           }

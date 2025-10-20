@@ -16,7 +16,7 @@ Test with ellipses.
       <ellipse cx="1" cy="2" rx="2" ry="2" />
     </g>
     <g transform="translate(0,5)">
-      <ellipse cx="1" cy="2" rx="2" ry=""/>
+      <ellipse cx="1" cy="2" rx="2"/>
     </g>
     <g transform="translate(0,10)">
       <ellipse cx="1" cy="2" rx="2" />
@@ -80,7 +80,7 @@ Test with ellipses.
             <ellipse cx="1" cy="2" rx="2" ry="2"/>
         </g>
         <g transform="translate(0 5)">
-            <ellipse cx="1" cy="2" rx="2" ry=""/>
+            <ellipse cx="1" cy="2" rx="2"/>
         </g>
         <g transform="translate(0 10)">
             <ellipse cx="1" cy="2" rx="2"/>

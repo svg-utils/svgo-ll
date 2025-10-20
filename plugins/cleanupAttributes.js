@@ -43,20 +43,6 @@ export const fn = (info) => {
             case 'style':
               cleanupStyleAttribute(element);
               break;
-            case 'x1':
-            case 'x2':
-            case 'y1':
-            case 'y2':
-            case 'cx':
-            case 'cy':
-            case 'r':
-            case 'rx':
-            case 'ry':
-            case 'fx':
-            case 'fy':
-            case 'fr':
-              LengthPercentageAttValue.getAttValue(element, attName);
-              break;
             case 'x':
             case 'y':
               {

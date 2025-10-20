@@ -20,8 +20,8 @@ export const fn = () => {
         }
 
         if (element.local === 'ellipse') {
-          const rx = element.svgAtts.get('rx') || '0';
-          const ry = element.svgAtts.get('ry') || '0';
+          const rx = element.svgAtts.get('rx')?.toString() || '0';
+          const ry = element.svgAtts.get('ry')?.toString() || '0';
           if (
             rx === ry ||
             rx === 'auto' ||

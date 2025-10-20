@@ -24,7 +24,7 @@ export function generateTreeData(root) {
   visit(root, {
     element: {
       enter: (element) => {
-        const id = element.svgAtts.get('id');
+        const id = element.svgAtts.get('id')?.toString();
         if (id) {
           data.set(id, element);
         }

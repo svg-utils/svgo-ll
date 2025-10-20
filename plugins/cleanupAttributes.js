@@ -1,8 +1,5 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
-import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
-import { ListOfLengthPercentageAttValue } from '../lib/attrs/listOfLengthPercentageAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { visitSkip } from '../lib/xast.js';
 import {
   elemsGroups,
   geometryProperties,
@@ -28,10 +25,6 @@ export const fn = (info) => {
           return;
         }
 
-        if (element.local === 'foreignObject') {
-          return visitSkip;
-        }
-
         for (const attName of element.svgAtts.keys()) {
           if (styleData.hasAttributeSelector(attName)) {
             continue;
@@ -42,23 +35,6 @@ export const fn = (info) => {
               break;
             case 'style':
               cleanupStyleAttribute(element);
-              break;
-            case 'x':
-            case 'y':
-              {
-                switch (element.local) {
-                  case 'text':
-                  case 'tspan':
-                    ListOfLengthPercentageAttValue.getAttValue(
-                      element,
-                      attName,
-                    );
-                    break;
-                  default:
-                    LengthPercentageAttValue.getAttValue(element, attName);
-                    break;
-                }
-              }
               break;
           }
         }

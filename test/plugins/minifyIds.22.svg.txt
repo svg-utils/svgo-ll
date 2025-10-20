@@ -22,7 +22,7 @@ When two IDs are referenced in the same attribute.
         <stop stop-color="#f00" offset="0"/>
     </linearGradient>
     <linearGradient id="b" href="#a" gradientUnits="userSpaceOnUse" gradientTransform="translate(7991.4092 -7484.0182)" x1="475.01208" y1="29234.521" x2="-1343.6307" y2="29445.83"/>
-    <filter id="c" style="color-interpolation-filters:sRGB" x="-0.2760295" width="1.5520591" y="-0.33142158" height="1.6628431">
+    <filter id="c" style="color-interpolation-filters:sRGB" x="-.2760295" width="1.5520591" y="-.33142158" height="1.6628431">
         <feGaussianBlur stdDeviation="331.22039"/>
     </filter>
     <g transform="matrix(5.8862959 0 0 5.8862959 -228.3949 1414.6785)">

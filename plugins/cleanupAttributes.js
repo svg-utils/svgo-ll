@@ -113,11 +113,6 @@ function elementCanHaveProperty(elName, propName) {
     return true;
   }
 
-  // "marker" is allowed as a style property but not as an attribute.
-  if (propName === 'marker') {
-    return true;
-  }
-
   // See if it is allowed for this element.
   const allowedElements = geometryProperties[propName];
   return allowedElements && allowedElements.has(elName);

@@ -26,6 +26,14 @@ describe('test parsing of style attributes', function () {
         stroke: { value: 'green', important: false },
       },
     },
+    {
+      input: 'marker:url(#a)',
+      expected: {
+        'marker-end': { value: `url(#a)`, important: false },
+        'marker-mid': { value: `url(#a)`, important: false },
+        'marker-start': { value: `url(#a)`, important: false },
+      },
+    },
   ];
 
   for (let index = 0; index < tests.length; index++) {

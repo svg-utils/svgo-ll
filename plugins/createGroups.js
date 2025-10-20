@@ -1,5 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { hasMarkerProperties } from '../lib/css-tools.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
@@ -148,10 +147,6 @@ function createGroups(element, usedIds, elementsToCheck) {
       }
 
       if (styleAttValue) {
-        // Check for marker property, which won't be directly present in sharedProps.
-        if (hasMarkerProperties(sharedProps)) {
-          styleAttValue.delete('marker');
-        }
         styleAttValue.updateElement(child);
       }
     });

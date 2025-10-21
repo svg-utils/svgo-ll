@@ -134,7 +134,7 @@ export const fn = (info) => {
         for (const child of element.children) {
           if (child.type === 'element') {
             const childStyleAttValue = StyleAttValue.getAttValue(child);
-            for (const [name] of commonProperties.keys()) {
+            for (const name of commonProperties.keys()) {
               if (childStyleAttValue) {
                 childStyleAttValue.delete(name);
               }

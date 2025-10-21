@@ -1,4 +1,5 @@
 import { ClassAttValue } from '../../lib/attrs/classAttValue.js';
+import { parseAttr } from '../../lib/attrs/parseAttr.js';
 import { CSSSelector, CSSSelectorSequence } from '../../lib/css.js';
 import { CSSRuleConcrete } from '../../lib/style-css-tree.js';
 import { createElement, createRoot } from '../../lib/xast.js';
@@ -104,9 +105,11 @@ describe('test parsing and stringifying of selectors', function () {
         false,
       );
       const root = createRoot();
-      /** @type {Object<string,import('../../lib/types.js').SVGAttValue>} */
+      /** @type {Object<string,import('../../lib/types.js').AttValue>} */
       const obj = {};
-      test.elData.atts.forEach((v) => (obj[v[0]] = v[1]));
+      test.elData.atts.forEach(
+        (v) => (obj[v[0]] = parseAttr(test.elData.elName, v[0], v[1])),
+      );
       const element = createElement(
         root,
         test.elData.elName,

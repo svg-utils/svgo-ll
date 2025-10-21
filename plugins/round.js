@@ -191,28 +191,24 @@ export const fn = (info, params) => {
           switch (propName) {
             case 'fill':
             case 'stroke':
-              newVal = PaintAttValue.getObj(propValue.value).round();
+              newVal = PaintAttValue.getObj(propValue).round();
               break;
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              newVal = ColorAttValue.getObj(propValue.value).round();
+              newVal = ColorAttValue.getObj(propValue).round();
               break;
             case 'fill-opacity':
             case 'opacity':
             case 'stop-opacity':
-              // @ts-ignore
-              newVal = propValue.value.round(opacityDigits);
+              newVal = propValue.round(opacityDigits);
               break;
             case 'font-size':
-              newVal = roundFontSizeProp(propValue.value, fontSizeDigits);
+              newVal = roundFontSizeProp(propValue, fontSizeDigits);
               break;
           }
           if (newVal) {
-            styleAttValue.set(propName, {
-              value: newVal,
-              important: propValue.important,
-            });
+            styleAttValue.set(propName, newVal);
           }
         }
       },

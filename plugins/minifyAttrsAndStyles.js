@@ -24,7 +24,7 @@ export const fn = (info) => {
         }
 
         const props = getPresentationProperties(element);
-        if (props.size === 0) {
+        if (!props.hasAttributes()) {
           return;
         }
 
@@ -32,7 +32,7 @@ export const fn = (info) => {
           // Attributes are shorter; remove the style attribute and use individual attributes.
 
           for (const [name, value] of props.entries()) {
-            element.svgAtts.set(name, value.value);
+            element.svgAtts.set(name, value);
           }
 
           element.svgAtts.delete('style');
@@ -49,19 +49,19 @@ export const fn = (info) => {
 };
 
 /**
- * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
+ * @param {import('../lib/types.js').SvgAttValues} props
  * @returns {number}
  */
 function getAttrWidth(props) {
   let width = 0;
   for (const [name, value] of props.entries()) {
-    width += ' =""'.length + name.length + value.value.toString().length;
+    width += ' =""'.length + name.length + value.toString().length;
   }
   return width;
 }
 
 /**
- * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
+ * @param {import('../lib/types.js').SvgAttValues} props
  * @returns {number}
  */
 function getStyleWidth(props) {

@@ -1,4 +1,3 @@
-import { SvgAttMap } from '../../lib/ast/svgAttMap.js';
 import { parseAttr } from '../../lib/attrs/parseAttr.js';
 import { parseStyleDeclarations } from '../../lib/css/css-tools.js';
 import { createElement, createRoot } from '../../lib/xast.js';

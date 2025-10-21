@@ -143,7 +143,7 @@ export class StyleData {
   computeStyle(
     node: XastElement,
     parentList: Readonly<ParentList>,
-    declarations?: CSSDeclarationMap,
+    declarations?: SvgAttValues,
   ): ComputedStyleMap;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;

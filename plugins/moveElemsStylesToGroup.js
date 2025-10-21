@@ -1,3 +1,4 @@
+import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
@@ -34,9 +35,8 @@ export const fn = (info) => {
 
         /**
          * Find common properties in group children.
-         * @type {Map<string,import('../lib/types.js').AttValue>}
          */
-        const commonProperties = new Map();
+        const commonProperties = new SvgAttMap();
         /** @type {Set<string>} */
         const transformPropertiesFound = new Set();
         let initial = true;
@@ -59,7 +59,7 @@ export const fn = (info) => {
             }
           } else {
             // exclude uncommon attributes from initial list
-            for (const [name, commonValue] of commonProperties) {
+            for (const [name, commonValue] of commonProperties.entries()) {
               const childProperty = childProperties.get(name);
               if (
                 !childProperty ||
@@ -73,12 +73,12 @@ export const fn = (info) => {
 
           // Record any transform properties found.
           TRANSFORM_PROP_NAMES.forEach((name) => {
-            if (childProperties.has(name)) {
+            if (childProperties.get(name)) {
               transformPropertiesFound.add(name);
             }
           });
 
-          if (commonProperties.size === 0) {
+          if (!commonProperties.hasAttributes()) {
             return;
           }
         }
@@ -89,7 +89,7 @@ export const fn = (info) => {
         // be moved.
         let hasAllTransforms = true;
         transformPropertiesFound.forEach((name) => {
-          if (!commonProperties.has(name)) {
+          if (!commonProperties.get(name)) {
             hasAllTransforms = false;
           }
         });
@@ -105,19 +105,20 @@ export const fn = (info) => {
         // Add common child properties to group.
         const groupProperties = getInheritableProperties(element);
 
-        const groupTransform = groupProperties.get('transform');
-        const childTransform = commonProperties.get('transform');
+        /** @type {import('../types/types.js').TransformAttValue} */
+        const groupTransform = groupProperties.getAtt('transform');
+        /** @type {import('../types/types.js').TransformAttValue} */
+        const childTransform = commonProperties.getAtt('transform');
 
         if (groupTransform && childTransform) {
           // We need to merge the two transforms rather than overwriting.
-          commonProperties.set('transform', {
-            // @ts-ignore
-            value: groupTransform.value.mergeTransforms(childTransform.value),
-            important: false,
-          });
+          commonProperties.set(
+            'transform',
+            groupTransform.mergeTransforms(childTransform),
+          );
         }
 
-        for (const [name, value] of commonProperties) {
+        for (const [name, value] of commonProperties.entries()) {
           groupProperties.set(name, value);
         }
 
@@ -133,7 +134,7 @@ export const fn = (info) => {
         for (const child of element.children) {
           if (child.type === 'element') {
             const childStyleAttValue = StyleAttValue.getAttValue(child);
-            for (const [name] of commonProperties) {
+            for (const [name] of commonProperties.keys()) {
               if (childStyleAttValue) {
                 childStyleAttValue.delete(name);
               }

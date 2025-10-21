@@ -153,7 +153,6 @@ export const fn = (info, params) => {
             updateReferencedId(
               reference.referencingEl,
               reference.referencingAtt,
-              reference.uri,
               idMap,
             );
           }

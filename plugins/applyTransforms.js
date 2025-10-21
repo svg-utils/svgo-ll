@@ -134,7 +134,7 @@ function canTransformFill(fill, gradientMap) {
   if (url === undefined) {
     return true;
   }
-  const id = url.getID();
+  const id = url.getReferencedID();
   if (id === undefined) {
     return false;
   }

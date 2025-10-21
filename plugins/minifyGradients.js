@@ -1,16 +1,17 @@
-import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
+import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getReferencedIdInStyleProperty } from '../lib/svgo/tools.js';
 import { recordReferencedIds } from '../lib/tools-ast.js';
+import { Color } from '../lib/types/color.js';
 
 export const name = 'minifyGradients';
 export const description =
   'minify stop offsets and remove stops where possible';
 
 /**
- * @typedef {{color:import('../lib/types.js').AttValue,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
+ * @typedef {{color:Color,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
  */
 
 /**
@@ -142,7 +143,7 @@ function checkStops(element, styleData) {
       return;
     }
   }
-  return { color: new ColorAttValue(color), opacity: opacity };
+  return { color: Color.parse(color), opacity: opacity };
 }
 
 /**
@@ -234,7 +235,10 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
       switch (referencingAtt) {
         case 'fill':
         case 'stroke':
-          referencingEl.svgAtts.set(referencingAtt, colorData.color);
+          referencingEl.svgAtts.set(
+            referencingAtt,
+            new PaintAttValue(undefined, colorData.color),
+          );
           break;
         case 'style':
           {
@@ -252,7 +256,7 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
                 continue;
               }
               styleAttValue.set(propName, {
-                value: colorData.color,
+                value: new PaintAttValue(undefined, colorData.color),
                 important: decl.important,
               });
             }

@@ -6,16 +6,16 @@ describe('test getReferencedIds()', () => {
   const testCases = [
     {
       elem: '<use href="#ab"/>',
-      expected: [{ id: 'ab', attName: 'href', uri: undefined }],
+      expected: [{ id: 'ab', attName: 'href' }],
     },
     {
       elem: '<use xlink:href="#ab"/>',
-      expected: [{ id: 'ab', attName: 'href', uri: NS_XLINK }],
+      expected: [{ id: 'ab', attName: 'xlink:href' }],
       ns: [['xlink', NS_XLINK]],
     },
     {
       elem: '<use x:href="#ab"/>',
-      expected: [{ id: 'ab', attName: 'href', uri: NS_XLINK }],
+      expected: [{ id: 'ab', attName: 'xlink:href' }],
       ns: [['x', NS_XLINK]],
     },
   ];
@@ -36,7 +36,6 @@ describe('test getReferencedIds()', () => {
         const exp = expected[index];
         expect(data.id).toBe(exp.id);
         expect(data.attName).toBe(exp.attName);
-        expect(data.uri).toBe(exp.uri);
       }
     });
   }

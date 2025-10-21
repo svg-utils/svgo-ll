@@ -1,3 +1,5 @@
+import { CSSRule } from '../types/types.js';
+
 export type XastDoctype = {
   type: 'doctype';
   parentNode: XastParent;

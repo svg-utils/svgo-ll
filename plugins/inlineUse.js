@@ -1,4 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 import { getHrefId, getReferencedIds } from '../lib/tools-ast.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -141,7 +142,7 @@ function inlineUse(use, def) {
   // Don't convert <symbol> unless overflow is visible.
   if (def.local === 'symbol') {
     const overflow = defProperties.get('overflow');
-    if (!overflow || overflow.value.toString() !== 'visible') {
+    if (!overflow || overflow.toString() !== 'visible') {
       return false;
     }
     // Remove overflow since there is no need to carry it over to <use>; remove transform properties since they are ignored.
@@ -160,11 +161,12 @@ function inlineUse(use, def) {
   }
 
   // If there is a transform property, convert to an attribute.
-  /** @type {import('../lib/types.js').SVGAttValue} */
-  let transform = '';
+  /** @type {TransformAttValue|undefined} */
+  let transform;
+  /** @type {TransformAttValue|undefined} */
   const cssTransform = useProperties.get('transform');
   if (cssTransform) {
-    transform = cssTransform.value;
+    transform = cssTransform;
     useProperties.delete('transform');
   }
 
@@ -196,7 +198,7 @@ function inlineUse(use, def) {
       case 'transform-origin':
         continue;
       default:
-        if (!useProperties.has(attName)) {
+        if (!useProperties.get(attName)) {
           use.svgAtts.set(attName, attValue);
         }
         break;
@@ -205,10 +207,15 @@ function inlineUse(use, def) {
 
   // Add translation if necessary.
   if (tx !== '0' || ty !== '0') {
-    const translate = `translate(${tx} ${ty})`;
-    transform = isContainer ? transform + translate : translate + transform;
+    const translate = new TransformAttValue(`translate(${tx} ${ty})`);
+    transform =
+      transform === undefined
+        ? translate
+        : isContainer
+          ? transform.mergeTransforms(translate)
+          : translate.mergeTransforms(transform);
   }
-  if (transform !== '') {
+  if (transform) {
     use.svgAtts.set('transform', transform);
   }
   new StyleAttValue(useProperties).updateElement(use);

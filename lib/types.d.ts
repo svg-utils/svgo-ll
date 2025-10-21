@@ -37,14 +37,14 @@ export type XastAttSvg = {
   local: string;
   value: AttValue;
 };
-export class SvgAttValues {
+export type SvgAttValues = {
   keys(): IterableIterator<string>;
   delete(name: string): void;
   entries(): IterableIterator<[string, string | AttValue]>;
-  get<T = AttValue>(name: string): string | T | undefined;
+  get<T extends AttValue>(name: string): T | undefined;
   hasAttributes(): boolean;
   set(name: string, value: string | AttValue): void;
-}
+};
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
@@ -120,14 +120,13 @@ type CSSFeatures =
   | 'pseudos'
   | 'type-selectors';
 
-export class AttValue {
-  /** @deprecated */
-  static getObj(value: string | AttValue): AttValue;
+export type AttValue = {
+  isImportant(): boolean;
   round(numDigits: number): AttValue;
   toString(): string;
   toStyleAttString(): string;
   toStyleElementString(): string;
-}
+};
 
 export class StyleData {
   addStyleSection(css: string): void;
@@ -193,11 +192,13 @@ export class CSSRuleSet {
   hasTypeSelector(type: string): boolean;
 }
 
+/** @deprecated */
 export type CSSPropertyValue = {
   value: SVGAttValue;
   important: boolean;
 };
 
+/** @deprecated */
 export type CSSDeclarationMap = {
   delete(name: string): void;
   entries(): IterableIterator<[string, CSSPropertyValue]>;

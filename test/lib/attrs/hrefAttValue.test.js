@@ -10,7 +10,7 @@ describe('test getID()', () => {
   for (const test of tests) {
     it(`${test.in}`, () => {
       const obj = new HrefAttValue(test.in);
-      expect(obj.getID()).toBe(test.exp);
+      expect(obj.getReferencedID()).toBe(test.exp);
     });
   }
 });

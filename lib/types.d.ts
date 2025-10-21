@@ -126,6 +126,7 @@ type CSSFeatures =
   | 'type-selectors';
 
 export type AttValue = {
+  getMinifiedValue(): AttValue;
   getReferencedID(): string | undefined;
   isImportant(): boolean;
   round(numDigits: number): AttValue;

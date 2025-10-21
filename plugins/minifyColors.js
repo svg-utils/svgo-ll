@@ -59,25 +59,11 @@ export const fn = (info) => {
           switch (propName) {
             case 'fill':
             case 'stroke':
-              {
-                const value = PaintAttValue.getObj(propValue.value);
-                styleAttValue.set(propName, {
-                  value: value.getMinifiedValue(),
-                  important: propValue.important,
-                });
-              }
-              break;
             case 'color':
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              {
-                const value = ColorAttValue.getObj(propValue.value);
-                styleAttValue.set(propName, {
-                  value: value.getMinifiedValue(),
-                  important: propValue.important,
-                });
-              }
+              styleAttValue.set(propName, propValue.getMinifiedValue());
               break;
           }
         }

@@ -1,7 +1,7 @@
 import { generateData, generateTreeData } from './testutils.js';
 
 /**
- * @param {import('../../lib/types.js').StyleData} styleData
+ * @param {import('../../lib/css/styleData.js').StyleData} styleData
  * @param {Map<string,import('../../lib/types.js').XastElement>} treeInfo
  * @param {string} id
  * @param {string} styleName

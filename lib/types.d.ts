@@ -40,10 +40,10 @@ export type XastAttSvg = {
 export type SvgAttValues = {
   keys(): IterableIterator<string>;
   delete(name: string): void;
-  entries(): IterableIterator<[string, string | AttValue]>;
+  entries(): IterableIterator<[string, AttValue]>;
   get<T extends AttValue>(name: string): T | undefined;
   hasAttributes(): boolean;
-  set(name: string, value: string | AttValue): void;
+  set(name: string, value: AttValue): void;
 };
 export type XastElement = {
   type: 'element';

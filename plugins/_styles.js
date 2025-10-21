@@ -6,7 +6,7 @@ export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @returns {import('../lib/types.js').CSSPropertyMap}
+ * @returns {Map<string,import('../lib/types.js').AttValue>}
  */
 export function getInheritableProperties(element) {
   return _getProperties(
@@ -17,7 +17,7 @@ export function getInheritableProperties(element) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
- * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+ * @returns {Map<string,import('../lib/types.js').AttValue>}
  */
 export function getPresentationProperties(element) {
   return _getProperties(element, (name) => presentationProperties.has(name));
@@ -26,7 +26,7 @@ export function getPresentationProperties(element) {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {string} propName
- * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+ * @returns {Map<string,import('../lib/types.js').AttValue>}
  */
 export function getProperty(element, propName) {
   return _getProperties(element, (name) => name === propName);
@@ -35,10 +35,10 @@ export function getProperty(element, propName) {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {function(string):boolean} fnInclude
- * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+ * @returns {Map<string,import('../lib/types.js').AttValue>}
  */
 function _getProperties(element, fnInclude) {
-  /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
+  /** @type {Map<string,import('../lib/types.js').AttValue>} */
   const props = new Map();
 
   // Gather all attributes.
@@ -54,11 +54,11 @@ function _getProperties(element, fnInclude) {
           if (!attValue) {
             throw new Error();
           }
-          props.set(name, { value: attValue, important: false });
+          props.set(name, attValue);
         }
         break;
       default:
-        props.set(name, { value: value, important: false });
+        props.set(name, value);
         break;
     }
   }

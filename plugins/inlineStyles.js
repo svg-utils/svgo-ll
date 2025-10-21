@@ -82,7 +82,7 @@ export const fn = (info) => {
               rulesPerElement.get(element).length === 1
             ) {
               new StyleAttValue(
-                new SvgAttMap(rule.getDeclarations().entries()),
+                new SvgAttMap(rule.getDeclarationEntries()),
               ).updateElement(element);
               rulesToDelete.add(rule);
 

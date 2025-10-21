@@ -452,7 +452,7 @@ export const fn = (info, params) => {
                   isDefaultPropertyValue(
                     element,
                     propName,
-                    propValue.value.toString(),
+                    propValue.toString(),
                     attributesDefaultsPerElement.get(element.local),
                   )
                 ) {

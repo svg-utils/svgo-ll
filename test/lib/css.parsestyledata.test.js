@@ -33,6 +33,12 @@ describe('test parsing of style attributes', function () {
         'marker-start': { value: `url(#a)`, important: false },
       },
     },
+    {
+      input: 'fill-opacity:.1!important;',
+      expected: {
+        'fill-opacity': { value: '.1', important: true },
+      },
+    },
   ];
 
   for (let index = 0; index < tests.length; index++) {

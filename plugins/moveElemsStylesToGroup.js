@@ -34,7 +34,7 @@ export const fn = (info) => {
 
         /**
          * Find common properties in group children.
-         * @type {Map<string,import('../lib/types.js').CSSPropertyValue>}
+         * @type {Map<string,import('../lib/types.js').AttValue>}
          */
         const commonProperties = new Map();
         /** @type {Set<string>} */
@@ -63,9 +63,8 @@ export const fn = (info) => {
               const childProperty = childProperties.get(name);
               if (
                 !childProperty ||
-                childProperty.value.toString() !==
-                  commonValue.value.toString() ||
-                childProperty.important !== commonValue.important
+                childProperty.toString() !== commonValue.toString() ||
+                childProperty.isImportant() !== commonValue.isImportant()
               ) {
                 commonProperties.delete(name);
               }

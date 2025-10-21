@@ -1,4 +1,5 @@
 import { CSSRule } from '../types/types.js';
+import { SvgAttMap } from './ast/svgAttMap.js';
 
 export type XastDoctype = {
   type: 'doctype';
@@ -54,7 +55,7 @@ export type XastElement = {
   local: string;
   prefix: string;
   uri: string | undefined;
-  svgAtts: SvgAttValues;
+  svgAtts: SvgAttMap;
   otherAtts: XastAttOther[] | undefined;
   children: XastChild[];
   isSelfClosing?: boolean;
@@ -124,6 +125,7 @@ type CSSFeatures =
   | 'type-selectors';
 
 export type AttValue = {
+  getReferencedID(): string | undefined;
   isImportant(): boolean;
   round(numDigits: number): AttValue;
   toString(): string;

@@ -1,12 +1,13 @@
+import { SvgAttMap } from '../../lib/ast/svgAttMap.js';
 import { ClassAttValue } from '../../lib/attrs/classAttValue.js';
 import { parseAttr } from '../../lib/attrs/parseAttr.js';
-import { CSSSelector, CSSSelectorSequence } from '../../lib/css.js';
-import { CSSRuleConcrete } from '../../lib/style-css-tree.js';
+import { CSSSelector, CSSSelectorSequence } from '../../lib/css/css.js';
+import { CSSRuleConcrete } from '../../lib/css/style-css-tree.js';
 import { createElement, createRoot } from '../../lib/xast.js';
 
 describe('test parsing and stringifying of selectors', function () {
   /** @type {{
-   * selectorInfo:import('../../lib/css.js').SimpleSelector[],
+   * selectorInfo:import('../../lib/css/css.js').SimpleSelector[],
    * elData:{elName:string,atts:[string,string][]},
    * expected:boolean|null,
    * expectedComplex?:boolean
@@ -92,7 +93,7 @@ describe('test parsing and stringifying of selectors', function () {
       expected: false,
     },
   ];
-  const declarations = new Map();
+  const declarations = new SvgAttMap();
 
   for (const test of tests) {
     const sequences = [new CSSSelectorSequence(undefined, test.selectorInfo)];

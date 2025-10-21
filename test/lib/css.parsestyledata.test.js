@@ -1,5 +1,5 @@
-import { parseStyleDeclarations } from '../../lib/css-tools.js';
-import { parseStylesheet } from '../../lib/style-css-tree.js';
+import { parseStyleDeclarations } from '../../lib/css/css-tools.js';
+import { parseStylesheet } from '../../lib/css/style-css-tree.js';
 
 describe('test parsing of style attributes', function () {
   /** @type{{input:string,expected:Object<string,{value:string,important:boolean}>}[]} */

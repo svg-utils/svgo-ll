@@ -44,6 +44,7 @@ export type SvgAttValues = {
   get<T extends AttValue>(name: string): T | undefined;
   hasAttributes(): boolean;
   set(name: string, value: AttValue): void;
+  values(): IterableIterator<AttValue>;
 };
 export type XastElement = {
   type: 'element';
@@ -166,31 +167,8 @@ export class StyleData {
 }
 
 export type ComputedStyleMap = Map<string, string | null>;
+/** @deprecated */
 export type CSSPropertyMap = Map<string, CSSPropertyValue>;
-
-export class CSSRule {
-  addReferencedClasses(classes: Set<string>): void;
-  addReferencedIds(ids: Map<string, CSSRule[]>): void;
-  getDeclarations(): CSSPropertyMap;
-  getFeatures(): Set<CSSFeatures>;
-  getSpecificity(): [number, number, number];
-  hasAttributeSelector(attName: string | undefined): boolean;
-  hasPseudos(): boolean;
-  isInMediaQuery(): boolean;
-  matches(element: XastElement): boolean;
-  updateClassNames(renameMap: Map<string, string>): void;
-  updateReferencedIds(ids: Map<string, string>): void;
-}
-
-export class CSSRuleSet {
-  deleteRules(rules: Set<CSSRule>): void;
-  getFeatures(): Set<CSSFeatures>;
-  getRules(): CSSRule[];
-  getString(): string;
-  hasAtRules(): boolean;
-  hasIdSelector(id: string): boolean;
-  hasTypeSelector(type: string): boolean;
-}
 
 /** @deprecated */
 export type CSSPropertyValue = {

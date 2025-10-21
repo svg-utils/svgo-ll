@@ -1,3 +1,4 @@
+import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
@@ -90,15 +91,17 @@ function createGroups(element, usedIds, elementsToCheck) {
     }
 
     const groupSize = index - sharedPropStart;
-    const propSize = StyleAttValue.getPropertyString(sharedProps).length;
+    const propSize = StyleAttValue.getPropertyString(
+      sharedProps.entries(),
+    ).length;
     const cost =
       16 + // for <g style=""></g>
       propSize -
       1; // subract 1 for last ";"
     const savings =
-      propSize * groupSize + getDeletedStyleAttSavings(sharedProps.size);
+      propSize * groupSize + getDeletedStyleAttSavings(sharedProps.count());
     const shouldCreateGroup =
-      sharedProps.size > 0 && groupSize > 1 && cost < savings;
+      sharedProps.count() > 0 && groupSize > 1 && cost < savings;
     if (newChildren.length === 0 && !shouldCreateGroup) {
       // No groups have been written yet, and there is no reason to write one here.
       return;
@@ -159,8 +162,8 @@ function createGroups(element, usedIds, elementsToCheck) {
   /** @type {import('../lib/types.js').XastChild[]} */
   const newChildren = [];
 
-  /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
-  let sharedProps = new Map();
+  /** @type {import('../lib/types.js').SvgAttValues} */
+  let sharedProps = new SvgAttMap();
 
   /** @type {Set<string>} */
   let clipProps = new Set();
@@ -184,40 +187,39 @@ function createGroups(element, usedIds, elementsToCheck) {
     if (id !== undefined && usedIds.has(id)) {
       // If the element is <use>d, we can't move any properties to a group, so it needs to be on its own.
       writeGroup(index);
-      sharedProps = new Map();
+      sharedProps = new SvgAttMap();
       transformProps = new Set();
       sharedPropStart = index;
       continue;
     }
 
     const currentChildProps = getInheritableProperties(child);
-    propCounts.set(child, currentChildProps.size);
+    propCounts.set(child, currentChildProps.count());
 
     // Some combinations of properties must be moved as a unit if present; record which properties are present.
     TRANSFORM_PROP_NAMES.forEach((name) => {
-      if (currentChildProps.has(name)) {
+      if (currentChildProps.get(name)) {
         transformProps.add(name);
       }
     });
     CLIP_PROP_NAMES.forEach((name) => {
-      if (currentChildProps.has(name)) {
+      if (currentChildProps.get(name)) {
         clipProps.add(name);
       }
     });
 
-    if (sharedProps.size === 0) {
+    if (sharedProps.count() === 0) {
       sharedProps = currentChildProps;
       sharedPropStart = index;
       continue;
     }
 
-    /** @type {Map<string,import('../lib/types.js').CSSPropertyValue>} */
-    const newSharedProps = new Map();
+    const newSharedProps = new SvgAttMap();
 
     // Copy any common shared properties.
     for (const [k, v] of sharedProps.entries()) {
       const currentProp = currentChildProps.get(k);
-      if (currentProp && currentProp.value.toString() === v.value.toString()) {
+      if (currentProp && currentProp.toString() === v.toString()) {
         newSharedProps.set(k, v);
       }
     }
@@ -225,18 +227,20 @@ function createGroups(element, usedIds, elementsToCheck) {
     // If both transform properties are present, either move them both or neither.
     if (
       transformProps.size === 2 &&
-      !TRANSFORM_PROP_NAMES.every((name) => newSharedProps.has(name))
+      !TRANSFORM_PROP_NAMES.every(
+        (name) => newSharedProps.get(name) !== undefined,
+      )
     ) {
       TRANSFORM_PROP_NAMES.forEach((name) => newSharedProps.delete(name));
     }
     if (
       clipProps.size === 2 &&
-      !CLIP_PROP_NAMES.every((name) => newSharedProps.has(name))
+      !CLIP_PROP_NAMES.every((name) => newSharedProps.get(name) !== undefined)
     ) {
       CLIP_PROP_NAMES.forEach((name) => newSharedProps.delete(name));
     }
 
-    if (newSharedProps.size > 0) {
+    if (newSharedProps.count() > 0) {
       // There are still some common properties, try the next child.
       sharedProps = newSharedProps;
       continue;

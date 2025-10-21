@@ -41,6 +41,7 @@ export type XastAttSvg = {
   value: AttValue;
 };
 export type SvgAttValues = {
+  count(): number;
   keys(): IterableIterator<string>;
   delete(name: string): void;
   entries(): IterableIterator<[string, AttValue]>;
@@ -173,24 +174,6 @@ export class StyleData {
 }
 
 export type ComputedStyleMap = Map<string, string | null>;
-/** @deprecated */
-export type CSSPropertyMap = Map<string, CSSPropertyValue>;
-
-/** @deprecated */
-export type CSSPropertyValue = {
-  value: SVGAttValue;
-  important: boolean;
-};
-
-/** @deprecated */
-export type CSSDeclarationMap = {
-  delete(name: string): void;
-  entries(): IterableIterator<[string, CSSPropertyValue]>;
-  keys(): IterableIterator<string>;
-  get(name: string): CSSPropertyValue | undefined;
-  set(name: string, value: CSSPropertyValue): void;
-  values(): IterableIterator<CSSPropertyValue>;
-};
 
 export type PluginInfo = {
   path?: string;

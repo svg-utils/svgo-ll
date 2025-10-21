@@ -2,8 +2,7 @@ import { parseStyleDeclarations } from '../../lib/css-tools.js';
 import { parseStylesheet } from '../../lib/style-css-tree.js';
 
 describe('test parsing of style attributes', function () {
-  /** @type{{input:string,expected:Object<string,import('../../lib/types.js').CSSPropertyValue>}[]
-  } */
+  /** @type{{input:string,expected:Object<string,{value:string,important:boolean}>}[]} */
   const tests = [
     {
       input: 'fill:red;stroke:green',
@@ -40,10 +39,10 @@ describe('test parsing of style attributes', function () {
     const test = tests[index];
     it(`test ${test.input}`, function () {
       const parsed = parseStyleDeclarations(test.input);
-      expect(parsed.size).toBe(Object.keys(test.expected).length);
+      expect(parsed.count()).toBe(Object.keys(test.expected).length);
       for (const [prop, value] of Object.entries(test.expected)) {
-        expect(parsed.get(prop)?.value.toString()).toBe(value.value);
-        expect(parsed.get(prop)?.important).toBe(value.important);
+        expect(parsed.get(prop)?.toString()).toBe(value.value);
+        expect(parsed.get(prop)?.isImportant()).toBe(value.important);
       }
     });
   }

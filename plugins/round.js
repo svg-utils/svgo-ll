@@ -1,4 +1,3 @@
-import { svgParseTransform } from '../lib/svg-parse-att.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
@@ -187,6 +186,7 @@ export const fn = (info, params) => {
           return;
         }
         for (const [propName, propValue] of styleAttValue.entries()) {
+          /** @deprecated */
           let newVal;
           switch (propName) {
             case 'fill':
@@ -196,7 +196,10 @@ export const fn = (info, params) => {
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              newVal = ColorAttValue.getObj(propValue).round();
+              styleAttValue.set(
+                propName,
+                /** @type {ColorAttValue} */ (propValue).round(),
+              );
               break;
             case 'fill-opacity':
             case 'opacity':
@@ -204,7 +207,12 @@ export const fn = (info, params) => {
               newVal = propValue.round(opacityDigits);
               break;
             case 'font-size':
-              newVal = roundFontSizeProp(propValue, fontSizeDigits);
+              styleAttValue.set(
+                propName,
+                /** @type {FontSizeAttValue} */ (propValue).round(
+                  fontSizeDigits,
+                ),
+              );
               break;
           }
           if (newVal) {
@@ -267,14 +275,15 @@ function getCoordContext(element, digits) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue|null} transform
+ * @param {string|null} transform
  * @returns {boolean}
  */
 function isTranslation(transform) {
   if (transform === null) {
     return false;
   }
-  const transforms = svgParseTransform(transform.toString());
+  // TODO: should already be parsed
+  const transforms = new TransformAttValue(transform).getTransforms();
   return transforms.length === 1 && transforms[0].name === 'translate';
 }
 
@@ -304,19 +313,6 @@ function roundFontSizeAtt(element, numDigits) {
   if (att) {
     element.svgAtts.set('font-size', att.round(numDigits));
   }
-}
-
-/**
- * @param {import('../lib/types.js').SVGAttValue} value
- * @param {number} numDigits
- * @returns {FontSizeAttValue}
- */
-function roundFontSizeProp(value, numDigits) {
-  if (typeof value === 'string') {
-    value = new FontSizeAttValue(value);
-  }
-  // @ts-ignore
-  return value.round(numDigits);
 }
 
 /**

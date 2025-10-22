@@ -1,5 +1,3 @@
-import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
-import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 
 export const name = 'minifyColors';
@@ -31,21 +29,11 @@ export const fn = (info) => {
           switch (attName) {
             case 'fill':
             case 'stroke':
-              {
-                const value = PaintAttValue.getAttValue(element, attName);
-                if (value) {
-                  element.svgAtts.set(attName, value.getMinifiedValue());
-                }
-              }
-              break;
             case 'color':
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              {
-                const value = ColorAttValue.getObj(attVal);
-                element.svgAtts.set(attName, value.getMinifiedValue());
-              }
+              element.svgAtts.set(attName, attVal.getMinifiedValue());
               break;
           }
         }

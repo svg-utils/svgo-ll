@@ -1,5 +1,4 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 import { hasAttributes } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
@@ -71,20 +70,22 @@ export function fn(info) {
               for (const [propName, value] of moveableParentProps.entries()) {
                 const childProp = newChildElemProps.get(propName);
                 if (propName === 'transform') {
-                  const t1 = TransformAttValue.createTransform(value.value);
+                  const t1 =
+                    /** @type {import('../types/types.js').TransformAttValue} */ (
+                      value
+                    );
                   const merged =
                     childProp === undefined
                       ? t1
                       : t1.mergeTransforms(
-                          TransformAttValue.createTransform(childProp.value),
+                          /** @type {import('../types/types.js').TransformAttValue} */ (
+                            childProp
+                          ),
                         );
-                  newChildElemProps.set(propName, {
-                    value: merged,
-                    important: false,
-                  });
+                  newChildElemProps.set(propName, merged);
                 } else if (
                   childProp === undefined ||
-                  childProp.value.toString() === 'inherit'
+                  childProp.toString() === 'inherit'
                 ) {
                   newChildElemProps.set(propName, value);
                 }
@@ -146,8 +147,8 @@ export function fn(info) {
 
 /**
  * @param {import('../lib/types.js').XastElement} child
- * @param {import('../lib/types.js').CSSDeclarationMap} parentProps
- * @param {import('../lib/types.js').CSSDeclarationMap} childProps
+ * @param {import('../lib/types.js').SvgAttValues} parentProps
+ * @param {import('../lib/types.js').SvgAttValues} childProps
  * @param {import('../lib/types.js').StyleData} styleData
  * @returns
  */

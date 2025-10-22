@@ -16,7 +16,7 @@ export class StyleToClassData {
   #className;
 
   /**
-   * @param {Map<string,import('../lib/types.js').CSSPropertyValue>} props
+   * @param {import('../lib/types.js').SvgAttValues} props
    * @param {string} propString
    */
   constructor(props, propString) {
@@ -81,7 +81,7 @@ export class StyleToClassData {
   }
 
   /**
-   * @returns {Map<string,import('../lib/types.js').CSSPropertyValue>}
+   * @returns {import('../lib/types.js').SvgAttValues}
    */
   getProperties() {
     return this.#props;
@@ -134,7 +134,7 @@ export const fn = (info) => {
         }
 
         const props = getPresentationProperties(element);
-        if (props.size === 0) {
+        if (props.count() === 0) {
           return;
         }
 

@@ -1,6 +1,7 @@
-import { parseProperty } from '../../lib/css-props.js';
-import { CSSSelector, CSSSelectorSequence } from '../../lib/css.js';
-import { CSSRuleConcrete } from '../../lib/style-css-tree.js';
+import { SvgAttMap } from '../../lib/ast/svgAttMap.js';
+import { parseProperty } from '../../lib/css/css-props.js';
+import { CSSSelector, CSSSelectorSequence } from '../../lib/css/css.js';
+import { CSSRuleConcrete } from '../../lib/css/style-css-tree.js';
 
 describe('test stringifying of properties for <style>', function () {
   /** @type {{
@@ -35,13 +36,9 @@ describe('test stringifying of properties for <style>', function () {
 
   for (const test of tests) {
     it(`test ${test.props} }`, function () {
-      /** @type {Map<string,import('../../lib/types.js').CSSPropertyValue>} */
-      const declarations = new Map();
+      const declarations = new SvgAttMap();
       for (const [name, value] of test.props) {
-        declarations.set(name, {
-          value: parseProperty(name, value),
-          important: false,
-        });
+        declarations.set(name, parseProperty(name, value, false));
       }
 
       const rule = new CSSRuleConcrete(

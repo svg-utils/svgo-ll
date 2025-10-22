@@ -1,4 +1,6 @@
-import { parseStyleDeclarations } from '../../lib/css-tools.js';
+import { SvgAttMap } from '../../lib/ast/svgAttMap.js';
+import { parseAttr } from '../../lib/attrs/parseAttr.js';
+import { parseStyleDeclarations } from '../../lib/css/css-tools.js';
 import { createElement, createRoot } from '../../lib/xast.js';
 import { StyleToClassData } from '../../plugins/stylesToClasses.js';
 
@@ -41,7 +43,11 @@ describe('test savings calculation', () => {
       );
       const root = createRoot();
       for (const atts of testData.elAtts) {
-        const e = createElement(root, 'elem', '', undefined, atts);
+        const attMap = new SvgAttMap();
+        for (const [k, v] of Object.entries(atts)) {
+          attMap.set(k, parseAttr('elem', k, v));
+        }
+        const e = createElement(root, 'elem', '', undefined, attMap);
         data.addElement(e);
       }
       expect(data.calculateSavings(testData.className)).toBe(testData.expected);

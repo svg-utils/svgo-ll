@@ -1,9 +1,8 @@
-import { parseStyleDeclarations } from '../../lib/css-tools.js';
-import { parseStylesheet } from '../../lib/style-css-tree.js';
+import { parseStyleDeclarations } from '../../lib/css/css-tools.js';
+import { parseStylesheet } from '../../lib/css/style-css-tree.js';
 
 describe('test parsing of style attributes', function () {
-  /** @type{{input:string,expected:Object<string,import('../../lib/types.js').CSSPropertyValue>}[]
-  } */
+  /** @type{{input:string,expected:Object<string,{value:string,important:boolean}>}[]} */
   const tests = [
     {
       input: 'fill:red;stroke:green',
@@ -20,6 +19,16 @@ describe('test parsing of style attributes', function () {
       },
     },
     {
+      input: 'marker:url(#a)',
+      expected: {
+        'marker-end': { value: `url(#a)`, important: false },
+        'marker-mid': { value: `url(#a)`, important: false },
+        'marker-start': { value: `url(#a)`, important: false },
+      },
+    },
+
+    // test !important for all attribute types
+    {
       input: ' ; fill: red  ; stroke : green   ;  ',
       expected: {
         fill: { value: 'red', important: false },
@@ -27,11 +36,51 @@ describe('test parsing of style attributes', function () {
       },
     },
     {
-      input: 'marker:url(#a)',
+      input: 'fill-opacity:.1!important;',
       expected: {
-        'marker-end': { value: `url(#a)`, important: false },
-        'marker-mid': { value: `url(#a)`, important: false },
-        'marker-start': { value: `url(#a)`, important: false },
+        'fill-opacity': { value: '.1', important: true },
+      },
+    },
+    {
+      input: 'color:red!important;clip-path:url(#a)!important',
+      expected: {
+        color: { value: 'red', important: true },
+        'clip-path': { value: 'url(#a)', important: true },
+      },
+    },
+    {
+      input: 'cx:20%!important;filter:url(#a)!important',
+      expected: {
+        cx: { value: '20%', important: true },
+        filter: { value: 'url(#a)', important: true },
+      },
+    },
+    {
+      input: 'font-size:20%!important;transform:translate(0,0)!important',
+      expected: {
+        'font-size': { value: '20%', important: true },
+        transform: { value: 'translate(0)', important: true },
+      },
+    },
+    {
+      input: 'height:20%!important;letter-spacing:2px!important',
+      expected: {
+        height: { value: '20%', important: true },
+        'letter-spacing': { value: '2', important: true },
+      },
+    },
+    {
+      input: 'mask:url(#a)!important;marker-end:url(#a)!important',
+      expected: {
+        mask: { value: 'url(#a)', important: true },
+        'marker-end': { value: 'url(#a)', important: true },
+      },
+    },
+    {
+      input: 'stroke-dasharray: 20%, 50%!important;x:2px!important',
+      expected: {
+        'stroke-dasharray': { value: '20%,50%', important: true },
+        x: { value: '2', important: true },
       },
     },
   ];
@@ -40,10 +89,10 @@ describe('test parsing of style attributes', function () {
     const test = tests[index];
     it(`test ${test.input}`, function () {
       const parsed = parseStyleDeclarations(test.input);
-      expect(parsed.size).toBe(Object.keys(test.expected).length);
+      expect(parsed.count()).toBe(Object.keys(test.expected).length);
       for (const [prop, value] of Object.entries(test.expected)) {
-        expect(parsed.get(prop)?.value.toString()).toBe(value.value);
-        expect(parsed.get(prop)?.important).toBe(value.important);
+        expect(parsed.get(prop)?.toStyleAttString()).toBe(value.value);
+        expect(parsed.get(prop)?.isImportant()).toBe(value.important);
       }
     });
   }

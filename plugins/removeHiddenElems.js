@@ -68,7 +68,7 @@ export const fn = (info) => {
 
   /**
    * @param {import('../lib/types.js').XastElement} element
-   * @param {Map<string,import('../lib/types.js').SVGAttValue|null>} properties
+   * @param {Map<string,string|null>} properties
    * @returns {boolean}
    */
   function removeEmptyShapes(element, properties) {

@@ -112,7 +112,7 @@ function setNone(element, propName, styleData, parentList, allowUndefined) {
   const value = computedStyle.get(propName);
   if (value !== 'none' && (!allowUndefined || value !== undefined)) {
     const style = StyleAttValue.getAttValue(element) ?? new StyleAttValue('');
-    style.set(propName, { value: new PaintAttValue('none'), important: false });
+    style.set(propName, new PaintAttValue('none'));
     style.updateElement(element);
     element.svgAtts.delete(propName);
   }

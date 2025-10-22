@@ -1,4 +1,4 @@
-import { StyleData } from '../../lib/styleData.js';
+import { StyleData } from '../../lib/css/styleData.js';
 import { createElement, createRoot } from '../../lib/xast.js';
 import { generateData } from './testutils.js';
 

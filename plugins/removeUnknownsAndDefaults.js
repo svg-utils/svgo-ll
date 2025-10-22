@@ -10,6 +10,7 @@ import { getHrefId } from '../lib/tools-ast.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getPresentationProperties, getProperty } from './_styles.js';
+import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -264,7 +265,7 @@ export const fn = (info, params) => {
           const newComputedStyle = styleData.computeStyle(
             element,
             parentList,
-            new Map(),
+            new SvgAttMap(),
           );
 
           // For each of the properties, remove it if the result was unchanged.
@@ -452,7 +453,7 @@ export const fn = (info, params) => {
                   isDefaultPropertyValue(
                     element,
                     propName,
-                    propValue.value.toString(),
+                    propValue.toString(),
                     attributesDefaultsPerElement.get(element.local),
                   )
                 ) {
@@ -490,7 +491,7 @@ function addElsWhichCanHaveColorAtt(
 
       if (includeUses) {
         // See if it has a color property. If so, it will override any <use>ing element.
-        includeUses = getProperty(el, 'color').size === 0;
+        includeUses = getProperty(el, 'color').count() === 0;
       }
 
       if (includeUses) {

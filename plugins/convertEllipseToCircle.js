@@ -1,3 +1,4 @@
+import { parseNonStyleAttr } from '../lib/attrs/parseNonStyleAttr.js';
 import { deleteAtts } from '../lib/tools-ast.js';
 
 export const name = 'convertEllipseToCircle';
@@ -30,7 +31,7 @@ export const fn = () => {
             element.local = 'circle';
             const radius = rx === 'auto' ? ry : rx;
             deleteAtts(element, 'rx', 'ry');
-            element.svgAtts.set('r', radius);
+            element.svgAtts.set('r', parseNonStyleAttr('r', radius, 'circle'));
           }
         }
       },

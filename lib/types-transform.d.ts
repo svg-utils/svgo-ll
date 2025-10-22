@@ -1,4 +1,4 @@
-import type { ExactNum } from './types.js';
+import { ExactNum } from '../types/types.js';
 
 export type TransTypeAngle = {
   n: ExactNum;

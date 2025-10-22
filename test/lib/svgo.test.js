@@ -4,6 +4,7 @@ import { getResolvedPlugins } from '../utils.js';
 
 import * as cleanupTextNodes from '../../plugins/cleanupTextNodes.js';
 import * as minifyTransforms from '../../plugins/minifyTransforms.js';
+import { parseNonStyleAttr } from '../../lib/attrs/parseNonStyleAttr.js';
 
 describe('allow to configure EOL', () => {
   test('should respect EOL set to LF', () => {
@@ -217,7 +218,7 @@ test('plugins should run 10 times by default', () => {
           enter: (element) => {
             const id = element.svgAtts.get('id')?.toString();
             if (id) {
-              element.svgAtts.set('id', id.slice(1));
+              element.svgAtts.set('id', parseNonStyleAttr('id', id.slice(1)));
             }
           },
         },

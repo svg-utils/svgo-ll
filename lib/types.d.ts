@@ -1,3 +1,6 @@
+import { CSSRule } from '../types/types.js';
+import { SvgAttMap } from './ast/svgAttMap.js';
+
 export type XastDoctype = {
   type: 'doctype';
   parentNode: XastParent;
@@ -26,7 +29,6 @@ export type XastText = {
   value: string;
 };
 
-export type SVGAttValue = string | AttValue;
 export type XastAttOther = {
   prefix: string | undefined;
   local: string;
@@ -37,21 +39,23 @@ export type XastAttSvg = {
   local: string;
   value: AttValue;
 };
-export class SvgAttValues {
+export type SvgAttValues = {
+  count(): number;
   keys(): IterableIterator<string>;
   delete(name: string): void;
-  entries(): IterableIterator<[string, string | AttValue]>;
-  get<T = AttValue>(name: string): string | T | undefined;
-  hasAttributes(): boolean;
-  set(name: string, value: string | AttValue): void;
-}
+  entries(): IterableIterator<[string, AttValue]>;
+  get<T extends AttValue>(name: string): T | undefined;
+  getAtt<T extends AttValue>(name: string): T;
+  set(name: string, value: AttValue): void;
+  values(): IterableIterator<AttValue>;
+};
 export type XastElement = {
   type: 'element';
   parentNode: XastParent;
   local: string;
   prefix: string;
   uri: string | undefined;
-  svgAtts: SvgAttValues;
+  svgAtts: SvgAttMap;
   otherAtts: XastAttOther[] | undefined;
   children: XastChild[];
   isSelfClosing?: boolean;
@@ -120,14 +124,15 @@ type CSSFeatures =
   | 'pseudos'
   | 'type-selectors';
 
-export class AttValue {
-  /** @deprecated */
-  static getObj(value: string | AttValue): AttValue;
+export type AttValue = {
+  getMinifiedValue(): AttValue;
+  getReferencedID(): string | undefined;
+  isImportant(): boolean;
   round(numDigits: number): AttValue;
   toString(): string;
   toStyleAttString(): string;
   toStyleElementString(): string;
-}
+};
 
 export class StyleData {
   addStyleSection(css: string): void;
@@ -138,7 +143,7 @@ export class StyleData {
   computeStyle(
     node: XastElement,
     parentList: Readonly<ParentList>,
-    declarations?: CSSDeclarationMap,
+    declarations?: SvgAttValues,
   ): ComputedStyleMap;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
@@ -167,45 +172,6 @@ export class StyleData {
 }
 
 export type ComputedStyleMap = Map<string, string | null>;
-export type CSSPropertyMap = Map<string, CSSPropertyValue>;
-
-export class CSSRule {
-  addReferencedClasses(classes: Set<string>): void;
-  addReferencedIds(ids: Map<string, CSSRule[]>): void;
-  getDeclarations(): CSSPropertyMap;
-  getFeatures(): Set<CSSFeatures>;
-  getSpecificity(): [number, number, number];
-  hasAttributeSelector(attName: string | undefined): boolean;
-  hasPseudos(): boolean;
-  isInMediaQuery(): boolean;
-  matches(element: XastElement): boolean;
-  updateClassNames(renameMap: Map<string, string>): void;
-  updateReferencedIds(ids: Map<string, string>): void;
-}
-
-export class CSSRuleSet {
-  deleteRules(rules: Set<CSSRule>): void;
-  getFeatures(): Set<CSSFeatures>;
-  getRules(): CSSRule[];
-  getString(): string;
-  hasAtRules(): boolean;
-  hasIdSelector(id: string): boolean;
-  hasTypeSelector(type: string): boolean;
-}
-
-export type CSSPropertyValue = {
-  value: SVGAttValue;
-  important: boolean;
-};
-
-export type CSSDeclarationMap = {
-  delete(name: string): void;
-  entries(): IterableIterator<[string, CSSPropertyValue]>;
-  keys(): IterableIterator<string>;
-  get(name: string): CSSPropertyValue | undefined;
-  set(name: string, value: CSSPropertyValue): void;
-  values(): IterableIterator<CSSPropertyValue>;
-};
 
 export type PluginInfo = {
   path?: string;

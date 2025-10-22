@@ -1,8 +1,8 @@
+import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { getReferencedIdInStyleProperty } from '../lib/svgo/tools.js';
 import { recordReferencedIds } from '../lib/tools-ast.js';
 import { Color } from '../lib/types/color.js';
 
@@ -11,7 +11,7 @@ export const description =
   'minify stop offsets and remove stops where possible';
 
 /**
- * @typedef {{color:Color,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
+ * @typedef {{color:Color,opacity:import('../lib/types.js').AttValue|undefined}} ColorData
  */
 
 /**
@@ -58,7 +58,8 @@ export const fn = (info) => {
                 const colorData = checkStops(element, styleData);
                 if (
                   colorData &&
-                  (colorData.opacity === undefined || colorData.opacity === '1')
+                  (colorData.opacity === undefined ||
+                    colorData.opacity.toString() === '1')
                 ) {
                   solidGradients.set(id, colorData);
                 }
@@ -143,7 +144,10 @@ function checkStops(element, styleData) {
       return;
     }
   }
-  return { color: Color.parse(color), opacity: opacity };
+  return {
+    color: Color.parse(color),
+    opacity: opacity === undefined ? undefined : new OpacityAttValue(opacity),
+  };
 }
 
 /**
@@ -186,11 +190,11 @@ function inlineGradient(
   // The only style property which may be relevant to a gradient is "transform". If it is there, convert it to gradientTransform
   // attribute.
   let transform = outer.svgAtts.get('gradientTransform');
-  const styleAttValue = StyleAttValue.getStyleAttValue(outer);
+  const styleAttValue = StyleAttValue.getAttValue(outer);
   if (styleAttValue) {
     const cssTransform = styleAttValue.get('transform');
     if (cssTransform) {
-      transform = cssTransform.value;
+      transform = cssTransform;
     }
   }
   if (transform) {
@@ -237,7 +241,7 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
         case 'stroke':
           referencingEl.svgAtts.set(
             referencingAtt,
-            new PaintAttValue(undefined, colorData.color),
+            new PaintAttValue(undefined, false, colorData.color),
           );
           break;
         case 'style':
@@ -250,15 +254,18 @@ function updateSolidGradients(solidGradients, allReferencedIds) {
               if (propName !== 'fill' && propName !== 'stroke') {
                 continue;
               }
-              const value = decl.value.toString();
-              const idInfo = getReferencedIdInStyleProperty(value);
-              if (!idInfo || idInfo.id !== id) {
+              const id = decl.getReferencedID();
+              if (id === undefined) {
                 continue;
               }
-              styleAttValue.set(propName, {
-                value: new PaintAttValue(undefined, colorData.color),
-                important: decl.important,
-              });
+              styleAttValue.set(
+                propName,
+                new PaintAttValue(
+                  undefined,
+                  decl.isImportant(),
+                  colorData.color,
+                ),
+              );
             }
           }
           break;

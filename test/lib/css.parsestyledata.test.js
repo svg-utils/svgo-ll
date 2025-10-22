@@ -69,6 +69,20 @@ describe('test parsing of style attributes', function () {
         'letter-spacing': { value: '2', important: true },
       },
     },
+    {
+      input: 'mask:url(#a)!important;marker-end:url(#a)!important',
+      expected: {
+        mask: { value: 'url(#a)', important: true },
+        'marker-end': { value: 'url(#a)', important: true },
+      },
+    },
+    {
+      input: 'stroke-dasharray: 20%, 50%!important;x:2px!important',
+      expected: {
+        'stroke-dasharray': { value: '20%,50%', important: true },
+        x: { value: '2', important: true },
+      },
+    },
   ];
 
   for (let index = 0; index < tests.length; index++) {

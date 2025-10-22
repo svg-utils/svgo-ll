@@ -55,6 +55,13 @@ describe('test parsing of style attributes', function () {
         filter: { value: 'url(#a)', important: true },
       },
     },
+    {
+      input: 'font-size:20%!important;transform:translate(0,0)!important',
+      expected: {
+        'font-size': { value: '20%', important: true },
+        transform: { value: 'translate(0)', important: true },
+      },
+    },
   ];
 
   for (let index = 0; index < tests.length; index++) {

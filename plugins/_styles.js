@@ -1,6 +1,5 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 import { inheritableAttrs, presentationProperties } from './_collections.js';
 
 export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
@@ -47,20 +46,7 @@ function _getProperties(element, fnInclude) {
       continue;
     }
 
-    switch (name) {
-      case 'transform':
-        {
-          const attValue = TransformAttValue.getAttValue(element, 'transform');
-          if (!attValue) {
-            throw new Error();
-          }
-          props.set(name, attValue);
-        }
-        break;
-      default:
-        props.set(name, value);
-        break;
-    }
+    props.set(name, value);
   }
 
   // Overwrite with properties.

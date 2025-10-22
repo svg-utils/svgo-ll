@@ -3,7 +3,6 @@ import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
-import { FontSizeAttValue } from '../lib/attrs/fontSizeAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
@@ -124,7 +123,7 @@ export const fn = (info, params) => {
               }
               break;
             case 'font-size':
-              roundFontSizeAtt(element, fontSizeDigits);
+              element.svgAtts.set('font-size', attValue.round(fontSizeDigits));
               break;
             case 'offset':
               if (element.local === 'stop') {
@@ -147,7 +146,7 @@ export const fn = (info, params) => {
               break;
             case 'transform':
               newVal = roundTransform(
-                TransformAttValue.createTransform(attValue),
+                /** @type {TransformAttValue} */ (attValue),
                 coordContext.xDigits,
                 coordContext.yDigits,
               );
@@ -210,12 +209,7 @@ export const fn = (info, params) => {
               newVal = propValue.round(opacityDigits);
               break;
             case 'font-size':
-              styleAttValue.set(
-                propName,
-                /** @type {FontSizeAttValue} */ (propValue).round(
-                  fontSizeDigits,
-                ),
-              );
+              styleAttValue.set(propName, propValue.round(fontSizeDigits));
               break;
           }
           if (newVal) {
@@ -303,18 +297,6 @@ function roundCoord(element, attName, digits) {
   const value = LengthPercentageAttValue.getAttValue(element, attName);
   if (value) {
     element.svgAtts.set(attName, value.round(digits));
-  }
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {number} numDigits
- * @returns {void}
- */
-function roundFontSizeAtt(element, numDigits) {
-  const att = FontSizeAttValue.getAttValue(element);
-  if (att) {
-    element.svgAtts.set('font-size', att.round(numDigits));
   }
 }
 

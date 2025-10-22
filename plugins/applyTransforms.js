@@ -1,6 +1,5 @@
 import { LengthAttValue } from '../lib/attrs/lengthAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
-import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
 import { getHrefId } from '../lib/tools-ast.js';
@@ -84,6 +83,7 @@ function applyToRect(element, gradientMap) {
   if (props.get('clip-path')) {
     return;
   }
+  /** @type {import('../types/types.js').PaintAttValue|undefined} */
   const fill = props.get('fill');
   if (fill && !canTransformFill(fill, gradientMap)) {
     return;
@@ -124,13 +124,12 @@ function applyToRect(element, gradientMap) {
 }
 
 /**
- * @param {import('../lib/types.js').SVGAttValue} fill
+ * @param {import('../types/types.js').PaintAttValue} fill
  * @param {GradientMap} gradientMap
  * @returns {boolean}
  */
 function canTransformFill(fill, gradientMap) {
-  const attValue = PaintAttValue.getObj(fill);
-  const url = attValue.getURL();
+  const url = fill.getURL();
   if (url === undefined) {
     return true;
   }

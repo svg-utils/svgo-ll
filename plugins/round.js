@@ -191,7 +191,10 @@ export const fn = (info, params) => {
           switch (propName) {
             case 'fill':
             case 'stroke':
-              newVal = PaintAttValue.getObj(propValue).round();
+              styleAttValue.set(
+                propName,
+                /** @type {PaintAttValue} */ (propValue).round(),
+              );
               break;
             case 'flood-color':
             case 'lighting-color':

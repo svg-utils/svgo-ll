@@ -78,7 +78,7 @@ export const fn = (info) => {
             }
           });
 
-          if (!commonProperties.hasAttributes()) {
+          if (commonProperties.count() === 0) {
             return;
           }
         }

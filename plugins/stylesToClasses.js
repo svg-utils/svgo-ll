@@ -134,7 +134,7 @@ export const fn = (info) => {
         }
 
         const props = getPresentationProperties(element);
-        if (!props.hasAttributes()) {
+        if (props.count() === 0) {
           return;
         }
 

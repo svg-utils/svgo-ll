@@ -46,7 +46,6 @@ export type SvgAttValues = {
   entries(): IterableIterator<[string, AttValue]>;
   get<T extends AttValue>(name: string): T | undefined;
   getAtt<T extends AttValue>(name: string): T;
-  hasAttributes(): boolean;
   set(name: string, value: AttValue): void;
   values(): IterableIterator<AttValue>;
 };

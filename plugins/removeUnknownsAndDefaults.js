@@ -491,7 +491,7 @@ function addElsWhichCanHaveColorAtt(
 
       if (includeUses) {
         // See if it has a color property. If so, it will override any <use>ing element.
-        includeUses = !getProperty(el, 'color').hasAttributes();
+        includeUses = getProperty(el, 'color').count() === 0;
       }
 
       if (includeUses) {

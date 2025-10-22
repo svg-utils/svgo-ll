@@ -48,7 +48,7 @@ export const fn = () => {
           }
           const childProps = getPresentationProperties(child);
           for (const [name, value] of childProps.entries()) {
-            if (value.value.toString() === 'inherit') {
+            if (value.toString() === 'inherit') {
               candidates.delete(name);
               if (candidates.size === 0) {
                 return;

@@ -1,3 +1,4 @@
+import { parseNonStyleAttr } from '../lib/attrs/parseNonStyleAttr.js';
 import { exactAdd, exactMul, minifyNumber } from '../lib/svgo/tools.js';
 import { transform2js } from './_transforms.js';
 
@@ -25,7 +26,7 @@ export const fn = () => {
           }
           const output = minifyTransforms(input.toString());
           if (output) {
-            element.svgAtts.set(attName, output);
+            element.svgAtts.set(attName, parseNonStyleAttr(attName, output));
           } else {
             element.svgAtts.delete(attName);
           }

@@ -1,3 +1,4 @@
+import { parseNonStyleAttr } from '../lib/attrs/parseNonStyleAttr.js';
 import { generateId, SVGOError } from '../lib/svgo/tools.js';
 import { recordReferencedIds, updateReferencedId } from '../lib/tools-ast.js';
 import { visitSkip } from '../lib/xast.js';
@@ -141,7 +142,7 @@ export const fn = (info, params) => {
           if (!element) {
             throw new Error();
           }
-          element.svgAtts.set('id', newId);
+          element.svgAtts.set('id', parseNonStyleAttr('id', newId));
         }
 
         // Update all referenced ids.

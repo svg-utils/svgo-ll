@@ -29,7 +29,6 @@ export type XastText = {
   value: string;
 };
 
-export type SVGAttValue = string | AttValue;
 export type XastAttOther = {
   prefix: string | undefined;
   local: string;

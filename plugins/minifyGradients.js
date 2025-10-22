@@ -1,3 +1,4 @@
+import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
@@ -10,7 +11,7 @@ export const description =
   'minify stop offsets and remove stops where possible';
 
 /**
- * @typedef {{color:Color,opacity:import('../lib/types.js').SVGAttValue|undefined}} ColorData
+ * @typedef {{color:Color,opacity:import('../lib/types.js').AttValue|undefined}} ColorData
  */
 
 /**
@@ -57,7 +58,8 @@ export const fn = (info) => {
                 const colorData = checkStops(element, styleData);
                 if (
                   colorData &&
-                  (colorData.opacity === undefined || colorData.opacity === '1')
+                  (colorData.opacity === undefined ||
+                    colorData.opacity.toString() === '1')
                 ) {
                   solidGradients.set(id, colorData);
                 }
@@ -142,7 +144,10 @@ function checkStops(element, styleData) {
       return;
     }
   }
-  return { color: Color.parse(color), opacity: opacity };
+  return {
+    color: Color.parse(color),
+    opacity: opacity === undefined ? undefined : new OpacityAttValue(opacity),
+  };
 }
 
 /**

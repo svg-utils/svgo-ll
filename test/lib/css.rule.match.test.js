@@ -106,17 +106,16 @@ describe('test parsing and stringifying of selectors', function () {
         false,
       );
       const root = createRoot();
-      /** @type {Object<string,import('../../lib/types.js').AttValue>} */
-      const obj = {};
-      test.elData.atts.forEach(
-        (v) => (obj[v[0]] = parseAttr(test.elData.elName, v[0], v[1])),
+      const atts = new SvgAttMap();
+      test.elData.atts.forEach((v) =>
+        atts.set(v[0], parseAttr(test.elData.elName, v[0], v[1])),
       );
       const element = createElement(
         root,
         test.elData.elName,
         '',
         undefined,
-        obj,
+        atts,
       );
       expect(rule._matches(element)).toBe(test.expected);
       if (test.expectedComplex !== undefined) {

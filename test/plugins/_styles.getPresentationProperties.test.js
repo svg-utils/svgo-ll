@@ -36,10 +36,9 @@ describe('test getPresentationProperties() parsing and stringification', () => {
   for (const testCase of testCases) {
     it(`${JSON.stringify(testCase.attributes)}`, () => {
       const root = createRoot();
-      /** @type {Object<string,import('../../lib/types.js').AttValue>} */
-      const atts = {};
+      const atts = new SvgAttMap();
       for (const [k, v] of Object.entries(testCase.attributes)) {
-        atts[k] = parseAttr('g', k, v);
+        atts.set(k, parseAttr('g', k, v));
       }
       const element = createElement(root, 'g', '', undefined, atts);
       const props = getPresentationProperties(element);

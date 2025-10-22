@@ -1,3 +1,4 @@
+import { SvgAttMap } from '../../lib/ast/svgAttMap.js';
 import { parseAttr } from '../../lib/attrs/parseAttr.js';
 import { parseStyleDeclarations } from '../../lib/css/css-tools.js';
 import { createElement, createRoot } from '../../lib/xast.js';
@@ -42,10 +43,9 @@ describe('test savings calculation', () => {
       );
       const root = createRoot();
       for (const atts of testData.elAtts) {
-        /** @type {Object<string,import('../../lib/types.js').AttValue>} */
-        const attMap = {};
+        const attMap = new SvgAttMap();
         for (const [k, v] of Object.entries(atts)) {
-          attMap[k] = parseAttr('elem', k, v);
+          attMap.set(k, parseAttr('elem', k, v));
         }
         const e = createElement(root, 'elem', '', undefined, attMap);
         data.addElement(e);

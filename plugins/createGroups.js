@@ -125,7 +125,7 @@ function createGroups(element, usedIds, elementsToCheck) {
       'g',
       element.prefix,
       undefined,
-      {},
+      undefined,
       groupChildren,
       false,
       false,

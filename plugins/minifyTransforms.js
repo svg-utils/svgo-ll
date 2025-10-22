@@ -23,7 +23,11 @@ export const fn = () => {
             return;
           }
           const minified = transform.minify();
-          element.svgAtts.set(attName, minified);
+          if (minified.isIdentityTransform()) {
+            element.svgAtts.delete(attName);
+          } else {
+            element.svgAtts.set(attName, minified);
+          }
         }
         ['transform', 'gradientTransform', 'patternTransform'].forEach(
           (attName) => processAttribute(attName),

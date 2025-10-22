@@ -26,6 +26,7 @@ describe('test parsing of style attributes', function () {
         'marker-start': { value: `url(#a)`, important: false },
       },
     },
+
     // test !important for all attribute types
     {
       input: ' ; fill: red  ; stroke : green   ;  ',
@@ -45,6 +46,13 @@ describe('test parsing of style attributes', function () {
       expected: {
         color: { value: 'red', important: true },
         'clip-path': { value: 'url(#a)', important: true },
+      },
+    },
+    {
+      input: 'cx:20%!important;filter:url(#a)!important',
+      expected: {
+        cx: { value: '20%', important: true },
+        filter: { value: 'url(#a)', important: true },
       },
     },
   ];

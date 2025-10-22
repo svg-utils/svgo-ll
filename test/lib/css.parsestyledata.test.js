@@ -62,6 +62,13 @@ describe('test parsing of style attributes', function () {
         transform: { value: 'translate(0)', important: true },
       },
     },
+    {
+      input: 'height:20%!important;letter-spacing:2px!important',
+      expected: {
+        height: { value: '20%', important: true },
+        'letter-spacing': { value: '2', important: true },
+      },
+    },
   ];
 
   for (let index = 0; index < tests.length; index++) {
@@ -70,7 +77,7 @@ describe('test parsing of style attributes', function () {
       const parsed = parseStyleDeclarations(test.input);
       expect(parsed.count()).toBe(Object.keys(test.expected).length);
       for (const [prop, value] of Object.entries(test.expected)) {
-        expect(parsed.get(prop)?.toString()).toBe(value.value);
+        expect(parsed.get(prop)?.toStyleAttString()).toBe(value.value);
         expect(parsed.get(prop)?.isImportant()).toBe(value.important);
       }
     });

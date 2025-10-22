@@ -74,6 +74,7 @@ export const fn = (info) => {
  */
 function applyToRect(element, gradientMap) {
   const props = getPresentationProperties(element);
+  /** @type {import('../types/types.js').TransformAttValue|undefined} */
   const transform = props.get('transform');
   if (transform === undefined) {
     return;
@@ -84,12 +85,11 @@ function applyToRect(element, gradientMap) {
     return;
   }
   const fill = props.get('fill');
-  if (fill && !canTransformFill(fill.value, gradientMap)) {
+  if (fill && !canTransformFill(fill, gradientMap)) {
     return;
   }
 
-  // @ts-ignore
-  const funcs = transform.value.getTransforms();
+  const funcs = transform.getTransforms();
   if (funcs.length !== 1) {
     return;
   }

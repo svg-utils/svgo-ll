@@ -19,13 +19,6 @@ describe('test parsing of style attributes', function () {
       },
     },
     {
-      input: ' ; fill: red  ; stroke : green   ;  ',
-      expected: {
-        fill: { value: 'red', important: false },
-        stroke: { value: 'green', important: false },
-      },
-    },
-    {
       input: 'marker:url(#a)',
       expected: {
         'marker-end': { value: `url(#a)`, important: false },
@@ -33,10 +26,25 @@ describe('test parsing of style attributes', function () {
         'marker-start': { value: `url(#a)`, important: false },
       },
     },
+    // test !important for all attribute types
+    {
+      input: ' ; fill: red  ; stroke : green   ;  ',
+      expected: {
+        fill: { value: 'red', important: false },
+        stroke: { value: 'green', important: false },
+      },
+    },
     {
       input: 'fill-opacity:.1!important;',
       expected: {
         'fill-opacity': { value: '.1', important: true },
+      },
+    },
+    {
+      input: 'color:red!important;clip-path:url(#a)!important',
+      expected: {
+        color: { value: 'red', important: true },
+        'clip-path': { value: 'url(#a)', important: true },
       },
     },
   ];

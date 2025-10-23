@@ -21,8 +21,6 @@ export type TransformFnMatrix = {
 export type TransformFnRotate = {
   name: 'rotate';
   a: TransTypeAngle;
-  tx: TransTypeLength;
-  ty: TransTypeLength;
 };
 export type TransformFnScale = {
   name: 'scale';

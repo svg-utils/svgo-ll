@@ -12,7 +12,10 @@ describe('test minification with transform attribute', () => {
   // matrix: multiply adjacent
   const tests = [
     { in: 'rotate(20)rotate(30)', out: 'rotate(50)' },
-    { in: 'rotate(23)rotate(24 2 3)' },
+    {
+      in: 'rotate(23)rotate(24 2 3)',
+      out: 'rotate(23)translate(2 3)rotate(24)translate(-2 -3)',
+    },
     { in: 'rotate(0)', out: '' },
     { in: 'translate(2)rotate(0)translate(3)', out: 'translate(5)' },
     { in: 'translate(2)translate(-2)', out: '' },

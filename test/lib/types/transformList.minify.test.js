@@ -15,6 +15,8 @@ describe('test minification with transform attribute', () => {
     { in: 'rotate(0)', out: '' },
     { in: 'translate(2)rotate(0)translate(3)', out: 'translate(5)' },
     { in: 'translate(2)translate(-2)', out: '' },
+    { in: 'scale(2)scale(3)', out: 'scale(6)' },
+    { in: 'scale(2)scale(.5)', out: '' },
   ];
 
   for (const test of tests) {

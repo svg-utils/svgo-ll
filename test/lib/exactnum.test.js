@@ -72,3 +72,26 @@ describe('test incr', () => {
     expect(n1.getMinifiedString()).toBe('1');
   });
 });
+
+describe('test multiplication', () => {
+  const tests = [
+    { n1: 2.1, n2: 3.4, e: 7.14, d: 2 },
+    { n1: 2.1, n2: 10, e: 21, d: 0 },
+    { n1: 2.125, n2: 8, e: 17, d: 0 },
+    { n1: 2.125, n2: 4, e: 8.5, d: 1 },
+    { n1: 2.1234, n2: 2.1234, e: 4.50882756, d: 8 },
+    { n1: 2.12345678, n2: 2.12345, e: undefined },
+  ];
+
+  for (const test of tests) {
+    it(`${test.n1} * ${test.n2}`, () => {
+      const result = new ExactNum(test.n1).mul(new ExactNum(test.n2));
+      if (result === undefined) {
+        expect(test.e).toBeUndefined();
+      } else {
+        expect(result.getValue()).toBe(test.e);
+        expect(result.getNumberOfDigits()).toBe(test.d);
+      }
+    });
+  }
+});

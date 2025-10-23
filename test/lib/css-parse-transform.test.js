@@ -1,5 +1,6 @@
 import { TransformAttValue } from '../../lib/attrs/transformAttValue.js';
 import { cssParseTransform } from '../../lib/css/css-parse-transform.js';
+import { TransformList } from '../../lib/types/transformList.js';
 
 describe('test css transform parsing', () => {
   /** @type {{in:string;out?:string}[]} */
@@ -25,7 +26,7 @@ describe('test css transform parsing', () => {
         expect(testCase.out).toBeNull();
       } else {
         const expected = testCase.out ? testCase.out : testCase.in;
-        const attVal = new TransformAttValue(transforms);
+        const attVal = new TransformAttValue(new TransformList(transforms));
         expect(attVal.toStyleAttString()).toBe(expected);
       }
     });

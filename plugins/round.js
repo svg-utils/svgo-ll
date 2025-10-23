@@ -8,6 +8,7 @@ import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
+import { TransformList } from '../lib/types/transformList.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -364,5 +365,5 @@ function roundTransform(attValue, xDigits, yDigits) {
     transform.x.n = transform.x.n.round(xDigits);
     transform.y.n = transform.y.n.round(yDigits);
   }
-  return new TransformAttValue(attValue.getTransforms());
+  return new TransformAttValue(new TransformList(attValue.getTransforms()));
 }

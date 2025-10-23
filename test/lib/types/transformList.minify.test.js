@@ -17,6 +17,15 @@ describe('test minification with transform attribute', () => {
     { in: 'translate(2)translate(-2)', out: '' },
     { in: 'scale(2)scale(3)', out: 'scale(6)' },
     { in: 'scale(2)scale(.5)', out: '' },
+    { in: 'skewX(0)', out: '' },
+    { in: 'skewY(0)', out: '' },
+    { in: 'matrix(1 0 0 1 0 0)', out: '' },
+    { in: 'rotate(360)', out: '' },
+    { in: 'rotate(721)', out: 'rotate(1)' },
+    { in: 'rotate(-1)', out: 'rotate(359)' },
+    { in: 'rotate(-361)', out: 'rotate(359)' },
+    { in: 'matrix(2.1 0 0 3 0 0)matrix(3 0 0 2.1 0 0)', out: 'scale(6.3)' },
+    { in: 'matrix(2.1 0 0 3 0 0)', out: 'scale(2.1 3)' },
   ];
 
   for (const test of tests) {

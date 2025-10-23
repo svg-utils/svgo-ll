@@ -9,6 +9,7 @@ describe('test minification with transform attribute', () => {
   // rotate: test case for merge -> identity
   // translate: test case for merge -> identity
   // don't merge translate with different units
+  // matrix: multiply adjacent
   const tests = [
     { in: 'rotate(20)rotate(30)', out: 'rotate(50)' },
     { in: 'rotate(23)rotate(24 2 3)' },

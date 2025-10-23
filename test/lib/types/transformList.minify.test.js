@@ -36,7 +36,7 @@ describe('test minification with transform attribute', () => {
   for (const test of tests) {
     it(test.in, () => {
       const tl = new TransformList(test.in);
-      expect(tl.minify().toString()).toBe(test.out ?? test.in);
+      expect(tl.normalize().toString()).toBe(test.out ?? test.in);
     });
   }
 });

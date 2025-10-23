@@ -19,7 +19,6 @@ import * as minifyGradients from './minifyGradients.js';
 import * as minifyIds from './minifyIds.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
-import * as minifyTransforms from './minifyTransforms.js';
 import * as moveElemsStylesToGroup from './moveElemsStylesToGroup.js';
 import * as removeComments from './removeComments.js';
 import * as removeDesc from './removeDesc.js';
@@ -66,7 +65,6 @@ export const defaultPlugins = Object.freeze({
     removeHiddenElems,
     // Run mergeDefs after removeHiddenElems, since removeHiddenElems may create <defs>.
     mergeDefs,
-    minifyTransforms,
     convertEllipseToCircle,
     moveElemsStylesToGroup,
     convertShapeToPath,

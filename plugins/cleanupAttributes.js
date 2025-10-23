@@ -1,4 +1,3 @@
-import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import {
   elemsGroups,
@@ -25,13 +24,30 @@ export const fn = (info) => {
           return;
         }
 
-        for (const attName of element.svgAtts.keys()) {
+        for (const [attName, attValue] of element.svgAtts.entries()) {
           if (styleData.hasAttributeSelector(attName)) {
             continue;
           }
           switch (attName) {
             case 'class':
-              cleanupClassAttribute(element, styleData);
+              cleanupClassAttribute(
+                element,
+                /** @type {import('../types/types.js').ClassAttValue} */ (
+                  attValue
+                ),
+                styleData,
+              );
+              break;
+            case 'gradientTransform':
+            case 'patternTransform':
+            case 'transform':
+              cleanupTransformAttribute(
+                attName,
+                /** @type {import('../types/types.js').TransformAttValue} */ (
+                  attValue
+                ),
+                element.svgAtts,
+              );
               break;
             case 'style':
               cleanupStyleAttribute(element);
@@ -45,15 +61,10 @@ export const fn = (info) => {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../types/types.js').ClassAttValue} cv
  * @param {import('../lib/types.js').StyleData} styleData
  */
-function cleanupClassAttribute(element, styleData) {
-  // If there is a class attribute, delete any classes not referenced in the style element.
-  const cv = ClassAttValue.getAttValue(element);
-  if (cv === undefined) {
-    return;
-  }
-
+function cleanupClassAttribute(element, cv, styleData) {
   for (const className of cv.getClassNames()) {
     if (!styleData.hasClassReference(className)) {
       cv.delete(className);
@@ -94,6 +105,20 @@ function cleanupStyleAttribute(element) {
   }
 
   styleAttValue.updateElement(element);
+}
+
+/**
+ * @param {string} attName
+ * @param {import('../types/types.js').TransformAttValue} transform
+ * @param {import('../lib/types.js').SvgAttValues} props
+ */
+function cleanupTransformAttribute(attName, transform, props) {
+  const normalized = transform.normalize();
+  if (normalized.isIdentityTransform()) {
+    props.delete(attName);
+  } else {
+    props.set(attName, normalized);
+  }
 }
 
 /**

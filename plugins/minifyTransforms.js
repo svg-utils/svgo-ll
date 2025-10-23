@@ -22,7 +22,7 @@ export const fn = () => {
           if (transform === undefined) {
             return;
           }
-          const minified = transform.minify();
+          const minified = transform.normalize();
           if (minified.isIdentityTransform()) {
             element.svgAtts.delete(attName);
           } else {

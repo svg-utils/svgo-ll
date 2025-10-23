@@ -1,6 +1,6 @@
 import { TransformList } from '../../../lib/types/transformList.js';
 
-describe('test minification with transform attribute', () => {
+describe('test normalization', () => {
   // TODO
   // rotate: handle units other than degrees
   // rotate: test wrap around 360 for merge

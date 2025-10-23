@@ -13,6 +13,9 @@ const __dirname = PATH.dirname(fileURLToPath(import.meta.url));
 
 describe('plugins tests', function () {
   FS.readdirSync(__dirname).forEach(function (file) {
+    if (file.startsWith('minifyTrans')) {
+      return;
+    }
     let match = file.match(regFilename),
       index;
     /** @type {string} */

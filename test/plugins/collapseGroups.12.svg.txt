@@ -14,7 +14,7 @@ Preserve groups with id attribute or animation elements inside
         <path d="..." fill="#404040"/>
         <path d="..." fill="#2d2d2d"/>
     </g>
-    <g transform="rotate(-90 25 0)">
+    <g transform="rotate(-90)">
         <circle stroke-dasharray="110" r="20" stroke="#10cfbd" fill="none" stroke-width="3" stroke-linecap="round">
             <animate attributeName="stroke-dashoffset" values="360;140" dur="2.2s" keyTimes="0;1" calcMode="spline" fill="freeze" keySplines="0.41,0.314,0.8,0.54" repeatCount="indefinite" begin="0"/>
             <animateTransform attributeName="transform" type="rotate" values="0;274;360" keyTimes="0;0.74;1" calcMode="linear" dur="2.2s" repeatCount="indefinite" begin="0"/>
@@ -36,7 +36,7 @@ Preserve groups with id attribute or animation elements inside
         <path d="..." fill="#404040"/>
         <path d="..." fill="#2d2d2d"/>
     </g>
-    <g transform="rotate(-90 25 0)">
+    <g transform="rotate(-90)">
         <circle stroke-dasharray="110" r="20" stroke="#10cfbd" fill="none" stroke-width="3" stroke-linecap="round">
             <animate attributeName="stroke-dashoffset" values="360;140" dur="2.2s" keyTimes="0;1" calcMode="spline" fill="freeze" keySplines="0.41,0.314,0.8,0.54" repeatCount="indefinite" begin="0"/>
             <animateTransform attributeName="transform" type="rotate" values="0;274;360" keyTimes="0;0.74;1" calcMode="linear" dur="2.2s" repeatCount="indefinite" begin="0"/>

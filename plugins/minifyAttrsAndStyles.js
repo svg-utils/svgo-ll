@@ -5,6 +5,10 @@ export const name = 'minifyAttrsAndStyles';
 export const description =
   'use the shorter of attributes and styles in each element';
 
+/**
+ * @typedef {{width:number,attsToChange:Map<string,import('../lib/types.js').AttValue>}} AttData
+ */
+
 /** @type {import('./plugins-types.js').Plugin<'minifyAttrsAndStyles'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
@@ -28,10 +32,15 @@ export const fn = (info) => {
           return;
         }
 
-        if (getAttrWidth(props) < getStyleWidth(props)) {
+        const attData = getAttrWidth(props);
+        if (attData.width < getStyleWidth(props)) {
           // Attributes are shorter; remove the style attribute and use individual attributes.
 
           for (const [name, value] of props.entries()) {
+            element.svgAtts.set(name, value);
+          }
+          // Overwrite any attributes that were changed by getAttrWidth()
+          for (const [name, value] of attData.attsToChange.entries()) {
             element.svgAtts.set(name, value);
           }
 
@@ -50,14 +59,25 @@ export const fn = (info) => {
 
 /**
  * @param {import('../lib/types.js').SvgAttValues} props
- * @returns {number}
+ * @returns {AttData}
  */
 function getAttrWidth(props) {
-  let width = 0;
-  for (const [name, value] of props.entries()) {
-    width += ' =""'.length + name.length + value.toString().length;
+  /** @type {AttData} */
+  const data = { width: 0, attsToChange: new Map() };
+  for (let [name, value] of props.entries()) {
+    switch (name) {
+      case 'gradientTransform':
+      case 'patternTransform':
+      case 'transform':
+        value = /** @type {import('../types/types.js').TransformAttValue} */ (
+          value
+        ).findShortestAttribute();
+        data.attsToChange.set(name, value);
+        break;
+    }
+    data.width += ' =""'.length + name.length + value.toString().length;
   }
-  return width;
+  return data;
 }
 
 /**

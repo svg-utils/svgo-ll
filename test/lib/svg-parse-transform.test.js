@@ -8,7 +8,7 @@ describe('test svg transform parsing', () => {
   /** @type {{in:string,out?:string}[]} */
   const testCases = [
     { in: 'rotate(31)' },
-    { in: 'rotate(31 2 3)', out: 'translate(2 3)rotate(31)translate(-2 -3)' },
+    { in: 'rotate(31 2 3)', out: 'rotate(31 2 3)' },
     { in: 'translate(31)' },
     { in: 'translate(3 2)' },
     { in: 'translate(3 0)', out: 'translate(3)' },

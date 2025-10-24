@@ -4,7 +4,6 @@ describe('test normalization', () => {
   // TODO
   // rotate: handle units other than degrees
   // rotate: test wrap around 360 for merge
-  // normalize angles to 0 <= a < 360
   // test case for all identify transforms
   // rotate: test case for merge -> identity
   // translate: test case for merge -> identity
@@ -31,6 +30,8 @@ describe('test normalization', () => {
     { in: 'matrix(2.1 0 0 3 0 0)matrix(3 0 0 2.1 0 0)', out: 'scale(6.3)' },
     { in: 'matrix(2.1 0 0 3 0 0)', out: 'scale(2.1 3)' },
     { in: 'matrix(1 0 0 1 10 20)', out: 'translate(10 20)' },
+    { in: 'rotate(180)', out: 'scale(-1)' },
+    { in: 'scale(-1)rotate(180)', out: '' },
   ];
 
   for (const test of tests) {

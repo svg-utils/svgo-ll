@@ -1,3 +1,4 @@
+import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -33,7 +34,8 @@ export const fn = (info) => {
         }
 
         const attData = getAttrWidth(props);
-        if (attData.width < getStyleWidth(props)) {
+        const propData = getStyleWidth(props);
+        if (attData.width < propData.width) {
           // Attributes are shorter; remove the style attribute and use individual attributes.
 
           for (const [name, value] of props.entries()) {
@@ -49,6 +51,10 @@ export const fn = (info) => {
           // Style is at least as short; remove the individual attributes and convert to style properties.
           for (const name of props.keys()) {
             element.svgAtts.delete(name);
+          }
+          // Overwrite any properties that were changed by getStyleWidth()
+          for (const [name, value] of propData.attsToChange.entries()) {
+            props.set(name, value);
           }
           new StyleAttValue(props).updateElement(element);
         }
@@ -82,9 +88,28 @@ function getAttrWidth(props) {
 
 /**
  * @param {import('../lib/types.js').SvgAttValues} props
- * @returns {number}
+ * @returns {AttData}
  */
 function getStyleWidth(props) {
-  const att = new StyleAttValue(props);
-  return ' style=""'.length + att.toString().length;
+  /** @type {AttData} */
+  const data = { width: 0, attsToChange: new Map() };
+
+  const newProps = new SvgAttMap();
+  for (let [name, value] of props.entries()) {
+    switch (name) {
+      case 'gradientTransform':
+      case 'patternTransform':
+      case 'transform':
+        value = /** @type {import('../types/types.js').TransformAttValue} */ (
+          value
+        ).findShortestProperty();
+        data.attsToChange.set(name, value);
+        break;
+    }
+    newProps.set(name, value);
+  }
+
+  const att = new StyleAttValue(newProps);
+  data.width = ' style=""'.length + att.toString().length;
+  return data;
 }

@@ -12,8 +12,8 @@ describe('test normalization', () => {
   const tests = [
     { in: 'rotate(20)rotate(30)', out: 'rotate(50)' },
     {
-      in: 'rotate(23)rotate(24 2 3)',
-      out: 'rotate(23)translate(2 3)rotate(24)translate(-2 -3)',
+      in: 'rotate(24 2 3)rotate(23)',
+      out: 'rotate(24 2 3)rotate(23)',
     },
     { in: 'rotate(0)', out: '' },
     { in: 'translate(2)rotate(0)translate(3)', out: 'translate(5)' },
@@ -36,6 +36,10 @@ describe('test normalization', () => {
     { in: 'matrix(0 -1 1 0 0 0)', out: 'rotate(270)' },
     { in: 'matrix(1 0 1 1 0 0)', out: 'skewX(45)' },
     { in: 'matrix(1 1 0 1 0 0)', out: 'skewY(45)' },
+    {
+      in: 'translate(2 3)rotate(24)translate(-2 -3)',
+      out: 'rotate(24 2 3)',
+    },
   ];
 
   for (const test of tests) {

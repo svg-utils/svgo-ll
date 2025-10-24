@@ -8,6 +8,10 @@ describe('test finding shortest attribute variant', () => {
       in: 'translate(30 60)scale(8)translate(-1 -1)',
       out: 'matrix(8 0 0 8 22 52)',
     },
+    {
+      in: 'translate(-42.29387 40.47345)scale(-.03775098 .04880038)translate(-2887.653 -1524.907)scale(-1.277147 1.536384)',
+      out: 'matrix(-.03775098 0 0 .04880038 66.71786064994 -33.94259106466)scale(-1.277147 1.536384)',
+    },
   ];
 
   for (const test of tests) {

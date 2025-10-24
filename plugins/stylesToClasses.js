@@ -1,7 +1,6 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { generateId } from '../lib/svgo/tools.js';
-import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'stylesToClasses';
@@ -135,8 +134,11 @@ export const fn = (info) => {
           }
         }
 
-        if (elemsGroups.nonRendering.has(element.local)) {
-          return;
+        switch (element.local) {
+          case 'linearGradient':
+          case 'radialGradient':
+          case 'pattern':
+            return;
         }
 
         const props = getPresentationProperties(element);

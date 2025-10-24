@@ -34,6 +34,8 @@ describe('test normalization', () => {
     { in: 'scale(-1)rotate(180)', out: '' },
     { in: 'matrix(0 1 -1 0 0 0)', out: 'rotate(90)' },
     { in: 'matrix(0 -1 1 0 0 0)', out: 'rotate(270)' },
+    { in: 'matrix(1 0 1 1 0 0)', out: 'skewX(45)' },
+    { in: 'matrix(1 1 0 1 0 0)', out: 'skewY(45)' },
   ];
 
   for (const test of tests) {

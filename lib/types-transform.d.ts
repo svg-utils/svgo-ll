@@ -1,8 +1,9 @@
 import { ExactNum } from '../types/types.js';
 
+export type TransTypeAngleUnit = 'deg' | 'grad' | 'rad' | 'turn';
 export type TransTypeAngle = {
   n: ExactNum;
-  unit: 'deg' | 'grad' | 'rad' | 'turn';
+  unit: TransTypeAngleUnit;
 };
 export type TransTypeLength = {
   n: ExactNum;

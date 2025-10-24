@@ -32,6 +32,8 @@ describe('test normalization', () => {
     { in: 'matrix(1 0 0 1 10 20)', out: 'translate(10 20)' },
     { in: 'rotate(180)', out: 'scale(-1)' },
     { in: 'scale(-1)rotate(180)', out: '' },
+    { in: 'matrix(0 1 -1 0 0 0)', out: 'rotate(90)' },
+    { in: 'matrix(0 -1 1 0 0 0)', out: 'rotate(270)' },
   ];
 
   for (const test of tests) {

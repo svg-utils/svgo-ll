@@ -1,6 +1,7 @@
 import { ClassAttValue } from '../lib/attrs/classAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { generateId } from '../lib/svgo/tools.js';
+import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'stylesToClasses';
@@ -125,12 +126,17 @@ export const fn = (info) => {
           return;
         }
 
-        const cv = ClassAttValue.getAttValue(element);
+        /** @type {ClassAttValue|undefined} */
+        const cv = element.svgAtts.get('class');
         if (cv) {
           // Record existing class names.
           for (const className of cv.getClassNames()) {
             reservedClassNames.add(className);
           }
+        }
+
+        if (elemsGroups.nonRendering.has(element.local)) {
+          return;
         }
 
         const props = getPresentationProperties(element);

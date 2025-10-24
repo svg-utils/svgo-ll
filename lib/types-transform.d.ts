@@ -6,7 +6,7 @@ export type TransTypeAngle = {
 };
 export type TransTypeLength = {
   n: ExactNum;
-  unit: 'px' | 'cm' | 'mm' | 'Q' | 'in' | 'pc' | 'pt';
+  unit: 'px' | 'cm' | 'em' | 'mm' | 'Q' | 'in' | 'pc' | 'pt';
 };
 
 export type TransformFnMatrix = {

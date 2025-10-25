@@ -2,8 +2,6 @@ import { cssParseTransform } from '../../../lib/css/css-parse-transform.js';
 import { TransformList } from '../../../lib/types/transformList.js';
 
 describe('test normalization of attributes', () => {
-  // TODO
-  // matrix: multiply adjacent
   const tests = [
     { in: 'rotate(20)rotate(30)', out: 'rotate(50)' },
     { in: 'rotate(20)rotate(390)', out: 'rotate(50)' },
@@ -39,7 +37,10 @@ describe('test normalization of attributes', () => {
     },
     {
       in: 'matrix(1 1 0 1 0 1)matrix(1 1 0 2 0 0)',
-      out: 'matrix(1 1 0 1 0 0)',
+      out: 'matrix(1 2 0 2 0 1)',
+    },
+    {
+      in: 'matrix(1.1234567 1 0 1 0 1)matrix(1.0123456 1 0 2 0 0)',
     },
   ];
 

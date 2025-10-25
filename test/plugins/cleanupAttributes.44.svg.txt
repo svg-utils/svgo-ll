@@ -1,0 +1,15 @@
+Remove identity transforms in style attribute after merging.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+  <rect x="0" y="10" width="5" height="8" fill="red" style="transform:scale(.5)scale(2)"/>
+  <rect x="0" y="10" width="5" height="8" fill="red" style="transform:translate(22.3px)translate(-22.3px)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+    <rect x="0" y="10" width="5" height="8" fill="red"/>
+    <rect x="0" y="10" width="5" height="8" fill="red"/>
+</svg>

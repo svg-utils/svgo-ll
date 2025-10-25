@@ -102,6 +102,11 @@ function cleanupStyleAttribute(element) {
       styleAttValue.delete(p);
       continue;
     }
+    if (p === 'transform') {
+      /** @type {import('../types/types.js').TransformAttValue} */
+      const t = styleAttValue.getAtt(p);
+      cleanupTransformAttribute(p, t, styleAttValue);
+    }
   }
 
   styleAttValue.updateElement(element);

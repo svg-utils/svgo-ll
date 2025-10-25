@@ -1,5 +1,6 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { transformAttrs } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'minifyAttrsAndStyles';
@@ -13,18 +14,22 @@ export const description =
 /** @type {import('./plugins-types.js').Plugin<'minifyAttrsAndStyles'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
-  if (
-    info.docData.hasScripts() ||
-    styleData === null ||
-    styleData.hasStyles()
-  ) {
+  if (info.docData.hasScripts() || styleData === null) {
     return;
   }
+
+  const hasStyles = styleData.hasStyles();
 
   return {
     element: {
       enter: (element) => {
         if (element.uri !== undefined) {
+          return;
+        }
+
+        if (hasStyles) {
+          // Just shorten the transforms in place, don't rearrange attributes and properties.
+          shortenTransforms(element);
           return;
         }
 
@@ -112,4 +117,33 @@ function getStyleWidth(props) {
   const att = new StyleAttValue(newProps);
   data.width = ' style=""'.length + att.toString().length;
   return data;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function shortenTransforms(element) {
+  for (const [attName, attValue] of element.svgAtts.entries()) {
+    if (transformAttrs.has(attName)) {
+      element.svgAtts.set(
+        attName,
+        /** @type {import('../types/types.js').TransformAttValue} */ (
+          attValue
+        ).findShortestAttribute(),
+      );
+    } else if (attName === 'style') {
+      for (const [propName, propValue] of /** @type {StyleAttValue} */ (
+        attValue
+      ).entries()) {
+        if (propName === 'transform') {
+          /** @type {StyleAttValue} */ (attValue).set(
+            propName,
+            /** @type {import('../types/types.js').TransformAttValue} */ (
+              propValue
+            ).findShortestProperty(),
+          );
+        }
+      }
+    }
+  }
 }

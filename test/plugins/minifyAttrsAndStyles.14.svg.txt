@@ -1,0 +1,14 @@
+Don't convert to attributes if transform units are unsupported.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150.0">
+  <rect x="0" y="10" width="5" height="8" style="transform:translate(2em,3px)scale(3)"/>
+  
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
+  <rect x="0" y="10" width="5" height="8" style="transform:translate(2em,3px)scale(3)"/>
+</svg>

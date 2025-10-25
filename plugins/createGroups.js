@@ -219,7 +219,10 @@ function createGroups(element, usedIds, elementsToCheck) {
     // Copy any common shared properties.
     for (const [k, v] of sharedProps.entries()) {
       const currentProp = currentChildProps.get(k);
-      if (currentProp && currentProp.toString() === v.toString()) {
+      if (
+        currentProp &&
+        currentProp.toStyleAttString() === v.toStyleAttString()
+      ) {
         newSharedProps.set(k, v);
       }
     }

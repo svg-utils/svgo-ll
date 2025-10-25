@@ -38,6 +38,15 @@ export const fn = (info) => {
           return;
         }
 
+        /** @type {import('../types/types.js').TransformAttValue|undefined} */
+        const t = props.get('transform');
+        if (t) {
+          // If there's a transform property, make sure it can be converted to an attribute.
+          if (!t.canBeAttribute()) {
+            return;
+          }
+        }
+
         const attData = getAttrWidth(props);
         const propData = getStyleWidth(props);
         if (attData.width < propData.width) {

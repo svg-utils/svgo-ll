@@ -1,8 +1,8 @@
-import { TransformAttValue } from '../../lib/attrs/transformAttValue.js';
+import { TransformAttValue } from '../../../lib/attrs/transformAttValue.js';
 import {
   svgParseTransform,
   svgStringifyTransform,
-} from '../../lib/svg-parse-att.js';
+} from '../../../lib/types/svgTransforms.js';
 
 describe('test svg transform parsing', () => {
   /** @type {{in:string,out?:string}[]} */

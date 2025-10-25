@@ -182,9 +182,10 @@ const PLUGINOPT_DIR = path.resolve(__dirname, 'testPluginOpts');
 const PLUGINOPT_FILE1 = path.resolve(PLUGINOPT_DIR, 'test1.svg');
 const PLUGINOPT_FILE1_OPT = path.resolve(tempFolder, 'test1.svg');
 const PLUGIN_DT_FILE1_OPT = path.resolve(tempFolder, 'testDocType.svg');
+const RECT_FILE = path.resolve(PLUGINOPT_DIR, 'test-rect.svg');
 
-const EXPECT_TRANS =
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="10" y="20" width="10" height="20" id="abc" transform="translate(10 20)"/></svg>';
+const EXPECT_RECT_TO_PATH =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M0 0H10V20H0z"/></svg>';
 const EXPECT_TRANS_PATH =
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path transform="translate(10 20)" d="M10 20h10v20H10z"/></svg>';
 const EXPECT_EMPTY_SVG = '<svg xmlns="http://www.w3.org/2000/svg"/>';
@@ -219,10 +220,10 @@ describe('test default plugins', function () {
     expect(opt).toBe(opt);
   });
 
-  it('should only minify transform when no plugins specified, but custom config is used', async () => {
+  it('should only convert shape when no plugins specified, but custom config is used', async () => {
     await runProgram([
       '-i',
-      PLUGINOPT_FILE1,
+      RECT_FILE,
       '-o',
       PLUGINOPT_FILE1_OPT,
       '--quiet',
@@ -231,7 +232,7 @@ describe('test default plugins', function () {
       path.resolve(PLUGINOPT_DIR, 'config1.js'),
     ]);
     const opt = fs.readFileSync(PLUGINOPT_FILE1_OPT, { encoding: 'utf8' });
-    expect(opt).toBe(EXPECT_TRANS);
+    expect(opt).toBe(EXPECT_RECT_TO_PATH);
   });
 
   it('should include removeDoctype in default preprocessing', async () => {

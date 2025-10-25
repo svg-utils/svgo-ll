@@ -91,7 +91,7 @@ describe('test --disable option', function () {
       PLUGINOPT_FILE1_OPT,
       '--quiet',
       '--disable',
-      'minifyTransforms',
+      'convertShapeToPath',
       '--config',
       path.resolve(PLUGINOPT_DIR, 'config1.js'),
     ]);

@@ -3,7 +3,7 @@ import { SvgoParserError } from '../../lib/parser.js';
 import { getResolvedPlugins } from '../utils.js';
 
 import * as cleanupTextNodes from '../../plugins/cleanupTextNodes.js';
-import * as minifyTransforms from '../../plugins/minifyTransforms.js';
+import * as convertShapeToPath from '../../plugins/convertShapeToPath.js';
 import { parseNonStyleAttr } from '../../lib/attrs/parseNonStyleAttr.js';
 
 describe('allow to configure EOL', () => {
@@ -240,14 +240,14 @@ test('encode as datauri', () => {
     `;
   const { data: dataSinglePass } = optimize(input, {
     datauri: 'enc',
-    plugins: getResolvedPlugins([cleanupTextNodes, minifyTransforms]),
+    plugins: getResolvedPlugins([cleanupTextNodes, convertShapeToPath]),
   });
   expect(dataSinglePass).toMatchInlineSnapshot(
     `"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20transform%3D%22scale(2)%22%2F%3E%3C%2Fsvg%3E"`,
   );
   const { data: dataURI } = optimize(input, {
     datauri: 'enc',
-    plugins: getResolvedPlugins([cleanupTextNodes, minifyTransforms]),
+    plugins: getResolvedPlugins([cleanupTextNodes, convertShapeToPath]),
   });
   expect(dataURI).toMatchInlineSnapshot(
     `"data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20transform%3D%22scale(2)%22%2F%3E%3C%2Fsvg%3E"`,

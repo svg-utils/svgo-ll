@@ -20,7 +20,6 @@ import * as minifyGradients from '../plugins/minifyGradients.js';
 import * as minifyIds from '../plugins/minifyIds.js';
 import * as minifyPathData from '../plugins/minifyPathData.js';
 import * as minifyStyles from '../plugins/minifyStyles.js';
-import * as minifyTransforms from '../plugins/minifyTransforms.js';
 import * as moveElemsStylesToGroup from '../plugins/moveElemsStylesToGroup.js';
 import * as removeComments from '../plugins/removeComments.js';
 import * as removeDesc from '../plugins/removeDesc.js';
@@ -108,7 +107,6 @@ const pluginList = [
   minifyIds,
   minifyPathData,
   minifyStyles,
-  minifyTransforms,
   moveElemsStylesToGroup,
   removeComments,
   removeDesc,

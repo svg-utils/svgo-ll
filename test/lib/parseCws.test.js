@@ -1,3 +1,5 @@
+import { parseCwsList } from '../../lib/svgo/tools.js';
+
 const tests = [
   { in: '1,2', out: ['1', '2'] },
   { in: '1 2', out: ['1', '2'] },
@@ -10,14 +12,6 @@ const tests = [
 
 for (const test of tests) {
   it(test.in, () => {
-    expect(parseCsw(test.in)).toEqual(test.out);
+    expect(parseCwsList(test.in)).toEqual(test.out);
   });
-}
-
-/**
- * @param {string} list
- * @returns {string[]}
- */
-function parseCsw(list) {
-  return list.trim().split(/(?:\s*,\s*|\s+)/);
 }

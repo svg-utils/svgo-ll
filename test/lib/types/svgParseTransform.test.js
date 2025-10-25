@@ -2,14 +2,17 @@ import { TransformAttValue } from '../../../lib/attrs/transformAttValue.js';
 import {
   svgParseTransform,
   svgStringifyTransform,
+  SVGTransformParseError,
 } from '../../../lib/types/svgTransforms.js';
 
 describe('test svg transform parsing', () => {
-  /** @type {{in:string,out?:string}[]} */
+  /** @type {{in:string,out?:string|null}[]} */
   const testCases = [
     { in: 'rotate(31)' },
     { in: 'rotate(31 2 3)', out: 'rotate(31 2 3)' },
     { in: 'translate(31)' },
+    { in: 'translate(1 2 3)', out: null },
+    { in: 'translate(31px)', out: null },
     { in: 'translate(3 2)' },
     { in: 'translate(3 0)', out: 'translate(3)' },
     { in: 'scale(3 2)' },
@@ -21,12 +24,18 @@ describe('test svg transform parsing', () => {
   ];
   for (const testCase of testCases) {
     it(`${testCase.in}`, () => {
-      const transforms = svgParseTransform(testCase.in);
-      if (transforms === null) {
-        throw new Error();
+      let transforms;
+      try {
+        transforms = svgParseTransform(testCase.in);
+      } catch (error) {
+        expect(testCase.out).toBeNull();
+        expect(error instanceof SVGTransformParseError).toBe(true);
       }
-      const expected = testCase.out ? testCase.out : testCase.in;
-      expect(svgStringifyTransform(transforms)).toBe(expected);
+      if (transforms) {
+        const expected =
+          testCase.out !== undefined ? testCase.out : testCase.in;
+        expect(svgStringifyTransform(transforms)).toBe(expected);
+      }
     });
   }
 });

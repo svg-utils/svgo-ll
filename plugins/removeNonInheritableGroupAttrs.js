@@ -1,6 +1,5 @@
 import {
   inheritableAttrs,
-  attrsGroups,
   presentationNonInheritableGroupAttrs,
   presentationProperties,
 } from './_collections.js';

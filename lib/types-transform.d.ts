@@ -1,12 +1,13 @@
 import { ExactNum } from '../types/types.js';
 
+export type TransTypeAngleUnit = 'deg' | 'grad' | 'rad' | 'turn';
 export type TransTypeAngle = {
   n: ExactNum;
-  unit: 'deg' | 'grad' | 'rad' | 'turn';
+  unit: TransTypeAngleUnit;
 };
 export type TransTypeLength = {
   n: ExactNum;
-  unit: 'px' | 'cm' | 'mm' | 'Q' | 'in' | 'pc' | 'pt';
+  unit: 'px' | 'cm' | 'em' | 'mm' | 'Q' | 'in' | 'pc' | 'pt';
 };
 
 export type TransformFnMatrix = {
@@ -21,8 +22,6 @@ export type TransformFnMatrix = {
 export type TransformFnRotate = {
   name: 'rotate';
   a: TransTypeAngle;
-  tx: TransTypeLength;
-  ty: TransTypeLength;
 };
 export type TransformFnScale = {
   name: 'scale';

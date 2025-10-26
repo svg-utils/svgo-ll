@@ -49,7 +49,6 @@ type BuiltinPlugins = {
   };
   minifyPathData: void;
   minifyStyles: void;
-  minifyTransforms: void;
   moveElemsStylesToGroup: void;
   removeComments: {
     preservePatterns: Array<RegExp | string> | false;

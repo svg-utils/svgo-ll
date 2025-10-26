@@ -1,6 +1,6 @@
 import * as cleanupTextNodes from '../../../plugins/cleanupTextNodes.js';
-import * as minifyTransforms from '../../../plugins/minifyTransforms.js';
+import * as convertShapeToPath from '../../../plugins/convertShapeToPath.js';
 
 export default {
-  plugins: { pre: [cleanupTextNodes], plugins: [minifyTransforms] },
+  plugins: { pre: [cleanupTextNodes], plugins: [convertShapeToPath] },
 };

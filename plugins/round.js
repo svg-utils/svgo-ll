@@ -8,6 +8,7 @@ import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
 import { TransformAttValue } from '../lib/attrs/transformAttValue.js';
 import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
+import { TransformList } from '../lib/types/transformList.js';
 
 export const name = 'round';
 export const description = 'Round numbers to fewer decimal digits';
@@ -281,7 +282,11 @@ function isTranslation(transform) {
   }
   // TODO: should already be parsed
   const transforms = new TransformAttValue(transform).getTransforms();
-  return transforms.length === 1 && transforms[0].name === 'translate';
+  return (
+    transforms !== undefined &&
+    transforms.length === 1 &&
+    transforms[0].name === 'translate'
+  );
 }
 
 /**
@@ -357,12 +362,16 @@ function roundTransform(attValue, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
     return null;
   }
-  for (const transform of attValue.getTransforms()) {
+  const transforms = attValue.getTransforms();
+  if (transforms === undefined) {
+    return null;
+  }
+  for (const transform of transforms) {
     if (transform.name !== 'translate') {
       return null;
     }
     transform.x.n = transform.x.n.round(xDigits);
     transform.y.n = transform.y.n.round(yDigits);
   }
-  return new TransformAttValue(attValue.getTransforms());
+  return new TransformAttValue(new TransformList(transforms));
 }

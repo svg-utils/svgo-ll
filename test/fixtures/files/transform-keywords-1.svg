@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 15 15">
+  <style>.a{transform:translate(2px,3px)}</style>
+  <rect class="a" width="2" height="1.5" fill="red" opacity=".5" style="transform:NONE"/>
+  <g transform="translate(0 4)">
+    <rect class="a" width="2" height="1.5" style="transform:iniTial"/>
+  </g>
+  <g style="transform:translate(0 6px)">
+    <rect class="a" width="2" height="1.5" fill="blue" opacity=".5" style="transform:unset"/>
+  </g>
+</svg>

@@ -56,14 +56,14 @@ describe('test resolvePlugins()', () => {
   });
 
   it('--pre should override the default pre array', () => {
-    const name = 'minifyTransforms';
+    const name = 'convertShapeToPath';
     const resolvedPlugins = resolvePlugins({ pre: [name] });
     expect(resolvedPlugins.pre.length).toBe(1);
     expect(resolvedPlugins.pre[0].name).toBe(name);
   });
 
   it('--post should override the default post array', () => {
-    const name = 'minifyTransforms';
+    const name = 'convertShapeToPath';
     const resolvedPlugins = resolvePlugins({ post: [name] });
     expect(resolvedPlugins.post.length).toBe(1);
     expect(resolvedPlugins.post[0].name).toBe(name);

@@ -125,12 +125,20 @@ export const fn = (info) => {
           return;
         }
 
-        const cv = ClassAttValue.getAttValue(element);
+        /** @type {ClassAttValue|undefined} */
+        const cv = element.svgAtts.get('class');
         if (cv) {
           // Record existing class names.
           for (const className of cv.getClassNames()) {
             reservedClassNames.add(className);
           }
+        }
+
+        switch (element.local) {
+          case 'linearGradient':
+          case 'radialGradient':
+          case 'pattern':
+            return;
         }
 
         const props = getPresentationProperties(element);

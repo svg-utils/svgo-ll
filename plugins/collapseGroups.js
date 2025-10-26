@@ -156,10 +156,28 @@ function canCollapse(child, parentProps, childProps, styleData) {
   if (styleData.hasTypeSelector(child.local)) {
     return false;
   }
-  for (const propName of parentProps.keys()) {
+  for (const [propName, propValue] of parentProps.entries()) {
     if (propName === 'opacity') {
       if (childProps.get('opacity') !== undefined) {
         return false;
+      }
+    } else if (propName === 'transform') {
+      const isKeyword =
+        /** @type {import('../types/types.js').TransformAttValue} */ (
+          propValue
+        ).isKeyword();
+      /** @type {import('../types/types.js').TransformAttValue|undefined} */
+      const childTrans = childProps.get('transform');
+      if (isKeyword) {
+        // Can't collapse if the child has a transform.
+        if (childTrans !== undefined) {
+          return false;
+        }
+      } else {
+        // Make sure the child is not a keyword.
+        if (childTrans && childTrans.isKeyword()) {
+          return false;
+        }
       }
     }
     if (hasAnimatedAttr(child, propName)) {

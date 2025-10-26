@@ -548,12 +548,6 @@ function canHaveProperty(propName, allowedAttributes) {
   if (!allowedAttributes || allowedAttributes.has(propName)) {
     return true;
   }
-  switch (propName) {
-    case 'font':
-      // "font" is allowed as a style property but not as an attribute; allow it only if the font attributes are allowed for
-      // this element.
-      return allowedAttributes.has('font-size');
-  }
   return false;
 }
 

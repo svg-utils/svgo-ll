@@ -84,6 +84,13 @@ export const elemsGroups = {
   ]),
 };
 
+export const nonAttributeProperties = new Set([
+  'font',
+  'rotate',
+  'scale',
+  'translate',
+]);
+
 /**
  * See https://www.w3.org/TR/SVG2/styling.html#PresentationAttributes.
  * The list below also includes:

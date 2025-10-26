@@ -182,7 +182,7 @@ export type PluginInfo = {
 export type Plugin<Params> = (
   info: PluginInfo,
   params: Params,
-) => Visitor | null | void;
+) => Visitor | undefined;
 
 export type Specificity = [number, number, number];
 

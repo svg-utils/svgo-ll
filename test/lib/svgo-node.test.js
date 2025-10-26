@@ -136,17 +136,21 @@ describe('loadConfig', () => {
 
   test('searches in cwd and up', async () => {
     expect(
-      await loadConfig(null, path.join(fixtures, 'one/two')),
+      await loadConfig(undefined, path.join(fixtures, 'one/two')),
     ).toStrictEqual({
       plugins: [],
     });
     expect(
-      await loadConfig(null, path.join(cwd, './test/fixtures/missing')),
+      await loadConfig(undefined, path.join(cwd, './test/fixtures/missing')),
     ).toBeNull();
-    expect(await loadConfig(null, path.join(fixtures, 'mjs'))).toStrictEqual({
+    expect(
+      await loadConfig(undefined, path.join(fixtures, 'mjs')),
+    ).toStrictEqual({
       plugins: ['mjs'],
     });
-    expect(await loadConfig(null, path.join(fixtures, 'cjs'))).toStrictEqual({
+    expect(
+      await loadConfig(undefined, path.join(fixtures, 'cjs')),
+    ).toStrictEqual({
       plugins: ['cjs'],
     });
   });

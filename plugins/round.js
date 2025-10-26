@@ -282,7 +282,11 @@ function isTranslation(transform) {
   }
   // TODO: should already be parsed
   const transforms = new TransformAttValue(transform).getTransforms();
-  return transforms.length === 1 && transforms[0].name === 'translate';
+  return (
+    transforms !== undefined &&
+    transforms.length === 1 &&
+    transforms[0].name === 'translate'
+  );
 }
 
 /**
@@ -358,12 +362,16 @@ function roundTransform(attValue, xDigits, yDigits) {
   if (xDigits === null || yDigits === null) {
     return null;
   }
-  for (const transform of attValue.getTransforms()) {
+  const transforms = attValue.getTransforms();
+  if (transforms === undefined) {
+    return null;
+  }
+  for (const transform of transforms) {
     if (transform.name !== 'translate') {
       return null;
     }
     transform.x.n = transform.x.n.round(xDigits);
     transform.y.n = transform.y.n.round(yDigits);
   }
-  return new TransformAttValue(new TransformList(attValue.getTransforms()));
+  return new TransformAttValue(new TransformList(transforms));
 }

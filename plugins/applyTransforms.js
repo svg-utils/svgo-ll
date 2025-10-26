@@ -90,7 +90,7 @@ function applyToRect(element, gradientMap) {
   }
 
   const funcs = transform.getTransforms();
-  if (funcs.length !== 1) {
+  if (funcs === undefined || funcs.length !== 1) {
     return;
   }
   const func = funcs[0];

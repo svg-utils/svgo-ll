@@ -4,6 +4,7 @@ import {
   elemsGroups,
   attrsGroupsDefaults,
   inheritableAttrs,
+  presentationProperties,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
 import { getHrefId } from '../lib/tools-ast.js';
@@ -436,7 +437,7 @@ export const fn = (info, params) => {
 
             // Delete any attributes or style properties that are directly present in the referenced element.
             for (const attName of element.svgAtts.keys()) {
-              if (attrsGroups.presentation.has(attName)) {
+              if (presentationProperties.has(attName)) {
                 if (attName === 'transform') {
                   continue;
                 }

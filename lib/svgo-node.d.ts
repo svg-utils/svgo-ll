@@ -8,10 +8,6 @@ export * from './svgo.js';
  * You can also specify relative or absolute path and customize current working directory.
  */
 export declare function loadConfig(
-  configFile: string,
+  configFile: string | undefined,
   cwd?: string,
 ): Promise<Config>;
-export declare function loadConfig(
-  configFile?: null,
-  cwd?: string,
-): Promise<Config | null>;

@@ -26,7 +26,7 @@ describe('test preservation of digits in addition/subtraction', () => {
       const e = new ExactNum(testCase.n1);
       const n2 = new ExactNum(testCase.n2);
       const result = testCase.addSub === '+' ? e.add(n2) : e.sub(n2);
-      if (testCase.result == undefined) {
+      if (testCase.result === undefined) {
         expect(result).toBeUndefined();
       } else {
         if (result === undefined) {

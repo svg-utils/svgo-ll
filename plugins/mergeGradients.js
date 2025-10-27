@@ -1,5 +1,9 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { recordReferencedIds, updateReferencedId } from '../lib/tools-ast.js';
+import {
+  getHrefId,
+  recordReferencedIds,
+  updateReferencedId,
+} from '../lib/tools-ast.js';
 
 export const name = 'mergeGradients';
 export const description = 'merge identical gradients';
@@ -47,6 +51,12 @@ export const fn = (info) => {
 
         const gradientId = element.svgAtts.get('id')?.toString();
         if (!gradientId) {
+          return;
+        }
+
+        const href = getHrefId(element);
+        if (href !== undefined) {
+          // Don't merge template gradients.
           return;
         }
 

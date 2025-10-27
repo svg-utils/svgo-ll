@@ -1,7 +1,7 @@
 import {
   inheritableAttrs,
-  attrsGroups,
   presentationNonInheritableGroupAttrs,
+  presentationProperties,
 } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
@@ -29,7 +29,7 @@ export const fn = () => {
         const candidates = new Set();
         for (const name of element.svgAtts.keys()) {
           if (
-            attrsGroups.presentation.has(name) &&
+            presentationProperties.has(name) &&
             !inheritableAttrs.has(name) &&
             !presentationNonInheritableGroupAttrs.has(name)
           ) {

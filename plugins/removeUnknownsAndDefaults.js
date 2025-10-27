@@ -4,6 +4,7 @@ import {
   elemsGroups,
   attrsGroupsDefaults,
   inheritableAttrs,
+  presentationProperties,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
 import { getHrefId } from '../lib/tools-ast.js';
@@ -436,7 +437,7 @@ export const fn = (info, params) => {
 
             // Delete any attributes or style properties that are directly present in the referenced element.
             for (const attName of element.svgAtts.keys()) {
-              if (attrsGroups.presentation.has(attName)) {
+              if (presentationProperties.has(attName)) {
                 if (attName === 'transform') {
                   continue;
                 }
@@ -546,12 +547,6 @@ function addElsWhichHaveCurrentColor(
 function canHaveProperty(propName, allowedAttributes) {
   if (!allowedAttributes || allowedAttributes.has(propName)) {
     return true;
-  }
-  switch (propName) {
-    case 'font':
-      // "font" is allowed as a style property but not as an attribute; allow it only if the font attributes are allowed for
-      // this element.
-      return allowedAttributes.has('font-size');
   }
   return false;
 }

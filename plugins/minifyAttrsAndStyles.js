@@ -1,6 +1,6 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { transformAttrs } from './_collections.js';
+import { nonAttributeProperties, transformAttrs } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'minifyAttrsAndStyles';
@@ -38,13 +38,10 @@ export const fn = (info) => {
           return;
         }
 
-        /** @type {import('../types/types.js').TransformAttValue|undefined} */
-        const t = props.get('transform');
-        if (t) {
-          // If there's a transform property, make sure it can be converted to an attribute.
-          if (!t.canBeAttribute()) {
-            return;
-          }
+        if (!canConvertToAttributes(props)) {
+          // Just shorten the transforms in place, don't rearrange attributes and properties.
+          shortenTransforms(element);
+          return;
         }
 
         const attData = getAttrWidth(props);
@@ -76,6 +73,28 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').SvgAttValues} props
+ * @returns
+ */
+function canConvertToAttributes(props) {
+  for (const propName of nonAttributeProperties.values()) {
+    if (props.get(propName) !== undefined) {
+      return false;
+    }
+  }
+
+  /** @type {import('../types/types.js').TransformAttValue|undefined} */
+  const t = props.get('transform');
+  if (t) {
+    // If there's a transform property, make sure it can be converted to an attribute.
+    if (!t.canBeAttribute()) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /**
  * @param {import('../lib/types.js').SvgAttValues} props

@@ -2384,6 +2384,7 @@ export const uselessShapeProperties = new Set([
   'font-variant',
   'font-weight',
   'letter-spacing',
+  'white-space',
   'word-spacing',
 ]);
 

@@ -54,12 +54,6 @@ export const fn = (info) => {
           return;
         }
 
-        const href = getHrefId(element);
-        if (href !== undefined) {
-          // Don't merge template gradients.
-          return;
-        }
-
         if (styleData.hasIdSelector(gradientId)) {
           // Don't merge gradients that are referenced by a selector.
           return;
@@ -129,12 +123,26 @@ function getGradientKey(element) {
    */
   function addParts(element, excludeId) {
     parts.push(element.local);
+
+    // Get href separately to account for xlink:href.
+    const hrefId = getHrefId(element);
+    if (hrefId) {
+      parts.push(`href:${hrefId}`);
+    }
+
     const array = Array.from(element.svgAtts.entries());
     for (const [attName, attVal] of array.sort((a, b) =>
       a[0].localeCompare(b[0]),
     )) {
-      if (excludeId && attName === 'id') {
-        continue;
+      switch (attName) {
+        case 'id':
+          if (excludeId) {
+            continue;
+          }
+          break;
+        case 'href':
+          // Handled above.
+          continue;
       }
       parts.push(`${attName}:${attVal}`);
     }

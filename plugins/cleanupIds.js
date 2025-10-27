@@ -11,7 +11,11 @@ export const fn = (info, params) => {
   const { preserve = [], preservePrefixes = [] } = params;
 
   const styleData = info.docData.getStyles();
-  if (info.docData.hasScripts() || styleData === null) {
+  if (
+    info.docData.hasScripts() ||
+    styleData === null ||
+    styleData.hasAttributeSelector('id')
+  ) {
     return;
   }
 

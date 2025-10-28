@@ -1,7 +1,6 @@
 import { SIMPLE_SELECTORS } from '../lib/css/styleData.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getHrefId, hasAttributes } from '../lib/tools-ast.js';
-import { detachNodeFromParent } from '../lib/xast.js';
 
 export const name = 'removeEmptyContainers';
 export const description = 'removes empty container elements';
@@ -64,18 +63,35 @@ export const fn = (info) => {
         }
       },
       exit: (element, parentList) => {
-        if (!isEmpty(element, styleData, parentList)) {
+        // See if there are empty children.
+        if (element.children.length === 0) {
           return;
         }
 
-        // TODO: Change the way this works so that parent removes empty children. We can't queue them for deletion in
-        // root exit; this is running in element exit so that nested empty elements are removed from bottom up, the nesting
-        // would be hard to detect in root exit.
-        detachNodeFromParent(element);
+        /** @type {import('../lib/types.js').ParentList} */
+        const childParents = parentList.slice();
+        childParents.push({ element: element });
 
-        const id = element.svgAtts.get('id')?.toString();
-        if (id) {
-          removedIds.add(id);
+        const childrenToDelete = new Set();
+        for (const child of element.children) {
+          if (
+            child.type !== 'element' ||
+            !isEmpty(child, styleData, childParents)
+          ) {
+            continue;
+          }
+
+          childrenToDelete.add(child);
+          const id = child.svgAtts.get('id')?.toString();
+          if (id) {
+            removedIds.add(id);
+          }
+        }
+
+        if (childrenToDelete.size > 0) {
+          element.children = element.children.filter(
+            (child) => !childrenToDelete.has(child),
+          );
         }
       },
     },

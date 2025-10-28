@@ -6,6 +6,9 @@ import { getPresentationProperties } from './_styles.js';
 export const name = 'collapseGroups';
 export const description = 'collapses useless groups';
 
+const TRANSFORM_PROPS = ['transform', 'translate', 'scale', 'rotate'];
+const INCOMPATIBLE_PROPS = ['clip-path', 'filter', 'mask'];
+
 /**
  * Collapse useless groups.
  * @type {import('./plugins-types.js').Plugin<'collapseGroups'>}
@@ -196,28 +199,17 @@ function elementHasUnmovableStyles(parentStyles, childStyles) {
   if (parentStyles.has('filter')) {
     return true;
   }
+
   if (
-    parentStyles.has('transform') &&
-    ['clip-path', 'filter', 'mask'].some(
-      (propName) => childStyles.get(propName) !== undefined,
-    )
-  ) {
-    return true;
-  }
-  if (
-    childStyles.has('transform') &&
-    ['clip-path', 'filter', 'mask'].some(
-      (propName) => parentStyles.get(propName) !== undefined,
-    )
+    hasTransformCollision(parentStyles, childStyles) ||
+    hasTransformCollision(childStyles, parentStyles)
   ) {
     return true;
   }
 
   // Don't overwrite child with any of these.
-  return ['clip-path', 'filter', 'mask'].some(
-    (propName) =>
-      parentStyles.get(propName) !== undefined &&
-      childStyles.get(propName) !== undefined,
+  return INCOMPATIBLE_PROPS.some(
+    (propName) => parentStyles.has(propName) && childStyles.has(propName),
   );
 }
 
@@ -240,3 +232,15 @@ const hasAnimatedAttr = (node, name) => {
   }
   return false;
 };
+
+/**
+ * @param {import('../lib/types.js').ComputedStyleMap} e1
+ * @param {import('../lib/types.js').ComputedStyleMap} e2
+ * @returns {boolean}
+ */
+function hasTransformCollision(e1, e2) {
+  return (
+    TRANSFORM_PROPS.some((propName) => e1.has(propName)) &&
+    INCOMPATIBLE_PROPS.some((propName) => e2.has(propName))
+  );
+}

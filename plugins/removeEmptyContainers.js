@@ -1,4 +1,5 @@
-import { addChildToDelete, deleteChildren } from '../lib/svgo/tools.js';
+import { SIMPLE_SELECTORS } from '../lib/css/styleData.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getHrefId, hasAttributes } from '../lib/tools-ast.js';
 import { detachNodeFromParent } from '../lib/xast.js';
 
@@ -29,7 +30,11 @@ const removableEls = new Set([
  */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
-  if (info.docData.hasScripts() || styleData === null) {
+  if (
+    info.docData.hasScripts() ||
+    styleData === null ||
+    !styleData.hasOnlyFeatures(SIMPLE_SELECTORS)
+  ) {
     return;
   }
 
@@ -100,19 +105,18 @@ export const fn = (info) => {
       exit: () => {
         // Remove any <use> elements that referenced an empty container.
 
-        /** @type {Map<import('../lib/types.js').XastParent,Set<import('../lib/types.js').XastChild>>} */
-        const childrenToDelete = new Map();
+        const childrenToDelete = new ChildDeletionQueue();
 
         for (const id of removedIds) {
           const usingEls = usesById.get(id);
           if (usingEls) {
             for (const element of usingEls) {
-              addChildToDelete(childrenToDelete, element);
+              childrenToDelete.add(element);
             }
           }
         }
 
-        deleteChildren(childrenToDelete);
+        childrenToDelete.delete();
       },
     },
   };

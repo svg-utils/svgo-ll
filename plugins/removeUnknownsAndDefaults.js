@@ -131,7 +131,11 @@ export const fn = (info, params) => {
   } = params;
 
   const styleData = info.docData.getStyles();
-  if (info.docData.hasScripts() || styleData === null) {
+  if (
+    info.docData.hasScripts() ||
+    styleData === null ||
+    styleData.hasAttributeSelector()
+  ) {
     return;
   }
 

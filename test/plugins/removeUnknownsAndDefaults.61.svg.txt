@@ -1,0 +1,16 @@
+Disable plugin if there are attribute selectors.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>[foo*="h"]{fill:blue}</style>
+  <rect width="2" height="3" foo="whatever"/>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <style>[foo*="h"]{fill:blue}</style>
+  <rect width="2" height="3" foo="whatever"/>
+</svg>

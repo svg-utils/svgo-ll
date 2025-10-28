@@ -1,0 +1,41 @@
+Don't merge template gradients with different xlink:href.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="c">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="d">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:red;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="a" xlink:href="#c"/>
+    <linearGradient id="b" xlink:href="#d"/>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#b)"/>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="c">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="d">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:red;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient xlink:href="#c" id="a"/>
+    <linearGradient xlink:href="#d" id="b"/>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#b)"/>
+</svg>

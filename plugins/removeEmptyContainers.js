@@ -64,29 +64,7 @@ export const fn = (info) => {
         }
       },
       exit: (element, parentList) => {
-        // remove only empty non-svg containers
-        if (!removableEls.has(element.local) || element.children.length !== 0) {
-          return;
-        }
-        // empty patterns may contain reusable configuration
-        if (element.local === 'pattern' && hasAttributes(element)) {
-          return;
-        }
-        // The <g> may not have content, but the filter may cause a rectangle
-        // to be created and filled with pattern.
-        const props = styleData.computeStyle(element, parentList);
-        if (element.local === 'g' && props.get('filter') !== undefined) {
-          return;
-        }
-        // empty <mask> hides masked element
-        if (
-          element.local === 'mask' &&
-          element.svgAtts.get('id') !== undefined
-        ) {
-          return;
-        }
-        const parentNode = element.parentNode;
-        if (parentNode.type === 'element' && parentNode.local === 'switch') {
+        if (!isEmpty(element, styleData, parentList)) {
           return;
         }
 
@@ -121,3 +99,36 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../lib/types.js').StyleData} styleData
+ * @param {Readonly<import('../lib/types.js').ParentList>} parentList
+ * @returns {boolean}
+ */
+function isEmpty(element, styleData, parentList) {
+  // remove only empty non-svg containers
+  if (!removableEls.has(element.local) || element.children.length !== 0) {
+    return false;
+  }
+  // empty patterns may contain reusable configuration
+  if (element.local === 'pattern' && hasAttributes(element)) {
+    return false;
+  }
+  // The <g> may not have content, but the filter may cause a rectangle
+  // to be created and filled with pattern.
+  const props = styleData.computeStyle(element, parentList);
+  if (element.local === 'g' && props.get('filter') !== undefined) {
+    return false;
+  }
+  // empty <mask> hides masked element
+  if (element.local === 'mask' && element.svgAtts.get('id') !== undefined) {
+    return false;
+  }
+  const parentNode = element.parentNode;
+  if (parentNode.type === 'element' && parentNode.local === 'switch') {
+    return false;
+  }
+
+  return true;
+}

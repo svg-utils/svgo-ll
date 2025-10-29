@@ -1,6 +1,6 @@
-import { addChildToDelete, deleteChildren } from '../lib/svgo/tools.js';
+import { SIMPLE_SELECTORS } from '../lib/css/styleData.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getHrefId, hasAttributes } from '../lib/tools-ast.js';
-import { detachNodeFromParent } from '../lib/xast.js';
 
 export const name = 'removeEmptyContainers';
 export const description = 'removes empty container elements';
@@ -29,7 +29,11 @@ const removableEls = new Set([
  */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
-  if (info.docData.hasScripts() || styleData === null) {
+  if (
+    info.docData.hasScripts() ||
+    styleData === null ||
+    !styleData.hasOnlyFeatures(SIMPLE_SELECTORS)
+  ) {
     return;
   }
 
@@ -59,40 +63,35 @@ export const fn = (info) => {
         }
       },
       exit: (element, parentList) => {
-        // remove only empty non-svg containers
-        if (!removableEls.has(element.local) || element.children.length !== 0) {
-          return;
-        }
-        // empty patterns may contain reusable configuration
-        if (element.local === 'pattern' && hasAttributes(element)) {
-          return;
-        }
-        // The <g> may not have content, but the filter may cause a rectangle
-        // to be created and filled with pattern.
-        const props = styleData.computeStyle(element, parentList);
-        if (element.local === 'g' && props.get('filter') !== undefined) {
-          return;
-        }
-        // empty <mask> hides masked element
-        if (
-          element.local === 'mask' &&
-          element.svgAtts.get('id') !== undefined
-        ) {
-          return;
-        }
-        const parentNode = element.parentNode;
-        if (parentNode.type === 'element' && parentNode.local === 'switch') {
+        // See if there are empty children.
+        if (element.children.length === 0) {
           return;
         }
 
-        // TODO: Change the way this works so that parent removes empty children. We can't queue them for deletion in
-        // root exit; this is running in element exit so that nested empty elements are removed from bottom up, the nesting
-        // would be hard to detect in root exit.
-        detachNodeFromParent(element);
+        /** @type {import('../lib/types.js').ParentList} */
+        const childParents = parentList.slice();
+        childParents.push({ element: element });
 
-        const id = element.svgAtts.get('id')?.toString();
-        if (id) {
-          removedIds.add(id);
+        const childrenToDelete = new Set();
+        for (const child of element.children) {
+          if (
+            child.type !== 'element' ||
+            !isEmpty(child, styleData, childParents)
+          ) {
+            continue;
+          }
+
+          childrenToDelete.add(child);
+          const id = child.svgAtts.get('id')?.toString();
+          if (id) {
+            removedIds.add(id);
+          }
+        }
+
+        if (childrenToDelete.size > 0) {
+          element.children = element.children.filter(
+            (child) => !childrenToDelete.has(child),
+          );
         }
       },
     },
@@ -100,20 +99,52 @@ export const fn = (info) => {
       exit: () => {
         // Remove any <use> elements that referenced an empty container.
 
-        /** @type {Map<import('../lib/types.js').XastParent,Set<import('../lib/types.js').XastChild>>} */
-        const childrenToDelete = new Map();
+        const childrenToDelete = new ChildDeletionQueue();
 
         for (const id of removedIds) {
           const usingEls = usesById.get(id);
           if (usingEls) {
             for (const element of usingEls) {
-              addChildToDelete(childrenToDelete, element);
+              childrenToDelete.add(element);
             }
           }
         }
 
-        deleteChildren(childrenToDelete);
+        childrenToDelete.delete();
       },
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../lib/types.js').StyleData} styleData
+ * @param {Readonly<import('../lib/types.js').ParentList>} parentList
+ * @returns {boolean}
+ */
+function isEmpty(element, styleData, parentList) {
+  // remove only empty non-svg containers
+  if (!removableEls.has(element.local) || element.children.length !== 0) {
+    return false;
+  }
+  // empty patterns may contain reusable configuration
+  if (element.local === 'pattern' && hasAttributes(element)) {
+    return false;
+  }
+  // The <g> may not have content, but the filter may cause a rectangle
+  // to be created and filled with pattern.
+  const props = styleData.computeStyle(element, parentList);
+  if (element.local === 'g' && props.get('filter') !== undefined) {
+    return false;
+  }
+  // empty <mask> hides masked element
+  if (element.local === 'mask' && element.svgAtts.get('id') !== undefined) {
+    return false;
+  }
+  const parentNode = element.parentNode;
+  if (parentNode.type === 'element' && parentNode.local === 'switch') {
+    return false;
+  }
+
+  return true;
+}

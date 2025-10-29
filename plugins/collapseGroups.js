@@ -1,4 +1,5 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { SIMPLE_SELECTORS } from '../lib/css/styleData.js';
 import { hasAttributes } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
@@ -18,11 +19,7 @@ export function fn(info) {
   if (
     info.docData.hasScripts() ||
     styles === null ||
-    !styles.hasOnlyFeatures([
-      'class-selectors',
-      'id-selectors',
-      'type-selectors',
-    ]) ||
+    !styles.hasOnlyFeatures(SIMPLE_SELECTORS) ||
     styles.hasTypeSelector('g')
   ) {
     return;

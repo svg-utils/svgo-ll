@@ -1,0 +1,15 @@
+Remove groups with display:none
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <g style="display:none">
+    <g style="display:block">
+      <rect width="2" height="3"/>
+    </g>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"/>

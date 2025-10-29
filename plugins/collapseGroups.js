@@ -1,5 +1,6 @@
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { SIMPLE_SELECTORS } from '../lib/css/styleData.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { hasAttributes } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
@@ -25,6 +26,8 @@ export function fn(info) {
     return;
   }
 
+  const childrenToDelete = new ChildDeletionQueue();
+
   return {
     element: {
       exit: (element, parentList) => {
@@ -32,7 +35,7 @@ export function fn(info) {
         if (parentNode.type === 'root' || parentNode.local === 'switch') {
           return;
         }
-        // non-empty groups
+
         if (element.local !== 'g' || element.children.length === 0) {
           return;
         }
@@ -47,6 +50,13 @@ export function fn(info) {
               firstChild.svgAtts.get('class') === undefined)
           ) {
             const parentStyle = styles.computeStyle(element, parentList);
+
+            if (parentStyle.get('display') === 'none') {
+              // Delete the element and all its descendants.
+              childrenToDelete.add(element);
+              return;
+            }
+
             /** @type {import('../lib/types.js').ParentList} */
             const childParents = parentList.slice();
             childParents.push({ element: element });
@@ -140,6 +150,11 @@ export function fn(info) {
             child.parentNode = parentNode;
           }
         }
+      },
+    },
+    root: {
+      exit: () => {
+        childrenToDelete.delete();
       },
     },
   };

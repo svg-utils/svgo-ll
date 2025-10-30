@@ -1,4 +1,4 @@
-import { detachNodeFromParent, visitSkip } from '../lib/xast.js';
+import { visitSkip } from '../lib/xast.js';
 
 export const name = 'removeXMLProcInst';
 export const description = 'removes XML processing instructions';
@@ -9,19 +9,17 @@ export const description = 'removes XML processing instructions';
  * @example
  * <?xml version="1.0" encoding="utf-8"?>
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeXMLProcInst'>}
  */
 export const fn = () => {
   return {
-    instruction: {
-      enter: (instruction) => {
-        if (instruction.name === 'xml') {
-          detachNodeFromParent(instruction);
-        }
+    root: {
+      enter: (root) => {
+        root.children = root.children.filter(
+          (child) => child.type !== 'instruction' || child.name !== 'xml',
+        );
+        return visitSkip;
       },
     },
-    element: { enter: () => visitSkip },
   };
 };

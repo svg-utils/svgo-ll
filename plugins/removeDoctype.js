@@ -1,4 +1,4 @@
-import { detachNodeFromParent, visitSkip } from '../lib/xast.js';
+import { visitSkip } from '../lib/xast.js';
 
 export const name = 'removeDoctype';
 export const description = 'removes doctype declaration';
@@ -23,17 +23,17 @@ export const description = 'removes doctype declaration';
  *     <!-- an internal subset can be embedded here -->
  * ]>
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeDoctype'>}
  */
 export const fn = () => {
   return {
-    doctype: {
-      enter: (node) => {
-        detachNodeFromParent(node);
+    root: {
+      enter: (root) => {
+        root.children = root.children.filter(
+          (child) => child.type !== 'doctype',
+        );
+        return visitSkip;
       },
     },
-    element: { enter: () => visitSkip },
   };
 };

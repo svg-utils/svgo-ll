@@ -1,7 +1,8 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { AttValue } from '../lib/attrs/attValue.js';
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
-import { getSVGElement } from '../lib/tools-ast.js';
+import { generateId } from '../lib/svgo/tools.js';
+import { getReferencedIds, getSVGElement } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
 
 export const name = 'convertPathToUse';
@@ -21,12 +22,21 @@ export const fn = (info) => {
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const pathToElements = new Map();
 
+  /** @type {Set<string>} */
+  const currentIds = new Set();
+
   return {
     element: {
       enter: (element) => {
         if (element.uri !== undefined) {
           return;
         }
+
+        const id = element.svgAtts.get('id')?.toString();
+        if (id) {
+          currentIds.add(id);
+        }
+        getReferencedIds(element).forEach((info) => currentIds.add(info.id));
 
         if (element.local !== 'path') {
           return;
@@ -52,12 +62,16 @@ export const fn = (info) => {
         /** @type {{id:string,elements:import('../lib/types.js').XastElement[]}[]} */
         const newDefs = [];
 
+        let counter = 0;
+
         for (const elements of pathToElements.values()) {
           if (elements.length === 1) {
             continue;
           }
 
-          newDefs.push({ id: 'a', elements: elements });
+          const info = getNextId(counter, currentIds);
+          counter = info.nextCounter;
+          newDefs.push({ id: info.nextId, elements: elements });
         }
 
         if (newDefs.length > 0) {
@@ -81,3 +95,17 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {number} counter
+ * @param {Set<string>} currentIds
+ * @returns {{nextId:string, nextCounter:counter}}
+ */
+function getNextId(counter, currentIds) {
+  let nextId;
+  do {
+    nextId = generateId(counter++);
+  } while (currentIds.has(nextId));
+
+  return { nextId: nextId, nextCounter: counter };
+}

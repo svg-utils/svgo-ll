@@ -1,0 +1,20 @@
+Convert common paths to <use>.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M10 10l10 1l10 -1l10 1l10 -1" fill="none" stroke="red"/>
+  <path d="M10 10l10 1l10 -1l10 1l10 -1" fill="none" stroke="blue" transform="translate(0 10)"/>
+  <path d="M10 10l10 1l10 -1l10 1l10 -1" fill="none" stroke="green" transform="translate(0 20)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <path id="a" d="M10 10l10 1l10 -1l10 1l10 -1"/>
+  </defs>
+  <use href="#a" stroke="red" fill="none"/>
+  <use href="#a" stroke="blue" fill="none" transform="translate(0 10)"/>
+  <use href="#a" stroke="green" fill="none" transform="translate(0 20)"/>
+</svg>

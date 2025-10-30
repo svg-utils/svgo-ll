@@ -1,4 +1,4 @@
-import { detachNodeFromParent } from '../lib/xast.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 
 export const name = 'removeComments';
 export const description = 'removes comments';
@@ -16,29 +16,24 @@ const DEFAULT_PRESERVE_PATTERNS = [/^!/];
  * <!-- Generator: Adobe Illustrator 15.0.0, SVG Export
  * Plug-In . SVG Version: 6.00 Build 0)  -->
  *
- * @author Kir Belevich
- *
  * @type {import('./plugins-types.js').Plugin<'removeComments'>}
  */
 export const fn = (info, params) => {
-  if (info.passNumber > 0) {
-    return;
+  const { preservePatterns = DEFAULT_PRESERVE_PATTERNS } = params;
+  if (preservePatterns && !Array.isArray(preservePatterns)) {
+    throw Error(
+      `Expected array in removeComments preservePatterns parameter but received ${preservePatterns}`,
+    );
   }
 
-  const { preservePatterns = DEFAULT_PRESERVE_PATTERNS } = params;
+  const childrenToDelete = new ChildDeletionQueue();
 
   return {
     comment: {
-      enter: (element) => {
+      enter: (comment) => {
         if (preservePatterns) {
-          if (!Array.isArray(preservePatterns)) {
-            throw Error(
-              `Expected array in removeComments preservePatterns parameter but received ${preservePatterns}`,
-            );
-          }
-
           const matches = preservePatterns.some((pattern) => {
-            return new RegExp(pattern).test(element.value);
+            return new RegExp(pattern).test(comment.value);
           });
 
           if (matches) {
@@ -46,7 +41,12 @@ export const fn = (info, params) => {
           }
         }
 
-        detachNodeFromParent(element);
+        childrenToDelete.add(comment);
+      },
+    },
+    root: {
+      exit: () => {
+        childrenToDelete.delete();
       },
     },
   };

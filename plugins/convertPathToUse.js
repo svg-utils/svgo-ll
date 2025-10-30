@@ -1,7 +1,13 @@
-export const name = 'convertShapeToUse';
+import { SvgAttMap } from '../lib/ast/svgAttMap.js';
+import { AttValue } from '../lib/attrs/attValue.js';
+import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
+import { getSVGElement } from '../lib/tools-ast.js';
+import { createElement } from '../lib/xast.js';
+
+export const name = 'convertPathToUse';
 export const description = 'convert identical paths to <use> elements';
 
-/** @type {import('./plugins-types.js').Plugin<'convertShapeToUse'>} */
+/** @type {import('./plugins-types.js').Plugin<'convertPathToUse'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (
@@ -42,13 +48,34 @@ export const fn = (info) => {
       },
     },
     root: {
-      exit: () => {
-        for (const [d, elements] of pathToElements.entries()) {
+      exit: (root) => {
+        /** @type {{id:string,elements:import('../lib/types.js').XastElement[]}[]} */
+        const newDefs = [];
+
+        for (const elements of pathToElements.values()) {
           if (elements.length === 1) {
             continue;
           }
 
-          console.log(`${d.substring(0.2)}: ${elements.length}`);
+          newDefs.push({ id: 'a', elements: elements });
+        }
+
+        if (newDefs.length > 0) {
+          const svg = getSVGElement(root);
+          const defs = createElement(svg, 'defs');
+          for (const def of newDefs) {
+            const d = def.elements[0].svgAtts.getAtt('d');
+            const atts = new SvgAttMap();
+            atts.set('id', new AttValue(def.id));
+            atts.set('d', d);
+            createElement(defs, 'path', '', undefined, atts);
+
+            for (const element of def.elements) {
+              element.local = 'use';
+              element.svgAtts.set('href', new HrefAttValue('#' + def.id));
+              element.svgAtts.delete('d');
+            }
+          }
         }
       },
     },

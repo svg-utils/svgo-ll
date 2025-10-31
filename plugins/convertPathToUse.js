@@ -25,6 +25,9 @@ export const fn = (info) => {
   /** @type {Set<string>} */
   const currentIds = new Set();
 
+  /** @type {import('../lib/types.js').XastElement|undefined} */
+  let defsElement;
+
   return {
     element: {
       enter: (element) => {
@@ -37,6 +40,10 @@ export const fn = (info) => {
           currentIds.add(id);
         }
         getReferencedIds(element).forEach((info) => currentIds.add(info.id));
+
+        if (element.local === 'defs') {
+          defsElement = element;
+        }
 
         if (element.local !== 'path') {
           return;
@@ -75,14 +82,16 @@ export const fn = (info) => {
         }
 
         if (newDefs.length > 0) {
-          const svg = getSVGElement(root);
-          const defs = createElement(svg, 'defs');
+          if (defsElement === undefined) {
+            const svg = getSVGElement(root);
+            defsElement = createElement(svg, 'defs');
+          }
           for (const def of newDefs) {
             const d = def.elements[0].svgAtts.getAtt('d');
             const atts = new SvgAttMap();
             atts.set('id', new AttValue(def.id));
             atts.set('d', d);
-            createElement(defs, 'path', '', undefined, atts);
+            createElement(defsElement, 'path', '', undefined, atts);
 
             for (const element of def.elements) {
               element.local = 'use';

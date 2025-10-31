@@ -1,5 +1,6 @@
 {
   "name": "svgo-ll",
+  "packageManager": "npm@11.6.2",
   "version": "6.2.0-alpha.1",
   "description": "svgo-ll is a Node.js library and command-line application for optimizing SVG images.",
   "license": "MIT",

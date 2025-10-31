@@ -1,5 +1,4 @@
 {
-  "packageManager": "yarn@3.8.2",
   "name": "svgo-ll",
   "version": "6.2.0-alpha.1",
   "description": "svgo-ll is a Node.js library and command-line application for optimizing SVG images.",

@@ -1,0 +1,24 @@
+Don't remove necessary stroke:none
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <path id="a" d="M10 10l10 0l0 8l-6 0z"/>
+  </defs>
+  <g style="stroke:orange">
+    <use href="#a" style="stroke:none;fill:red" />
+  </g>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <path id="a" d="M10 10l10 0l0 8l-6 0z"/>
+  </defs>
+  <g style="stroke:orange">
+    <use href="#a" style="stroke:none;fill:red"/>
+  </g>
+</svg>

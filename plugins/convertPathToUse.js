@@ -91,6 +91,12 @@ export const fn = (info) => {
             continue;
           }
 
+          // Estimate savings. It's usually worth combining paths, unless there are a small number of very short ones.
+          const len = elements[0].svgAtts.getAtt('d').toString().length;
+          if ((elements.length - 1) * len < 25) {
+            continue;
+          }
+
           const info = getNextId(counter, currentIds);
           counter = info.nextCounter;
           newDefs.push({ id: info.nextId, elements: elements });

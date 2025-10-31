@@ -2,7 +2,11 @@ import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { AttValue } from '../lib/attrs/attValue.js';
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { generateId } from '../lib/svgo/tools.js';
-import { getReferencedIds, getSVGElement } from '../lib/tools-ast.js';
+import {
+  getHrefId,
+  getReferencedIds,
+  getSVGElement,
+} from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
 
 export const name = 'convertPathToUse';
@@ -25,6 +29,9 @@ export const fn = (info) => {
   /** @type {Set<string>} */
   const currentIds = new Set();
 
+  /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
+  const clipPathUses = new Map();
+
   /** @type {import('../lib/types.js').XastElement|undefined} */
   let defsElement;
 
@@ -45,6 +52,15 @@ export const fn = (info) => {
           defsElement = element;
         }
 
+        if (element.local === 'use') {
+          // If it's a child of a <clipPath>, record the id to make sure we maintain direct references.
+          const hrefId = getHrefId(element);
+          if (hrefId === undefined) {
+            return;
+          }
+          addToMapArray(clipPathUses, hrefId, element);
+        }
+
         if (element.local !== 'path') {
           return;
         }
@@ -56,12 +72,7 @@ export const fn = (info) => {
         }
 
         const str = d.toString();
-        let elements = pathToElements.get(str);
-        if (elements === undefined) {
-          elements = [];
-          pathToElements.set(str, elements);
-        }
-        elements.push(element);
+        addToMapArray(pathToElements, str, element);
       },
     },
     root: {
@@ -97,6 +108,18 @@ export const fn = (info) => {
               element.local = 'use';
               element.svgAtts.set('href', new HrefAttValue('#' + def.id));
               element.svgAtts.delete('d');
+
+              // If there is a <use> in a <clipPath> that references this <path>, reset the reference so it directly
+              // references the new path - see https://drafts.fxtf.org/css-masking/#ClipPathElement
+              const pathId = element.svgAtts.get('id')?.toString();
+              if (pathId !== undefined) {
+                const elements = clipPathUses.get(pathId);
+                if (elements !== undefined) {
+                  elements.forEach((element) => {
+                    element.svgAtts.set('href', new HrefAttValue('#' + def.id));
+                  });
+                }
+              }
             }
           }
         }
@@ -104,6 +127,21 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @template T
+ * @param {Map<string,T[]>} map
+ * @param {string} key
+ * @param {T} item
+ */
+function addToMapArray(map, key, item) {
+  let array = map.get(key);
+  if (array === undefined) {
+    array = [];
+    map.set(key, array);
+  }
+  array.push(item);
+}
 
 /**
  * @param {number} counter

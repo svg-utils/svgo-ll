@@ -1,0 +1,34 @@
+Ensure <use> in a <clipPath> directly references a path (see https://drafts.fxtf.org/css-masking/#ClipPathElement)
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="b">
+    <use href="#a"/>
+  </clipPath>
+  <circle cx="50" cy="50" r="20" fill="yellow" clip-path="url(#b)"/>
+  <path d="M20 20l25 1v35 -1z" fill="green" transform="translate(-20 -20)"/>
+  <path d="M20 20l25 1v35 -1z" fill="red" transform="translate(-20 20)"/>
+  <path d="M20 20l25 1v35 -1z" fill="blue" transform="translate(40 20)"/>
+  <g transform="translate(40 -20)">
+    <path id="a" d="M20 20l25 1v35 -1z" fill="orange"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <clipPath id="b">
+    <use href="#c"/>
+  </clipPath>
+  <circle cx="50" cy="50" r="20" fill="yellow" clip-path="url(#b)"/>
+  <use fill="green" transform="translate(-20 -20)" href="#c"/>
+  <use fill="red" transform="translate(-20 20)" href="#c"/>
+  <use fill="blue" transform="translate(40 20)" href="#c"/>
+  <g transform="translate(40 -20)">
+    <use id="a" fill="orange" href="#c"/>
+  </g>
+  <defs>
+    <path id="c" d="M20 20l25 1v35 -1z"/>
+  </defs>
+</svg>

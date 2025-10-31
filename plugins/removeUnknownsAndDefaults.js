@@ -216,8 +216,6 @@ export const fn = (info, params) => {
           if (props.get('color')) {
             elsWithColorAtt.add(element);
           }
-
-          return;
         }
 
         const allowedChildren = allowedChildrenPerElement.get(element.local);
@@ -452,16 +450,8 @@ export const fn = (info, params) => {
             }
             const styleAttValue = StyleAttValue.getAttValue(element);
             if (styleAttValue) {
-              for (const [propName, propValue] of styleAttValue.entries()) {
-                if (
-                  referencedElementProps.has(propName) ||
-                  isDefaultPropertyValue(
-                    element,
-                    propName,
-                    propValue.toString(),
-                    attributesDefaultsPerElement.get(element.local),
-                  )
-                ) {
+              for (const propName of styleAttValue.keys()) {
+                if (referencedElementProps.has(propName)) {
                   styleAttValue.delete(propName);
                 }
               }

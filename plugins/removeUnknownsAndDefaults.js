@@ -152,6 +152,8 @@ export const fn = (info, params) => {
   const elementsById = new Map();
   /** @type {UsedElMap} */
   const usedElsById = new Map();
+  /** @type {import('../lib/types.js').XastElement[]} */
+  const fillRulesToCheck = [];
 
   const elsWithColorAtt = new Set();
   const elsWithCurrentColor = new Set();
@@ -216,8 +218,8 @@ export const fn = (info, params) => {
 
           // If there is a fill-rule, delete it unless it is necessary.
           const fillRule = element.svgAtts.get('fill-rule');
-          if (fillRule && !needsFillRule(element, elementsById)) {
-            element.svgAtts.delete('fill-rule');
+          if (fillRule !== undefined) {
+            fillRulesToCheck.push(element);
           }
 
           // If there is a color attribute, save it to see if it is necessary.
@@ -422,6 +424,13 @@ export const fn = (info, params) => {
           }
           StyleAttValue.deleteProps(element, propNames.values());
         }
+
+        fillRulesToCheck.forEach((element) => {
+          const fillRule = element.svgAtts.get('fill-rule');
+          if (fillRule && !needsFillRule(element, elementsById)) {
+            element.svgAtts.delete('fill-rule');
+          }
+        });
 
         // Delete color property from elements where it is not needed.
         deleteColorAtts(elsWithColorAtt, elsWithCurrentColor, usedElsById);

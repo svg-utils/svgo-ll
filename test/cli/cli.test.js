@@ -9,9 +9,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/**
- * @type {(proc: ChildProcessWithoutNullStreams) => Promise<string>}
- */
+/** @type {(proc: ChildProcessWithoutNullStreams) => Promise<string>} */
 const waitStdout = (proc) => {
   return new Promise((resolve) => {
     proc.stdout.on('data', (data) => {

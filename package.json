@@ -48,7 +48,7 @@
     "typecheck": "tsc",
     "lint": "eslint . && prettier --check .",
     "fix": "eslint --fix . && prettier --write .",
-    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=4 --coverage",
+    "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=4 --coverage --coverageDirectory ./ignored/coverage",
     "test:bundles": "npm run build && node ./test/svgo.cjs && node ./test/browser.js",
     "test:regress": "cross-env NO_DIFF=1 node ./test/regression.js -i ./test/fixtures/files && cross-env NO_DIFF=1 node ./test/regression.js --enable round -i ./test/fixtures/files",
     "qa": "npm run typecheck && npm run lint && npm run test && npm run test:bundles && npm run test:regress"

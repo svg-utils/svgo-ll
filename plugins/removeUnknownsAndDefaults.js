@@ -54,7 +54,9 @@ const preserveFillRuleElements = new Set([
   'text',
   'textPath',
   'tspan',
+  // <g> and <use> may contain or reference elements which need fill-rule
   'g',
+  'use',
 ]);
 
 for (const [name, config] of Object.entries(elems)) {
@@ -150,6 +152,8 @@ export const fn = (info, params) => {
   const elementsById = new Map();
   /** @type {UsedElMap} */
   const usedElsById = new Map();
+  /** @type {import('../lib/types.js').XastElement[]} */
+  const fillRulesToCheck = [];
 
   const elsWithColorAtt = new Set();
   const elsWithCurrentColor = new Set();
@@ -203,7 +207,8 @@ export const fn = (info, params) => {
             element,
             computedStyle,
           );
-          // x="0" and y="0" can be removed; otherwise leave attributes alone.
+
+          // x="0" and y="0" can be removed.
           ['x', 'y'].forEach((attName) => {
             const val = element.svgAtts.get(attName)?.toString();
             if (val === '0') {
@@ -211,13 +216,17 @@ export const fn = (info, params) => {
             }
           });
 
+          // If there is a fill-rule, delete it unless it is necessary.
+          const fillRule = element.svgAtts.get('fill-rule');
+          if (fillRule !== undefined) {
+            fillRulesToCheck.push(element);
+          }
+
           // If there is a color attribute, save it to see if it is necessary.
           const props = getPresentationProperties(element);
           if (props.get('color')) {
             elsWithColorAtt.add(element);
           }
-
-          return;
         }
 
         const allowedChildren = allowedChildrenPerElement.get(element.local);
@@ -416,6 +425,13 @@ export const fn = (info, params) => {
           StyleAttValue.deleteProps(element, propNames.values());
         }
 
+        fillRulesToCheck.forEach((element) => {
+          const fillRule = element.svgAtts.get('fill-rule');
+          if (fillRule && !needsFillRule(element, elementsById)) {
+            element.svgAtts.delete('fill-rule');
+          }
+        });
+
         // Delete color property from elements where it is not needed.
         deleteColorAtts(elsWithColorAtt, elsWithCurrentColor, usedElsById);
 
@@ -452,16 +468,8 @@ export const fn = (info, params) => {
             }
             const styleAttValue = StyleAttValue.getAttValue(element);
             if (styleAttValue) {
-              for (const [propName, propValue] of styleAttValue.entries()) {
-                if (
-                  referencedElementProps.has(propName) ||
-                  isDefaultPropertyValue(
-                    element,
-                    propName,
-                    propValue.toString(),
-                    attributesDefaultsPerElement.get(element.local),
-                  )
-                ) {
+              for (const propName of styleAttValue.keys()) {
+                if (referencedElementProps.has(propName)) {
                   styleAttValue.delete(propName);
                 }
               }
@@ -660,6 +668,33 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
     return true;
   }
   return false;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {Map<string,import('../lib/types.js').XastElement>} elementsById
+ * @returns {boolean}
+ */
+function needsFillRule(element, elementsById) {
+  if (element.local === 'use') {
+    // See if the referenced element needs fill-rule.
+    const id = getHrefId(element);
+    if (id === undefined) {
+      return false;
+    }
+    const referencedElement = elementsById.get(id);
+    return (
+      referencedElement !== undefined &&
+      needsFillRule(referencedElement, elementsById)
+    );
+  }
+  if (element.local === 'g') {
+    // See if any children need fill-rule.
+    return element.children.some(
+      (child) => child.type === 'element' && needsFillRule(child, elementsById),
+    );
+  }
+  return preserveFillRuleElements.has(element.local);
 }
 
 /**

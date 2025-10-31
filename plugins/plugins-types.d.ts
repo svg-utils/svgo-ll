@@ -13,6 +13,7 @@ type BuiltinPlugins = {
   collapseGroups: void;
   combineStyleElements: void;
   convertEllipseToCircle: void;
+  convertPathToUse: void;
   convertShapeToPath: void;
   createGroups: void;
   inlineStyles: {

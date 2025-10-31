@@ -6,6 +6,7 @@ import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
 import * as combineStyleElements from './combineStyleElements.js';
 import * as convertEllipseToCircle from './convertEllipseToCircle.js';
+import * as convertPathToUse from './convertPathToUse.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
@@ -70,6 +71,7 @@ export const defaultPlugins = Object.freeze({
     minifyPathData,
     mergeGradients,
     removeEmptyContainers,
+    convertPathToUse,
     createGroups,
     collapseGroups,
     cleanupTextElements,

@@ -1,0 +1,23 @@
+Remove unnecessary fill-rule="evenodd".
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 220 120">
+  <defs>
+    <polygon id="a" stroke="red" points="150,0 121,90 198,35 102,35 179,90"/>
+    <rect id="b" width="50" height="50"/>
+  </defs>
+  <use href="#a" fill-rule="evenodd"/>
+  <use href="#b" fill-rule="evenodd"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 220 120">
+  <defs>
+    <polygon id="a" stroke="red" points="150,0 121,90 198,35 102,35 179,90"/>
+    <rect id="b" width="50" height="50"/>
+  </defs>
+  <use href="#a" fill-rule="evenodd"/>
+  <use href="#b"/>
+</svg>

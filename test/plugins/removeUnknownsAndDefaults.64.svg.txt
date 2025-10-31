@@ -1,0 +1,35 @@
+Remove unnecessary fill-rule="evenodd" with nesting/recursion.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 220 120">
+  <defs>
+    <g id="a">
+      <use href="#b"/>
+    </g>
+    <g id="c">
+      <use href="#d"/>
+    </g>
+    <polygon id="b" stroke="red" points="150,0 121,90 198,35 102,35 179,90"/>
+    <rect id="d" width="50" height="50"/>
+  </defs>
+  <use href="#a" fill-rule="evenodd"/>
+  <use href="#c" fill-rule="evenodd"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 220 120">
+  <defs>
+    <g id="a">
+      <use href="#b"/>
+    </g>
+    <g id="c">
+      <use href="#d"/>
+    </g>
+    <polygon id="b" stroke="red" points="150,0 121,90 198,35 102,35 179,90"/>
+    <rect id="d" width="50" height="50"/>
+  </defs>
+  <use href="#a" fill-rule="evenodd"/>
+  <use href="#c"/>
+</svg>

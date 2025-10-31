@@ -54,7 +54,9 @@ const preserveFillRuleElements = new Set([
   'text',
   'textPath',
   'tspan',
+  // <g> and <use> may contain or reference elements which need fill-rule
   'g',
+  'use',
 ]);
 
 for (const [name, config] of Object.entries(elems)) {
@@ -203,13 +205,20 @@ export const fn = (info, params) => {
             element,
             computedStyle,
           );
-          // x="0" and y="0" can be removed; otherwise leave attributes alone.
+
+          // x="0" and y="0" can be removed.
           ['x', 'y'].forEach((attName) => {
             const val = element.svgAtts.get(attName)?.toString();
             if (val === '0') {
               element.svgAtts.delete(attName);
             }
           });
+
+          // If there is a fill-rule, delete it unless it is necessary.
+          const fillRule = element.svgAtts.get('fill-rule');
+          if (fillRule && !needsFillRule(element, elementsById)) {
+            element.svgAtts.delete('fill-rule');
+          }
 
           // If there is a color attribute, save it to see if it is necessary.
           const props = getPresentationProperties(element);
@@ -650,6 +659,33 @@ function isDefaultPropertyValue(element, propName, value, defaults) {
     return true;
   }
   return false;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {Map<string,import('../lib/types.js').XastElement>} elementsById
+ * @returns {boolean}
+ */
+function needsFillRule(element, elementsById) {
+  if (element.local === 'use') {
+    // See if the referenced element needs fill-rule.
+    const id = getHrefId(element);
+    if (id === undefined) {
+      return false;
+    }
+    const referencedElement = elementsById.get(id);
+    return (
+      referencedElement !== undefined &&
+      needsFillRule(referencedElement, elementsById)
+    );
+  }
+  if (element.local === 'g') {
+    // See if any children need fill-rule.
+    return element.children.some(
+      (child) => child.type === 'element' && needsFillRule(child, elementsById),
+    );
+  }
+  return preserveFillRuleElements.has(element.local);
 }
 
 /**

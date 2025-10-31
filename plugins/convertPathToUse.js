@@ -52,7 +52,11 @@ export const fn = (info) => {
           defsElement = element;
         }
 
-        if (element.local === 'use') {
+        if (
+          element.local === 'use' &&
+          element.parentNode.type === 'element' &&
+          element.parentNode.local === 'clipPath'
+        ) {
           // If it's a child of a <clipPath>, record the id to make sure we maintain direct references.
           const hrefId = getHrefId(element);
           if (hrefId === undefined) {

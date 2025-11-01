@@ -1,17 +1,4 @@
-.pnp.*
-.yarn/*
-!.yarn/plugins
-!.yarn/releases
-!.yarn/sdks
-!.yarn/versions
-
 node_modules
 ignored
 dist
-test/cli/output
-coverage
-.DS_Store
 .vscode
-*.log
-package-lock.json
-

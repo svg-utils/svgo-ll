@@ -9,9 +9,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-/**
- * @type {(proc: ChildProcessWithoutNullStreams) => Promise<string>}
- */
+/** @type {(proc: ChildProcessWithoutNullStreams) => Promise<string>} */
 const waitStdout = (proc) => {
   return new Promise((resolve) => {
     proc.stdout.on('data', (data) => {
@@ -66,16 +64,16 @@ test('accepts svg as string', async () => {
 });
 
 test('accepts svg as filename', async () => {
+  const outDir = 'ignored/test/output';
+  fs.mkdirSync(outDir, { recursive: true });
+  const outFile = path.resolve(outDir, 'single.svg');
   const proc = spawn(
     'node',
-    ['../../bin/svgo', '--no-color', 'single.svg', '-o', 'output/single.svg'],
+    ['../../bin/svgo', '--no-color', 'single.svg', '-o', outFile],
     { cwd: __dirname },
   );
   await waitClose(proc);
-  const output = fs.readFileSync(
-    path.join(__dirname, 'output/single.svg'),
-    'utf-8',
-  );
+  const output = fs.readFileSync(outFile, 'utf-8');
   expect(output).toBe('<svg xmlns="http://www.w3.org/2000/svg"/>');
 });
 

@@ -15,7 +15,7 @@ describe('isNumber()', () => {
     { input: '1', expected: true },
     { input: '-1', expected: true },
     { input: '+1', expected: true },
-    { input: '- 1', expected: true },
+    { input: '- 1', expected: false },
     { input: '.1', expected: true },
     { input: '0.123', expected: true },
     { input: '.', expected: false },

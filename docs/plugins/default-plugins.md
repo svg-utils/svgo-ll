@@ -41,7 +41,7 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - [minifyPathData](./minifyPathData.md)
 - [mergeGradients](./mergeGradients.md)
 - [removeEmptyContainers](./removeEmptyContainers.md)
-- convertPathToUse
+- [convertPathToUse](./convertPathToUse.md)
 - [createGroups](./createGroups.md)
 - collapseGroups
 - [cleanupTextElements](./cleanupTextElements.md)

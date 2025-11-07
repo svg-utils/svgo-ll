@@ -14,5 +14,6 @@ The plugin has no effect if:
 
 Elements are not converted if:
 
+- There is a CSS tag selector on the `path` element.
 - There is a CSS tag selector on the element name.
-- The units for the element are anything other than 'px'.
+- The units for the element are anything other than `px`.

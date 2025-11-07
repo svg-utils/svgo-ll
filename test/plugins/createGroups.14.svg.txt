@@ -1,0 +1,21 @@
+Remove empty groups that result from creating a new group.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <g transform="translate(1,1)">
+    <rect x="10" y="10" width="2" height="3"/>
+  </g>
+  <g transform="translate(1,1)">
+    <rect x="20" y="10" width="2" height="3"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <g style="transform:translate(1px,1px)">
+    <rect x="10" y="10" width="2" height="3"/>
+    <rect x="20" y="10" width="2" height="3"/>
+  </g>
+</svg>

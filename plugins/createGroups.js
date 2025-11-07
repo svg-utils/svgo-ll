@@ -1,6 +1,6 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-import { getHrefId } from '../lib/tools-ast.js';
+import { getHrefId, hasAttributes } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
@@ -135,6 +135,7 @@ function createGroups(element, usedIds, elementsToCheck) {
     new StyleAttValue(sharedProps).updateElement(groupElement);
 
     // Remove properties from children.
+    let hasEmptyGroups = false;
     groupChildren.forEach((child) => {
       child.parentNode = groupElement;
       if (child.type !== 'element') {
@@ -152,7 +153,31 @@ function createGroups(element, usedIds, elementsToCheck) {
       if (styleAttValue) {
         styleAttValue.updateElement(child);
       }
+
+      if (child.local === 'g' && !hasAttributes(child)) {
+        hasEmptyGroups = true;
+      }
     });
+
+    if (hasEmptyGroups) {
+      // Empty groups were created; remove them and replace with their children.
+      const merged = [];
+      for (const child of groupElement.children) {
+        if (
+          child.type === 'element' &&
+          child.local === 'g' &&
+          !hasAttributes(child)
+        ) {
+          child.children.forEach((grandChild) => {
+            grandChild.parentNode = groupElement;
+            merged.push(grandChild);
+          });
+          continue;
+        }
+        merged.push(child);
+      }
+      groupElement.children = merged;
+    }
 
     newChildren.push(groupElement);
 
@@ -160,7 +185,7 @@ function createGroups(element, usedIds, elementsToCheck) {
   }
 
   /** @type {import('../lib/types.js').XastChild[]} */
-  const newChildren = [];
+  let newChildren = [];
 
   /** @type {import('../lib/types.js').SvgAttValues} */
   let sharedProps = new SvgAttMap();

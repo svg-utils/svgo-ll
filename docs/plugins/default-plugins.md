@@ -8,7 +8,7 @@ The following plugins are enabled by default.
 
 Run once, in the specified order, before running any other plugins:
 
-- cleanupTextNodes
+- [cleanupTextNodes](./cleanupTextNodes.md)
 - removeDoctype
 - removeXMLProcInst
 - removeComments

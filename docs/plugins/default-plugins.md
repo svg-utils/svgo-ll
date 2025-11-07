@@ -17,7 +17,7 @@ Run once, in the specified order, before running any other plugins:
 - removeDesc
 - [cleanupXlink](./cleanupXlink.md)
 - combineStyleElements
-- [cleanupStyleAttributes](./cleanupStyleAttributes.md)
+- [cleanupAttributes](./cleanupAttributes.md)
 
 <a id="main"></a>
 

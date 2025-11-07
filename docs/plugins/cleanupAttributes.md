@@ -1,6 +1,6 @@
-# cleanupStyleAttributes
+# cleanupAttributes
 
-Removes invalid style properties and unreferenced class attribute names.
+Removes invalid style properties and unreferenced class attribute names; normalizes transforms.
 
 ## Details
 
@@ -21,8 +21,6 @@ The list of allowable properties comes from https://www.w3.org/TR/SVG2/styling.h
 
 Empty `style` attributes are removed.
 
-Numeric values in style properties are written in the most compact form.
-
 Style attributes are not changed if the document has attribute selectors on the `style` attribute.
 
 ### `class` Attributes
@@ -30,3 +28,7 @@ Style attributes are not changed if the document has attribute selectors on the 
 Any class names in the `class` attribute which are not referenced by a style selector are removed. If all class names are removed, the class attribute is removed.
 
 Class attributes are not changed if the document has attribute selectors on the `class` attribute.
+
+### `transform`, `gradientTransform`, and `patternTransform`
+
+Transform attributes are put into a standardized format. Any identity transforms are removed.

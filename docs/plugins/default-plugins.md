@@ -8,6 +8,7 @@ The following plugins are enabled by default.
 
 Run once, in the specified order, before running any other plugins:
 
+- [cleanupTextNodes](./cleanupTextNodes.md)
 - removeDoctype
 - removeXMLProcInst
 - removeComments
@@ -16,6 +17,7 @@ Run once, in the specified order, before running any other plugins:
 - removeDesc
 - [cleanupXlink](./cleanupXlink.md)
 - combineStyleElements
+- [cleanupAttributes](./cleanupAttributes.md)
 
 <a id="main"></a>
 
@@ -23,7 +25,6 @@ Run once, in the specified order, before running any other plugins:
 
 Run until there are no further decreases in size, up to [max-passes](../command-line-options.md#max-passes) times, in the following order:
 
-- [cleanupStyleAttributes](./cleanupStyleAttributes.md)
 - [inlineStyles](./inlineStyles.md)
 - minifyStyles
 - [cleanupIds](./cleanupIds.md)
@@ -34,13 +35,13 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - [removeUselessStrokeAndFill](./removeUselessStrokeAndFill.md)
 - [removeHiddenElems](./removeHiddenElems.md)
 - [mergeDefs](./mergeDefs.md)
-- [minifyTransforms](./minifyTransforms.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
 - [convertShapeToPath](./convertShapeToPath.md)
 - [minifyPathData](./minifyPathData.md)
 - [mergeGradients](./mergeGradients.md)
 - [removeEmptyContainers](./removeEmptyContainers.md)
+- [convertPathToUse](./convertPathToUse.md)
 - [createGroups](./createGroups.md)
 - collapseGroups
 - [cleanupTextElements](./cleanupTextElements.md)

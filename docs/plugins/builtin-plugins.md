@@ -5,4 +5,3 @@ In addition to the [default plugins](./default-plugins.md), the following plugin
 - inlineUse
 - removeDimensions
 - [round](./round.md)
-- sortAttrs

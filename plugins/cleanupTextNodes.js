@@ -5,9 +5,6 @@ export const name = 'cleanupTextNodes';
 export const description = 'removes unnecessary text nodes';
 
 const elementsToIgnore = new Set(elemsGroups.characterData);
-['script', 'style'].forEach((element) => {
-  elementsToIgnore.add(element);
-});
 
 /** @type {import('./plugins-types.js').Plugin<'cleanupTextNodes'>} */
 export const fn = () => {

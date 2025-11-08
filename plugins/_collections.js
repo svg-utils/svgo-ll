@@ -50,7 +50,6 @@ export const elemsGroups = {
     'solidColor',
     'symbol',
   ]),
-  textContentChild: new Set(['altGlyph', 'textPath', 'tref', 'tspan']),
   lightSource: new Set([
     'feDiffuseLighting',
     'feDistantLight',
@@ -1862,7 +1861,7 @@ export const elems = {
       y: '0',
       lengthAdjust: 'spacing',
     },
-    contentGroups: new Set(['animation', 'descriptive', 'textContentChild']),
+    contentGroups: new Set(['animation', 'descriptive']),
     content: new Set(['a']),
   },
   textPath: {

@@ -19,13 +19,13 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<import('../types/types.js').CSSRule,import('../lib/types.js').XastElement[]>} */
+  /** @type {Map<import('../lib/types.js').CSSRule,import('../lib/types.js').XastElement[]>} */
   const elementsPerRule = new Map();
-  /** @type {Map<import('../lib/types.js').XastElement,import('../types/types.js').CSSRule[]>} */
+  /** @type {Map<import('../lib/types.js').XastElement,import('../lib/types.js').CSSRule[]>} */
   const rulesPerElement = new Map();
 
   /**
-   * @param {import('../types/types.js').CSSRule} rule
+   * @param {import('../lib/types.js').CSSRule} rule
    * @param {import('../lib/types.js').XastElement} element
    */
   function addElementToRule(rule, element) {
@@ -42,7 +42,7 @@ export const fn = (info) => {
   }
 
   /**
-   * @param {import('../types/types.js').CSSRule} rule
+   * @param {import('../lib/types.js').CSSRule} rule
    * @param {import('../lib/types.js').XastElement} element
    */
   function addRuleToElement(rule, element) {

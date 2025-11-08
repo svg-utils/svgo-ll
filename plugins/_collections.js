@@ -81,6 +81,7 @@ export const elemsGroups = {
     'feTile',
     'feTurbulence',
   ]),
+  textContentChild: new Set(['altGlyph', 'textPath', 'tref', 'tspan']),
 };
 
 export const nonAttributeProperties = new Set([
@@ -1861,7 +1862,7 @@ export const elems = {
       y: '0',
       lengthAdjust: 'spacing',
     },
-    contentGroups: new Set(['animation', 'descriptive']),
+    contentGroups: new Set(['animation', 'descriptive', 'textContentChild']),
     content: new Set(['a']),
   },
   textPath: {

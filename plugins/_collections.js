@@ -50,7 +50,6 @@ export const elemsGroups = {
     'solidColor',
     'symbol',
   ]),
-  textContentChild: new Set(['altGlyph', 'textPath', 'tref', 'tspan']),
   lightSource: new Set([
     'feDiffuseLighting',
     'feDistantLight',
@@ -82,6 +81,7 @@ export const elemsGroups = {
     'feTile',
     'feTurbulence',
   ]),
+  textContentChild: new Set(['altGlyph', 'textPath', 'tref', 'tspan']),
 };
 
 export const nonAttributeProperties = new Set([

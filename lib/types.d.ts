@@ -1,6 +1,3 @@
-import { CSSRule } from '../types/types.js';
-import { SvgAttMap } from './ast/svgAttMap.js';
-
 export type XastDoctype = {
   type: 'doctype';
   parentNode: XastParent;
@@ -55,7 +52,7 @@ export type XastElement = {
   local: string;
   prefix: string;
   uri: string | undefined;
-  svgAtts: SvgAttMap;
+  svgAtts: SvgAttValues;
   otherAtts: XastAttOther[] | undefined;
   children: XastChild[];
   isSelfClosing?: boolean;
@@ -123,6 +120,12 @@ type CSSFeatures =
   | 'id-selectors'
   | 'pseudos'
   | 'type-selectors';
+
+export class CSSRule {
+  getDeclarationEntries(): IterableIterator<[string, AttValue]>;
+  hasPseudos(): boolean;
+  isInMediaQuery(): boolean;
+}
 
 export type AttValue = {
   getMinifiedValue(): AttValue;

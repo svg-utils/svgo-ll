@@ -60,6 +60,7 @@ export type XastElement = {
 
 export type ParentList = {
   element: XastParent;
+  props?: ComputedPropertyMap;
 }[];
 
 export type XastChild =

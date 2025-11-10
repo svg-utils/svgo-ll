@@ -137,6 +137,8 @@ export type AttValue = {
   toStyleElementString(): string;
 };
 
+export type ComputedPropertyMap = Map<string, AttValue | null>;
+
 export class StyleData {
   addStyleSection(css: string): void;
   computeOwnStyle(node: XastElement): Map<string, string | null>;

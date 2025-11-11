@@ -1,17 +1,15 @@
-import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { recordReferencedIds } from '../lib/tools-ast.js';
-import { Color } from '../lib/types/color.js';
 
 export const name = 'minifyGradients';
 export const description =
   'minify stop offsets and remove stops where possible';
 
 /**
- * @typedef {{color:Color,opacity:import('../lib/types.js').AttValue|undefined}} ColorData
+ * @typedef {{color:import('../types/types.js').ColorAttValue,opacity:import('../lib/types.js').AttValue|undefined}} ColorData
  */
 
 /**
@@ -64,6 +62,10 @@ export const fn = (info) => {
                   solidGradients.set(id, colorData);
                 }
               }
+
+              // Remove identical endpoints.
+              checkEndPoints(element, 'x1', 'x2');
+              checkEndPoints(element, 'y1', 'y2');
             }
             break;
           case 'stop':
@@ -114,6 +116,20 @@ export const fn = (info) => {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @param {string} name1
+ * @param {string} name2
+ */
+function checkEndPoints(element, name1, name2) {
+  const att1 = element.svgAtts.get(name1);
+  const att2 = element.svgAtts.get(name2);
+  if (att1 && att2 && att1.toString() === att2.toString()) {
+    element.svgAtts.delete(name1);
+    element.svgAtts.delete(name2);
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
  * @param {import('../lib/types.js').StyleData} styleData
  * @returns {ColorData|undefined}
  */
@@ -125,8 +141,11 @@ function checkStops(element, styleData) {
   if (firstChild.type !== 'element' || firstChild.local !== 'stop') {
     return;
   }
-  const props = styleData.computeOwnStyle(firstChild);
-  const color = props.get('stop-color');
+  const props = styleData.computeOwnProps(firstChild);
+  const color =
+    /** @type {import('../types/types.js').ColorAttValue|undefined|null} */ (
+      props.get('stop-color')
+    );
   const opacity = props.get('stop-opacity');
   if (!color || opacity === null) {
     return;
@@ -136,17 +155,17 @@ function checkStops(element, styleData) {
     if (child.type !== 'element' || child.local !== 'stop') {
       return;
     }
-    const props = styleData.computeOwnStyle(child);
+    const props = styleData.computeOwnProps(child);
     if (
-      props.get('stop-color') !== color ||
-      props.get('stop-opacity') !== opacity
+      props.get('stop-color')?.toString() !== color.toString() ||
+      props.get('stop-opacity')?.toString() !== opacity?.toString()
     ) {
       return;
     }
   }
   return {
-    color: Color.parse(color),
-    opacity: opacity === undefined ? undefined : new OpacityAttValue(opacity),
+    color: color,
+    opacity: opacity === undefined ? undefined : opacity,
   };
 }
 

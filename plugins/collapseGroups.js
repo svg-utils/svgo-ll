@@ -49,9 +49,9 @@ export function fn(info) {
             (element.svgAtts.get('class') === undefined ||
               firstChild.svgAtts.get('class') === undefined)
           ) {
-            const parentStyle = styles.computeStyle(element, parentList);
+            const parentProps = styles.computeProps(element, parentList);
 
-            if (parentStyle.get('display') === 'none') {
+            if (parentProps.get('display')?.toString() === 'none') {
               // Delete the element and all its descendants.
               childrenToDelete.add(element);
               return;
@@ -60,7 +60,7 @@ export function fn(info) {
             /** @type {import('../lib/types.js').ParentList} */
             const childParents = parentList.slice();
             childParents.push({ element: element });
-            const childStyle = styles.computeStyle(firstChild, childParents);
+            const childProps = styles.computeProps(firstChild, childParents);
 
             const moveableParentProps = getPresentationProperties(element);
             const newChildElemProps = getPresentationProperties(firstChild);
@@ -76,7 +76,7 @@ export function fn(info) {
               return;
             }
 
-            if (!elementHasUnmovableStyles(parentStyle, childStyle)) {
+            if (!elementHasUnmovableStyles(parentProps, childProps)) {
               for (const [propName, value] of moveableParentProps.entries()) {
                 const childProp = newChildElemProps.get(propName);
                 if (propName === 'transform') {
@@ -203,25 +203,25 @@ function canCollapse(child, parentProps, childProps, styleData) {
 }
 
 /**
- * @param {import('../lib/types.js').ComputedStyleMap} parentStyles
- * @param {import('../lib/types.js').ComputedStyleMap} childStyles
+ * @param {import('../lib/types.js').ComputedPropertyMap} parentProps
+ * @param {import('../lib/types.js').ComputedPropertyMap} childProps
  * @returns {boolean}
  */
-function elementHasUnmovableStyles(parentStyles, childStyles) {
-  if (parentStyles.has('filter')) {
+function elementHasUnmovableStyles(parentProps, childProps) {
+  if (parentProps.has('filter')) {
     return true;
   }
 
   if (
-    hasTransformCollision(parentStyles, childStyles) ||
-    hasTransformCollision(childStyles, parentStyles)
+    hasTransformCollision(parentProps, childProps) ||
+    hasTransformCollision(childProps, parentProps)
   ) {
     return true;
   }
 
   // Don't overwrite child with any of these.
   return INCOMPATIBLE_PROPS.some(
-    (propName) => parentStyles.has(propName) && childStyles.has(propName),
+    (propName) => parentProps.has(propName) && childProps.has(propName),
   );
 }
 
@@ -246,8 +246,8 @@ const hasAnimatedAttr = (node, name) => {
 };
 
 /**
- * @param {import('../lib/types.js').ComputedStyleMap} e1
- * @param {import('../lib/types.js').ComputedStyleMap} e2
+ * @param {import('../lib/types.js').ComputedPropertyMap} e1
+ * @param {import('../lib/types.js').ComputedPropertyMap} e2
  * @returns {boolean}
  */
 function hasTransformCollision(e1, e2) {

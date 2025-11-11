@@ -62,10 +62,6 @@ export const fn = (info) => {
                   solidGradients.set(id, colorData);
                 }
               }
-
-              // Remove identical endpoints.
-              checkEndPoints(element, 'x1', 'x2');
-              checkEndPoints(element, 'y1', 'y2');
             }
             break;
           case 'stop':
@@ -113,23 +109,6 @@ export const fn = (info) => {
     },
   };
 };
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {string} name1
- * @param {string} name2
- */
-function checkEndPoints(element, name1, name2) {
-  if (element.svgAtts.get('gradientUnits')?.toString() !== 'userSpaceOnUse') {
-    return;
-  }
-  const att1 = element.svgAtts.get(name1);
-  const att2 = element.svgAtts.get(name2);
-  if (att1 && att2 && att1.toString() === att2.toString()) {
-    element.svgAtts.delete(name1);
-    element.svgAtts.delete(name2);
-  }
-}
 
 /**
  * @param {import('../lib/types.js').XastElement} element

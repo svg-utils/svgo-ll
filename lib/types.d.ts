@@ -60,6 +60,7 @@ export type XastElement = {
 
 export type ParentList = {
   element: XastParent;
+  props?: ComputedPropertyMap;
 }[];
 
 export type XastChild =
@@ -137,12 +138,22 @@ export type AttValue = {
   toStyleElementString(): string;
 };
 
+export type ComputedPropertyMap = Map<string, AttValue | null>;
+
 export class StyleData {
   addStyleSection(css: string): void;
+  /** @deprecated */
   computeOwnStyle(node: XastElement): Map<string, string | null>;
+  /** @deprecated */
   computeParentStyle(
     parentList: Readonly<ParentList>,
   ): Map<string, string | null>;
+  computeProps(
+    node: XastElement,
+    parentList: Readonly<ParentList>,
+    declarations?: SvgAttValues,
+  ): ComputedPropertyMap;
+  /** @deprecated */
   computeStyle(
     node: XastElement,
     parentList: Readonly<ParentList>,
@@ -174,6 +185,7 @@ export class StyleData {
   writeRules(): void;
 }
 
+/** @deprecated */
 export type ComputedStyleMap = Map<string, string | null>;
 
 export type PluginInfo = {

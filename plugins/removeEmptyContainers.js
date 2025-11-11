@@ -133,7 +133,7 @@ function isEmpty(element, styleData, parentList) {
   }
   // The <g> may not have content, but the filter may cause a rectangle
   // to be created and filled with pattern.
-  const props = styleData.computeStyle(element, parentList);
+  const props = styleData.computeProps(element, parentList);
   if (element.local === 'g' && props.get('filter') !== undefined) {
     return false;
   }

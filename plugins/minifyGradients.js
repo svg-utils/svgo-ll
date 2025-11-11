@@ -120,6 +120,9 @@ export const fn = (info) => {
  * @param {string} name2
  */
 function checkEndPoints(element, name1, name2) {
+  if (element.svgAtts.get('gradientUnits')?.toString() !== 'userSpaceOnUse') {
+    return;
+  }
   const att1 = element.svgAtts.get(name1);
   const att2 = element.svgAtts.get(name2);
   if (att1 && att2 && att1.toString() === att2.toString()) {

@@ -142,6 +142,7 @@ export type ComputedPropertyMap = Map<string, AttValue | null>;
 
 export class StyleData {
   addStyleSection(css: string): void;
+  computeOwnProps(node: XastElement): ComputedPropertyMap;
   /** @deprecated */
   computeOwnStyle(node: XastElement): Map<string, string | null>;
   /** @deprecated */

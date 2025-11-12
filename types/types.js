@@ -1,5 +1,6 @@
 /**
  * @typedef {import('../lib/attrs/classAttValue.js').ClassAttValue} ClassAttValue
+ * @typedef {import('../lib/attrs/colorAttValue.js').ColorAttValue} ColorAttValue
  * @typedef {import('../lib/css/css.js').CSSRule} CSSRule
  * @typedef {import('../lib/exactnum.js').ExactNum} ExactNum
  * @typedef {import('../lib/attrs/paintAttValue.js').PaintAttValue} PaintAttValue

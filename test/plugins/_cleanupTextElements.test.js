@@ -4,7 +4,7 @@ describe('test for significant whitespace', () => {
   /** @type {{in:string,out:boolean}[]} */
   const testCases = [
     { in: '', out: false },
-    { in: ' \n\n\t', out: false },
+    { in: ' \n\n\t', out: true },
     { in: ' x', out: true },
     { in: 'xxxx', out: false },
     { in: 'xx xx', out: false },

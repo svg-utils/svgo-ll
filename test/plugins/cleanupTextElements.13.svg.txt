@@ -1,0 +1,14 @@
+Don't remove xml:space when needed by a child.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <text xml:space="preserve"><tspan x="10" y="20">   line    one   </tspan><tspan x="10" y="60">line two</tspan></text>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <text xml:space="preserve"><tspan x="10" y="20">   line    one   </tspan><tspan x="10" y="60">line two</tspan></text>
+</svg>

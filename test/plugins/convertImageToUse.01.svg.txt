@@ -1,0 +1,20 @@
+Convert common <image>s to <use>.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <image width="450" height="300" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg=="/>
+  <image width="450" height="300" x="100" y="350" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg==" transform="rotate(10)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <use width="450" height="300" href="#a"/>
+  <use width="450" height="300" x="100" y="350" href="#a" transform="rotate(10)"/>
+  <defs>
+    <symbol id="a" viewBox="0 0 450 300">
+      <image width="450" height="300" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg=="/>
+    </symbol>
+  </defs>
+</svg>

@@ -1,0 +1,20 @@
+Don't overwrite existing id attributes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <image width="450" height="300" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg=="/>
+  <image id="a" x="100" y="350" width="45" height="30" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg==" transform="rotate(10)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <use width="450" height="300" href="#b"/>
+  <use id="a" x="100" y="350" width="45" height="30" href="#b" transform="rotate(10)"/>
+  <defs>
+    <symbol id="b" viewBox="0 0 450 300">
+      <image width="450" height="300" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg=="/>
+    </symbol>
+  </defs>
+</svg>

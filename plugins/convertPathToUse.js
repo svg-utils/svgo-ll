@@ -1,7 +1,7 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { AttValue } from '../lib/attrs/attValue.js';
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
-import { generateId } from '../lib/svgo/tools.js';
+import { addToMapArray, getNextId } from '../lib/svgo/tools.js';
 import {
   getHrefId,
   getReferencedIds,
@@ -137,32 +137,3 @@ export const fn = (info) => {
     },
   };
 };
-
-/**
- * @template T
- * @param {Map<string,T[]>} map
- * @param {string} key
- * @param {T} item
- */
-function addToMapArray(map, key, item) {
-  let array = map.get(key);
-  if (array === undefined) {
-    array = [];
-    map.set(key, array);
-  }
-  array.push(item);
-}
-
-/**
- * @param {number} counter
- * @param {Set<string>} currentIds
- * @returns {{nextId:string, nextCounter:counter}}
- */
-function getNextId(counter, currentIds) {
-  let nextId;
-  do {
-    nextId = generateId(counter++);
-  } while (currentIds.has(nextId));
-
-  return { nextId: nextId, nextCounter: counter };
-}

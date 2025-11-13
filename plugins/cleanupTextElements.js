@@ -171,21 +171,38 @@ function canRemoveXmlSpace(element) {
   if (att === undefined) {
     return;
   }
-  if (att.value === 'preserve') {
-    if (element.children.length !== 1) {
-      return;
-    }
-    const child = element.children[0];
-    if (child.type !== 'text') {
-      return;
-    }
-    return !/^\s/.test(child.value) &&
-      !/\s$/.test(child.value) &&
-      !/\s\s/.test(child.value)
-      ? att
-      : undefined;
+  if (att.value !== 'preserve') {
+    return att.value === 'default' ? att : undefined;
   }
-  return att.value === 'default' ? att : undefined;
+
+  if (element.children.length !== 1) {
+    // Remove if all children are <tspan>s with absolute positioning.
+    for (const child of element.children) {
+      if (
+        child.type !== 'element' ||
+        child.uri !== undefined ||
+        child.local !== 'tspan' ||
+        !childHasXY(child)
+      ) {
+        return;
+      }
+      if (child.children.length !== 1) {
+        return;
+      }
+      const text = child.children[0];
+      if (text.type !== 'text' || hasSignificantWhiteSpace(text.value)) {
+        return;
+      }
+    }
+    return att;
+  }
+
+  // A single child; if it is a text node, see if the whitespace is necessary.
+  const child = element.children[0];
+  if (child.type !== 'text') {
+    return;
+  }
+  return hasSignificantWhiteSpace(child.value) ? undefined : att;
 }
 
 /**
@@ -250,37 +267,7 @@ function getWhitespaceProperty(element) {
  * @returns {boolean}
  */
 export function hasSignificantWhiteSpace(str) {
-  let isStart = true;
-  let lastIsSpace = false;
-  for (const char of str) {
-    switch (char) {
-      case ' ':
-      case '\n':
-      case '\t':
-        if (!isStart) {
-          // Consecutive space within text is significant.
-          if (lastIsSpace) {
-            return true;
-          }
-        }
-        lastIsSpace = true;
-        break;
-      default:
-        if (isStart) {
-          if (lastIsSpace) {
-            // There is space at beginning of string.
-            return true;
-          }
-          isStart = false;
-        }
-        lastIsSpace = false;
-        break;
-    }
-  }
-  if (isStart) {
-    return false;
-  }
-  return lastIsSpace;
+  return /^\s/.test(str) || /\s$/.test(str) || /\s\s/.test(str);
 }
 
 /**

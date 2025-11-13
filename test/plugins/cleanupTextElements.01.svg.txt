@@ -1,4 +1,4 @@
-Remove xml:space when not needed.
+Leave xml:space when needed.
 
 ===
 

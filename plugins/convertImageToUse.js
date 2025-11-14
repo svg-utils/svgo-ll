@@ -13,12 +13,25 @@ import {
   NS_XLINK,
 } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
+import { USER_SPACE_PROPS } from './_collections.js';
+import { getAllProperties } from './_styles.js';
 
 export const name = 'convertImageToUse';
 export const description = 'converts common images to <use> elements';
 
+const TRANSFORM_PROP_NAMES = ['transform', 'x', 'y'];
+
 /** @type {import('./plugins-types.js').Plugin<'convertImageToUse'>} */
-export const fn = () => {
+export const fn = (info) => {
+  const styleData = info.docData.getStyles();
+  if (
+    info.docData.hasScripts() ||
+    styleData === null ||
+    styleData.hasStyles()
+  ) {
+    return;
+  }
+
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const images = new Map();
 
@@ -126,6 +139,11 @@ export const fn = () => {
           createElement(symbolElement, 'image', '', undefined, imageAtts);
 
           for (const element of elements) {
+            const props = getAllProperties(element);
+            if (needsGroup(props)) {
+              convertToGroup(element, props, id);
+              continue;
+            }
             element.local = 'use';
             element.svgAtts.set('href', new HrefAttValue('#' + id));
             // If there's an xlink:href, remove it.
@@ -139,3 +157,60 @@ export const fn = () => {
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../lib/types.js').SvgAttValues} props
+ * @param {string} id
+ */
+function convertToGroup(element, props, id) {
+  const useAtts = new SvgAttMap();
+
+  // Figure out which attributes need to be moved.
+  /** @type {import('../types/types.js').StyleAttValue|undefined} */
+  const styleAtt = element.svgAtts.get('style');
+  for (const [propName, propValue] of props.entries()) {
+    if (USER_SPACE_PROPS.includes(propName) || propName === 'transform') {
+      continue;
+    }
+    useAtts.set(propName, propValue);
+    element.svgAtts.delete(propName);
+    if (styleAtt) {
+      styleAtt.delete(propName);
+    }
+  }
+
+  // Change the href
+  useAtts.set('href', new HrefAttValue('#' + id));
+  // If there's an xlink:href, remove it.
+  const xlinkHref = getXlinkHref(element);
+  if (xlinkHref) {
+    deleteOtherAtt(element, xlinkHref);
+  }
+
+  // Change the <image> element to a <g>.
+  element.local = 'g';
+
+  // Create <use> as child of <g>.
+  createElement(element, 'use', '', undefined, useAtts);
+}
+
+/**
+ * @param {import('../lib/types.js').SvgAttValues} props
+ * @returns {boolean}
+ */
+function needsGroup(props) {
+  if (
+    !USER_SPACE_PROPS.some((propName) => {
+      const value = props.get(propName);
+      return !!value;
+    })
+  ) {
+    return false;
+  }
+
+  // See if there are any transforms.
+  return TRANSFORM_PROP_NAMES.some(
+    (propName) => props.get(propName) !== undefined,
+  );
+}

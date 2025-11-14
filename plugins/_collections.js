@@ -1,5 +1,7 @@
 // https://www.w3.org/TR/SVG11/intro.html#Definitions
 
+export const USER_SPACE_PROPS = ['clip-path', 'filter', 'mask'];
+
 /** @type {Record<string, Set<string>>} */
 export const elemsGroups = {
   animation: new Set([

@@ -1,9 +1,14 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { AttValue } from '../lib/attrs/attValue.js';
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
 import { ExactNum } from '../lib/exactnum.js';
-import { addToMapArray, getNextId } from '../lib/svgo/tools.js';
+import {
+  addToMapArray,
+  getBase64ImageDimensions,
+  getNextId,
+} from '../lib/svgo/tools.js';
 import {
   deleteOtherAtt,
   getOtherAtt,
@@ -106,19 +111,8 @@ export const fn = (info) => {
           counter = info.nextCounter;
           const id = info.nextId;
 
-          /** @type {import('../types/types.js').LengthPercentageAttValue|undefined} */
-          const width = elements[0].svgAtts.get('width');
-          /** @type {import('../types/types.js').LengthPercentageAttValue|undefined} */
-          const height = elements[0].svgAtts.get('height');
-
-          if (height === undefined || width === undefined) {
-            throw new Error();
-          }
-
-          const pxWidth = width.getPixels();
-          const pxHeight = height.getPixels();
-
-          if (pxWidth === null || pxHeight === null) {
+          const intrinsicDimensions = getBase64ImageDimensions(url);
+          if (intrinsicDimensions === undefined) {
             throw new Error();
           }
 
@@ -130,8 +124,8 @@ export const fn = (info) => {
             new ViewBoxAttValue([
               ExactNum.zero(),
               ExactNum.zero(),
-              new ExactNum(pxWidth),
-              new ExactNum(pxHeight),
+              new ExactNum(intrinsicDimensions.width),
+              new ExactNum(intrinsicDimensions.height),
             ]),
           );
           const symbolElement = createElement(
@@ -143,8 +137,14 @@ export const fn = (info) => {
           );
 
           const imageAtts = new SvgAttMap();
-          imageAtts.set('width', width);
-          imageAtts.set('height', height);
+          imageAtts.set(
+            'width',
+            new LengthPercentageAttValue(intrinsicDimensions.width.toString()),
+          );
+          imageAtts.set(
+            'height',
+            new LengthPercentageAttValue(intrinsicDimensions.height.toString()),
+          );
           imageAtts.set('href', new HrefAttValue(url));
           createElement(symbolElement, 'image', '', undefined, imageAtts);
 

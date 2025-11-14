@@ -71,7 +71,7 @@ export const fn = (info) => {
             ? getOtherAtt(element, 'href', NS_XLINK)?.value
             : href.toString();
 
-        if (url === undefined) {
+        if (url === undefined || !url.startsWith('data:')) {
           return;
         }
 

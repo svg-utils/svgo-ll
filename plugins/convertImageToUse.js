@@ -75,6 +75,16 @@ export const fn = (info) => {
           return;
         }
 
+        const preserveAspectRatio = element.svgAtts.get('preserveAspectRatio');
+        if (
+          preserveAspectRatio !== undefined &&
+          preserveAspectRatio.toString() !== 'xMidYMid meet'
+        ) {
+          // We could partition these by preserveAspectRatio value, but this is probably a rare use case; for
+          // now just bail if it's not the default value.
+          return;
+        }
+
         addToMapArray(images, url, element);
       },
     },

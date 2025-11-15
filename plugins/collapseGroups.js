@@ -75,7 +75,9 @@ export function fn(info) {
               return;
             }
 
-            if (!elementHasUnmovableStyles(parentProps, childProps)) {
+            if (
+              !elementHasUnmovableStyles(parentProps, childProps, firstChild)
+            ) {
               for (const [propName, value] of moveableParentProps.entries()) {
                 const childProp = newChildElemProps.get(propName);
                 if (propName === 'transform') {
@@ -204,11 +206,29 @@ function canCollapse(child, parentProps, childProps, styleData) {
 /**
  * @param {import('../lib/types.js').ComputedPropertyMap} parentProps
  * @param {import('../lib/types.js').ComputedPropertyMap} childProps
+ * @param {import('../lib/types.js').XastElement} child
  * @returns {boolean}
  */
-function elementHasUnmovableStyles(parentProps, childProps) {
+function elementHasUnmovableStyles(parentProps, childProps, child) {
   if (parentProps.has('filter')) {
     return true;
+  }
+
+  if (child.local === 'use') {
+    // Don't collapse if the properties need to be on the group.
+    if (
+      childProps.get('x') !== undefined ||
+      childProps.get('y') !== undefined
+    ) {
+      if (
+        USER_SPACE_PROPS.some(
+          // TODO: this should only be a problem if the referenced element has userSpaceOnUse coordinates.
+          (propName) => parentProps.get(propName) !== undefined,
+        )
+      ) {
+        return true;
+      }
+    }
   }
 
   if (

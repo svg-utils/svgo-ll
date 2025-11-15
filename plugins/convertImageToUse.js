@@ -150,10 +150,14 @@ export const fn = (info) => {
 
           for (const element of elements) {
             const props = getAllProperties(element);
+
+            // Check to see if the image has properties that will cause problems if directly on the <use> -
+            // see https://svgwg.org/svg2-draft/struct.html#UseLayout
             if (needsGroup(props)) {
               convertToGroup(element, props, id);
               continue;
             }
+
             element.local = 'use';
             element.svgAtts.set('href', new HrefAttValue('#' + id));
             // If there's an xlink:href, remove it.

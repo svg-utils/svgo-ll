@@ -1,0 +1,30 @@
+Wrap <use> in <g> if necessary. See https://svgwg.org/svg2-draft/struct.html#UseLayout
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <clipPath id="a" clipPathUnits="userSpaceOnUse">
+      <circle cx="25" cy="300" r="150"/>
+    </clipPath>
+  </defs>
+  <image width="450" height="300" clip-path="url(#a)" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg=="/>
+  <image x="100" y="350" width="225" height="150" clip-path="url(#a)" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg==" transform="rotate(10)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <clipPath id="a" clipPathUnits="userSpaceOnUse">
+      <circle cx="25" cy="300" r="150"/>
+    </clipPath>
+    <symbol id="b" viewBox="0 0 450 300">
+      <image width="450" height="300" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg=="/>
+    </symbol>
+  </defs>
+  <use width="450" height="300" clip-path="url(#a)" href="#b"/>
+  <g clip-path="url(#a)" transform="rotate(10)">
+    <use x="100" y="350" width="225" height="150" href="#b"/>
+  </g>
+</svg>

@@ -2,14 +2,13 @@ import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { SIMPLE_SELECTORS } from '../lib/css/styleData.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { hasAttributes } from '../lib/tools-ast.js';
-import { elemsGroups } from './_collections.js';
+import { elemsGroups, USER_SPACE_PROPS } from './_collections.js';
 import { getPresentationProperties } from './_styles.js';
 
 export const name = 'collapseGroups';
 export const description = 'collapses useless groups';
 
 const TRANSFORM_PROPS = ['transform', 'translate', 'scale', 'rotate'];
-const INCOMPATIBLE_PROPS = ['clip-path', 'filter', 'mask'];
 
 /**
  * Collapse useless groups.
@@ -76,7 +75,9 @@ export function fn(info) {
               return;
             }
 
-            if (!elementHasUnmovableStyles(parentProps, childProps)) {
+            if (
+              !elementHasUnmovableStyles(parentProps, childProps, firstChild)
+            ) {
               for (const [propName, value] of moveableParentProps.entries()) {
                 const childProp = newChildElemProps.get(propName);
                 if (propName === 'transform') {
@@ -205,11 +206,29 @@ function canCollapse(child, parentProps, childProps, styleData) {
 /**
  * @param {import('../lib/types.js').ComputedPropertyMap} parentProps
  * @param {import('../lib/types.js').ComputedPropertyMap} childProps
+ * @param {import('../lib/types.js').XastElement} child
  * @returns {boolean}
  */
-function elementHasUnmovableStyles(parentProps, childProps) {
+function elementHasUnmovableStyles(parentProps, childProps, child) {
   if (parentProps.has('filter')) {
     return true;
+  }
+
+  if (child.local === 'use') {
+    // Don't collapse if the properties need to be on the group.
+    if (
+      childProps.get('x') !== undefined ||
+      childProps.get('y') !== undefined
+    ) {
+      if (
+        USER_SPACE_PROPS.some(
+          // TODO: this should only be a problem if the referenced element has userSpaceOnUse coordinates.
+          (propName) => parentProps.get(propName) !== undefined,
+        )
+      ) {
+        return true;
+      }
+    }
   }
 
   if (
@@ -220,7 +239,7 @@ function elementHasUnmovableStyles(parentProps, childProps) {
   }
 
   // Don't overwrite child with any of these.
-  return INCOMPATIBLE_PROPS.some(
+  return USER_SPACE_PROPS.some(
     (propName) => parentProps.has(propName) && childProps.has(propName),
   );
 }
@@ -253,6 +272,6 @@ const hasAnimatedAttr = (node, name) => {
 function hasTransformCollision(e1, e2) {
   return (
     TRANSFORM_PROPS.some((propName) => e1.has(propName)) &&
-    INCOMPATIBLE_PROPS.some((propName) => e2.has(propName))
+    USER_SPACE_PROPS.some((propName) => e2.has(propName))
   );
 }

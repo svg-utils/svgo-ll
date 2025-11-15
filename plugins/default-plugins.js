@@ -6,6 +6,7 @@ import * as cleanupXlink from './cleanupXlink.js';
 import * as collapseGroups from './collapseGroups.js';
 import * as combineStyleElements from './combineStyleElements.js';
 import * as convertEllipseToCircle from './convertEllipseToCircle.js';
+import * as convertImageToUse from './convertImageToUse.js';
 import * as convertPathToUse from './convertPathToUse.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
@@ -78,6 +79,7 @@ export const defaultPlugins = Object.freeze({
   ]),
   post: Object.freeze([
     removeUnusedNS,
+    convertImageToUse,
     minifyIds,
     minifyAttrsAndStyles,
     stylesToClasses,

@@ -8,6 +8,14 @@ export const TRANSFORM_PROP_NAMES = ['transform', 'transform-origin'];
  * @param {import('../lib/types.js').XastElement} element
  * @returns {import('../lib/types.js').SvgAttValues}
  */
+export function getAllProperties(element) {
+  return _getProperties(element, (name) => name !== 'style');
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {import('../lib/types.js').SvgAttValues}
+ */
 export function getInheritableProperties(element) {
   return _getProperties(
     element,

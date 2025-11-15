@@ -76,10 +76,10 @@ export const defaultPlugins = Object.freeze({
     createGroups,
     collapseGroups,
     cleanupTextElements,
-    convertImageToUse,
   ]),
   post: Object.freeze([
     removeUnusedNS,
+    convertImageToUse,
     minifyIds,
     minifyAttrsAndStyles,
     stylesToClasses,

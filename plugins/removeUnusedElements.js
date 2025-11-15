@@ -44,6 +44,12 @@ export const fn = (info) => {
           childrenToDelete.add(element);
           return;
         }
+
+        const opacity = properties.get('opacity')?.toString();
+        if (opacity === '0') {
+          childrenToDelete.add(element);
+          return;
+        }
       },
     },
     root: {

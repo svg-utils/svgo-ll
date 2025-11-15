@@ -46,7 +46,8 @@ export const fn = (info) => {
         }
 
         const opacity = properties.get('opacity')?.toString();
-        if (opacity === '0') {
+        // TODO: NEED REFERENCE FOR CLIPPATH CHECK
+        if (opacity === '0' && !isInClipPath(element)) {
           childrenToDelete.add(element);
           return;
         }
@@ -59,3 +60,18 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {boolean}
+ */
+function isInClipPath(element) {
+  let parent = element.parentNode;
+  while (parent.type !== 'root') {
+    if (parent.uri === undefined && parent.local === 'clipPath') {
+      return true;
+    }
+    parent = parent.parentNode;
+  }
+  return false;
+}

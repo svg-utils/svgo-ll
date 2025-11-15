@@ -33,6 +33,7 @@ import * as removeHiddenElems from '../plugins/removeHiddenElems.js';
 import * as removeMetadata from '../plugins/removeMetadata.js';
 import * as removeNonInheritableGroupAttrs from '../plugins/removeNonInheritableGroupAttrs.js';
 import * as removeUnknownsAndDefaults from '../plugins/removeUnknownsAndDefaults.js';
+import * as removeUnusedElements from '../plugins/removeUnusedElements.js';
 import * as removeUnusedNS from '../plugins/removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from '../plugins/removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from '../plugins/removeXMLProcInst.js';
@@ -122,6 +123,7 @@ const pluginList = [
   removeMetadata,
   removeNonInheritableGroupAttrs,
   removeUnknownsAndDefaults,
+  removeUnusedElements,
   removeUnusedNS,
   removeUselessStrokeAndFill,
   removeXMLProcInst,

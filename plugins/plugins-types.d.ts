@@ -97,6 +97,7 @@ type BuiltinPlugins = {
     keepAriaAttrs?: boolean;
     keepRoleAttr?: boolean;
   };
+  removeUnusedElements: void;
   removeUnusedNS: void;
   removeUselessStrokeAndFill: void;
   removeXMLProcInst: void;

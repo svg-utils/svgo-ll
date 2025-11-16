@@ -392,12 +392,20 @@ async function optimizeFile(
       }
       stats.lengthOrig = input.length;
 
-      const optimizedData = optimizeResolved(input, config, resolvedPlugins);
-      if (!optimizedData.error) {
-        stats.lengthOpt = optimizedData.data.length;
-        stats.passes = optimizedData.passes;
-        stats.time = optimizedData.time;
-        return writeOutputFile(outputDirRoot, relativePath, optimizedData.data);
+      try {
+        const optimizedData = optimizeResolved(input, config, resolvedPlugins);
+        if (!optimizedData.error) {
+          stats.lengthOpt = optimizedData.data.length;
+          stats.passes = optimizedData.passes;
+          stats.time = optimizedData.time;
+          return writeOutputFile(
+            outputDirRoot,
+            relativePath,
+            optimizedData.data,
+          );
+        }
+      } catch {
+        console.error(`${inputPath} FAILED`);
       }
     })
     .then(() =>

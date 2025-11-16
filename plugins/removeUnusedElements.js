@@ -64,6 +64,7 @@ export const fn = (info) => {
         }
 
         if (element.local === 'defs') {
+          hoistDefsChildren(element);
           allDefs.push(element);
           defsLevel++;
           return;
@@ -131,10 +132,9 @@ export const fn = (info) => {
             defs.children.push(element);
             element.parentNode = defs;
           });
-        }
 
-        // Process <defs> so that all immediate children have ids.
-        allDefs.forEach((defs) => hoistDefsChildren(defs));
+          hoistDefsChildren(defs);
+        }
 
         const childrenToDelete = new ChildDeletionQueue();
 
@@ -193,7 +193,10 @@ function getChildrenWithIds(child) {
     case 'comment':
       return [child];
     case 'element':
-      if (child.svgAtts.get('id') !== undefined) {
+      if (
+        child.svgAtts.get('id') !== undefined &&
+        !(child.uri === undefined && child.local === 'defs')
+      ) {
         return [child];
       }
       break;

@@ -101,11 +101,20 @@ export const fn = (info) => {
                 if (referencingElement.local === 'use') {
                   const hrefId = getHrefId(referencingElement);
                   if (hrefId === id) {
+                    // TODO: REMOVE ANY OTHER REFERENCES FROM THIS ELEMENT
                     childrenToDelete.add(referencingElement);
                   }
                 }
               }
             }
+          }
+        }
+
+        // Remove the id attribute from any elements where it is not used.
+        for (const [id, element] of idToElement) {
+          const references = idToReferences.get(id);
+          if (references === undefined || references.length === 0) {
+            element.svgAtts.delete('id');
           }
         }
 

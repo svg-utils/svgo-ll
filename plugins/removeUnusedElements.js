@@ -159,16 +159,7 @@ export const fn = (info) => {
                 idToElement.delete(id);
 
                 // If this element references others, remove this element from the list of references to those ids.
-                const currentElReferences = getReferencedIds2(element);
-                for (const reference of currentElReferences) {
-                  const elements = idToReferences.get(reference.id);
-                  if (elements) {
-                    idToReferences.set(
-                      reference.id,
-                      elements.filter((e) => e !== element),
-                    );
-                  }
-                }
+                updateReferences(element, idToReferences);
               }
             }
           }
@@ -358,4 +349,28 @@ function removeIdReferencesFromElement(element, id, childrenToDelete) {
       childrenToDelete.add(element);
     }
   }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ */
+function updateReferences(element, idToReferences) {
+  const currentElReferences = getReferencedIds2(element);
+  for (const reference of currentElReferences) {
+    const elements = idToReferences.get(reference.id);
+    if (elements) {
+      idToReferences.set(
+        reference.id,
+        elements.filter((e) => e !== element),
+      );
+    }
+  }
+  // Update references in children.
+  element.children.forEach((child) => {
+    // If the child has an id, it will be handled later.
+    if (child.type === 'element' && child.svgAtts.get('id') === undefined) {
+      updateReferences(child, idToReferences);
+    }
+  });
 }

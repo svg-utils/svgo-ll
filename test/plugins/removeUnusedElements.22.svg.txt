@@ -1,0 +1,23 @@
+Don't remove path with opacity 0 if it is in a clipPath.
+
+===
+
+<svg viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+    <clipPath id="a">
+        <path opacity="0" d="M0 0H100V100H0z"/>
+    </clipPath>
+    <path fill="red" d="M.5.5H99.5V99.5H.5z"/>
+    <path fill="#0f0" clip-path="url(#a)" d="M0 0H100V100H0z"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 480 360" xmlns="http://www.w3.org/2000/svg">
+  <path fill="red" d="M.5.5H99.5V99.5H.5z"/>
+  <path fill="#0f0" clip-path="url(#a)" d="M0 0H100V100H0z"/>
+  <defs>
+    <clipPath id="a">
+      <path opacity="0" d="M0 0H100V100H0z"/>
+    </clipPath>
+  </defs>
+</svg>

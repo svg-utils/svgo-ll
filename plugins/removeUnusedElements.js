@@ -1,4 +1,6 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import { addToMapArray, SVGOError } from '../lib/svgo/tools.js';
+import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
 
 export const name = 'removeUnusedElements';
 export const description = 'removes unused <defs> and non-displayed elements';
@@ -19,8 +21,17 @@ export const fn = (info) => {
     return;
   }
 
-  // Record which elements to delete, sorted by parent.
-  const childrenToDelete = new ChildDeletionQueue();
+  /** @type {import('../lib/types.js').XastElement[]} */
+  const defs = [];
+
+  /** @type {Map<string,import('../lib/types.js').XastElement>} */
+  const idToElement = new Map();
+
+  /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
+  const idToReferences = new Map();
+
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const elementsToDelete = new Set();
 
   return {
     element: {
@@ -29,8 +40,30 @@ export const fn = (info) => {
           return;
         }
 
+        const id = element.svgAtts.get('id')?.toString();
+        if (id !== undefined) {
+          if (idToElement.has(id)) {
+            throw new SVGOError(`Duplicate id "${id}"`);
+          }
+          idToElement.set(id, element);
+        }
+
+        const referencedIds = getReferencedIds2(element);
+        for (const info of referencedIds) {
+          addToMapArray(idToReferences, info.id, element);
+        }
+
+        if (element.local === 'defs') {
+          defs.push(element);
+          return;
+        }
+
         const properties = styleData.computeProps(element, parentList);
         if (!properties) {
+          return;
+        }
+
+        if (removeEmptyShapes(element, properties, elementsToDelete)) {
           return;
         }
 
@@ -41,20 +74,43 @@ export const fn = (info) => {
           // markers with display: none still rendered
           element.local !== 'marker'
         ) {
-          childrenToDelete.add(element);
+          elementsToDelete.add(element);
           return;
         }
 
         const opacity = properties.get('opacity')?.toString();
-        // TODO: NEED REFERENCE FOR CLIPPATH CHECK
         if (opacity === '0' && !isInClipPath(element)) {
-          childrenToDelete.add(element);
+          elementsToDelete.add(element);
           return;
         }
       },
     },
     root: {
       exit: () => {
+        const childrenToDelete = new ChildDeletionQueue();
+
+        for (const element of elementsToDelete) {
+          childrenToDelete.add(element);
+
+          // If the element has an id, remove references to it.
+          const id = element.svgAtts.get('id')?.toString();
+          if (id !== undefined) {
+            const referencingElements = idToReferences.get(id);
+            if (referencingElements) {
+              for (const referencingElement of referencingElements) {
+                if (referencingElement.local === 'use') {
+                  const hrefId = getHrefId(referencingElement);
+                  if (hrefId === id) {
+                    childrenToDelete.add(referencingElement);
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        mergeDefs(defs, elementsToDelete);
+
         childrenToDelete.delete();
       },
     },
@@ -72,6 +128,60 @@ function isInClipPath(element) {
       return true;
     }
     parent = parent.parentNode;
+  }
+  return false;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement[]} defs
+ * @param {Set<import('../lib/types.js').XastElement>} elementsToDelete
+ */
+function mergeDefs(defs, elementsToDelete) {
+  if (defs.length === 0) {
+    return;
+  }
+
+  const mainDefs = defs[0];
+  for (let index = 1; index < defs.length; index++) {
+    // Move all children into the first <defs>.
+    const element = defs[index];
+    element.children.forEach((child) => (child.parentNode = mainDefs));
+    mainDefs.children = mainDefs.children.concat(element.children);
+    elementsToDelete.add(element);
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../lib/types.js').ComputedPropertyMap} properties
+ * @param {Set<import('../lib/types.js').XastElement>} elementsToDelete
+ * @returns {boolean}
+ */
+function removeEmptyShapes(element, properties, elementsToDelete) {
+  switch (element.local) {
+    case 'path': {
+      const d =
+        /** @type {import('../types/types.js').PathAttValue|undefined|null} */ (
+          properties.get('d')
+        );
+      if (d === null) {
+        return false;
+      }
+      if (d === undefined) {
+        elementsToDelete.add(element);
+        return true;
+      }
+      const commands = d.getParsedPath();
+      if (commands.length === 1) {
+        if (properties.get('marker-end') !== undefined) {
+          return false;
+        }
+        elementsToDelete.add(element);
+        return true;
+      }
+
+      return false;
+    }
   }
   return false;
 }

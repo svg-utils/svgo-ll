@@ -1,6 +1,7 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray, SVGOError } from '../lib/svgo/tools.js';
 import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
+import { elemsGroups } from './_collections.js';
 
 export const name = 'removeUnusedElements';
 export const description = 'removes unused <defs> and non-displayed elements';
@@ -89,33 +90,45 @@ export const fn = (info) => {
       exit: () => {
         const childrenToDelete = new ChildDeletionQueue();
 
-        for (const element of elementsToDelete) {
-          childrenToDelete.add(element);
+        let currentElementsToDelete = elementsToDelete;
+        while (true) {
+          removeElements(
+            currentElementsToDelete,
+            childrenToDelete,
+            idToReferences,
+          );
 
-          // If the element has an id, remove references to it.
-          const id = element.svgAtts.get('id')?.toString();
-          if (id !== undefined) {
-            const referencingElements = idToReferences.get(id);
-            if (referencingElements) {
-              for (const referencingElement of referencingElements) {
-                if (referencingElement.local === 'use') {
-                  const hrefId = getHrefId(referencingElement);
-                  if (hrefId === id) {
-                    // TODO: REMOVE ANY OTHER REFERENCES FROM THIS ELEMENT
-                    childrenToDelete.add(referencingElement);
+          const nextElementsToDelete = new Set();
+
+          // Remove the id attribute from any elements where it is not used.
+          for (const [id, element] of idToElement) {
+            const references = idToReferences.get(id);
+            if (references === undefined || references.length === 0) {
+              element.svgAtts.delete('id');
+              if (elemsGroups.nonRendering.has(element.local)) {
+                // TODO: SOME OF THESE (E.G. CLIPPATH) MAY CONTAIN REFERENCED PATHS, ETC - NEED TO HANDLE THIS
+                nextElementsToDelete.add(element);
+                idToElement.delete(id);
+
+                // If this element references others, remove this element from the list of references to those ids.
+                const currentElReferences = getReferencedIds2(element);
+                for (const reference of currentElReferences) {
+                  const elements = idToReferences.get(reference.id);
+                  if (elements) {
+                    idToReferences.set(
+                      reference.id,
+                      elements.filter((e) => e !== element),
+                    );
                   }
                 }
               }
             }
           }
-        }
 
-        // Remove the id attribute from any elements where it is not used.
-        for (const [id, element] of idToElement) {
-          const references = idToReferences.get(id);
-          if (references === undefined || references.length === 0) {
-            element.svgAtts.delete('id');
+          if (nextElementsToDelete.size === 0) {
+            break;
           }
+          currentElementsToDelete = nextElementsToDelete;
         }
 
         mergeDefs(defs, elementsToDelete);
@@ -161,6 +174,32 @@ function mergeDefs(defs, elementsToDelete) {
 }
 
 /**
+ * @param {Set<import('../lib/types.js').XastElement>} elementsToDelete
+ * @param {ChildDeletionQueue} childrenToDelete
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ */
+function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
+  for (const element of elementsToDelete) {
+    childrenToDelete.add(element);
+
+    // If the element has an id, remove references to it.
+    const id = element.svgAtts.get('id')?.toString();
+    if (id !== undefined) {
+      const referencingElements = idToReferences.get(id);
+      if (referencingElements) {
+        for (const referencingElement of referencingElements) {
+          removeIdReferencesFromElement(
+            referencingElement,
+            id,
+            childrenToDelete,
+          );
+        }
+      }
+    }
+  }
+}
+
+/**
  * @param {import('../lib/types.js').XastElement} element
  * @param {import('../lib/types.js').ComputedPropertyMap} properties
  * @param {Set<import('../lib/types.js').XastElement>} elementsToDelete
@@ -193,4 +232,19 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
     }
   }
   return false;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} id
+ * @param {ChildDeletionQueue} childrenToDelete
+ */
+function removeIdReferencesFromElement(element, id, childrenToDelete) {
+  if (element.local === 'use') {
+    const hrefId = getHrefId(element);
+    if (hrefId === id) {
+      // TODO: REMOVE ANY OTHER REFERENCES FROM THIS ELEMENT
+      childrenToDelete.add(element);
+    }
+  }
 }

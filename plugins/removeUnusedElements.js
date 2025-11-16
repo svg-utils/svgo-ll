@@ -218,6 +218,36 @@ function getChildrenWithIds(child) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ * @returns {boolean}
+ */
+function hasReferencedChildren(element, idToReferences) {
+  for (const child of element.children) {
+    if (child.type !== 'element') {
+      continue;
+    }
+    const id = child.svgAtts.get('id')?.toString();
+    if (id) {
+      const references = idToReferences.get(id);
+      if (references !== undefined && references.length > 0) {
+        return true;
+      }
+    }
+    if (
+      child.children.some(
+        (grandchild) =>
+          grandchild.type === 'element' &&
+          hasReferencedChildren(grandchild, idToReferences),
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
  */
 function hoistDefsChildren(element) {
   /** @type {import('../lib/types.js').XastChild[]} */
@@ -287,9 +317,10 @@ function parentIsMoving(element, moveToDefs) {
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  */
 function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
-  for (const element of elementsToDelete) {
-    childrenToDelete.add(element);
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const defsToHoist = new Set();
 
+  for (const element of elementsToDelete) {
     // If the element has an id, remove references to it.
     const id = element.svgAtts.get('id')?.toString();
     if (id !== undefined) {
@@ -304,7 +335,22 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
         }
       }
     }
+
+    if (!hasReferencedChildren(element, idToReferences)) {
+      childrenToDelete.add(element);
+    } else {
+      // If parent is <defs>, hoist the children.
+      if (
+        element.parentNode.type === 'element' &&
+        element.parentNode.uri === undefined &&
+        element.parentNode.local === 'defs'
+      ) {
+        defsToHoist.add(element.parentNode);
+      }
+    }
   }
+
+  defsToHoist.forEach((defs) => hoistDefsChildren(defs));
 }
 
 /**
@@ -374,8 +420,15 @@ function updateReferences(element, idToReferences) {
   }
   // Update references in children.
   element.children.forEach((child) => {
-    // If the child has an id, it will be handled later.
-    if (child.type === 'element' && child.svgAtts.get('id') === undefined) {
+    if (child.type === 'element') {
+      const id = child.svgAtts.get('id')?.toString();
+      if (id !== undefined) {
+        const refs = idToReferences.get(id);
+        if (refs !== undefined && refs.length > 0) {
+          // If the child is referenced, don't delete it.
+          return;
+        }
+      }
       updateReferences(child, idToReferences);
     }
   });

@@ -139,6 +139,7 @@ export const fn = (info) => {
         const childrenToDelete = new ChildDeletionQueue();
 
         let currentElementsToDelete = elementsToDelete;
+        const styleIds = styleData.getReferencedIds();
         while (true) {
           removeElements(
             currentElementsToDelete,
@@ -152,6 +153,11 @@ export const fn = (info) => {
           for (const [id, element] of idToElement) {
             const references = idToReferences.get(id);
             if (references === undefined || references.length === 0) {
+              // Make sure it's not referenced by <style>.
+              if (styleIds.has(id)) {
+                continue;
+              }
+
               element.svgAtts.delete('id');
               if (elemsGroups.nonRendering.has(element.local)) {
                 // TODO: SOME OF THESE (E.G. CLIPPATH) MAY CONTAIN REFERENCED PATHS, ETC - NEED TO HANDLE THIS

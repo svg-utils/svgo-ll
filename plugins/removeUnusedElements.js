@@ -1,6 +1,11 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray, SVGOError } from '../lib/svgo/tools.js';
-import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
+import {
+  getHrefId,
+  getReferencedIds2,
+  getSVGElement,
+} from '../lib/tools-ast.js';
+import { createElement } from '../lib/xast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeUnusedElements';
@@ -16,14 +21,13 @@ export const fn = (info) => {
       'class-selectors',
       'id-selectors',
       'type-selectors',
-      'attribute-selectors',
     ])
   ) {
     return;
   }
 
   /** @type {import('../lib/types.js').XastElement[]} */
-  const defs = [];
+  const allDefs = [];
 
   /** @type {Map<string,import('../lib/types.js').XastElement>} */
   const idToElement = new Map();
@@ -33,6 +37,11 @@ export const fn = (info) => {
 
   /** @type {Set<import('../lib/types.js').XastElement>} */
   const elementsToDelete = new Set();
+
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const moveToDefs = new Set();
+
+  let defsLevel = 0;
 
   return {
     element: {
@@ -55,7 +64,15 @@ export const fn = (info) => {
         }
 
         if (element.local === 'defs') {
-          defs.push(element);
+          allDefs.push(element);
+          defsLevel++;
+          return;
+        }
+
+        if (elemsGroups.nonRendering.has(element.local)) {
+          if (defsLevel === 0 && !parentIsMoving(element, moveToDefs)) {
+            moveToDefs.add(element);
+          }
           return;
         }
 
@@ -85,9 +102,40 @@ export const fn = (info) => {
           return;
         }
       },
+      exit: (element) => {
+        if (element.uri === undefined && element.local === 'defs') {
+          defsLevel--;
+        }
+      },
     },
     root: {
-      exit: () => {
+      exit: (root) => {
+        // Move elements to <defs> if they are outside.
+        if (moveToDefs.size > 0) {
+          if (allDefs.length === 0) {
+            // There is no defs; create one.
+            const svg = getSVGElement(root);
+            allDefs.push(createElement(svg, 'defs'));
+          }
+
+          // First remove them from existing parents.
+          const dq = new ChildDeletionQueue();
+          moveToDefs.forEach((element) => {
+            dq.add(element);
+          });
+          dq.delete();
+
+          // Move to first <defs>.
+          const defs = allDefs[0];
+          moveToDefs.forEach((element) => {
+            defs.children.push(element);
+            element.parentNode = defs;
+          });
+        }
+
+        // Process <defs> so that all immediate children have ids.
+        allDefs.forEach((defs) => hoistDefsChildren(defs));
+
         const childrenToDelete = new ChildDeletionQueue();
 
         let currentElementsToDelete = elementsToDelete;
@@ -131,13 +179,61 @@ export const fn = (info) => {
           currentElementsToDelete = nextElementsToDelete;
         }
 
-        mergeDefs(defs, elementsToDelete);
+        mergeDefs(allDefs, elementsToDelete);
 
         childrenToDelete.delete();
       },
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastChild} child
+ * @returns {import('../lib/types.js').XastChild[]}
+ */
+function getChildrenWithIds(child) {
+  switch (child.type) {
+    case 'comment':
+      return [child];
+    case 'element':
+      if (child.svgAtts.get('id') !== undefined) {
+        return [child];
+      }
+      break;
+    default:
+      return [];
+  }
+
+  // Preserve styles and scripts with no id.
+  switch (child.local) {
+    case 'script':
+    case 'style':
+      return [child];
+  }
+
+  // It's an element with no id; return its children which have ids.
+  const children = [];
+  for (const grandchild of child.children) {
+    children.push(...getChildrenWithIds(grandchild));
+  }
+  return children;
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function hoistDefsChildren(element) {
+  /** @type {import('../lib/types.js').XastChild[]} */
+  const children = [];
+
+  // Make sure all children of <defs> have an id; otherwise they can't be rendered. If a child doesn't have an id, delete it and move up
+  // its children so they are immediate children of the <defs>.
+  for (const child of element.children) {
+    children.push(...getChildrenWithIds(child));
+  }
+  children.forEach((c) => (c.parentNode = element));
+  element.children = children;
+}
 
 /**
  * @param {import('../lib/types.js').XastElement} element
@@ -171,6 +267,21 @@ function mergeDefs(defs, elementsToDelete) {
     mainDefs.children = mainDefs.children.concat(element.children);
     elementsToDelete.add(element);
   }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {Set<import('../lib/types.js').XastElement>} moveToDefs
+ * @returns {boolean}
+ */
+function parentIsMoving(element, moveToDefs) {
+  while (element.parentNode.type !== 'root') {
+    if (moveToDefs.has(element.parentNode)) {
+      return true;
+    }
+    element = element.parentNode;
+  }
+  return false;
 }
 
 /**

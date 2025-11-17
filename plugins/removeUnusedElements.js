@@ -242,6 +242,12 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
  */
 function removeEmptyShapes(element, properties, elementsToDelete) {
   switch (element.local) {
+    case 'circle':
+      if (properties.get('r')?.toString() === '0') {
+        elementsToDelete.set(element, false);
+        return true;
+      }
+      return false;
     case 'path': {
       const d =
         /** @type {import('../types/types.js').PathAttValue|undefined|null} */ (

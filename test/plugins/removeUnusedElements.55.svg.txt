@@ -1,0 +1,31 @@
+Don't collapse group if it has used attributes.
+
+===
+
+<svg viewBox="-10 -10 70 70"
+  xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g color="blue">
+      <linearGradient id="a">
+        <stop offset="5%" stop-color="gold" />
+        <stop offset="1" stop-color="currentColor" />
+      </linearGradient>
+    </g>
+  </defs>
+  <rect width="50" height="50" fill="url(#a)"/>
+
+</svg>
+
+@@@
+
+<svg viewBox="-10 -10 70 70" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g color="blue">
+      <linearGradient id="a">
+        <stop offset="5%" stop-color="gold"/>
+        <stop offset="1" stop-color="currentColor"/>
+      </linearGradient>
+    </g>
+  </defs>
+  <rect width="50" height="50" fill="url(#a)"/>
+</svg>

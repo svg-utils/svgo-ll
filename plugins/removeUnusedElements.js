@@ -54,7 +54,6 @@ export const fn = (info) => {
         }
 
         if (element.local === 'defs') {
-          hoistDefsChildren(element);
           allDefs.push(element);
           return;
         }
@@ -141,41 +140,6 @@ export const fn = (info) => {
 };
 
 /**
- * @param {import('../lib/types.js').XastChild} child
- * @returns {import('../lib/types.js').XastChild[]}
- */
-function getChildrenWithIds(child) {
-  switch (child.type) {
-    case 'comment':
-      return [child];
-    case 'element':
-      if (
-        child.svgAtts.get('id') !== undefined &&
-        !(child.uri === undefined && child.local === 'defs')
-      ) {
-        return [child];
-      }
-      break;
-    default:
-      return [];
-  }
-
-  // Preserve styles and scripts with no id.
-  switch (child.local) {
-    case 'script':
-    case 'style':
-      return [child];
-  }
-
-  // It's an element with no id; return its children which have ids.
-  const children = [];
-  for (const grandchild of child.children) {
-    children.push(...getChildrenWithIds(grandchild));
-  }
-  return children;
-}
-
-/**
  * @param {import('../lib/types.js').XastElement} element
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  * @returns {boolean}
@@ -203,22 +167,6 @@ function hasReferencedChildren(element, idToReferences) {
     }
   }
   return false;
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- */
-function hoistDefsChildren(element) {
-  /** @type {import('../lib/types.js').XastChild[]} */
-  const children = [];
-
-  // Make sure all children of <defs> have an id; otherwise they can't be rendered. If a child doesn't have an id, delete it and move up
-  // its children so they are immediate children of the <defs>.
-  for (const child of element.children) {
-    children.push(...getChildrenWithIds(child));
-  }
-  children.forEach((c) => (c.parentNode = element));
-  element.children = children;
 }
 
 /**
@@ -261,9 +209,6 @@ function mergeDefs(defs, childrenToDelete) {
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  */
 function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
-  /** @type {Set<import('../lib/types.js').XastElement>} */
-  const defsToHoist = new Set();
-
   for (const [element, onlyIfUnreferenced] of elementsToDelete) {
     // If the element has an id, remove references to it.
     const id = element.svgAtts.get('id')?.toString();
@@ -285,19 +230,8 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
 
     if (!hasReferencedChildren(element, idToReferences)) {
       childrenToDelete.add(element);
-    } else {
-      // If parent is <defs>, hoist the children.
-      if (
-        element.parentNode.type === 'element' &&
-        element.parentNode.uri === undefined &&
-        element.parentNode.local === 'defs'
-      ) {
-        defsToHoist.add(element.parentNode);
-      }
     }
   }
-
-  defsToHoist.forEach((defs) => hoistDefsChildren(defs));
 }
 
 /**

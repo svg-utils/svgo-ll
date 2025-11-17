@@ -59,6 +59,9 @@ export const fn = (info) => {
         }
 
         if (elemsGroups.nonRendering.has(element.local)) {
+          if (id === undefined && element.local === 'filter') {
+            elementsToDelete.set(element, false);
+          }
           return;
         }
 

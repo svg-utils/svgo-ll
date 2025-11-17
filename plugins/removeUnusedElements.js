@@ -65,6 +65,16 @@ export const fn = (info) => {
           return;
         }
 
+        // Remove <use> with no id in <defs>.
+        if (
+          id === undefined &&
+          element.local === 'use' &&
+          isDefsChild(element)
+        ) {
+          elementsToDelete.set(element, false);
+          return;
+        }
+
         const properties = styleData.computeProps(element, parentList);
         if (!properties) {
           return;
@@ -117,7 +127,10 @@ export const fn = (info) => {
               }
 
               element.svgAtts.delete('id');
-              if (elemsGroups.nonRendering.has(element.local)) {
+              if (
+                elemsGroups.nonRendering.has(element.local) ||
+                (element.children.length === 0 && isDefsChild(element))
+              ) {
                 // TODO: SOME OF THESE (E.G. CLIPPATH) MAY CONTAIN REFERENCED PATHS, ETC - NEED TO HANDLE THIS
                 nextElementsToDelete.set(element, false);
                 idToElement.delete(id);
@@ -176,6 +189,17 @@ function hasReferencedChildren(element, idToReferences) {
  * @param {import('../lib/types.js').XastElement} element
  * @returns {boolean}
  */
+function isDefsChild(element) {
+  return (
+    element.parentNode.type === 'element' &&
+    element.uri === undefined &&
+    element.parentNode.local === 'defs'
+  );
+}
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {boolean}
+ */
 function isInClipPath(element) {
   let parent = element.parentNode;
   while (parent.type !== 'root') {
@@ -222,16 +246,14 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
           continue;
         }
         for (const referencingElement of referencingElements) {
-          removeIdReferencesFromElement(
-            referencingElement,
-            id,
-            childrenToDelete,
-          );
+          removeUsingElements(referencingElement, id, childrenToDelete);
         }
       }
     }
 
     if (!hasReferencedChildren(element, idToReferences)) {
+      // If this element, or any of its children, has references to other elements, remove them.
+      updateReferences(element, idToReferences);
       childrenToDelete.add(element);
     }
   }
@@ -283,7 +305,7 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
  * @param {string} id
  * @param {ChildDeletionQueue} childrenToDelete
  */
-function removeIdReferencesFromElement(element, id, childrenToDelete) {
+function removeUsingElements(element, id, childrenToDelete) {
   if (element.local === 'use') {
     const hrefId = getHrefId(element);
     if (hrefId === id) {

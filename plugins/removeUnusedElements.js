@@ -68,7 +68,7 @@ export const fn = (info) => {
         // Remove <use> with no id in <defs>.
         if (
           id === undefined &&
-          element.local === 'use' &&
+          (element.local === 'use' || element.local === 'path') &&
           isDefsChild(element)
         ) {
           elementsToDelete.set(element, false);
@@ -317,6 +317,10 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
         return true;
       }
       const commands = d.getParsedPath();
+      if (commands.length === 0) {
+        elementsToDelete.set(element, false);
+        return true;
+      }
       if (commands.length === 1) {
         if (properties.get('marker-end') !== undefined) {
           return false;

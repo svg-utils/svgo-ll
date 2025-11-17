@@ -1,11 +1,6 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray, SVGOError } from '../lib/svgo/tools.js';
-import {
-  getHrefId,
-  getReferencedIds2,
-  getSVGElement,
-} from '../lib/tools-ast.js';
-import { createElement } from '../lib/xast.js';
+import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeUnusedElements';
@@ -38,11 +33,6 @@ export const fn = (info) => {
   /** @type {Map<import('../lib/types.js').XastElement,boolean>} */
   const elementsToDelete = new Map();
 
-  /** @type {Set<import('../lib/types.js').XastElement>} */
-  const moveToDefs = new Set();
-
-  let defsLevel = 0;
-
   return {
     element: {
       enter: (element, parentList) => {
@@ -66,14 +56,10 @@ export const fn = (info) => {
         if (element.local === 'defs') {
           hoistDefsChildren(element);
           allDefs.push(element);
-          defsLevel++;
           return;
         }
 
         if (elemsGroups.nonRendering.has(element.local)) {
-          if (defsLevel === 0 && !parentIsMoving(element, moveToDefs)) {
-            moveToDefs.add(element);
-          }
           return;
         }
 
@@ -103,39 +89,9 @@ export const fn = (info) => {
           return;
         }
       },
-      exit: (element) => {
-        if (element.uri === undefined && element.local === 'defs') {
-          defsLevel--;
-        }
-      },
     },
     root: {
-      exit: (root) => {
-        // Move elements to <defs> if they are outside.
-        if (moveToDefs.size > 0) {
-          if (allDefs.length === 0) {
-            // There is no defs; create one.
-            const svg = getSVGElement(root);
-            allDefs.push(createElement(svg, 'defs'));
-          }
-
-          // First remove them from existing parents.
-          const dq = new ChildDeletionQueue();
-          moveToDefs.forEach((element) => {
-            dq.add(element);
-          });
-          dq.delete();
-
-          // Move to first <defs>.
-          const defs = allDefs[0];
-          moveToDefs.forEach((element) => {
-            defs.children.push(element);
-            element.parentNode = defs;
-          });
-
-          hoistDefsChildren(defs);
-        }
-
+      exit: () => {
         const childrenToDelete = new ChildDeletionQueue();
 
         let currentElementsToDelete = elementsToDelete;
@@ -297,21 +253,6 @@ function mergeDefs(defs, childrenToDelete) {
     mainDefs.children = mainDefs.children.concat(element.children);
     childrenToDelete.add(element);
   }
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @param {Set<import('../lib/types.js').XastElement>} moveToDefs
- * @returns {boolean}
- */
-function parentIsMoving(element, moveToDefs) {
-  while (element.parentNode.type !== 'root') {
-    if (moveToDefs.has(element.parentNode)) {
-      return true;
-    }
-    element = element.parentNode;
-  }
-  return false;
 }
 
 /**

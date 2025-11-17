@@ -35,8 +35,8 @@ export const fn = (info) => {
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const idToReferences = new Map();
 
-  /** @type {Set<import('../lib/types.js').XastElement>} */
-  const elementsToDelete = new Set();
+  /** @type {Map<import('../lib/types.js').XastElement,boolean>} */
+  const elementsToDelete = new Map();
 
   /** @type {Set<import('../lib/types.js').XastElement>} */
   const moveToDefs = new Set();
@@ -93,13 +93,13 @@ export const fn = (info) => {
           // markers with display: none still rendered
           element.local !== 'marker'
         ) {
-          elementsToDelete.add(element);
+          elementsToDelete.set(element, false);
           return;
         }
 
         const opacity = properties.get('opacity')?.toString();
         if (opacity === '0' && !isInClipPath(element)) {
-          elementsToDelete.add(element);
+          elementsToDelete.set(element, true);
           return;
         }
       },
@@ -147,7 +147,7 @@ export const fn = (info) => {
             idToReferences,
           );
 
-          const nextElementsToDelete = new Set();
+          const nextElementsToDelete = new Map();
 
           // Remove the id attribute from any elements where it is not used.
           for (const [id, element] of idToElement) {
@@ -161,7 +161,7 @@ export const fn = (info) => {
               element.svgAtts.delete('id');
               if (elemsGroups.nonRendering.has(element.local)) {
                 // TODO: SOME OF THESE (E.G. CLIPPATH) MAY CONTAIN REFERENCED PATHS, ETC - NEED TO HANDLE THIS
-                nextElementsToDelete.add(element);
+                nextElementsToDelete.set(element, false);
                 idToElement.delete(id);
 
                 // If this element references others, remove this element from the list of references to those ids.
@@ -315,7 +315,7 @@ function parentIsMoving(element, moveToDefs) {
 }
 
 /**
- * @param {Set<import('../lib/types.js').XastElement>} elementsToDelete
+ * @param {Map<import('../lib/types.js').XastElement,boolean>} elementsToDelete
  * @param {ChildDeletionQueue} childrenToDelete
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  */
@@ -323,12 +323,15 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
   /** @type {Set<import('../lib/types.js').XastElement>} */
   const defsToHoist = new Set();
 
-  for (const element of elementsToDelete) {
+  for (const [element, onlyIfUnreferenced] of elementsToDelete) {
     // If the element has an id, remove references to it.
     const id = element.svgAtts.get('id')?.toString();
     if (id !== undefined) {
       const referencingElements = idToReferences.get(id);
       if (referencingElements) {
+        if (onlyIfUnreferenced && referencingElements.length > 0) {
+          continue;
+        }
         for (const referencingElement of referencingElements) {
           removeIdReferencesFromElement(
             referencingElement,
@@ -359,7 +362,7 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @param {import('../lib/types.js').ComputedPropertyMap} properties
- * @param {Set<import('../lib/types.js').XastElement>} elementsToDelete
+ * @param {Map<import('../lib/types.js').XastElement,boolean>} elementsToDelete
  * @returns {boolean}
  */
 function removeEmptyShapes(element, properties, elementsToDelete) {
@@ -373,7 +376,7 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
         return false;
       }
       if (d === undefined) {
-        elementsToDelete.add(element);
+        elementsToDelete.set(element, false);
         return true;
       }
       const commands = d.getParsedPath();
@@ -381,7 +384,7 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
         if (properties.get('marker-end') !== undefined) {
           return false;
         }
-        elementsToDelete.add(element);
+        elementsToDelete.set(element, false);
         return true;
       }
 

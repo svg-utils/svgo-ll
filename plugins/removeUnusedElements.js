@@ -327,6 +327,23 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
 
       return false;
     }
+    case 'rect':
+      {
+        const width = element.svgAtts.get('width');
+        const height = element.svgAtts.get('height');
+        // https://svgwg.org/svg2-draft/shapes.html#RectElement
+        if (
+          element.children.length === 0 &&
+          (width === undefined ||
+            height === undefined ||
+            width.toString() === '0' ||
+            height.toString() === '0')
+        ) {
+          elementsToDelete.set(element, false);
+          return true;
+        }
+      }
+      break;
   }
   return false;
 }

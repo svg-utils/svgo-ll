@@ -59,8 +59,8 @@ export const fn = (info) => {
         }
 
         if (elemsGroups.nonRendering.has(element.local)) {
-          if (id === undefined && element.local === 'filter') {
-            elementsToDelete.set(element, false);
+          if (id === undefined) {
+            elementsToDelete.set(element, true);
           }
           return;
         }
@@ -196,6 +196,7 @@ function isDefsChild(element) {
     element.parentNode.local === 'defs'
   );
 }
+
 /**
  * @param {import('../lib/types.js').XastElement} element
  * @returns {boolean}

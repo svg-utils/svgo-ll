@@ -1,13 +1,18 @@
-Remove unreferenced symbols.
+Remove unreferenced symbols with content that with references only inside the symbol.
 
 ===
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-  <symbol id="a">
-    <rect width="10" height="10"/>
+  <symbol>
+    <linearGradient id="b">
+      <stop offset="5%" stop-color="gold" />
+    </linearGradient>
+    <rect width="10" height="10" fill="url(#b)"/>
   </symbol>
 </svg>
 
 @@@
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <defs/>
+</svg>

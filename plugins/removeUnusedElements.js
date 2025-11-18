@@ -61,14 +61,26 @@ export const fn = (info) => {
         if (elemsGroups.nonRendering.has(element.local)) {
           if (id === undefined) {
             elementsToDelete.set(element, true);
+            switch (element.local) {
+              case 'clipPath':
+              case 'mask':
+              case 'pattern':
+              case 'symbol':
+                // Since there is no id, they can't be referenced directly, but may contain referenced content; convert
+                // to <defs>.
+                element.local = 'defs';
+                break;
+            }
           }
           return;
         }
 
-        // Remove <use> with no id in <defs>.
+        // Remove <use> or shape with no id in <defs>.
         if (
           id === undefined &&
-          (element.local === 'use' || element.local === 'path') &&
+          (element.local === 'g' ||
+            element.local === 'use' ||
+            elemsGroups.shape.has(element.local)) &&
           isDefsChild(element)
         ) {
           elementsToDelete.set(element, false);

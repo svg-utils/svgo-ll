@@ -1,6 +1,10 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray, SVGOError } from '../lib/svgo/tools.js';
-import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
+import {
+  getHrefId,
+  getReferencedIds2,
+  hasAttributes,
+} from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 
 export const name = 'removeUnusedElements';
@@ -78,13 +82,17 @@ export const fn = (info) => {
         // Remove <use> or shape with no id in <defs>.
         if (
           id === undefined &&
-          (element.local === 'g' ||
-            element.local === 'use' ||
-            elemsGroups.shape.has(element.local)) &&
+          (element.local === 'use' || elemsGroups.shape.has(element.local)) &&
           isDefsChild(element)
         ) {
           elementsToDelete.set(element, false);
           return;
+        }
+
+        // Treat <g> with no id in <defs> as <defs>.
+        if (id === undefined && element.local === 'g' && isDefsChild(element)) {
+          elementsToDelete.set(element, true);
+          element.local = 'defs';
         }
 
         const properties = styleData.computeProps(element, parentList);
@@ -237,9 +245,11 @@ function mergeDefs(defs, childrenToDelete) {
   for (let index = 1; index < defs.length; index++) {
     // Move all children into the first <defs>.
     const element = defs[index];
-    element.children.forEach((child) => (child.parentNode = mainDefs));
-    mainDefs.children = mainDefs.children.concat(element.children);
-    childrenToDelete.add(element);
+    if (!hasAttributes(element)) {
+      element.children.forEach((child) => (child.parentNode = mainDefs));
+      mainDefs.children = mainDefs.children.concat(element.children);
+      childrenToDelete.add(element);
+    }
   }
 }
 

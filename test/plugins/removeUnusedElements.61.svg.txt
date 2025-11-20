@@ -1,0 +1,25 @@
+Convert display="none" group to <defs>.
+
+===
+
+<svg viewBox="0 0 50 50"
+  xmlns="http://www.w3.org/2000/svg">
+  <g style="display:none">
+    <linearGradient id="b">
+      <stop offset="5%" stop-color="gold" />
+    </linearGradient>
+    <rect width="10" height="10"/>
+  </g>
+  <rect width="25" height="25" fill="url(#b)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+  <defs>
+    <linearGradient id="b">
+      <stop offset="5%" stop-color="gold"/>
+    </linearGradient>
+  </defs>
+  <rect width="25" height="25" fill="url(#b)"/>
+</svg>

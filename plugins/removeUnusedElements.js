@@ -72,8 +72,7 @@ export const fn = (info) => {
               case 'symbol':
                 // Since there is no id, they can't be referenced directly, but may contain referenced content; convert
                 // to <defs>.
-                element.local = 'defs';
-                allDefs.push(element);
+                convertToDefs(element, allDefs);
                 break;
             }
           }
@@ -92,11 +91,7 @@ export const fn = (info) => {
 
         // Treat <g> with no id in <defs> as <defs>.
         if (id === undefined && element.local === 'g' && isDefsChild(element)) {
-          element.local = 'defs';
-          allDefs.push(element);
-          // See https://svgwg.org/svg2-draft/struct.html#DefsElement - display attribute on <defs> is irrelevant and
-          // in practice seems to cause contained markers to not display.
-          element.svgAtts.delete('display');
+          convertToDefs(element, allDefs);
         }
 
         const properties = styleData.computeProps(element, parentList);
@@ -110,13 +105,19 @@ export const fn = (info) => {
 
         // Remove any rendering elements which are not visible.
         const display = properties.get('display')?.toString();
-        if (
-          display === 'none' &&
-          // markers with display: none still rendered
-          element.local !== 'marker'
-        ) {
-          elementsToDelete.set(element, false);
-          return;
+        if (display === 'none') {
+          switch (element.local) {
+            case 'g':
+              // A non-displaying <g> may contain referenced elements.
+              convertToDefs(element, allDefs);
+              return;
+            case 'marker':
+              // markers with display: none still rendered
+              break;
+            default:
+              elementsToDelete.set(element, false);
+              return;
+          }
         }
 
         const opacity = properties.get('opacity')?.toString();
@@ -179,6 +180,26 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../lib/types.js').XastElement[]} allDefs
+ */
+function convertToDefs(element, allDefs) {
+  element.local = 'defs';
+  allDefs.push(element);
+
+  // See https://svgwg.org/svg2-draft/struct.html#DefsElement - display attribute on <defs> is irrelevant and
+  // in practice seems to cause contained markers to not display.
+  element.svgAtts.delete('display');
+
+  /** @type {import('../types/types.js').StyleAttValue|undefined} */
+  const styleAtt = element.svgAtts.get('style');
+  if (styleAtt) {
+    styleAtt.delete('display');
+    styleAtt.updateElement(element);
+  }
+}
 
 /**
  * @param {import('../lib/types.js').XastElement} element

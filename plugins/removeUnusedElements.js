@@ -110,7 +110,10 @@ export const fn = (info) => {
         if (display === 'none') {
           switch (element.local) {
             case 'g':
-              // A non-displaying <g> may contain referenced elements.
+              // A non-displaying <g> may contain referenced elements. The attributes are ignored since display="none".
+              for (const attName of element.svgAtts.keys()) {
+                element.svgAtts.delete(attName);
+              }
               convertToDefs(element, allDefs);
               return;
             case 'marker':

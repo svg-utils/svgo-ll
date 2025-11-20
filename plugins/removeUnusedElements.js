@@ -24,6 +24,17 @@ const renderedElements = new Set([
 ]);
 elemsGroups.shape.forEach((name) => renderedElements.add(name));
 
+const uselessContainers = new Set([
+  'a',
+  'clipPath',
+  'g',
+  'marker',
+  'mask',
+  'pattern',
+  'svg',
+  'symbol',
+]);
+
 /** @type {import('./plugins-types.js').Plugin<'removeUnusedElements'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
@@ -104,7 +115,11 @@ export const fn = (info) => {
         }
 
         // Treat <g> with no id in <defs> as <defs>.
-        if (id === undefined && element.local === 'g' && isDefsChild(element)) {
+        if (
+          id === undefined &&
+          uselessContainers.has(element.local) &&
+          isDefsChild(element)
+        ) {
           convertToDefs(element, allDefs);
         }
 
@@ -122,10 +137,6 @@ export const fn = (info) => {
         if (display === 'none') {
           switch (element.local) {
             case 'g':
-              // A non-displaying <g> may contain referenced elements. The attributes are ignored since display="none".
-              for (const attName of element.svgAtts.keys()) {
-                element.svgAtts.delete(attName);
-              }
               convertToDefs(element, allDefs);
               return;
             case 'marker':
@@ -206,15 +217,13 @@ function convertToDefs(element, allDefs) {
   element.local = 'defs';
   allDefs.push(element);
 
-  // See https://svgwg.org/svg2-draft/struct.html#DefsElement - display attribute on <defs> is irrelevant and
-  // in practice seems to cause contained markers to not display.
-  element.svgAtts.delete('display');
-
-  /** @type {import('../types/types.js').StyleAttValue|undefined} */
-  const styleAtt = element.svgAtts.get('style');
-  if (styleAtt) {
-    styleAtt.delete('display');
-    styleAtt.updateElement(element);
+  // A non-displaying <g> may contain referenced elements. The attributes are ignored since display="none".
+  for (const attName of element.svgAtts.keys()) {
+    if (attName === 'color') {
+      // color seems to be required in some cases; see test 55.
+      continue;
+    }
+    element.svgAtts.delete(attName);
   }
 }
 

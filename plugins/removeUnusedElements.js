@@ -79,10 +79,12 @@ export const fn = (info) => {
           return;
         }
 
-        // Remove <use> or shape with no id in <defs>.
+        // Remove <use>, <image> or shape with no id in <defs>.
         if (
           id === undefined &&
-          (element.local === 'use' || elemsGroups.shape.has(element.local)) &&
+          (element.local === 'image' ||
+            element.local === 'use' ||
+            elemsGroups.shape.has(element.local)) &&
           isDefsChild(element)
         ) {
           elementsToDelete.set(element, false);

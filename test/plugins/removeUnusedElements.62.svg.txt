@@ -1,0 +1,15 @@
+Remove <image> with no id in <defs>.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs>
+    <image width="450" height="300" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAcIAAAEsAQMAAABqmCH0AAAABlBMVEU6if////9iy28EAAAAc0lEQVR42u3YsQ2AMAwAQW/AyKzmkdjANKkQEmCkQHFfRro6tiNGa1VldCJJkiRJ8p1c6rokSZIkSXKqPHvdbv3yJEmSJEk+l2YTkiRJkvxauuSTJEmS5P9kNUuSJEmSJBtSkiTNzGxCkiRJkrZlSZJ0aAeMAAsUIb+gigAAAABJRU5ErkJggg=="/>
+  </defs>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+  <defs/>
+</svg>

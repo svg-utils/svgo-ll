@@ -10,6 +10,16 @@ import { elemsGroups } from './_collections.js';
 export const name = 'removeUnusedElements';
 export const description = 'removes unused <defs> and non-displayed elements';
 
+const renderedElements = new Set([
+  'a',
+  'image',
+  'text',
+  'textPath',
+  'tspan',
+  'use',
+]);
+elemsGroups.shape.forEach((name) => renderedElements.add(name));
+
 /** @type {import('./plugins-types.js').Plugin<'removeUnusedElements'>} */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
@@ -82,9 +92,7 @@ export const fn = (info) => {
         // Remove <use>, <image> or shape with no id in <defs>.
         if (
           id === undefined &&
-          (element.local === 'image' ||
-            element.local === 'use' ||
-            elemsGroups.shape.has(element.local)) &&
+          renderedElements.has(element.local) &&
           isDefsChild(element)
         ) {
           elementsToDelete.set(element, false);

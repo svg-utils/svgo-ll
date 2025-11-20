@@ -171,9 +171,10 @@ export const fn = (info) => {
           currentElementsToDelete = nextElementsToDelete;
         }
 
-        mergeDefs(allDefs, childrenToDelete);
-
         childrenToDelete.delete();
+
+        // Merge defs after all elements have been removed.
+        mergeDefs(allDefs);
       },
     },
   };
@@ -238,13 +239,13 @@ function isInClipPath(element) {
 
 /**
  * @param {import('../lib/types.js').XastElement[]} defs
- * @param {ChildDeletionQueue} childrenToDelete
  */
-function mergeDefs(defs, childrenToDelete) {
+function mergeDefs(defs) {
   if (defs.length === 0) {
     return;
   }
 
+  const childrenToDelete = new ChildDeletionQueue();
   const mainDefs = defs[0];
   for (let index = 1; index < defs.length; index++) {
     // Move all children into the first <defs>.
@@ -255,6 +256,8 @@ function mergeDefs(defs, childrenToDelete) {
       childrenToDelete.add(element);
     }
   }
+
+  childrenToDelete.delete();
 }
 
 /**

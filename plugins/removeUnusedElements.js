@@ -73,6 +73,7 @@ export const fn = (info) => {
                 // Since there is no id, they can't be referenced directly, but may contain referenced content; convert
                 // to <defs>.
                 element.local = 'defs';
+                allDefs.push(element);
                 break;
             }
           }
@@ -91,8 +92,11 @@ export const fn = (info) => {
 
         // Treat <g> with no id in <defs> as <defs>.
         if (id === undefined && element.local === 'g' && isDefsChild(element)) {
-          elementsToDelete.set(element, true);
           element.local = 'defs';
+          allDefs.push(element);
+          // See https://svgwg.org/svg2-draft/struct.html#DefsElement - display attribute on <defs> is irrelevant and
+          // in practice seems to cause contained markers to not display.
+          element.svgAtts.delete('display');
         }
 
         const properties = styleData.computeProps(element, parentList);

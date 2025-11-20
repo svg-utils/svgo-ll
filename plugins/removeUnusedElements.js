@@ -1,5 +1,9 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { addToMapArray, SVGOError } from '../lib/svgo/tools.js';
+import {
+  addToMapArray,
+  getEllipseProperties,
+  SVGOError,
+} from '../lib/svgo/tools.js';
 import {
   getHrefId,
   getReferencedIds2,
@@ -366,6 +370,22 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
       if (properties.get('r')?.toString() === '0') {
         elementsToDelete.set(element, false);
         return true;
+      }
+      return false;
+    case 'ellipse':
+      {
+        // Ellipse with zero radius -- https://svgwg.org/svg2-draft/geometry.html#RxProperty
+        const props = getEllipseProperties(properties);
+        if (props === undefined) {
+          return false;
+        }
+        if (
+          element.children.length === 0 &&
+          (props.rx === '0' || props.ry === '0')
+        ) {
+          elementsToDelete.set(element, false);
+          return true;
+        }
       }
       return false;
     case 'path': {

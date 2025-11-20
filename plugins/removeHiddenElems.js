@@ -82,6 +82,7 @@ export const fn = (info) => {
       case 'ellipse':
         {
           // Ellipse with zero radius -- https://svgwg.org/svg2-draft/geometry.html#RxProperty
+          // @ts-ignore
           const props = getEllipseProperties(properties);
           if (props === undefined) {
             return false;

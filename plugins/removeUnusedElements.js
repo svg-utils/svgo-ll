@@ -180,16 +180,24 @@ export const fn = (info) => {
               }
 
               element.svgAtts.delete('id');
-              if (
-                elemsGroups.nonRendering.has(element.local) ||
-                (element.children.length === 0 && isDefsChild(element))
-              ) {
-                // TODO: SOME OF THESE (E.G. CLIPPATH) MAY CONTAIN REFERENCED PATHS, ETC - NEED TO HANDLE THIS
-                nextElementsToDelete.set(element, false);
-                idToElement.delete(id);
 
-                // If this element references others, remove this element from the list of references to those ids.
-                removeDescendantReferences(element, idToReferences);
+              if (elemsGroups.nonRendering.has(element.local)) {
+                if (hasReferencedChildren(element, idToReferences)) {
+                  convertToDefs(element, allDefs);
+                } else {
+                  nextElementsToDelete.set(element, false);
+                  idToElement.delete(id);
+
+                  // If this element references others, remove this element from the list of references to those ids.
+                  removeDescendantReferences(element, idToReferences);
+                }
+              } else if (isDefsChild(element)) {
+                if (uselessContainers.has(element.local)) {
+                  convertToDefs(element, allDefs);
+                } else if (element.children.length === 0) {
+                  nextElementsToDelete.set(element, false);
+                  idToElement.delete(id);
+                }
               }
             }
           }
@@ -237,20 +245,34 @@ function hasReferencedChildren(element, idToReferences) {
     if (child.type !== 'element') {
       continue;
     }
-    const id = child.svgAtts.get('id')?.toString();
-    if (id) {
-      const references = idToReferences.get(id);
-      if (references !== undefined && references.length > 0) {
-        return true;
-      }
+    if (hasReferences(child, idToReferences)) {
+      return true;
     }
     if (
       child.children.some(
         (grandchild) =>
           grandchild.type === 'element' &&
-          hasReferencedChildren(grandchild, idToReferences),
+          (hasReferencedChildren(grandchild, idToReferences) ||
+            hasReferences(grandchild, idToReferences)),
       )
     ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ *
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ * @returns {boolean}
+ */
+function hasReferences(element, idToReferences) {
+  const id = element.svgAtts.get('id')?.toString();
+  if (id) {
+    const references = idToReferences.get(id);
+    if (references !== undefined && references.length > 0) {
       return true;
     }
   }

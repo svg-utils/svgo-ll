@@ -197,6 +197,8 @@ export const fn = (info) => {
                 } else if (element.children.length === 0) {
                   nextElementsToDelete.set(element, false);
                   idToElement.delete(id);
+                  // If this element references others, remove this element from the list of references to those ids.
+                  removeDescendantReferences(element, idToReferences);
                 }
               }
             }
@@ -321,7 +323,14 @@ function mergeDefs(defs) {
     const element = defs[index];
     if (!hasAttributes(element)) {
       element.children.forEach((child) => (child.parentNode = mainDefs));
-      mainDefs.children = mainDefs.children.concat(element.children);
+      mainDefs.children = mainDefs.children.concat(
+        element.children.filter(
+          (child) =>
+            child.type !== 'element' ||
+            child.uri !== undefined ||
+            child.local !== 'defs',
+        ),
+      );
       childrenToDelete.add(element);
     }
   }

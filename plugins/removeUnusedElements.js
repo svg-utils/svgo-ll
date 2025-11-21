@@ -228,10 +228,23 @@ function convertToDefs(element, allDefs) {
   allDefs.push(element);
 
   // A non-displaying <g> may contain referenced elements. The attributes are ignored since display="none".
-  for (const attName of element.svgAtts.keys()) {
-    if (attName === 'color') {
-      // color seems to be required in some cases; see test 55.
-      continue;
+  for (const [attName, value] of element.svgAtts.entries()) {
+    switch (attName) {
+      case 'color':
+        // color seems to be required in some cases; see test 55.
+        continue;
+      case 'style':
+        {
+          const style =
+            /** @type {import('../types/types.js').StyleAttValue} */ (value);
+          for (const propName of style.keys()) {
+            if (propName !== 'color') {
+              style.delete(propName);
+            }
+          }
+          style.updateElement(element);
+        }
+        continue;
     }
     element.svgAtts.delete(attName);
   }

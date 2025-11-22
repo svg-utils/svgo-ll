@@ -1,4 +1,3 @@
-import * as cleanupIds from './cleanupIds.js';
 import * as cleanupAttributes from './cleanupAttributes.js';
 import * as cleanupTextElements from './cleanupTextElements.js';
 import * as cleanupTextNodes from './cleanupTextNodes.js';
@@ -11,7 +10,6 @@ import * as convertPathToUse from './convertPathToUse.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
-import * as mergeDefs from './mergeDefs.js';
 import * as mergeGradients from './mergeGradients.js';
 import * as minifyAttrsAndStyles from './minifyAttrsAndStyles.js';
 import * as minifyClassNames from './minifyClassNames.js';
@@ -26,7 +24,7 @@ import * as removeDesc from './removeDesc.js';
 import * as removeDoctype from './removeDoctype.js';
 import * as removeEditorsNSData from './removeEditorsNSData.js';
 import * as removeEmptyContainers from './removeEmptyContainers.js';
-import * as removeHiddenElems from './removeHiddenElems.js';
+import * as removeUnusedElements from './removeUnusedElements.js';
 import * as removeMetadata from './removeMetadata.js';
 import * as removeNonInheritableGroupAttrs from './removeNonInheritableGroupAttrs.js';
 import * as removeUnknownsAndDefaults from './removeUnknownsAndDefaults.js';
@@ -57,15 +55,12 @@ export const defaultPlugins = Object.freeze({
     inlineStyles,
     // Run minifyStyles after inlineStyles; minifyStyles can split a single class reference into multiple references.
     minifyStyles,
-    cleanupIds,
     minifyColors,
     minifyGradients,
     removeUnknownsAndDefaults,
     removeNonInheritableGroupAttrs,
+    removeUnusedElements,
     removeUselessStrokeAndFill,
-    removeHiddenElems,
-    // Run mergeDefs after removeHiddenElems, since removeHiddenElems may create <defs>.
-    mergeDefs,
     convertEllipseToCircle,
     moveElemsStylesToGroup,
     convertShapeToPath,

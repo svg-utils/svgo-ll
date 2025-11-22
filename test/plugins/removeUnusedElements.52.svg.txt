@@ -1,0 +1,17 @@
+Filter with no id should be removed.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <defs>
+    <filter x="0" y="0" width="1" height="1">
+      <feImage preserveAspectRatio="xMidYMin meet" href="../images/smiley.png"/>
+    </filter>
+  </defs>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <defs/>
+</svg>

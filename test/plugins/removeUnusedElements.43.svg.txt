@@ -1,0 +1,29 @@
+Convert nested non-rendered elements to defs.
+
+===
+
+<svg viewBox="-10 -10 70 70"
+  xmlns="http://www.w3.org/2000/svg">
+  <symbol id="a">
+    <g id="c">
+      <linearGradient id="d">
+        <stop offset="5%" stop-color="gold" />
+        <stop offset="95%" stop-color="red"/>
+      </linearGradient>
+      <rect id="b" width="50" height="50"/>
+    </g>
+  </symbol>
+  <rect id="e" width="50" height="50" fill="url(#d)"/>
+</svg>
+
+@@@
+
+<svg viewBox="-10 -10 70 70" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="d">
+      <stop offset="5%" stop-color="gold"/>
+      <stop offset=".95" stop-color="red"/>
+    </linearGradient>
+  </defs>
+  <rect width="50" height="50" fill="url(#d)"/>
+</svg>

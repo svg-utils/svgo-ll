@@ -1,0 +1,27 @@
+Don't move gradient if it is inheriting.
+
+===
+
+<svg viewBox="-10 -10 70 70"
+  xmlns="http://www.w3.org/2000/svg">
+  <g color="blue">
+    <linearGradient id="a">
+      <stop offset="5%" stop-color="gold" />
+      <stop offset="1" stop-color="currentColor" />
+    </linearGradient>
+    <rect width="50" height="50" fill="url(#a)"/>
+  </g>
+
+</svg>
+
+@@@
+
+<svg viewBox="-10 -10 70 70" xmlns="http://www.w3.org/2000/svg">
+  <g color="blue">
+    <linearGradient id="a">
+      <stop offset="5%" stop-color="gold"/>
+      <stop offset="1" stop-color="currentColor"/>
+    </linearGradient>
+    <rect width="50" height="50" fill="url(#a)"/>
+  </g>
+</svg>

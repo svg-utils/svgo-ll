@@ -1,0 +1,21 @@
+Remove elements only referenced by <use> if <use> is removed.
+
+===
+
+<svg viewBox="0 0 20 20"
+  xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="a">
+      <stop stop-color="gold" />
+      <stop offset="1" stop-color="green" />
+    </linearGradient>
+    <rect id="b" width="10" height="0"/>
+  </defs>
+  <use href="#b" fill="url(#a)"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <defs/>
+</svg>

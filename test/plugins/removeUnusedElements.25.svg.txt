@@ -1,0 +1,27 @@
+Preserve referenced elements within display:none or opacity:0 elements.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+  <g style="display:none">
+    <circle id="a" cx="2" cy="2" r="1"/>
+  </g>
+  <g style="opacity:0">
+    <circle id="b" cx="2" cy="2" r=".5"/>
+  </g>
+  <use href="#a" x="4" y="4"/>
+  <use href="#b" x="8" y="8"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+    <defs>
+        <circle id="a" cx="2" cy="2" r="1"/>
+    </defs>
+    <g style="opacity:0">
+        <circle id="b" cx="2" cy="2" r=".5"/>
+    </g>
+    <use href="#a" x="4" y="4"/>
+    <use href="#b" x="8" y="8"/>
+</svg>

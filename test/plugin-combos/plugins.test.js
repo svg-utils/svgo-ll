@@ -10,10 +10,6 @@ const tests = [
     config: { pluginNames: ['inlineStyles', 'stylesToClasses'] },
   },
   {
-    name: 'cleanupAttributes-removeHiddenElems',
-    config: { pluginNames: ['cleanupAttributes', 'removeHiddenElems'] },
-  },
-  {
     name: 'cleanupAttributes-removeUnknownsAndDefaults',
     config: { pluginNames: ['cleanupAttributes', 'removeUnknownsAndDefaults'] },
   },

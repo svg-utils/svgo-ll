@@ -1,0 +1,26 @@
+Remove display="none" when converting <g> to <defs>.
+
+===
+
+<svg viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <g display="none">
+      <marker id="testMarker2" markerWidth="100" markerHeight="100">
+        <path d="M 0 0 L 200 200 L 0 150 z" fill="green" />
+      </marker>
+    </g>
+  </defs>
+  <path d="M 100 0 L 125 25" marker-end="url(#testMarker2)" />
+</svg>
+
+@@@
+
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="testMarker2" markerWidth="100" markerHeight="100">
+      <path d="M 0 0 L 200 200 L 0 150 z" fill="green"/>
+    </marker>
+  </defs>
+  <path d="M 100 0 L 125 25" marker-end="url(#testMarker2)"/>
+</svg>

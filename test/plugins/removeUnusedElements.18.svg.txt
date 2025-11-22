@@ -1,0 +1,24 @@
+Preserve <defs> in group.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="test-body-content">
+        <defs>
+            <path id="reference" d="M240 1h239v358H240z"/>
+        </defs>
+        <use xlink:href="#reference" id="use" fill="gray"/>
+    </g>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g>
+        <defs>
+            <path id="reference" d="M240 1h239v358H240z"/>
+        </defs>
+        <use xlink:href="#reference" fill="gray"/>
+    </g>
+</svg>

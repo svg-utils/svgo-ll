@@ -1,5 +1,4 @@
 import * as applyTransforms from '../plugins/applyTransforms.js';
-import * as cleanupIds from '../plugins/cleanupIds.js';
 import * as cleanupAttributes from '../plugins/cleanupAttributes.js';
 import * as cleanupTextNodes from '../plugins/cleanupTextNodes.js';
 import * as cleanupTextElements from '../plugins/cleanupTextElements.js';
@@ -13,7 +12,6 @@ import * as convertShapeToPath from '../plugins/convertShapeToPath.js';
 import * as createGroups from '../plugins/createGroups.js';
 import * as inlineStyles from '../plugins/inlineStyles.js';
 import * as inlineUse from '../plugins/inlineUse.js';
-import * as mergeDefs from '../plugins/mergeDefs.js';
 import * as mergeGradients from '../plugins/mergeGradients.js';
 import * as minifyAttrsAndStyles from '../plugins/minifyAttrsAndStyles.js';
 import * as minifyClassNames from '../plugins/minifyClassNames.js';
@@ -29,10 +27,10 @@ import * as removeDimensions from '../plugins/removeDimensions.js';
 import * as removeDoctype from '../plugins/removeDoctype.js';
 import * as removeEditorsNSData from '../plugins/removeEditorsNSData.js';
 import * as removeEmptyContainers from '../plugins/removeEmptyContainers.js';
-import * as removeHiddenElems from '../plugins/removeHiddenElems.js';
 import * as removeMetadata from '../plugins/removeMetadata.js';
 import * as removeNonInheritableGroupAttrs from '../plugins/removeNonInheritableGroupAttrs.js';
 import * as removeUnknownsAndDefaults from '../plugins/removeUnknownsAndDefaults.js';
+import * as removeUnusedElements from '../plugins/removeUnusedElements.js';
 import * as removeUnusedNS from '../plugins/removeUnusedNS.js';
 import * as removeUselessStrokeAndFill from '../plugins/removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from '../plugins/removeXMLProcInst.js';
@@ -89,7 +87,6 @@ class StaticMap {
 const pluginList = [
   applyTransforms,
   cleanupAttributes,
-  cleanupIds,
   cleanupTextNodes,
   cleanupTextElements,
   cleanupXlink,
@@ -102,7 +99,6 @@ const pluginList = [
   createGroups,
   inlineStyles,
   inlineUse,
-  mergeDefs,
   mergeGradients,
   minifyAttrsAndStyles,
   minifyClassNames,
@@ -118,10 +114,10 @@ const pluginList = [
   removeDoctype,
   removeEditorsNSData,
   removeEmptyContainers,
-  removeHiddenElems,
   removeMetadata,
   removeNonInheritableGroupAttrs,
   removeUnknownsAndDefaults,
+  removeUnusedElements,
   removeUnusedNS,
   removeUselessStrokeAndFill,
   removeXMLProcInst,

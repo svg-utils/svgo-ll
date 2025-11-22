@@ -3,7 +3,7 @@ import { defaultPlugins } from '../../plugins/default-plugins.js';
 
 describe('ensure exported builtins are immutable', () => {
   it('make sure builtin name cannot be changed', () => {
-    const name = 'cleanupIds';
+    const name = 'removeUnusedElements';
     const plugin = builtinPlugins.get(name);
     if (!plugin) {
       throw new Error();
@@ -20,7 +20,7 @@ describe('ensure exported builtins are immutable', () => {
   });
 
   it('make sure builtin Map cannot be changed', () => {
-    const name = 'cleanupIds';
+    const name = 'removeUnusedElements';
     expect(builtinPlugins.has(name)).toBe(true);
     try {
       // @ts-ignore

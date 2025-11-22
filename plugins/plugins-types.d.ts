@@ -3,10 +3,6 @@ import type { Plugin as PluginDef } from '../lib/types.js';
 type BuiltinPlugins = {
   applyTransforms: void;
   cleanupAttributes: void;
-  cleanupIds: {
-    preserve?: string[];
-    preservePrefixes?: string[];
-  };
   cleanupTextElements: void;
   cleanupTextNodes: void;
   cleanupXlink: void;
@@ -63,23 +59,6 @@ type BuiltinPlugins = {
     additionalNamespaces?: string[];
   };
   removeEmptyContainers: void;
-  removeHiddenElems: {
-    isHidden?: boolean;
-    displayNone?: boolean;
-    opacity0?: boolean;
-    circleR0?: boolean;
-    ellipseRX0?: boolean;
-    ellipseRY0?: boolean;
-    rectWidth0?: boolean;
-    rectHeight0?: boolean;
-    patternWidth0?: boolean;
-    patternHeight0?: boolean;
-    imageWidth0?: boolean;
-    imageHeight0?: boolean;
-    pathEmptyD?: boolean;
-    polylineEmptyPoints?: boolean;
-    polygonEmptyPoints?: boolean;
-  };
   removeMetadata: void;
   removeNonInheritableGroupAttrs: void;
   removeUnknownsAndDefaults: {

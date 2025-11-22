@@ -13,7 +13,6 @@ import * as convertShapeToPath from '../plugins/convertShapeToPath.js';
 import * as createGroups from '../plugins/createGroups.js';
 import * as inlineStyles from '../plugins/inlineStyles.js';
 import * as inlineUse from '../plugins/inlineUse.js';
-import * as mergeDefs from '../plugins/mergeDefs.js';
 import * as mergeGradients from '../plugins/mergeGradients.js';
 import * as minifyAttrsAndStyles from '../plugins/minifyAttrsAndStyles.js';
 import * as minifyClassNames from '../plugins/minifyClassNames.js';
@@ -103,7 +102,6 @@ const pluginList = [
   createGroups,
   inlineStyles,
   inlineUse,
-  mergeDefs,
   mergeGradients,
   minifyAttrsAndStyles,
   minifyClassNames,

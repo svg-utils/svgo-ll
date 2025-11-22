@@ -19,9 +19,9 @@ Preserve referenced elements within display:none or opacity:0 elements.
     <defs>
         <circle id="a" cx="2" cy="2" r="1"/>
     </defs>
-    <defs>
+    <g style="opacity:0">
         <circle id="b" cx="2" cy="2" r=".5"/>
-    </defs>
+    </g>
     <use href="#a" x="4" y="4"/>
     <use href="#b" x="8" y="8"/>
 </svg>

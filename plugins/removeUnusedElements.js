@@ -398,7 +398,12 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
           continue;
         }
         for (const referencingElement of referencingElements) {
-          removeUsingElements(referencingElement, id, childrenToDelete);
+          removeUsingElements(
+            referencingElement,
+            id,
+            childrenToDelete,
+            idToReferences,
+          );
         }
       }
     }
@@ -493,13 +498,14 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
  * @param {import('../lib/types.js').XastElement} element
  * @param {string} id
  * @param {ChildDeletionQueue} childrenToDelete
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  */
-function removeUsingElements(element, id, childrenToDelete) {
+function removeUsingElements(element, id, childrenToDelete, idToReferences) {
   if (element.local === 'use') {
     const hrefId = getHrefId(element);
     if (hrefId === id) {
-      // TODO: REMOVE ANY OTHER REFERENCES FROM THIS ELEMENT
       childrenToDelete.add(element);
+      removeDescendantReferences(element, idToReferences);
     }
   }
 }

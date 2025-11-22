@@ -37,6 +37,8 @@ describe('test --options option', function () {
       PLUGINOPT_FILE1,
       '-o',
       PLUGINOPT_FILE1_OPT,
+      '--disable',
+      'removeUnusedElements',
       '--quiet',
       '--options',
       path.resolve(PLUGINOPT_DIR, 'options.minifyIds.json'),

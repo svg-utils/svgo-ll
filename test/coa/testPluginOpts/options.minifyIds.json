@@ -1,7 +1,4 @@
 {
-  "cleanupIds": {
-    "preserve": "abc"
-  },
   "minifyIds": {
     "preserve": "abc"
   }

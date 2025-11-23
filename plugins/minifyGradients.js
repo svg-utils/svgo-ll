@@ -261,10 +261,6 @@ function removeDuplicateStops(element) {
 
     if (stops.length > 0) {
       const lastStop = stops[stops.length - 1];
-      // if (lastStop.offset.toString() === '1') {
-      //   unneededStops.add(child);
-      //   continue;
-      // }
 
       if (
         lastStop.offset.toString() === stop.offset.toString() &&

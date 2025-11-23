@@ -277,19 +277,19 @@ function removeDuplicateStops(element) {
     }
 
     // If there are more than 2 consecutive stops with identical color/opacity, the intermediates are irrelevant.
-    // if (stops.length > 1) {
-    //   const lastStop = stops[stops.length - 1];
-    //   const prevStop = stops[stops.length - 2];
-    //   if (
-    //     lastStop.color.toString() === stop.color.toString() &&
-    //     lastStop.opacity.toString() === stop.opacity.toString() &&
-    //     prevStop.color.toString() === stop.color.toString() &&
-    //     prevStop.opacity.toString() === stop.opacity.toString()
-    //   ) {
-    //     unneededStops.add(lastStop.element);
-    //     stops.pop();
-    //   }
-    // }
+    if (stops.length > 1) {
+      const lastStop = stops[stops.length - 1];
+      const prevStop = stops[stops.length - 2];
+      if (
+        lastStop.color.toString() === stop.color.toString() &&
+        lastStop.opacity.toString() === stop.opacity.toString() &&
+        prevStop.color.toString() === stop.color.toString() &&
+        prevStop.opacity.toString() === stop.opacity.toString()
+      ) {
+        unneededStops.add(lastStop.element);
+        stops.pop();
+      }
+    }
 
     stops.push(stop);
   }

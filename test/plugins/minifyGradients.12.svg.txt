@@ -1,0 +1,28 @@
+Remove unnecessary intermediate stops.
+
+===
+
+<svg viewBox="0 0 20 20"
+  xmlns="http://www.w3.org/2000/svg">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="white"/>
+    <stop offset=".2" stop-color="blue"/>
+    <stop offset=".25" stop-color="blue"/>
+    <stop offset=".3" style="stop-color:blue"/>
+    <stop offset=".4" style="stop-color:blue"/>
+    <stop offset="1" stop-color="black"/>
+  </linearGradient>
+  <rect width="20" height="20" fill="url(#a)"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+  <linearGradient id="a">
+    <stop offset="0" stop-color="white"/>
+    <stop offset=".2" stop-color="blue"/>
+    <stop offset=".4" style="stop-color:blue"/>
+    <stop offset="1" stop-color="black"/>
+  </linearGradient>
+  <rect width="20" height="20" fill="url(#a)"/>
+</svg>

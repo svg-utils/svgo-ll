@@ -228,9 +228,15 @@ function inlineGradient(
  * @param {import('../lib/types.js').XastElement} element
  */
 function removeDuplicateStops(element) {
-  /** @type {{offset:StopOffsetAttValue,color:import('../types/types.js').ColorAttValue,opacity:import('../types/types.js').OpacityAttValue}|undefined} */
-  let lastStop;
-  const duplicates = new Set();
+  /** @type {{
+   * offset:StopOffsetAttValue,
+   * color:import('../types/types.js').ColorAttValue,
+   * opacity:import('../types/types.js').OpacityAttValue,
+   * element:import('../lib/types.js').XastElement
+   * }[]} */
+  const stops = [];
+  /** @type {Set<import('../lib/types.js').XastChild>} */
+  const unneededStops = new Set();
   for (const child of element.children) {
     if (
       child.type !== 'element' ||
@@ -246,22 +252,45 @@ function removeDuplicateStops(element) {
     const color = props.get('stop-color') ?? new ColorAttValue('black');
     /** @type {import('../types/types.js').OpacityAttValue} */
     const opacity = props.get('stop-opacity') ?? new OpacityAttValue('1');
-    const stop = { offset: offset, color: color, opacity: opacity };
-    if (lastStop !== undefined) {
+    const stop = {
+      offset: offset,
+      color: color,
+      opacity: opacity,
+      element: child,
+    };
+    if (stops.length > 0) {
+      const lastStop = stops[stops.length - 1];
       if (
         lastStop.offset.toString() === stop.offset.toString() &&
         lastStop.color.toString() === stop.color.toString() &&
         lastStop.opacity.toString() === stop.opacity.toString()
       ) {
-        duplicates.add(child);
+        unneededStops.add(child);
+        continue;
       }
     }
-    lastStop = stop;
+
+    // If there are more than 2 consecutive stops with identical color/opacity, the intermediates are irrelevant.
+    if (stops.length > 1) {
+      const lastStop = stops[stops.length - 1];
+      const prevStop = stops[stops.length - 2];
+      if (
+        lastStop.color.toString() === stop.color.toString() &&
+        lastStop.opacity.toString() === stop.opacity.toString() &&
+        prevStop.color.toString() === stop.color.toString() &&
+        prevStop.opacity.toString() === stop.opacity.toString()
+      ) {
+        unneededStops.add(lastStop.element);
+        stops.pop();
+      }
+    }
+
+    stops.push(stop);
   }
 
-  if (duplicates.size > 0) {
+  if (unneededStops.size > 0) {
     element.children = element.children.filter(
-      (child) => !duplicates.has(child),
+      (child) => !unneededStops.has(child),
     );
   }
 }

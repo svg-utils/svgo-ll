@@ -2,7 +2,6 @@ import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
-import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
@@ -128,10 +127,7 @@ export const fn = (info, params) => {
               break;
             case 'offset':
               if (element.local === 'stop') {
-                const att = StopOffsetAttValue.getAttValue(element);
-                if (att) {
-                  element.svgAtts.set('offset', att.round(stopOffsetDigits));
-                }
+                element.svgAtts.set('offset', attValue.round(stopOffsetDigits));
               }
               break;
             case 'stdDeviation':

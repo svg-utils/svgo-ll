@@ -1,8 +1,11 @@
+import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
+import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { StopOffsetAttValue } from '../lib/attrs/stopOffsetAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { recordReferencedIds } from '../lib/tools-ast.js';
+import { getPresentationProperties } from './_styles.js';
 
 export const name = 'minifyGradients';
 export const description =
@@ -48,6 +51,7 @@ export const fn = (info) => {
         switch (element.local) {
           case 'linearGradient':
           case 'radialGradient':
+            removeDuplicateStops(element);
             if (inlineGradients) {
               const id = element.svgAtts.get('id')?.toString();
               if (id) {
@@ -63,9 +67,6 @@ export const fn = (info) => {
                 }
               }
             }
-            break;
-          case 'stop':
-            StopOffsetAttValue.getAttValue(element);
             break;
         }
       },
@@ -220,6 +221,48 @@ function inlineGradient(
       solidGradients.set(innerIdStr, colorData);
       solidGradients.delete(origInnerId);
     }
+  }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ */
+function removeDuplicateStops(element) {
+  /** @type {{offset:StopOffsetAttValue,color:import('../types/types.js').ColorAttValue,opacity:import('../types/types.js').OpacityAttValue}|undefined} */
+  let lastStop;
+  const duplicates = new Set();
+  for (const child of element.children) {
+    if (
+      child.type !== 'element' ||
+      child.uri !== undefined ||
+      child.local !== 'stop'
+    ) {
+      continue;
+    }
+    /** @type {StopOffsetAttValue} */
+    const offset = child.svgAtts.get('offset') ?? new StopOffsetAttValue('0');
+    const props = getPresentationProperties(child);
+    /** @type {ColorAttValue} */
+    const color = props.get('stop-color') ?? new ColorAttValue('black');
+    /** @type {import('../types/types.js').OpacityAttValue} */
+    const opacity = props.get('stop-opacity') ?? new OpacityAttValue('1');
+    const stop = { offset: offset, color: color, opacity: opacity };
+    if (lastStop !== undefined) {
+      if (
+        lastStop.offset.toString() === stop.offset.toString() &&
+        lastStop.color.toString() === stop.color.toString() &&
+        lastStop.opacity.toString() === stop.opacity.toString()
+      ) {
+        duplicates.add(child);
+      }
+    }
+    lastStop = stop;
+  }
+
+  if (duplicates.size > 0) {
+    element.children = element.children.filter(
+      (child) => !duplicates.has(child),
+    );
   }
 }
 

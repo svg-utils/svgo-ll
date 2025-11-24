@@ -81,6 +81,12 @@ function removePresentationAttributes(svgAtts) {
         case 'clip-path':
         case 'clip-rule':
           continue;
+        case 'visibility':
+          // For clipPath, visibility="hidden" is relevant.
+          if (attValue.toString() === 'hidden') {
+            continue;
+          }
+          break;
       }
       svgAtts.delete(attName);
     }

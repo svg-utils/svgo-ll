@@ -64,8 +64,12 @@ export function fn() {
  * @param {import('../lib/types.js').SvgAttValues} svgAtts
  */
 function removePresentationAttributes(svgAtts) {
-  for (const attName of svgAtts.keys()) {
+  for (const [attName, attValue] of svgAtts.entries()) {
     if (attrsGroups.presentation.has(attName)) {
+      // For clipPath, display="none" is relevant.
+      if (attName === 'display' && attValue.toString() === 'none') {
+        continue;
+      }
       svgAtts.delete(attName);
     }
   }

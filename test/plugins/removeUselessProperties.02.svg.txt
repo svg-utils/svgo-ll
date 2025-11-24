@@ -1,0 +1,26 @@
+Don't remove presentation properties from clip-path shapes when they are <use>d.
+
+===
+
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="cp">
+      <path id="p" style="opacity:.2;fill:red" d="M20 20h40v180z"/>
+    </clipPath>
+  </defs>
+  <circle cx="10" cy="20" r="20" clip-path="url(#cp)"/>
+  <use href="#p"/>
+
+</svg>
+
+@@@
+
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="cp">
+      <path id="p" style="opacity:.2;fill:red" d="M20 20h40v180z"/>
+    </clipPath>
+  </defs>
+  <circle cx="10" cy="20" r="20" clip-path="url(#cp)"/>
+  <use href="#p"/>
+</svg>

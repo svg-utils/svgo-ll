@@ -77,6 +77,7 @@ type BuiltinPlugins = {
   };
   removeUnusedElements: void;
   removeUnusedNS: void;
+  removeUselessProperties: void;
   removeUselessStrokeAndFill: void;
   removeXMLProcInst: void;
   round: {

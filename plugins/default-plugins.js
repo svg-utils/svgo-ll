@@ -29,6 +29,7 @@ import * as removeMetadata from './removeMetadata.js';
 import * as removeNonInheritableGroupAttrs from './removeNonInheritableGroupAttrs.js';
 import * as removeUnknownsAndDefaults from './removeUnknownsAndDefaults.js';
 import * as removeUnusedNS from './removeUnusedNS.js';
+import * as removeUselessProperties from './removeUselessProperties.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 import * as stylesToClasses from './stylesToClasses.js';
@@ -60,6 +61,7 @@ export const defaultPlugins = Object.freeze({
     removeUnknownsAndDefaults,
     removeNonInheritableGroupAttrs,
     removeUnusedElements,
+    removeUselessProperties,
     removeUselessStrokeAndFill,
     convertEllipseToCircle,
     moveElemsStylesToGroup,

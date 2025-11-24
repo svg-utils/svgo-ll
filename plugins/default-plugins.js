@@ -67,6 +67,7 @@ export const defaultPlugins = Object.freeze({
     convertShapeToPath,
     minifyPathData,
     mergeGradients,
+    // Run minifyGradients after mergeGradients; minifyGradients may make them un-mergeable.
     minifyGradients,
     removeEmptyContainers,
     convertPathToUse,

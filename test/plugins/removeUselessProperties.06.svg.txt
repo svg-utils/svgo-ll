@@ -1,0 +1,26 @@
+Preserve clip-path in clipPath.
+
+===
+
+<svg viewBox="0 0 100 100"
+  xmlns="http://www.w3.org/2000/svg">
+  <clipPath id="a">
+    <rect width="40" height="40" fill="red" clip-path="url(#b)"/>
+  </clipPath>
+  <clipPath id="b">
+    <rect width="40" height="40" x="30" y="30"/>
+  </clipPath>
+  <circle cx="50" cy="50" r="40" clip-path="url(#a)"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <clipPath id="a">
+    <rect width="40" height="40" clip-path="url(#b)"/>
+  </clipPath>
+  <clipPath id="b">
+    <rect width="40" height="40" x="30" y="30"/>
+  </clipPath>
+  <circle cx="50" cy="50" r="40" clip-path="url(#a)"/>
+</svg>

@@ -29,6 +29,7 @@ import * as removeMetadata from './removeMetadata.js';
 import * as removeNonInheritableGroupAttrs from './removeNonInheritableGroupAttrs.js';
 import * as removeUnknownsAndDefaults from './removeUnknownsAndDefaults.js';
 import * as removeUnusedNS from './removeUnusedNS.js';
+import * as removeUselessProperties from './removeUselessProperties.js';
 import * as removeUselessStrokeAndFill from './removeUselessStrokeAndFill.js';
 import * as removeXMLProcInst from './removeXMLProcInst.js';
 import * as stylesToClasses from './stylesToClasses.js';
@@ -56,9 +57,9 @@ export const defaultPlugins = Object.freeze({
     // Run minifyStyles after inlineStyles; minifyStyles can split a single class reference into multiple references.
     minifyStyles,
     minifyColors,
-    minifyGradients,
     removeUnknownsAndDefaults,
     removeNonInheritableGroupAttrs,
+    removeUselessProperties,
     removeUnusedElements,
     removeUselessStrokeAndFill,
     convertEllipseToCircle,
@@ -66,6 +67,8 @@ export const defaultPlugins = Object.freeze({
     convertShapeToPath,
     minifyPathData,
     mergeGradients,
+    // Run minifyGradients after mergeGradients; minifyGradients may make them un-mergeable.
+    minifyGradients,
     removeEmptyContainers,
     convertPathToUse,
     createGroups,

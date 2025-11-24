@@ -57,12 +57,12 @@ export const defaultPlugins = Object.freeze({
     // Run minifyStyles after inlineStyles; minifyStyles can split a single class reference into multiple references.
     minifyStyles,
     minifyColors,
-    minifyGradients,
     removeUnknownsAndDefaults,
     removeNonInheritableGroupAttrs,
     removeUselessProperties,
     removeUnusedElements,
     removeUselessStrokeAndFill,
+    minifyGradients,
     convertEllipseToCircle,
     moveElemsStylesToGroup,
     convertShapeToPath,

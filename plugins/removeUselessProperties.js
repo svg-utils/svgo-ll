@@ -1,9 +1,14 @@
 import { getHrefId } from '../lib/tools-ast.js';
-import { attrsGroups, elemsGroups } from './_collections.js';
+import {
+  elemsGroups,
+  presentationPropertiesMinusTransform,
+} from './_collections.js';
 
 export const name = 'removeUselessProperties';
 export const description =
   'removes properties and attributes that have no effect';
+
+const presentationProperties = new Set(presentationPropertiesMinusTransform);
 
 /** @type {import('./plugins-types.js').Plugin<'removeUselessProperties'>} */
 export function fn() {
@@ -65,7 +70,7 @@ export function fn() {
  */
 function removePresentationAttributes(svgAtts) {
   for (const [attName, attValue] of svgAtts.entries()) {
-    if (attrsGroups.presentation.has(attName)) {
+    if (presentationProperties.has(attName)) {
       // For clipPath, display="none" is relevant.
       if (attName === 'display' && attValue.toString() === 'none') {
         continue;

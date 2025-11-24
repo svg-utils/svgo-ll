@@ -93,15 +93,7 @@ export const nonAttributeProperties = new Set([
   'translate',
 ]);
 
-/**
- * See https://www.w3.org/TR/SVG2/styling.html#PresentationAttributes.
- * The list below also includes:
- * - the shorthand property "font"
- * - the "transform-origin" property.
- * - the "gradientTransform" and "patternTransform" attribute values.
- * - the "translate", "rotate", and "scale" individual transform properties
- */
-export const presentationProperties = new Set([
+export const presentationPropertiesMinusTransform = [
   'alignment-baseline',
   'baseline-shift',
   'clip-path',
@@ -130,7 +122,6 @@ export const presentationProperties = new Set([
   'font',
   'glyph-orientation-horizontal',
   'glyph-orientation-vertical',
-  'gradientTransform',
   'image-rendering',
   'letter-spacing',
   'lighting-color',
@@ -141,10 +132,7 @@ export const presentationProperties = new Set([
   'opacity',
   'overflow',
   'paint-order',
-  'patternTransform',
   'pointer-events',
-  'rotate',
-  'scale',
   'shape-rendering',
   'stop-color',
   'stop-opacity',
@@ -160,16 +148,33 @@ export const presentationProperties = new Set([
   'text-decoration',
   'text-overflow',
   'text-rendering',
-  'transform-origin',
-  'transform',
-  'translate',
   'unicode-bidi',
   'vector-effect',
   'visibility',
   'white-space',
   'word-spacing',
   'writing-mode',
-]);
+];
+
+/**
+ * See https://www.w3.org/TR/SVG2/styling.html#PresentationAttributes.
+ * The list below also includes:
+ * - the shorthand property "font"
+ * - the "transform-origin" property.
+ * - the "gradientTransform" and "patternTransform" attribute values.
+ * - the "translate", "rotate", and "scale" individual transform properties
+ */
+export const presentationProperties = new Set(
+  presentationPropertiesMinusTransform.concat([
+    'gradientTransform',
+    'patternTransform',
+    'rotate',
+    'scale',
+    'transform-origin',
+    'transform',
+    'translate',
+  ]),
+);
 
 export const pathElems = new Set(['glyph', 'missing-glyph', 'path']);
 

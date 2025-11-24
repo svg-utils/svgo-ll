@@ -42,7 +42,7 @@ export function fn() {
           for (const child of clipPath.children) {
             if (
               child.type !== 'element' ||
-              !elemsGroups.shape.has(child.local)
+              !(elemsGroups.shape.has(child.local) || child.local === 'use')
             ) {
               continue;
             }
@@ -71,9 +71,16 @@ export function fn() {
 function removePresentationAttributes(svgAtts) {
   for (const [attName, attValue] of svgAtts.entries()) {
     if (presentationProperties.has(attName)) {
-      // For clipPath, display="none" is relevant.
-      if (attName === 'display' && attValue.toString() === 'none') {
-        continue;
+      switch (attName) {
+        case 'display':
+          // For clipPath, display="none" is relevant.
+          if (attValue.toString() === 'none') {
+            continue;
+          }
+          break;
+        case 'clip-path':
+        case 'clip-rule':
+          continue;
       }
       svgAtts.delete(attName);
     }

@@ -62,6 +62,9 @@ export const fn = (info) => {
   /** @type {Map<import('../lib/types.js').XastElement,boolean>} */
   const elementsToDelete = new Map();
 
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const clipPaths = new Set();
+
   return {
     element: {
       enter: (element, parentList) => {
@@ -100,6 +103,9 @@ export const fn = (info) => {
                 convertToDefs(element, allDefs);
                 break;
             }
+          }
+          if (element.local === 'clipPath') {
+            clipPaths.add(element);
           }
           return;
         }
@@ -211,6 +217,9 @@ export const fn = (info) => {
         }
 
         childrenToDelete.delete();
+
+        // If there are any empty <clipPath> elements, remove them and any element that references them.
+        removeEmptyClipPaths(clipPaths, idToReferences);
 
         // Merge defs after all elements have been removed.
         mergeDefs(allDefs);
@@ -414,6 +423,33 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
       childrenToDelete.add(element);
     }
   }
+}
+
+/**
+ * @param {Set<import('../lib/types.js').XastElement>} clipPaths
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ */
+function removeEmptyClipPaths(clipPaths, idToReferences) {
+  const childrenToDelete = new ChildDeletionQueue();
+  for (const clipPath of clipPaths) {
+    if (clipPath.children.length > 0) {
+      continue;
+    }
+    childrenToDelete.add(clipPath);
+    const id = clipPath.svgAtts.get('id')?.toString();
+    if (id === undefined) {
+      continue;
+    }
+
+    const refs = idToReferences.get(id);
+    if (refs === undefined) {
+      continue;
+    }
+
+    refs.forEach((ref) => childrenToDelete.add(ref));
+  }
+
+  childrenToDelete.delete();
 }
 
 /**

@@ -163,63 +163,16 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
-        const childrenToDelete = new ChildDeletionQueue();
-
-        let currentElementsToDelete = elementsToDelete;
         const styleIds = styleData.getReferencedIds();
-        while (true) {
-          removeElements(
-            currentElementsToDelete,
-            childrenToDelete,
-            idToReferences,
-          );
 
-          const nextElementsToDelete = new Map();
-
-          // Remove the id attribute from any elements where it is not used.
-          for (const [id, element] of idToElement) {
-            const references = idToReferences.get(id);
-            if (references === undefined || references.length === 0) {
-              // Make sure it's not referenced by <style>.
-              if (styleIds.has(id)) {
-                continue;
-              }
-
-              element.svgAtts.delete('id');
-
-              if (elemsGroups.nonRendering.has(element.local)) {
-                if (hasReferencedChildren(element, idToReferences)) {
-                  convertToDefs(element, allDefs);
-                } else {
-                  nextElementsToDelete.set(element, false);
-                  idToElement.delete(id);
-
-                  // If this element references others, remove this element from the list of references to those ids.
-                  removeDescendantReferences(element, idToReferences);
-                }
-              } else if (isDefsChild(element)) {
-                if (uselessContainers.has(element.local)) {
-                  convertToDefs(element, allDefs);
-                } else if (element.children.length === 0) {
-                  nextElementsToDelete.set(element, false);
-                  idToElement.delete(id);
-                  // If this element references others, remove this element from the list of references to those ids.
-                  removeDescendantReferences(element, idToReferences);
-                }
-              }
-            }
-          }
-
-          if (nextElementsToDelete.size === 0) {
-            break;
-          }
-          currentElementsToDelete = nextElementsToDelete;
-        }
-
-        childrenToDelete.delete();
-
-        // If there are any empty <clipPath> elements, remove them and any element that references them.
-        removeEmptyClipPaths(clipPaths, idToReferences);
+        deleteElementsAndClipPath(
+          elementsToDelete,
+          idToElement,
+          idToReferences,
+          allDefs,
+          clipPaths,
+          styleIds,
+        );
 
         // Merge defs after all elements have been removed.
         mergeDefs(allDefs);
@@ -256,6 +209,86 @@ function convertToDefs(element, allDefs) {
         continue;
     }
     element.svgAtts.delete(attName);
+  }
+}
+
+/**
+ * @param {Map<import('../lib/types.js').XastElement,boolean>} elementsToDelete
+ * @param {Map<string,import('../lib/types.js').XastElement>} idToElement
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ * @param {import('../lib/types.js').XastElement[]} allDefs
+ * @param {Set<import('../lib/types.js').XastElement>} clipPaths
+ * @param {Map<string,import('../lib/types.js').CSSRule[]>} styleIds
+ */
+function deleteElementsAndClipPath(
+  elementsToDelete,
+  idToElement,
+  idToReferences,
+  allDefs,
+  clipPaths,
+  styleIds,
+) {
+  const childrenToDelete = new ChildDeletionQueue();
+
+  let currentElementsToDelete = elementsToDelete;
+  while (true) {
+    removeElements(currentElementsToDelete, childrenToDelete, idToReferences);
+
+    const nextElementsToDelete = new Map();
+
+    // Remove the id attribute from any elements where it is not used.
+    for (const [id, element] of idToElement) {
+      const references = idToReferences.get(id);
+      if (references === undefined || references.length === 0) {
+        // Make sure it's not referenced by <style>.
+        if (styleIds.has(id)) {
+          continue;
+        }
+
+        element.svgAtts.delete('id');
+
+        if (elemsGroups.nonRendering.has(element.local)) {
+          if (hasReferencedChildren(element, idToReferences)) {
+            convertToDefs(element, allDefs);
+          } else {
+            nextElementsToDelete.set(element, false);
+            idToElement.delete(id);
+
+            // If this element references others, remove this element from the list of references to those ids.
+            removeDescendantReferences(element, idToReferences);
+          }
+        } else if (isDefsChild(element)) {
+          if (uselessContainers.has(element.local)) {
+            convertToDefs(element, allDefs);
+          } else if (element.children.length === 0) {
+            nextElementsToDelete.set(element, false);
+            idToElement.delete(id);
+            // If this element references others, remove this element from the list of references to those ids.
+            removeDescendantReferences(element, idToReferences);
+          }
+        }
+      }
+    }
+
+    if (nextElementsToDelete.size === 0) {
+      break;
+    }
+    currentElementsToDelete = nextElementsToDelete;
+  }
+
+  childrenToDelete.delete();
+
+  // If there are any empty <clipPath> elements, remove them and any element that references them.
+  const newElementsToDelete = removeEmptyClipPaths(clipPaths, idToReferences);
+  if (newElementsToDelete.size > 0) {
+    deleteElementsAndClipPath(
+      newElementsToDelete,
+      idToElement,
+      idToReferences,
+      allDefs,
+      clipPaths,
+      styleIds,
+    );
   }
 }
 
@@ -428,9 +461,13 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
 /**
  * @param {Set<import('../lib/types.js').XastElement>} clipPaths
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ * @returns {Map<import('../lib/types.js').XastElement,boolean>}
  */
 function removeEmptyClipPaths(clipPaths, idToReferences) {
   const childrenToDelete = new ChildDeletionQueue();
+  /** @type {Map<import('../lib/types.js').XastElement,boolean>} */
+  const refsToDelete = new Map();
+
   for (const clipPath of clipPaths) {
     if (clipPath.children.length > 0) {
       continue;
@@ -446,10 +483,12 @@ function removeEmptyClipPaths(clipPaths, idToReferences) {
       continue;
     }
 
-    refs.forEach((ref) => childrenToDelete.add(ref));
+    refs.forEach((ref) => refsToDelete.set(ref, false));
   }
 
   childrenToDelete.delete();
+
+  return refsToDelete;
 }
 
 /**

@@ -1,0 +1,24 @@
+Remove unreferenced elements recursively when removing clipPath.
+
+===
+
+<svg viewBox="0 0 100 100"
+  xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <clipPath id="b">
+      <rect width="40" height="40" x="30" y="30" display="none"/>
+    </clipPath>
+    <linearGradient id="a">
+      <stop offset="5%" stop-color="gold" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="40" clip-path="url(#b)" fill="url(#a)"/>
+  <circle cx="5" cy="5" r="20"/>
+</svg>
+
+@@@
+
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs/>
+  <circle cx="5" cy="5" r="20"/>
+</svg>

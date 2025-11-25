@@ -2,14 +2,17 @@ Remove empty shapes in a non-rendered element.
 
 ===
 
-<svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 20 20"
+  xmlns="http://www.w3.org/2000/svg">
   <defs>
     <clipPath id="b">
+      <rect width="20" height="20"/>
       <path />
     </clipPath>
   </defs>
   <clipPath id="a">
     <path />
+    <rect width="20" height="20"/>
   </clipPath>
   <path d="M1 1H10" stroke="black"/>
   <path clip-path="url(#a)" d="M1 4H10" stroke="black"/>
@@ -19,11 +22,15 @@ Remove empty shapes in a non-rendered element.
 @@@
 
 <svg viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-        <clipPath id="b"/>
-    </defs>
-    <clipPath id="a"/>
-    <path d="M1 1H10" stroke="black"/>
-    <path clip-path="url(#a)" d="M1 4H10" stroke="black"/>
-    <path clip-path="url(#b)" d="M1 7H10" stroke="black"/>
+  <defs>
+    <clipPath id="b">
+      <rect width="20" height="20"/>
+    </clipPath>
+  </defs>
+  <clipPath id="a">
+    <rect width="20" height="20"/>
+  </clipPath>
+  <path d="M1 1H10" stroke="black"/>
+  <path clip-path="url(#a)" d="M1 4H10" stroke="black"/>
+  <path clip-path="url(#b)" d="M1 7H10" stroke="black"/>
 </svg>

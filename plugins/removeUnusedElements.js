@@ -473,6 +473,7 @@ function removeEmptyClipPaths(clipPaths, idToReferences) {
       continue;
     }
     childrenToDelete.add(clipPath);
+    clipPaths.delete(clipPath);
     const id = clipPath.svgAtts.get('id')?.toString();
     if (id === undefined) {
       continue;

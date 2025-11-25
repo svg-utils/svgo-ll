@@ -13,6 +13,4 @@ Remove unreferenced symbols with content that with references only inside the sy
 
 @@@
 
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-  <defs/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"/>

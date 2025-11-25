@@ -8,6 +8,7 @@ import {
   getHrefId,
   getReferencedIds2,
   hasAttributes,
+  isDescendantOf,
 } from '../lib/tools-ast.js';
 import { elemsGroups } from './_collections.js';
 
@@ -248,7 +249,7 @@ function deleteElementsAndClipPath(
         element.svgAtts.delete('id');
 
         if (elemsGroups.nonRendering.has(element.local)) {
-          if (hasReferencedChildren(element, idToReferences)) {
+          if (hasReferencedChildren(element, element, idToReferences)) {
             convertToDefs(element, allDefs);
           } else {
             nextElementsToDelete.set(element, false);
@@ -293,24 +294,25 @@ function deleteElementsAndClipPath(
 }
 
 /**
+ * @param {import('../lib/types.js').XastElement} topElement
  * @param {import('../lib/types.js').XastElement} element
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  * @returns {boolean}
  */
-function hasReferencedChildren(element, idToReferences) {
+function hasReferencedChildren(topElement, element, idToReferences) {
   for (const child of element.children) {
     if (child.type !== 'element') {
       continue;
     }
-    if (hasReferences(child, idToReferences)) {
+    if (hasReferences(topElement, child, idToReferences)) {
       return true;
     }
     if (
       child.children.some(
         (grandchild) =>
           grandchild.type === 'element' &&
-          (hasReferencedChildren(grandchild, idToReferences) ||
-            hasReferences(grandchild, idToReferences)),
+          (hasReferencedChildren(topElement, grandchild, idToReferences) ||
+            hasReferences(topElement, grandchild, idToReferences)),
       )
     ) {
       return true;
@@ -321,16 +323,17 @@ function hasReferencedChildren(element, idToReferences) {
 
 /**
  *
+ * @param {import('../lib/types.js').XastElement} topElement
  * @param {import('../lib/types.js').XastElement} element
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  * @returns {boolean}
  */
-function hasReferences(element, idToReferences) {
+function hasReferences(topElement, element, idToReferences) {
   const id = element.svgAtts.get('id')?.toString();
   if (id) {
     const references = idToReferences.get(id);
     if (references !== undefined && references.length > 0) {
-      return true;
+      return references.some((e) => !isDescendantOf(topElement, e));
     }
   }
   return false;
@@ -450,7 +453,7 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
       }
     }
 
-    if (!hasReferencedChildren(element, idToReferences)) {
+    if (!hasReferencedChildren(element, element, idToReferences)) {
       // If this element, or any of its children, has references to other elements, remove them.
       removeDescendantReferences(element, idToReferences);
       childrenToDelete.add(element);

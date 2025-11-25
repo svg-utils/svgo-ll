@@ -66,6 +66,9 @@ export const fn = (info) => {
   /** @type {Set<import('../lib/types.js').XastElement>} */
   const clipPaths = new Set();
 
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const uselessClippingRegions = new Set();
+
   return {
     element: {
       enter: (element, parentList) => {
@@ -150,7 +153,8 @@ export const fn = (info) => {
               // markers with display: none still rendered
               break;
             default:
-              elementsToDelete.set(element, false);
+              uselessClippingRegions.add(element);
+              elementsToDelete.set(element, true);
               return;
           }
         }
@@ -172,6 +176,7 @@ export const fn = (info) => {
           idToReferences,
           allDefs,
           clipPaths,
+          uselessClippingRegions,
           styleIds,
         );
 
@@ -219,6 +224,7 @@ function convertToDefs(element, allDefs) {
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
  * @param {import('../lib/types.js').XastElement[]} allDefs
  * @param {Set<import('../lib/types.js').XastElement>} clipPaths
+ * @param {Set<import('../lib/types.js').XastElement>} uselessClippingRegions
  * @param {Map<string,import('../lib/types.js').CSSRule[]>} styleIds
  */
 function deleteElementsAndClipPath(
@@ -227,6 +233,7 @@ function deleteElementsAndClipPath(
   idToReferences,
   allDefs,
   clipPaths,
+  uselessClippingRegions,
   styleIds,
 ) {
   const childrenToDelete = new ChildDeletionQueue();
@@ -280,7 +287,12 @@ function deleteElementsAndClipPath(
   childrenToDelete.delete();
 
   // If there are any empty <clipPath> elements, remove them and any element that references them.
-  const newElementsToDelete = removeEmptyClipPaths(clipPaths, idToReferences);
+  const newElementsToDelete = removeEmptyClipPaths(
+    clipPaths,
+    uselessClippingRegions,
+    idToReferences,
+    allDefs,
+  );
   if (newElementsToDelete.size > 0) {
     deleteElementsAndClipPath(
       newElementsToDelete,
@@ -288,6 +300,7 @@ function deleteElementsAndClipPath(
       idToReferences,
       allDefs,
       clipPaths,
+      uselessClippingRegions,
       styleIds,
     );
   }
@@ -463,21 +476,46 @@ function removeElements(elementsToDelete, childrenToDelete, idToReferences) {
 
 /**
  * @param {Set<import('../lib/types.js').XastElement>} clipPaths
+ * @param {Set<import('../lib/types.js').XastElement>} uselessClippingRegions
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToReferences
+ * @param {import('../lib/types.js').XastElement[]} allDefs
  * @returns {Map<import('../lib/types.js').XastElement,boolean>}
  */
-function removeEmptyClipPaths(clipPaths, idToReferences) {
+function removeEmptyClipPaths(
+  clipPaths,
+  uselessClippingRegions,
+  idToReferences,
+  allDefs,
+) {
   const childrenToDelete = new ChildDeletionQueue();
   /** @type {Map<import('../lib/types.js').XastElement,boolean>} */
   const refsToDelete = new Map();
 
   for (const clipPath of clipPaths) {
+    let hasUsedChildren = false;
     if (clipPath.children.length > 0) {
-      continue;
+      // If all of the children are useless as clipping regions, convert the <clipPath> to <defs>.
+      if (
+        clipPath.children.some(
+          (child) =>
+            child.type === 'element' && !uselessClippingRegions.has(child),
+        )
+      ) {
+        continue;
+      }
+      hasUsedChildren = true;
+    } else {
+      childrenToDelete.add(clipPath);
     }
-    childrenToDelete.add(clipPath);
+
     clipPaths.delete(clipPath);
     const id = clipPath.svgAtts.get('id')?.toString();
+
+    if (hasUsedChildren) {
+      // Do this after we get the id; the id will be removed.
+      convertToDefs(clipPath, allDefs);
+    }
+
     if (id === undefined) {
       continue;
     }

@@ -35,6 +35,7 @@ type BuiltinPlugins = {
     usePseudos?: string[];
   };
   inlineUse: void;
+  mergeFilters: void;
   mergeGradients: void;
   minifyAttrsAndStyles: void;
   minifyClassNames: void;

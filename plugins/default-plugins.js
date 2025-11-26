@@ -10,6 +10,7 @@ import * as convertPathToUse from './convertPathToUse.js';
 import * as convertShapeToPath from './convertShapeToPath.js';
 import * as createGroups from './createGroups.js';
 import * as inlineStyles from './inlineStyles.js';
+import * as mergeFilters from './mergeFilters.js';
 import * as mergeGradients from './mergeGradients.js';
 import * as minifyAttrsAndStyles from './minifyAttrsAndStyles.js';
 import * as minifyClassNames from './minifyClassNames.js';
@@ -66,6 +67,7 @@ export const defaultPlugins = Object.freeze({
     moveElemsStylesToGroup,
     convertShapeToPath,
     minifyPathData,
+    mergeFilters,
     mergeGradients,
     // Run minifyGradients after mergeGradients; minifyGradients may make them un-mergeable.
     minifyGradients,

@@ -24,9 +24,6 @@ export const fn = (info) => {
   /** @type {import('../lib/tools-ast.js').IdReferenceMap} */
   const referencedIds = new Map();
 
-  /** @type {Map<string,string>} */
-  const idMap = new Map();
-
   return {
     element: {
       enter: (element) => {
@@ -65,49 +62,7 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
-        const childrenToDelete = new ChildDeletionQueue();
-
-        // Merge any duplicates.
-        for (const duplicates of identicalGradients.values()) {
-          if (duplicates.length < 2) {
-            continue;
-          }
-
-          const newId = duplicates[0].svgAtts.get('id')?.toString();
-          if (newId === undefined) {
-            throw new Error();
-          }
-
-          for (let index = 1; index < duplicates.length; index++) {
-            const duplicate = duplicates[index];
-
-            // Update all references.
-            childrenToDelete.add(duplicate);
-            const dupId = duplicate.svgAtts.get('id')?.toString();
-            if (dupId === undefined) {
-              throw new Error();
-            }
-
-            idMap.set(dupId, newId);
-            const dupReferencingEls = referencedIds.get(dupId);
-            if (!dupReferencingEls) {
-              continue;
-            }
-            for (const dupReferencingEl of dupReferencingEls) {
-              updateReferencedId(
-                dupReferencingEl.referencingEl,
-                dupReferencingEl.referencingAtt,
-                idMap,
-              );
-            }
-          }
-        }
-
-        // Update any ids referenced by <style> properties.
-        styleData.updateReferencedIds(styleData.getReferencedIds(), idMap);
-
-        // Delete merged nodes.
-        childrenToDelete.delete();
+        mergeDuplicates(identicalGradients, referencedIds, styleData);
       },
     },
   };
@@ -161,4 +116,58 @@ function getGradientKey(element) {
     addParts(child, false);
   }
   return parts.join();
+}
+
+/**
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} identicalGradients
+ * @param {import('../lib/tools-ast.js').IdReferenceMap} referencedIds
+ * @param {import('../lib/types.js').StyleData} styleData
+ */
+function mergeDuplicates(identicalGradients, referencedIds, styleData) {
+  /** @type {Map<string,string>} */
+  const idMap = new Map();
+
+  const childrenToDelete = new ChildDeletionQueue();
+
+  // Merge any duplicates.
+  for (const duplicates of identicalGradients.values()) {
+    if (duplicates.length < 2) {
+      continue;
+    }
+
+    const newId = duplicates[0].svgAtts.get('id')?.toString();
+    if (newId === undefined) {
+      throw new Error();
+    }
+
+    for (let index = 1; index < duplicates.length; index++) {
+      const duplicate = duplicates[index];
+
+      // Update all references.
+      childrenToDelete.add(duplicate);
+      const dupId = duplicate.svgAtts.get('id')?.toString();
+      if (dupId === undefined) {
+        throw new Error();
+      }
+
+      idMap.set(dupId, newId);
+      const dupReferencingEls = referencedIds.get(dupId);
+      if (!dupReferencingEls) {
+        continue;
+      }
+      for (const dupReferencingEl of dupReferencingEls) {
+        updateReferencedId(
+          dupReferencingEl.referencingEl,
+          dupReferencingEl.referencingAtt,
+          idMap,
+        );
+      }
+    }
+  }
+
+  // Update any ids referenced by <style> properties.
+  styleData.updateReferencedIds(styleData.getReferencedIds(), idMap);
+
+  // Delete merged nodes.
+  childrenToDelete.delete();
 }

@@ -1,4 +1,4 @@
-import { recordReferencedIds } from '../lib/tools-ast.js';
+import { getParentName, recordReferencedIds } from '../lib/tools-ast.js';
 import {
   elemsGroups,
   presentationPropertiesMinusTransform,
@@ -77,16 +77,6 @@ export function fn() {
       },
     },
   };
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @returns {string|undefined}
- */
-function getParentName(element) {
-  return element.parentNode.type === 'element'
-    ? element.parentNode.local
-    : undefined;
 }
 
 /**

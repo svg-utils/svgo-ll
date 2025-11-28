@@ -4,6 +4,7 @@ import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { addToMapArray, getNextId } from '../lib/svgo/tools.js';
 import {
   getHrefId,
+  getParentName,
   getReferencedIds2,
   getSVGElement,
 } from '../lib/tools-ast.js';
@@ -81,7 +82,7 @@ export const fn = (info) => {
     },
     root: {
       exit: (root) => {
-        /** @type {{id:string,elements:import('../lib/types.js').XastElement[]}[]} */
+        /** @type {{id:string,create:boolean,elements:import('../lib/types.js').XastElement[]}[]} */
         const newDefs = [];
 
         let counter = 0;
@@ -97,9 +98,19 @@ export const fn = (info) => {
             continue;
           }
 
-          const info = getNextId(counter, currentIds);
-          counter = info.nextCounter;
-          newDefs.push({ id: info.nextId, elements: elements });
+          const existingDefs = findExistingDefs(elements);
+
+          if (existingDefs.length > 0) {
+            newDefs.push({
+              id: existingDefs[0],
+              create: false,
+              elements: elements,
+            });
+          } else {
+            const info = getNextId(counter, currentIds);
+            counter = info.nextCounter;
+            newDefs.push({ id: info.nextId, create: true, elements: elements });
+          }
         }
 
         if (newDefs.length > 0) {
@@ -108,13 +119,21 @@ export const fn = (info) => {
             defsElement = createElement(svg, 'defs');
           }
           for (const def of newDefs) {
-            const d = def.elements[0].svgAtts.getAtt('d');
-            const atts = new SvgAttMap();
-            atts.set('id', new AttValue(def.id));
-            atts.set('d', d);
-            createElement(defsElement, 'path', '', undefined, atts);
+            if (def.create) {
+              const d = def.elements[0].svgAtts.getAtt('d');
+              const atts = new SvgAttMap();
+              atts.set('id', new AttValue(def.id));
+              atts.set('d', d);
+              createElement(defsElement, 'path', '', undefined, atts);
+            }
 
             for (const element of def.elements) {
+              const id = element.svgAtts.get('id')?.toString();
+              if (id === def.id) {
+                // This is an existing element; don't change it.
+                continue;
+              }
+
               element.local = 'use';
               element.svgAtts.set('href', new HrefAttValue('#' + def.id));
               element.svgAtts.delete('d');
@@ -137,3 +156,30 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {import('../lib/types.js').XastElement[]} elements
+ * @returns {string[]}
+ */
+function findExistingDefs(elements) {
+  /** @type {string[]} */
+  const defPaths = [];
+  for (const element of elements) {
+    const parentName = getParentName(element);
+    if (parentName !== 'clipPath' && parentName !== 'defs') {
+      continue;
+    }
+    if (element.svgAtts.count() !== 2) {
+      continue;
+    }
+    const id = element.svgAtts.get('id')?.toString();
+    if (id === undefined) {
+      continue;
+    }
+    if (element.svgAtts.get('d') === undefined) {
+      continue;
+    }
+    defPaths.push(id);
+  }
+  return defPaths;
+}

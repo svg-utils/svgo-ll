@@ -9,9 +9,9 @@ import {
 export const name = 'mergeGradients';
 export const description = 'merge identical gradients';
 
-/**
- * @type {import('./plugins-types.js').Plugin<'mergeGradients'>};
- */
+const gradientNames = new Set(['linearGradient', 'radialGradient']);
+
+/** @type {import('./plugins-types.js').Plugin<'mergeGradients'>}; */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (info.docData.hasScripts() || styleData === null) {
@@ -24,6 +24,9 @@ export const fn = (info) => {
   /** @type {import('../lib/tools-ast.js').IdReferenceMap} */
   const referencedIds = new Map();
 
+  /** @type {Set<import('../lib/types.js').XastElement>} */
+  const templateGradients = new Set();
+
   return {
     element: {
       enter: (element) => {
@@ -34,12 +37,8 @@ export const fn = (info) => {
         // Record all referenced ids.
         recordReferencedIds(element, referencedIds);
 
-        switch (element.local) {
-          case 'linearGradient':
-          case 'radialGradient':
-            break;
-          default:
-            return;
+        if (!gradientNames.has(element.local)) {
+          return;
         }
 
         const gradientId = element.svgAtts.get('id')?.toString();
@@ -57,12 +56,21 @@ export const fn = (info) => {
           return;
         }
 
+        if (getHrefId(element) !== undefined) {
+          templateGradients.add(element);
+        }
+
         addToMapArray(identicalGradients, key, element);
       },
     },
     root: {
       exit: () => {
-        mergeDuplicates(identicalGradients, referencedIds, styleData);
+        mergeDuplicates(
+          identicalGradients,
+          templateGradients,
+          referencedIds,
+          styleData,
+        );
       },
     },
   };
@@ -120,14 +128,22 @@ function getGradientKey(element) {
 
 /**
  * @param {Map<string,import('../lib/types.js').XastElement[]>} identicalGradients
+ * @param {Set<import('../lib/types.js').XastElement>} templateGradients
  * @param {import('../lib/tools-ast.js').IdReferenceMap} referencedIds
  * @param {import('../lib/types.js').StyleData} styleData
  */
-function mergeDuplicates(identicalGradients, referencedIds, styleData) {
+function mergeDuplicates(
+  identicalGradients,
+  templateGradients,
+  referencedIds,
+  styleData,
+) {
   /** @type {Map<string,string>} */
   const idMap = new Map();
 
   const childrenToDelete = new ChildDeletionQueue();
+
+  let templatesUpdated = false;
 
   // Merge any duplicates.
   for (const duplicates of identicalGradients.values()) {
@@ -145,20 +161,25 @@ function mergeDuplicates(identicalGradients, referencedIds, styleData) {
 
       // Update all references.
       childrenToDelete.add(duplicate);
+      templateGradients.delete(duplicate);
       const dupId = duplicate.svgAtts.get('id')?.toString();
       if (dupId === undefined) {
         throw new Error();
       }
 
       idMap.set(dupId, newId);
-      const dupReferencingEls = referencedIds.get(dupId);
-      if (!dupReferencingEls) {
+      const referencingEls = referencedIds.get(dupId);
+      if (!referencingEls) {
         continue;
       }
-      for (const dupReferencingEl of dupReferencingEls) {
+      for (const referenceData of referencingEls) {
+        if (gradientNames.has(referenceData.referencingEl.local)) {
+          templatesUpdated = true;
+        }
+
         updateReferencedId(
-          dupReferencingEl.referencingEl,
-          dupReferencingEl.referencingAtt,
+          referenceData.referencingEl,
+          referenceData.referencingAtt,
           idMap,
         );
       }
@@ -170,4 +191,18 @@ function mergeDuplicates(identicalGradients, referencedIds, styleData) {
 
   // Delete merged nodes.
   childrenToDelete.delete();
+
+  if (templatesUpdated) {
+    // Some of the template references were changed, which may create new duplicates. Check these again.
+
+    /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
+    const duplicates = new Map();
+    for (const gradient of templateGradients.values()) {
+      const key = getGradientKey(gradient);
+      if (key) {
+        addToMapArray(duplicates, key, gradient);
+      }
+    }
+    mergeDuplicates(duplicates, templateGradients, referencedIds, styleData);
+  }
 }

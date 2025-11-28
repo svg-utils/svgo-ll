@@ -1,12 +1,15 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { AttValue } from '../lib/attrs/attValue.js';
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray, getNextId } from '../lib/svgo/tools.js';
 import {
   getHrefId,
   getParentName,
   getReferencedIds2,
   getSVGElement,
+  recordReferencedIds,
+  updateReferencedId,
 } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
 
@@ -33,6 +36,9 @@ export const fn = (info) => {
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const clipPathUses = new Map();
 
+  /** @type {import('../lib/tools-ast.js').IdReferenceMap} */
+  const referenceData = new Map();
+
   /** @type {import('../lib/types.js').XastElement|undefined} */
   let defsElement;
 
@@ -48,6 +54,8 @@ export const fn = (info) => {
           currentIds.add(id);
         }
         getReferencedIds2(element).forEach((info) => currentIds.add(info.id));
+
+        recordReferencedIds(element, referenceData);
 
         if (element.local === 'defs') {
           defsElement = element;
@@ -82,7 +90,12 @@ export const fn = (info) => {
     },
     root: {
       exit: (root) => {
-        /** @type {{id:string,create:boolean,elements:import('../lib/types.js').XastElement[]}[]} */
+        const childrenToDelete = new ChildDeletionQueue();
+
+        /** @type {Map<string,string>} */
+        const idMap = new Map();
+
+        /** @type {{id:string,existingDefs:{id:string,element:import('../lib/types.js').XastElement}[],elements:import('../lib/types.js').XastElement[]}[]} */
         const newDefs = [];
 
         let counter = 0;
@@ -102,14 +115,18 @@ export const fn = (info) => {
 
           if (existingDefs.length > 0) {
             newDefs.push({
-              id: existingDefs[0],
-              create: false,
+              id: existingDefs[0].id,
+              existingDefs: existingDefs,
               elements: elements,
             });
           } else {
             const info = getNextId(counter, currentIds);
             counter = info.nextCounter;
-            newDefs.push({ id: info.nextId, create: true, elements: elements });
+            newDefs.push({
+              id: info.nextId,
+              existingDefs: existingDefs,
+              elements: elements,
+            });
           }
         }
 
@@ -119,7 +136,7 @@ export const fn = (info) => {
             defsElement = createElement(svg, 'defs');
           }
           for (const def of newDefs) {
-            if (def.create) {
+            if (def.existingDefs.length === 0) {
               const d = def.elements[0].svgAtts.getAtt('d');
               const atts = new SvgAttMap();
               atts.set('id', new AttValue(def.id));
@@ -129,7 +146,7 @@ export const fn = (info) => {
 
             for (const element of def.elements) {
               const id = element.svgAtts.get('id')?.toString();
-              if (id === def.id) {
+              if (def.existingDefs.some((data) => id === data.id)) {
                 // This is an existing element; don't change it.
                 continue;
               }
@@ -150,8 +167,28 @@ export const fn = (info) => {
                 }
               }
             }
+
+            // If there is more than one existing def, delete the extras and map references to the extras to the first def.
+            for (let index = 1; index < def.existingDefs.length; index++) {
+              const dup = def.existingDefs[index];
+              childrenToDelete.add(dup.element);
+
+              const references = referenceData.get(dup.id);
+              if (references !== undefined) {
+                idMap.set(dup.id, def.id);
+                for (const data of references) {
+                  updateReferencedId(
+                    data.referencingEl,
+                    data.referencingAtt,
+                    idMap,
+                  );
+                }
+              }
+            }
           }
         }
+
+        childrenToDelete.delete();
       },
     },
   };
@@ -159,10 +196,10 @@ export const fn = (info) => {
 
 /**
  * @param {import('../lib/types.js').XastElement[]} elements
- * @returns {string[]}
+ * @returns {{id:string,element:import('../lib/types.js').XastElement}[]}
  */
 function findExistingDefs(elements) {
-  /** @type {string[]} */
+  /** @type {{id:string,element:import('../lib/types.js').XastElement}[]} */
   const defPaths = [];
   for (const element of elements) {
     const parentName = getParentName(element);
@@ -179,7 +216,7 @@ function findExistingDefs(elements) {
     if (element.svgAtts.get('d') === undefined) {
       continue;
     }
-    defPaths.push(id);
+    defPaths.push({ id: id, element: element });
   }
   return defPaths;
 }

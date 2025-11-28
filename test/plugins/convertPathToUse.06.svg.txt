@@ -1,0 +1,28 @@
+Use existing def if possible, and remove no longer referenced defs.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <path id="a" d="M10 10l10 1l10 -1l10 1l10 -1"/>
+    <path id="b" d="M10 10l10 1l10 -1l10 1l10 -1"/>
+  </defs>
+  <path d="M10 10l10 1l10 -1l10 1l10 -1" fill="none" stroke="red"/>
+  <path d="M10 10l10 1l10 -1l10 1l10 -1" fill="none" stroke="blue" transform="translate(0 10)"/>
+  <path d="M10 10l10 1l10 -1l10 1l10 -1" fill="none" stroke="green" transform="translate(0 20)"/>
+  <use href="#a" fill="none" stroke="orange" transform="translate(0 30)"/>
+  <use href="#b" fill="none" stroke="black" transform="translate(0 40)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <path id="a" d="M10 10l10 1l10 -1l10 1l10 -1"/>
+  </defs>
+  <use fill="none" stroke="red" href="#a"/>
+  <use fill="none" stroke="blue" transform="translate(0 10)" href="#a"/>
+  <use fill="none" stroke="green" transform="translate(0 20)" href="#a"/>
+  <use href="#a" fill="none" stroke="orange" transform="translate(0 30)"/>
+  <use href="#a" fill="none" stroke="black" transform="translate(0 40)"/>
+</svg>

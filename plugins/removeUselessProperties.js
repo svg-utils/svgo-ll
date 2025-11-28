@@ -1,4 +1,4 @@
-import { getHrefId } from '../lib/tools-ast.js';
+import { getParentName, recordReferencedIds } from '../lib/tools-ast.js';
 import {
   elemsGroups,
   presentationPropertiesMinusTransform,
@@ -12,11 +12,11 @@ const presentationProperties = new Set(presentationPropertiesMinusTransform);
 
 /** @type {import('./plugins-types.js').Plugin<'removeUselessProperties'>} */
 export function fn() {
-  /** @type {Set<string>} */
-  const usedIds = new Set();
+  /** @type {import('../lib/tools-ast.js').IdReferenceMap} */
+  const referenceData = new Map();
 
   /** @type {Set<import('../lib/types.js').XastElement>} */
-  const clipPathElements = new Set();
+  const shapes = new Set();
 
   return {
     element: {
@@ -25,39 +25,53 @@ export function fn() {
           return;
         }
 
-        if (element.local === 'clipPath') {
-          clipPathElements.add(element);
-        } else if (element.local === 'use') {
-          const id = getHrefId(element);
-          if (id) {
-            usedIds.add(id);
-          }
+        recordReferencedIds(element, referenceData);
+
+        if (elemsGroups.shape.has(element.local) || element.local === 'use') {
+          shapes.add(element);
         }
       },
     },
     root: {
       exit: () => {
-        // Check clipPath children and remove unused presentation properties.
-        for (const clipPath of clipPathElements) {
-          for (const child of clipPath.children) {
-            if (
-              child.type !== 'element' ||
-              !(elemsGroups.shape.has(child.local) || child.local === 'use')
-            ) {
-              continue;
-            }
-            const id = child.svgAtts.get('id')?.toString();
-            if (id !== undefined && usedIds.has(id)) {
-              continue;
-            }
+        for (const shapeElement of shapes) {
+          const parentName = getParentName(shapeElement);
+          if (parentName !== 'defs' && parentName !== 'clipPath') {
+            // Only remove from undisplayed elements.
+            continue;
+          }
 
-            removePresentationAttributes(child.svgAtts);
-            /** @type {import('../types/types.js').StyleAttValue|undefined} */
-            const style = child.svgAtts.get('style');
-            if (style) {
-              removePresentationAttributes(style);
-              style.updateElement(child);
+          // If it is <use>d by a displayed element, don't remove.
+          const id = shapeElement.svgAtts.get('id')?.toString();
+          if (id !== undefined) {
+            const referencingEls = referenceData.get(id);
+            if (referencingEls) {
+              if (
+                referencingEls.some((referenceData) => {
+                  const referencingEl = referenceData.referencingEl;
+                  if (referencingEl.local === 'textPath') {
+                    return false;
+                  }
+                  if (
+                    referencingEl.local === 'use' &&
+                    getParentName(referencingEl) === 'clipPath'
+                  ) {
+                    return false;
+                  }
+                  return true;
+                })
+              ) {
+                continue;
+              }
             }
+          }
+
+          removePresentationAttributes(shapeElement.svgAtts);
+          /** @type {import('../types/types.js').StyleAttValue|undefined} */
+          const style = shapeElement.svgAtts.get('style');
+          if (style) {
+            removePresentationAttributes(style);
+            style.updateElement(shapeElement);
           }
         }
       },

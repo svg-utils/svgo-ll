@@ -4,7 +4,7 @@ import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { addToMapArray, getNextId } from '../lib/svgo/tools.js';
 import {
   getHrefId,
-  getReferencedIds,
+  getReferencedIds2,
   getSVGElement,
 } from '../lib/tools-ast.js';
 import { createElement } from '../lib/xast.js';
@@ -46,7 +46,7 @@ export const fn = (info) => {
         if (id) {
           currentIds.add(id);
         }
-        getReferencedIds(element).forEach((info) => currentIds.add(info.id));
+        getReferencedIds2(element).forEach((info) => currentIds.add(info.id));
 
         if (element.local === 'defs') {
           defsElement = element;

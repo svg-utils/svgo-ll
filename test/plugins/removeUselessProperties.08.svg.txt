@@ -1,0 +1,32 @@
+Remove presentation properties from paths that are not displayed.
+
+===
+
+<svg viewBox="0 0 200 200"
+  xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <path id="p" style="opacity:.2" fill="red" d="M20 20h40v180z"/>
+    <clipPath id="cp">
+      <use href="#p"/>
+    </clipPath>
+  </defs>
+  <text>
+    <textPath href="#p">this is a test</textPath>
+  </text>
+  <circle cx="10" cy="20" r="20" clip-path="url(#cp)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <defs>
+    <path id="p" d="M20 20h40v180z"/>
+    <clipPath id="cp">
+      <use href="#p"/>
+    </clipPath>
+  </defs>
+  <text>
+    <textPath href="#p">this is a test</textPath>
+  </text>
+  <circle cx="10" cy="20" r="20" clip-path="url(#cp)"/>
+</svg>

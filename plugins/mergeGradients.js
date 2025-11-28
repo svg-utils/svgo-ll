@@ -183,6 +183,12 @@ function mergeDuplicates(
           idMap,
         );
       }
+
+      // Move all these references to the new ID in case we need them below.
+      referencedIds.set(
+        newId,
+        (referencedIds.get(newId) ?? []).concat(referencingEls),
+      );
     }
   }
 

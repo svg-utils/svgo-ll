@@ -1,0 +1,37 @@
+Merge identical template gradients and normal gradients in 2 passes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 45">
+  <defs>
+    <linearGradient id="c">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="d">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="a" href="#c"/>
+    <linearGradient id="b" href="#d"/>
+    <linearGradient id="e" href="#d"/>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#b)"/>
+  <rect y="30" width="20" height="10" fill="url(#e)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 45">
+  <defs>
+    <linearGradient id="c">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="a" href="#c"/>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#a)"/>
+  <rect y="30" width="20" height="10" fill="url(#a)"/>
+</svg>

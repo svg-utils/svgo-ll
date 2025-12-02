@@ -37,6 +37,7 @@ type BuiltinPlugins = {
   inlineUse: void;
   mergeFilters: void;
   mergeGradients: void;
+  minifyGradientUnits: void;
   minifyAttrsAndStyles: void;
   minifyClassNames: void;
   minifyColors: void;

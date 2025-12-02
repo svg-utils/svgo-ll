@@ -18,6 +18,7 @@ import * as minifyAttrsAndStyles from '../plugins/minifyAttrsAndStyles.js';
 import * as minifyClassNames from '../plugins/minifyClassNames.js';
 import * as minifyColors from '../plugins/minifyColors.js';
 import * as minifyGradients from '../plugins/minifyGradients.js';
+import * as minifyGradientUnits from '../plugins/minifyGradientUnits.js';
 import * as minifyIds from '../plugins/minifyIds.js';
 import * as minifyPathData from '../plugins/minifyPathData.js';
 import * as minifyStyles from '../plugins/minifyStyles.js';
@@ -107,6 +108,7 @@ const pluginList = [
   minifyClassNames,
   minifyColors,
   minifyGradients,
+  minifyGradientUnits,
   minifyIds,
   minifyPathData,
   minifyStyles,

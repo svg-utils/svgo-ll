@@ -1,7 +1,6 @@
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
-import { ColorAttValue } from '../lib/attrs/colorAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { OpacityAttValue } from '../lib/attrs/opacityAttValue.js';
 import { StdDeviationAttValue } from '../lib/attrs/stdDeviationAttValue.js';
@@ -105,12 +104,12 @@ export const fn = (info, params) => {
             case 'flood-color':
             case 'lighting-color':
             case 'stop-color':
-              {
-                const att = ColorAttValue.getAttValue(element, attName);
-                if (att) {
-                  element.svgAtts.set(attName, att.round());
-                }
-              }
+              element.svgAtts.set(
+                attName,
+                /** @type {import('../types/types.js').ColorAttValue} */ (
+                  attValue
+                ).round(),
+              );
               break;
             case 'fill-opacity':
             case 'opacity':
@@ -197,7 +196,9 @@ export const fn = (info, params) => {
             case 'stop-color':
               styleAttValue.set(
                 propName,
-                /** @type {ColorAttValue} */ (propValue).round(),
+                /** @type {import('../types/types.js').ColorAttValue} */ (
+                  propValue
+                ).round(),
               );
               break;
             case 'fill-opacity':

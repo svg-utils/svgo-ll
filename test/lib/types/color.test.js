@@ -20,6 +20,7 @@ describe('test minifying', () => {
   /** @type {{in:string,minified?:string}[]} */
   const testCases = [
     { in: '#ffffff', minified: '#fff' },
+    { in: '#ff0000', minified: 'red' },
     { in: '#aABBcc', minified: '#abc' },
     { in: '#F00', minified: 'red' },
     { in: 'cadetBlue', minified: '#5f9ea0' },

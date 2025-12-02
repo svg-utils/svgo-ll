@@ -261,6 +261,7 @@ export type ExactNum = {
   add(n: ExactNum): ExactNum | undefined;
   clone(): ExactNum;
   getMinifiedString(): string;
+  getNumberOfDigits(): number;
   isEqualTo(n: ExactNum): boolean;
   isZero(): boolean;
   negate(): ExactNum;

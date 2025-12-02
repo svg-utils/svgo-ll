@@ -1,4 +1,8 @@
-import { addToMapArray, getBoundingBox } from '../lib/svgo/tools.js';
+import {
+  addToMapArray,
+  getBoundingBox,
+  getLenPctPixels,
+} from '../lib/svgo/tools.js';
 import { visitSkip } from '../lib/xast.js';
 
 export const name = 'minifyGradientUnits';
@@ -90,6 +94,26 @@ function canConvertToBoundingBoxUnits(gradient, bb) {
   if (gradient.svgAtts.get('gradientUnits')?.toString() !== 'userSpaceOnUse') {
     return false;
   }
+
+  const x1 = getLenPctPixels(gradient, 'x1');
+  const x2 = getLenPctPixels(gradient, 'x2');
+  if (x1 === undefined || x2 === undefined) {
+    return false;
+  }
+
+  if (!bb.x1.isEqualTo(x1) || !bb.x2.isEqualTo(x2)) {
+    return false;
+  }
+
+  const y1 = getLenPctPixels(gradient, 'y1');
+  const y2 = getLenPctPixels(gradient, 'y2');
+  if (y1 === undefined || y2 === undefined) {
+    return false;
+  }
+  if (!y1.isEqualTo(y2)) {
+    return false;
+  }
+
   return true;
 }
 

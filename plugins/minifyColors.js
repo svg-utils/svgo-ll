@@ -1,5 +1,3 @@
-import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
-
 export const name = 'minifyColors';
 export const description =
   'minifies color values used in attributes and style properties';
@@ -24,6 +22,9 @@ export const fn = (info) => {
           return;
         }
 
+        /** @type {import('../types/types.js').StyleAttValue|undefined} */
+        let styleAttValue;
+
         // Minify attribute values.
         for (const [attName, attVal] of element.svgAtts.entries()) {
           switch (attName) {
@@ -35,14 +36,20 @@ export const fn = (info) => {
             case 'stop-color':
               element.svgAtts.set(attName, attVal.getMinifiedValue());
               break;
+            case 'style':
+              styleAttValue =
+                /** @type {import('../types/types.js').StyleAttValue} */ (
+                  attVal
+                );
+              break;
           }
         }
 
-        // Minify style properties.
-        const styleAttValue = StyleAttValue.getAttValue(element);
         if (!styleAttValue) {
           return;
         }
+
+        // Minify style properties.
         for (const [propName, propValue] of styleAttValue.entries()) {
           switch (propName) {
             case 'fill':

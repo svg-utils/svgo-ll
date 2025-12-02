@@ -20,7 +20,9 @@ export default [
     rules: {
       strict: 'error',
       eqeqeq: 'error',
+      'max-statements-per-line': ['error', { max: 1 }],
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      'no-var': 'error',
     },
   },
   {

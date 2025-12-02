@@ -69,7 +69,6 @@ export const defaultPlugins = Object.freeze({
     minifyPathData,
     mergeFilters,
     mergeGradients,
-    // Run minifyGradients after mergeGradients; minifyGradients may make them un-mergeable.
     minifyGradients,
     removeEmptyContainers,
     convertPathToUse,

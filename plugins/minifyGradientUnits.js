@@ -67,10 +67,14 @@ export const fn = (info) => {
     root: {
       exit: () => {
         for (const [id, gradient] of idToGradient.entries()) {
+          const bbGradient = getGradientBoundingBox(gradient);
+          if (bbGradient === undefined) {
+            continue;
+          }
           const boundingBoxes = idToBoundingBoxes.get(id) ?? [];
           if (
             boundingBoxes.every((bb) =>
-              canConvertToBoundingBoxUnits(gradient, bb),
+              canConvertToBoundingBoxUnits(bbGradient, bb),
             )
           ) {
             convertToBoundingBoxUnits(gradient);
@@ -82,34 +86,20 @@ export const fn = (info) => {
 };
 
 /**
- * @param {import('../lib/types.js').XastElement} gradient
+ * @param {import('../types/types.js').BoundingBox} bbGradient
  * @param {import('../types/types.js').BoundingBox|undefined} bb
  * @returns {boolean}
  */
-function canConvertToBoundingBoxUnits(gradient, bb) {
+function canConvertToBoundingBoxUnits(bbGradient, bb) {
   if (bb === undefined) {
     return false;
   }
-  if (gradient.svgAtts.get('gradientUnits')?.toString() !== 'userSpaceOnUse') {
+
+  if (!bb.x1.isEqualTo(bbGradient.x1) || !bb.x2.isEqualTo(bbGradient.x2)) {
     return false;
   }
 
-  const x1 = getLenPctPixels(gradient, 'x1');
-  const x2 = getLenPctPixels(gradient, 'x2');
-  if (x1 === undefined || x2 === undefined) {
-    return false;
-  }
-
-  if (!bb.x1.isEqualTo(x1) || !bb.x2.isEqualTo(x2)) {
-    return false;
-  }
-
-  const y1 = getLenPctPixels(gradient, 'y1');
-  const y2 = getLenPctPixels(gradient, 'y2');
-  if (y1 === undefined || y2 === undefined) {
-    return false;
-  }
-  if (!y1.isEqualTo(y2)) {
+  if (!bbGradient.y1.isEqualTo(bbGradient.y2)) {
     return false;
   }
 
@@ -123,6 +113,30 @@ function convertToBoundingBoxUnits(gradient) {
   ['x1', 'y1', 'x2', 'y2', 'gradientUnits'].forEach((attName) =>
     gradient.svgAtts.delete(attName),
   );
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} gradient
+ * @returns {import('../types/types.js').BoundingBox|undefined}
+ */
+function getGradientBoundingBox(gradient) {
+  if (gradient.svgAtts.get('gradientUnits')?.toString() !== 'userSpaceOnUse') {
+    return;
+  }
+
+  const x1 = getLenPctPixels(gradient, 'x1');
+  const x2 = getLenPctPixels(gradient, 'x2');
+  if (x1 === undefined || x2 === undefined) {
+    return;
+  }
+
+  const y1 = getLenPctPixels(gradient, 'y1');
+  const y2 = getLenPctPixels(gradient, 'y2');
+  if (y1 === undefined || y2 === undefined) {
+    return;
+  }
+
+  return { x1: x1, y1: y1, x2: x2, y2: y2 };
 }
 
 /**

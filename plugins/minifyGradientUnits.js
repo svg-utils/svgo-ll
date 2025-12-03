@@ -41,9 +41,11 @@ export const fn = (info) => {
 
         if (gradientNames.has(element.local)) {
           const id = element.svgAtts.get('id')?.toString();
-          if (id !== undefined) {
-            idToGradient.set(id, element);
+          if (id === undefined) {
+            return;
           }
+          idToGradient.set(id, element);
+          return;
         }
 
         const props = styleData.computeProps(element, parentList);
@@ -64,11 +66,8 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
-        for (const [id, boundingBoxes] of idToBoundingBoxes.entries()) {
-          const gradient = idToGradient.get(id);
-          if (gradient === undefined) {
-            continue;
-          }
+        for (const [id, gradient] of idToGradient.entries()) {
+          const boundingBoxes = idToBoundingBoxes.get(id) ?? [];
           if (
             boundingBoxes.every((bb) =>
               canConvertToBoundingBoxUnits(gradient, bb),

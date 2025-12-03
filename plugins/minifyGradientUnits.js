@@ -49,18 +49,20 @@ export const fn = (info) => {
         }
 
         const props = styleData.computeProps(element, parentList);
-        const fill = getPaintAttValue(props, 'fill');
-        if (fill === null) {
+        const fillRef = getGradientRef(props, 'fill');
+        const strokeRef = getGradientRef(props, 'stroke');
+        if (fillRef === null || strokeRef === null) {
           disabled = true;
           return visitSkip;
         }
-        if (fill === undefined) {
-          return;
-        }
-
-        const ref = fill.getReferencedID();
-        if (ref) {
-          addToMapArray(idToBoundingBoxes, ref, getBoundingBox(element));
+        if (fillRef || strokeRef) {
+          const bb = getBoundingBox(element);
+          if (fillRef) {
+            addToMapArray(idToBoundingBoxes, fillRef, bb);
+          }
+          if (strokeRef) {
+            addToMapArray(idToBoundingBoxes, strokeRef, bb);
+          }
         }
       },
     },
@@ -149,6 +151,19 @@ function getGradientBoundingBox(gradient) {
   }
 
   return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
+}
+
+/**
+ * @param {import('../lib/types.js').ComputedPropertyMap} props
+ * @param {string} attName
+ * @returns {string|undefined|null}
+ */
+function getGradientRef(props, attName) {
+  const attValue = getPaintAttValue(props, attName);
+  if (attValue === null || attValue === undefined) {
+    return attValue;
+  }
+  return attValue.getReferencedID();
 }
 
 /**

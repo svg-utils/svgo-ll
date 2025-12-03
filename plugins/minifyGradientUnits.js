@@ -110,8 +110,8 @@ function canConvertToBoundingBoxUnits(bbGradient, bb) {
  * @param {import('../lib/types.js').XastElement} gradient
  */
 function convertToBoundingBoxUnits(gradient) {
-  ['x1', 'y1', 'x2', 'y2', 'gradientUnits'].forEach((attName) =>
-    gradient.svgAtts.delete(attName),
+  ['x1', 'y1', 'x2', 'y2', 'gradientTransform', 'gradientUnits'].forEach(
+    (attName) => gradient.svgAtts.delete(attName),
   );
 }
 
@@ -136,7 +136,19 @@ function getGradientBoundingBox(gradient) {
     return;
   }
 
-  return { x1: x1, y1: y1, x2: x2, y2: y2 };
+  /** @type {import('../types/types.js').TransformAttValue|undefined} */
+  const t = gradient.svgAtts.get('gradientTransform');
+  if (t === undefined) {
+    return { x1: x1, y1: y1, x2: x2, y2: y2 };
+  }
+
+  const p1 = t.transformCoords({ x: x1, y: y1 });
+  const p2 = t.transformCoords({ x: x2, y: y2 });
+  if (p1 === undefined || p2 === undefined) {
+    return;
+  }
+
+  return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
 }
 
 /**

@@ -100,6 +100,13 @@ export const fn = (info) => {
             continue;
           }
 
+          // Only update if all references are the same type.
+          if (
+            referencingGradients.some((ref) => ref.local !== gradient.local)
+          ) {
+            continue;
+          }
+
           updateTemplateAtts(gradient, referencingGradients);
 
           // Since it's not referenced directly by stroke or fill, there is no need to process below.

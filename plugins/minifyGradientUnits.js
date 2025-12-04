@@ -9,7 +9,15 @@ import { visitSkip } from '../lib/xast.js';
 export const name = 'minifyGradientUnits';
 export const description = 'convert to objectBoundingBox where possible';
 
-const gradientNames = new Set(['linearGradient', 'radialGradient']);
+const GRADIENT_NAMES = new Set(['linearGradient', 'radialGradient']);
+const GRADIENT_ATTS = [
+  'x1',
+  'y1',
+  'x2',
+  'y2',
+  'gradientTransform',
+  'gradientUnits',
+];
 
 /** @type {import('./plugins-types.js').Plugin<'minifyGradientUnits'>}; */
 export const fn = (info) => {
@@ -43,7 +51,7 @@ export const fn = (info) => {
           return;
         }
 
-        if (gradientNames.has(element.local)) {
+        if (GRADIENT_NAMES.has(element.local)) {
           const id = element.svgAtts.get('id')?.toString();
           if (id === undefined) {
             return;
@@ -77,6 +85,24 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
+        // First process template gradients. If they are not referenced directly by fill or stroke, any attributes that are always
+        // overridden can be removed.
+        for (const [id, referencingGradients] of idToTemplateRefs) {
+          if (idToBoundingBoxes.has(id)) {
+            continue;
+          }
+
+          const gradient = idToGradient.get(id);
+          if (gradient === undefined) {
+            throw new Error();
+          }
+
+          removeUnusedTemplateAtts(gradient, referencingGradients);
+
+          // Since it's not referenced directly by stroke or fill, there is no need to process below.
+          idToGradient.delete(id);
+        }
+
         for (const [id, gradient] of idToGradient.entries()) {
           const bbGradient = getGradientBoundingBox(gradient);
           if (bbGradient === undefined) {
@@ -124,15 +150,7 @@ function canConvertToBoundingBoxUnits(bbGradient, bb) {
  */
 function convertToBoundingBoxUnits(gradient, id, idToTemplateRefs) {
   const referencingGradients = idToTemplateRefs.get(id) ?? [];
-  ['x1', 'y1', 'x2', 'y2', 'gradientTransform', 'gradientUnits'].forEach(
-    (attName) => {
-      if (
-        referencingGradients.every((g) => g.svgAtts.get(attName) !== undefined)
-      ) {
-        gradient.svgAtts.delete(attName);
-      }
-    },
-  );
+  removeUnusedTemplateAtts(gradient, referencingGradients);
 }
 
 /**
@@ -195,4 +213,18 @@ function getPaintAttValue(props, propName) {
     return attVal;
   }
   return /** @type {import('../types/types.js').PaintAttValue} */ (attVal);
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} gradient
+ * @param {import('../lib/types.js').XastElement[]} referencingGradients
+ */
+function removeUnusedTemplateAtts(gradient, referencingGradients) {
+  GRADIENT_ATTS.forEach((attName) => {
+    if (
+      referencingGradients.every((g) => g.svgAtts.get(attName) !== undefined)
+    ) {
+      gradient.svgAtts.delete(attName);
+    }
+  });
 }

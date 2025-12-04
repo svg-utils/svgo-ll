@@ -9,8 +9,7 @@ import { visitSkip } from '../lib/xast.js';
 export const name = 'minifyGradientUnits';
 export const description = 'convert to objectBoundingBox where possible';
 
-const GRADIENT_NAMES = new Set(['linearGradient', 'radialGradient']);
-const GRADIENT_ATTS = [
+const ARR_BB_ATTS = [
   'x1',
   'y1',
   'x2',
@@ -18,6 +17,9 @@ const GRADIENT_ATTS = [
   'gradientTransform',
   'gradientUnits',
 ];
+const GRADIENT_NAMES = new Set(['linearGradient', 'radialGradient']);
+const GRADIENT_BB_ATTS = new Set(ARR_BB_ATTS);
+const GRADIENT_ATTS = new Set(ARR_BB_ATTS.concat(['spreadMethod']));
 
 /** @type {import('./plugins-types.js').Plugin<'minifyGradientUnits'>}; */
 export const fn = (info) => {
@@ -86,7 +88,7 @@ export const fn = (info) => {
     root: {
       exit: () => {
         // First process template gradients. If they are not referenced directly by fill or stroke, any attributes that are always
-        // overridden can be removed.
+        // overridden can be removed; if the values are always the same, they can be moved to the template.
         for (const [id, referencingGradients] of idToTemplateRefs) {
           if (idToBoundingBoxes.has(id)) {
             continue;
@@ -98,7 +100,7 @@ export const fn = (info) => {
             continue;
           }
 
-          removeUnusedTemplateAtts(gradient, referencingGradients);
+          updateTemplateAtts(gradient, referencingGradients);
 
           // Since it's not referenced directly by stroke or fill, there is no need to process below.
           idToGradient.delete(id);
@@ -151,7 +153,13 @@ function canConvertToBoundingBoxUnits(bbGradient, bb) {
  */
 function convertToBoundingBoxUnits(gradient, id, idToTemplateRefs) {
   const referencingGradients = idToTemplateRefs.get(id) ?? [];
-  removeUnusedTemplateAtts(gradient, referencingGradients);
+  GRADIENT_BB_ATTS.forEach((attName) => {
+    if (
+      referencingGradients.every((g) => g.svgAtts.get(attName) !== undefined)
+    ) {
+      gradient.svgAtts.delete(attName);
+    }
+  });
 }
 
 /**
@@ -220,11 +228,42 @@ function getPaintAttValue(props, propName) {
  * @param {import('../lib/types.js').XastElement} gradient
  * @param {import('../lib/types.js').XastElement[]} referencingGradients
  */
-function removeUnusedTemplateAtts(gradient, referencingGradients) {
+function updateTemplateAtts(gradient, referencingGradients) {
+  const alwaysOverridden = new Set();
+  const identical = new Map();
+
   GRADIENT_ATTS.forEach((attName) => {
     if (
       referencingGradients.every((g) => g.svgAtts.get(attName) !== undefined)
     ) {
+      alwaysOverridden.add(attName);
+    }
+  });
+
+  if (referencingGradients.length > 1) {
+    const otherRefs = referencingGradients.slice(1);
+    for (const [
+      attName,
+      attValue,
+    ] of referencingGradients[0].svgAtts.entries()) {
+      if (!GRADIENT_ATTS.has(attName)) {
+        continue;
+      }
+      const str = attValue.toString();
+      if (
+        otherRefs.every((ref) => ref.svgAtts.get(attName)?.toString() === str)
+      ) {
+        identical.set(attName, attValue);
+      }
+    }
+  }
+
+  alwaysOverridden.forEach((attName) => {
+    const attValue = identical.get(attName);
+    if (attValue !== undefined) {
+      gradient.svgAtts.set(attName, attValue);
+      referencingGradients.forEach((g) => g.svgAtts.delete(attName));
+    } else {
       gradient.svgAtts.delete(attName);
     }
   });

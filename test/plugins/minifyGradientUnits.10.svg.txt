@@ -1,0 +1,27 @@
+Preserve gradientUnits in gradient of different type.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="lg1" href="#rg" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse" spreadMethod="reflect"/>
+    <radialGradient id="rg" gradientTransform="translate(10 10)" cx="102" cy="112.3047" r="139.55859" gradientUnits="userSpaceOnUse" spreadMethod="reflect">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </radialGradient>
+  </defs>
+  <rect style="fill:url(#lg1)" width="55" height="40" x="45" y="30"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="lg1" href="#rg" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse" spreadMethod="reflect"/>
+    <radialGradient id="rg" gradientTransform="translate(10 10)">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </radialGradient>
+  </defs>
+  <rect style="fill:url(#lg1)" width="55" height="40" x="45" y="30"/>
+</svg>

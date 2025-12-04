@@ -9,26 +9,14 @@ import { visitSkip } from '../lib/xast.js';
 export const name = 'minifyGradientUnits';
 export const description = 'convert to objectBoundingBox where possible';
 
-const ARR_RADIAL_BB_ATTS = [
-  'cx',
-  'cy',
-  'fr',
-  'fx',
-  'fy',
-  'r',
-  'gradientTransform',
-  'gradientUnits',
-];
-const ARR_LINEAR_BB_ATTS = [
-  'x1',
-  'y1',
-  'x2',
-  'y2',
-  'gradientTransform',
-  'gradientUnits',
-];
+const ARR_COMMON_BB_ATTS = ['gradientTransform', 'gradientUnits'];
+const ARR_RADIAL_BB_ATTS = ['cx', 'cy', 'fr', 'fx', 'fy', 'r'].concat(
+  ARR_COMMON_BB_ATTS,
+);
+const ARR_LINEAR_BB_ATTS = ['x1', 'y1', 'x2', 'y2'].concat(ARR_COMMON_BB_ATTS);
 const GRADIENT_NAMES = new Set(['linearGradient', 'radialGradient']);
 const GRADIENT_BB_ATTS = new Set(ARR_LINEAR_BB_ATTS);
+const COMMON_GRADIENT_ATTS = new Set(ARR_COMMON_BB_ATTS);
 const LINEAR_GRADIENT_ATTS = new Set(
   ARR_LINEAR_BB_ATTS.concat(['spreadMethod']),
 );
@@ -256,7 +244,8 @@ function updateTemplateAtts(gradient, referencingGradients) {
     if (
       referencingGradients.every(
         (g) =>
-          g.local !== gradient.local || g.svgAtts.get(attName) !== undefined,
+          (g.local !== gradient.local && !COMMON_GRADIENT_ATTS.has(attName)) ||
+          g.svgAtts.get(attName) !== undefined,
       )
     ) {
       alwaysOverridden.add(attName);

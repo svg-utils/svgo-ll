@@ -3,6 +3,7 @@ import {
   getBoundingBox,
   getLenPctPixels,
 } from '../lib/svgo/tools.js';
+import { getHrefId } from '../lib/tools-ast.js';
 import { visitSkip } from '../lib/xast.js';
 
 export const name = 'minifyGradientUnits';
@@ -29,6 +30,9 @@ export const fn = (info) => {
   /** @type {Map<string,(import('../types/types.js').BoundingBox|undefined)[]>} */
   const idToBoundingBoxes = new Map();
 
+  /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
+  const idToTemplateRefs = new Map();
+
   return {
     element: {
       enter: (element, parentList) => {
@@ -45,6 +49,11 @@ export const fn = (info) => {
             return;
           }
           idToGradient.set(id, element);
+
+          const referencedId = getHrefId(element);
+          if (referencedId !== undefined) {
+            addToMapArray(idToTemplateRefs, referencedId, element);
+          }
           return;
         }
 
@@ -79,7 +88,7 @@ export const fn = (info) => {
               canConvertToBoundingBoxUnits(bbGradient, bb),
             )
           ) {
-            convertToBoundingBoxUnits(gradient);
+            convertToBoundingBoxUnits(gradient, id, idToTemplateRefs);
           }
         }
       },
@@ -110,10 +119,19 @@ function canConvertToBoundingBoxUnits(bbGradient, bb) {
 
 /**
  * @param {import('../lib/types.js').XastElement} gradient
+ * @param {string} id
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToTemplateRefs
  */
-function convertToBoundingBoxUnits(gradient) {
+function convertToBoundingBoxUnits(gradient, id, idToTemplateRefs) {
+  const referencingGradients = idToTemplateRefs.get(id) ?? [];
   ['x1', 'y1', 'x2', 'y2', 'gradientTransform', 'gradientUnits'].forEach(
-    (attName) => gradient.svgAtts.delete(attName),
+    (attName) => {
+      if (
+        referencingGradients.every((g) => g.svgAtts.get(attName) !== undefined)
+      ) {
+        gradient.svgAtts.delete(attName);
+      }
+    },
   );
 }
 

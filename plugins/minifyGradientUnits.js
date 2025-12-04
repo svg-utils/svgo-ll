@@ -94,7 +94,8 @@ export const fn = (info) => {
 
           const gradient = idToGradient.get(id);
           if (gradient === undefined) {
-            throw new Error();
+            // Should only happen if a gradient references a non-existent template.
+            continue;
           }
 
           removeUnusedTemplateAtts(gradient, referencingGradients);

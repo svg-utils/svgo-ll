@@ -9,7 +9,17 @@ import { visitSkip } from '../lib/xast.js';
 export const name = 'minifyGradientUnits';
 export const description = 'convert to objectBoundingBox where possible';
 
-const ARR_BB_ATTS = [
+const ARR_RADIAL_BB_ATTS = [
+  'cx',
+  'cy',
+  'fr',
+  'fx',
+  'fy',
+  'r',
+  'gradientTransform',
+  'gradientUnits',
+];
+const ARR_LINEAR_BB_ATTS = [
   'x1',
   'y1',
   'x2',
@@ -18,8 +28,13 @@ const ARR_BB_ATTS = [
   'gradientUnits',
 ];
 const GRADIENT_NAMES = new Set(['linearGradient', 'radialGradient']);
-const GRADIENT_BB_ATTS = new Set(ARR_BB_ATTS);
-const GRADIENT_ATTS = new Set(ARR_BB_ATTS.concat(['spreadMethod']));
+const GRADIENT_BB_ATTS = new Set(ARR_LINEAR_BB_ATTS);
+const LINEAR_GRADIENT_ATTS = new Set(
+  ARR_LINEAR_BB_ATTS.concat(['spreadMethod']),
+);
+const RADIAL_GRADIENT_ATTS = new Set(
+  ARR_RADIAL_BB_ATTS.concat(['spreadMethod']),
+);
 
 /** @type {import('./plugins-types.js').Plugin<'minifyGradientUnits'>}; */
 export const fn = (info) => {
@@ -97,13 +112,6 @@ export const fn = (info) => {
           const gradient = idToGradient.get(id);
           if (gradient === undefined) {
             // Should only happen if a gradient references a non-existent template.
-            continue;
-          }
-
-          // Only update if all references are the same type.
-          if (
-            referencingGradients.some((ref) => ref.local !== gradient.local)
-          ) {
             continue;
           }
 
@@ -239,9 +247,17 @@ function updateTemplateAtts(gradient, referencingGradients) {
   const alwaysOverridden = new Set();
   const identical = new Map();
 
-  GRADIENT_ATTS.forEach((attName) => {
+  const attList =
+    gradient.local === 'linearGradient'
+      ? LINEAR_GRADIENT_ATTS
+      : RADIAL_GRADIENT_ATTS;
+
+  attList.forEach((attName) => {
     if (
-      referencingGradients.every((g) => g.svgAtts.get(attName) !== undefined)
+      referencingGradients.every(
+        (g) =>
+          g.local !== gradient.local || g.svgAtts.get(attName) !== undefined,
+      )
     ) {
       alwaysOverridden.add(attName);
     }
@@ -253,7 +269,7 @@ function updateTemplateAtts(gradient, referencingGradients) {
       attName,
       attValue,
     ] of referencingGradients[0].svgAtts.entries()) {
-      if (!GRADIENT_ATTS.has(attName)) {
+      if (!attList.has(attName)) {
         continue;
       }
       const str = attValue.toString();

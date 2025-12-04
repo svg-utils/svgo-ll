@@ -1,0 +1,29 @@
+Remove all unused attributes in reference chain.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="lg1" href="#lg2" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse" spreadMethod="reflect"/>
+    <linearGradient id="lg2" href="#rg" x1="125" y1="130" x2="180" y2="30" gradientUnits="userSpaceOnUse" spreadMethod="repeat"/>
+    <radialGradient id="rg" cx="102" cy="112.3047" r="139.55859" gradientUnits="userSpaceOnUse" spreadMethod="reflect">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </radialGradient>
+  </defs>
+  <rect style="fill:url(#lg1)" width="55" height="40" x="45" y="30"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="lg1" href="#lg2" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse" spreadMethod="reflect"/>
+    <linearGradient id="lg2" href="#rg"/>
+    <radialGradient id="rg">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </radialGradient>
+  </defs>
+  <rect style="fill:url(#lg1)" width="55" height="40" x="45" y="30"/>
+</svg>

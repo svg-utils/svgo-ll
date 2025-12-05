@@ -5,7 +5,10 @@ import {
   recordReferencedIds,
   updateReferencedId,
 } from '../lib/tools-ast.js';
-import { GRADIENT_NAMES } from '../lib/utils/tools-gradient.js';
+import {
+  GRADIENT_NAMES,
+  minifyTemplateAtts,
+} from '../lib/utils/tools-gradient.js';
 
 export const name = 'mergeGradients';
 export const description = 'merge identical gradients';
@@ -64,12 +67,39 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
+        /** @type {import('../lib/types.js').XastElement[]} */
+        const mergedTemplates = [];
+
         mergeDuplicates(
+          mergedTemplates,
           identicalGradients,
           referencingGradients,
           referencedIds,
           styleData,
         );
+
+        if (mergedTemplates.length > 0) {
+          /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
+          const idToTemplateRefs = new Map();
+          for (const [id, refs] of referencedIds) {
+            idToTemplateRefs.set(
+              id,
+              refs.map((item) => item.referencingEl),
+            );
+          }
+
+          for (const gradient of mergedTemplates) {
+            const id = gradient.svgAtts.get('id')?.toString();
+            if (id === undefined) {
+              throw new Error();
+            }
+            minifyTemplateAtts(
+              gradient,
+              idToTemplateRefs.get(id) ?? [],
+              idToTemplateRefs,
+            );
+          }
+        }
       },
     },
   };
@@ -126,12 +156,14 @@ function getGradientKey(element) {
 }
 
 /**
+ * @param {import('../lib/types.js').XastElement[]} mergedTemplates
  * @param {Map<string,import('../lib/types.js').XastElement[]>} identicalGradients
  * @param {Set<import('../lib/types.js').XastElement>} referencingGradients
  * @param {import('../lib/tools-ast.js').IdReferenceMap} referencedIds
  * @param {import('../lib/types.js').StyleData} styleData
  */
 function mergeDuplicates(
+  mergedTemplates,
   identicalGradients,
   referencingGradients,
   referencedIds,
@@ -155,6 +187,7 @@ function mergeDuplicates(
       throw new Error();
     }
 
+    mergedTemplates.push(duplicates[0]);
     for (let index = 1; index < duplicates.length; index++) {
       const duplicate = duplicates[index];
 
@@ -208,6 +241,12 @@ function mergeDuplicates(
         addToMapArray(duplicates, key, gradient);
       }
     }
-    mergeDuplicates(duplicates, referencingGradients, referencedIds, styleData);
+    mergeDuplicates(
+      mergedTemplates,
+      duplicates,
+      referencingGradients,
+      referencedIds,
+      styleData,
+    );
   }
 }

@@ -103,7 +103,7 @@ export const fn = (info) => {
             continue;
           }
 
-          updateTemplateAtts(gradient, referencingGradients);
+          updateTemplateAtts(gradient, referencingGradients, idToTemplateRefs);
 
           // Since it's not referenced directly by stroke or fill, there is no need to process below.
           idToGradient.delete(id);
@@ -230,8 +230,45 @@ function getPaintAttValue(props, propName) {
 /**
  * @param {import('../lib/types.js').XastElement} gradient
  * @param {import('../lib/types.js').XastElement[]} referencingGradients
+ * @param {string} attName
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToTemplateRefs
+ * @returns {boolean}
  */
-function updateTemplateAtts(gradient, referencingGradients) {
+function isAlwaysOverridden(
+  gradient,
+  referencingGradients,
+  attName,
+  idToTemplateRefs,
+) {
+  return referencingGradients.every((referencingGradient) => {
+    if (
+      (referencingGradient.local !== gradient.local &&
+        !COMMON_GRADIENT_ATTS.has(attName)) ||
+      referencingGradient.svgAtts.get(attName) !== undefined
+    ) {
+      return true;
+    }
+
+    // If this gradient is referenced, return true only if all the references override.
+    const id = referencingGradient.svgAtts.get('id')?.toString();
+    if (id === undefined) {
+      return false;
+    }
+    const refs = idToTemplateRefs.get(id) ?? [];
+    if (refs.length === 0) {
+      return false;
+    }
+
+    return isAlwaysOverridden(gradient, refs, attName, idToTemplateRefs);
+  });
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} gradient
+ * @param {import('../lib/types.js').XastElement[]} referencingGradients
+ * @param {Map<string,import('../lib/types.js').XastElement[]>} idToTemplateRefs
+ */
+function updateTemplateAtts(gradient, referencingGradients, idToTemplateRefs) {
   const alwaysOverridden = new Set();
   const identical = new Map();
 
@@ -242,10 +279,11 @@ function updateTemplateAtts(gradient, referencingGradients) {
 
   attList.forEach((attName) => {
     if (
-      referencingGradients.every(
-        (g) =>
-          (g.local !== gradient.local && !COMMON_GRADIENT_ATTS.has(attName)) ||
-          g.svgAtts.get(attName) !== undefined,
+      isAlwaysOverridden(
+        gradient,
+        referencingGradients,
+        attName,
+        idToTemplateRefs,
       )
     ) {
       alwaysOverridden.add(attName);

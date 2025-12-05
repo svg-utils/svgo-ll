@@ -5,11 +5,10 @@ import {
   recordReferencedIds,
   updateReferencedId,
 } from '../lib/tools-ast.js';
+import { GRADIENT_NAMES } from '../lib/utils/tools-gradient.js';
 
 export const name = 'mergeGradients';
 export const description = 'merge identical gradients';
-
-const gradientNames = new Set(['linearGradient', 'radialGradient']);
 
 /** @type {import('./plugins-types.js').Plugin<'mergeGradients'>}; */
 export const fn = (info) => {
@@ -37,7 +36,7 @@ export const fn = (info) => {
         // Record all referenced ids.
         recordReferencedIds(element, referencedIds);
 
-        if (!gradientNames.has(element.local)) {
+        if (!GRADIENT_NAMES.has(element.local)) {
           return;
         }
 
@@ -173,7 +172,7 @@ function mergeDuplicates(
         continue;
       }
       for (const referenceData of referencingEls) {
-        if (gradientNames.has(referenceData.referencingEl.local)) {
+        if (GRADIENT_NAMES.has(referenceData.referencingEl.local)) {
           templatesUpdated = true;
         }
 

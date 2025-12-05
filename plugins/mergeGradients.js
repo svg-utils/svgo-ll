@@ -24,7 +24,7 @@ export const fn = (info) => {
   const referencedIds = new Map();
 
   /** @type {Set<import('../lib/types.js').XastElement>} */
-  const templateGradients = new Set();
+  const referencingGradients = new Set();
 
   return {
     element: {
@@ -56,7 +56,7 @@ export const fn = (info) => {
         }
 
         if (getHrefId(element) !== undefined) {
-          templateGradients.add(element);
+          referencingGradients.add(element);
         }
 
         addToMapArray(identicalGradients, key, element);
@@ -66,7 +66,7 @@ export const fn = (info) => {
       exit: () => {
         mergeDuplicates(
           identicalGradients,
-          templateGradients,
+          referencingGradients,
           referencedIds,
           styleData,
         );
@@ -127,13 +127,13 @@ function getGradientKey(element) {
 
 /**
  * @param {Map<string,import('../lib/types.js').XastElement[]>} identicalGradients
- * @param {Set<import('../lib/types.js').XastElement>} templateGradients
+ * @param {Set<import('../lib/types.js').XastElement>} referencingGradients
  * @param {import('../lib/tools-ast.js').IdReferenceMap} referencedIds
  * @param {import('../lib/types.js').StyleData} styleData
  */
 function mergeDuplicates(
   identicalGradients,
-  templateGradients,
+  referencingGradients,
   referencedIds,
   styleData,
 ) {
@@ -160,7 +160,7 @@ function mergeDuplicates(
 
       // Update all references.
       childrenToDelete.add(duplicate);
-      templateGradients.delete(duplicate);
+      referencingGradients.delete(duplicate);
       const dupId = duplicate.svgAtts.get('id')?.toString();
       if (dupId === undefined) {
         throw new Error();
@@ -202,12 +202,12 @@ function mergeDuplicates(
 
     /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
     const duplicates = new Map();
-    for (const gradient of templateGradients.values()) {
+    for (const gradient of referencingGradients.values()) {
       const key = getGradientKey(gradient);
       if (key) {
         addToMapArray(duplicates, key, gradient);
       }
     }
-    mergeDuplicates(duplicates, templateGradients, referencedIds, styleData);
+    mergeDuplicates(duplicates, referencingGradients, referencedIds, styleData);
   }
 }

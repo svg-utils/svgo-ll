@@ -16,7 +16,9 @@ const ARR_RADIAL_BB_ATTS = ['cx', 'cy', 'fr', 'fx', 'fy', 'r'].concat(
 const ARR_LINEAR_BB_ATTS = ['x1', 'y1', 'x2', 'y2'].concat(ARR_COMMON_BB_ATTS);
 const GRADIENT_NAMES = new Set(['linearGradient', 'radialGradient']);
 const GRADIENT_BB_ATTS = new Set(ARR_LINEAR_BB_ATTS);
-const COMMON_GRADIENT_ATTS = new Set(ARR_COMMON_BB_ATTS);
+const COMMON_GRADIENT_ATTS = new Set(
+  ARR_COMMON_BB_ATTS.concat(['spreadMethod']),
+);
 const LINEAR_GRADIENT_ATTS = new Set(
   ARR_LINEAR_BB_ATTS.concat(['spreadMethod']),
 );

@@ -1,0 +1,35 @@
+Move common attributes to template.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="c">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="d">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="a" href="#c" x2=".5" spreadMethod="reflect"/>
+    <linearGradient id="b" href="#d" x2=".6" spreadMethod="reflect"/>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#b)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs>
+    <linearGradient id="c" spreadMethod="reflect">
+      <stop style="stop-color:#aaa"/>
+      <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
+    </linearGradient>
+    <linearGradient id="a" href="#c" x2=".5"/>
+    <linearGradient id="b" href="#c" x2=".6"/>
+  </defs>
+  <rect width="20" height="10" fill="url(#a)"/>
+  <rect y="15" width="20" height="10" fill="url(#b)"/>
+</svg>

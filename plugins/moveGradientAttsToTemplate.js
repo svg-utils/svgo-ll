@@ -1,5 +1,5 @@
 import { addToMapArray } from '../lib/svgo/tools.js';
-import { getHrefId } from '../lib/tools-ast.js';
+import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
 import {
   GRADIENT_NAMES,
   LINEAR_GRADIENT_ATTS,
@@ -21,6 +21,9 @@ export const fn = (info) => {
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const idToTemplateRefs = new Map();
 
+  /** @type {Set<string>} */
+  const idsReferencedByNonGradients = new Set();
+
   return {
     element: {
       enter: (element) => {
@@ -40,6 +43,13 @@ export const fn = (info) => {
           } else {
             templateGradients.push({ id: id, gradient: element });
           }
+          return;
+        }
+
+        // Record references by non-gradient elements.
+        const refs = getReferencedIds2(element);
+        for (const ref of refs) {
+          idsReferencedByNonGradients.add(ref.id);
         }
       },
     },
@@ -50,7 +60,13 @@ export const fn = (info) => {
           if (refs === undefined) {
             continue;
           }
-          moveGradientAttsToTemplate(gradient, refs, idToTemplateRefs);
+          moveGradientAttsToTemplate(
+            gradient,
+            id,
+            refs,
+            idToTemplateRefs,
+            idsReferencedByNonGradients,
+          );
         }
       },
     },
@@ -59,13 +75,17 @@ export const fn = (info) => {
 
 /**
  * @param {import('../lib/types.js').XastElement} gradient
+ * @param {string} id
  * @param {import('../lib/types.js').XastElement[]} referencingGradients
  * @param {Map<string,import('../lib/types.js').XastElement[]>} idToTemplateRefs
+ * @param {Set<string>} idsReferencedByNonGradients
  */
 function moveGradientAttsToTemplate(
   gradient,
+  id,
   referencingGradients,
   idToTemplateRefs,
+  idsReferencedByNonGradients,
 ) {
   // First make sure all refs have been processed.
   for (const ref of referencingGradients) {
@@ -77,7 +97,18 @@ function moveGradientAttsToTemplate(
     if (childRefs === undefined) {
       continue;
     }
-    moveGradientAttsToTemplate(ref, childRefs, idToTemplateRefs);
+    moveGradientAttsToTemplate(
+      ref,
+      id,
+      childRefs,
+      idToTemplateRefs,
+      idsReferencedByNonGradients,
+    );
+  }
+
+  // If this element is referenced directly, don't change the attributes.
+  if (idsReferencedByNonGradients.has(id)) {
+    return;
   }
 
   /** @type {Map<string,import('../lib/types.js').AttValue>} */

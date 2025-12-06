@@ -1,5 +1,6 @@
 import * as applyTransforms from '../plugins/applyTransforms.js';
 import * as cleanupAttributes from '../plugins/cleanupAttributes.js';
+import * as cleanupGradientAttributes from '../plugins/cleanupGradientAttributes.js';
 import * as cleanupTextNodes from '../plugins/cleanupTextNodes.js';
 import * as cleanupTextElements from '../plugins/cleanupTextElements.js';
 import * as cleanupXlink from '../plugins/cleanupXlink.js';
@@ -22,6 +23,7 @@ import * as minifyIds from '../plugins/minifyIds.js';
 import * as minifyPathData from '../plugins/minifyPathData.js';
 import * as minifyStyles from '../plugins/minifyStyles.js';
 import * as moveElemsStylesToGroup from '../plugins/moveElemsStylesToGroup.js';
+import * as moveGradientAttsToTemplate from '../plugins/moveGradientAttsToTemplate.js';
 import * as removeComments from '../plugins/removeComments.js';
 import * as removeDesc from '../plugins/removeDesc.js';
 import * as removeDimensions from '../plugins/removeDimensions.js';
@@ -89,6 +91,7 @@ class StaticMap {
 const pluginList = [
   applyTransforms,
   cleanupAttributes,
+  cleanupGradientAttributes,
   cleanupTextNodes,
   cleanupTextElements,
   cleanupXlink,
@@ -111,6 +114,7 @@ const pluginList = [
   minifyPathData,
   minifyStyles,
   moveElemsStylesToGroup,
+  moveGradientAttsToTemplate,
   removeComments,
   removeDesc,
   removeDimensions,

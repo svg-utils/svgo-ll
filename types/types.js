@@ -10,4 +10,6 @@
  * @typedef {import('../lib/attrs/styleAttValue.js').StyleAttValue} StyleAttValue
  * @typedef {import('../lib/attrs/transformAttValue.js').TransformAttValue} TransformAttValue
  * @typedef {import('../lib/ast/svgAttMap.js').SvgAttMap} SvgAttMap
+ *
+ * @typedef {{x1:ExactNum,y1:ExactNum,x2:ExactNum,y2:ExactNum}} BoundingBox
  */

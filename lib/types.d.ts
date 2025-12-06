@@ -256,14 +256,3 @@ export type PathDataCommand =
   | 'a';
 
 export type DataUri = 'base64' | 'enc' | 'unenc';
-
-export type ExactNum = {
-  add(n: ExactNum): ExactNum | undefined;
-  clone(): ExactNum;
-  getMinifiedString(): string;
-  isEqualTo(n: ExactNum): boolean;
-  isZero(): boolean;
-  negate(): ExactNum;
-  round(numDigits: number): ExactNum;
-  sub(n: ExactNum): ExactNum | undefined;
-};

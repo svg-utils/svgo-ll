@@ -1,0 +1,34 @@
+Don't move if template gradient is referenced directly by a non-gradient.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 200">
+  <defs>
+    <linearGradient id="linearGradient1" gradientUnits="userSpaceOnUse">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+    <linearGradient id="linearGradient5" href="#linearGradient1" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect"/>
+    <linearGradient id="linearGradient6" href="#linearGradient1" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect"/>
+  </defs>
+  <rect style="fill:url(#linearGradient5)" width="55" height="40" x="45" y="30"/>
+  <rect style="fill:url(#linearGradient6)" width="55" height="40" x="45" y="80"/>
+  <rect style="fill:url(#linearGradient1)" width="55" height="40" x="45" y="130"/>
+
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 200">
+  <defs>
+    <linearGradient id="linearGradient1" gradientUnits="userSpaceOnUse">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+    <linearGradient id="linearGradient5" href="#linearGradient1" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect"/>
+    <linearGradient id="linearGradient6" href="#linearGradient1" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect"/>
+  </defs>
+  <rect style="fill:url(#linearGradient5)" width="55" height="40" x="45" y="30"/>
+  <rect style="fill:url(#linearGradient6)" width="55" height="40" x="45" y="80"/>
+  <rect style="fill:url(#linearGradient1)" width="55" height="40" x="45" y="130"/>
+</svg>

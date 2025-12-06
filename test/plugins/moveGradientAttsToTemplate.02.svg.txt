@@ -1,0 +1,33 @@
+Move attributes recursively from top down.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="linearGradient1" gradientUnits="userSpaceOnUse">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+    <linearGradient id="linearGradient5" href="#linearGradient1" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect"/>
+    <linearGradient id="linearGradient6" href="#linearGradient1"/>
+    <linearGradient id="b" href="#linearGradient6" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect"/>
+  </defs>
+  <rect style="fill:url(#linearGradient5)" width="55" height="40" x="45" y="30"/>
+  <rect style="fill:url(#b)" width="55" height="40" x="45" y="80"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="linearGradient1" gradientUnits="userSpaceOnUse" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+    <linearGradient id="linearGradient5" href="#linearGradient1"/>
+    <linearGradient id="linearGradient6" href="#linearGradient1"/>
+    <linearGradient id="b" href="#linearGradient6"/>
+  </defs>
+  <rect style="fill:url(#linearGradient5)" width="55" height="40" x="45" y="30"/>
+  <rect style="fill:url(#b)" width="55" height="40" x="45" y="80"/>
+</svg>

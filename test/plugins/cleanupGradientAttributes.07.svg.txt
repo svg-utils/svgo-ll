@@ -1,0 +1,28 @@
+If a gradient is only referenced as a template, remove all unused attributes.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="linearGradient6" href="#linearGradient1" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse" gradientTransform="translate(20 0)"/>
+    <linearGradient id="linearGradient1" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect style="fill:url(#linearGradient6)" width="55" height="80.038612" x="45" y="30"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
+  <defs>
+    <linearGradient id="linearGradient6" href="#linearGradient1"/>
+    <linearGradient id="linearGradient1">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect style="fill:url(#linearGradient6)" width="55" height="80.038612" x="45" y="30"/>
+</svg>
+

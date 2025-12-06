@@ -3,6 +3,7 @@ import type { Plugin as PluginDef } from '../lib/types.js';
 type BuiltinPlugins = {
   applyTransforms: void;
   cleanupAttributes: void;
+  cleanupGradientAttributes: void;
   cleanupTextElements: void;
   cleanupTextNodes: void;
   cleanupXlink: void;
@@ -48,6 +49,7 @@ type BuiltinPlugins = {
   minifyPathData: void;
   minifyStyles: void;
   moveElemsStylesToGroup: void;
+  moveGradientAttsToTemplate: void;
   removeComments: {
     preservePatterns: Array<RegExp | string> | false;
   };

@@ -1,4 +1,5 @@
 import * as cleanupAttributes from './cleanupAttributes.js';
+import * as cleanupGradientAttributes from './cleanupGradientAttributes.js';
 import * as cleanupTextElements from './cleanupTextElements.js';
 import * as cleanupTextNodes from './cleanupTextNodes.js';
 import * as cleanupXlink from './cleanupXlink.js';
@@ -20,6 +21,7 @@ import * as minifyIds from './minifyIds.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
 import * as moveElemsStylesToGroup from './moveElemsStylesToGroup.js';
+import * as moveGradientAttsToTemplate from './moveGradientAttsToTemplate.js';
 import * as removeComments from './removeComments.js';
 import * as removeDesc from './removeDesc.js';
 import * as removeDoctype from './removeDoctype.js';
@@ -65,6 +67,7 @@ export const defaultPlugins = Object.freeze({
     removeUselessStrokeAndFill,
     convertEllipseToCircle,
     moveElemsStylesToGroup,
+    cleanupGradientAttributes,
     convertShapeToPath,
     minifyPathData,
     mergeFilters,
@@ -79,6 +82,7 @@ export const defaultPlugins = Object.freeze({
   post: Object.freeze([
     removeUnusedNS,
     convertImageToUse,
+    moveGradientAttsToTemplate,
     minifyIds,
     minifyAttrsAndStyles,
     stylesToClasses,

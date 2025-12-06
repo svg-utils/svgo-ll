@@ -8,12 +8,12 @@ import {
 import { getBoundingBox, getLenPctPixels } from '../lib/utils/tools-shapes.js';
 import { visitSkip } from '../lib/xast.js';
 
-export const name = 'minifyGradientUnits';
-export const description = 'convert to objectBoundingBox where possible';
+export const name = 'cleanupGradientAttributes';
+export const description = 'remove unnecessary gradient attributes';
 
 const GRADIENT_BB_ATTS = new Set(ARR_LINEAR_BB_ATTS);
 
-/** @type {import('./plugins-types.js').Plugin<'minifyGradientUnits'>}; */
+/** @type {import('./plugins-types.js').Plugin<'cleanupGradientAttributes'>}; */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
   if (

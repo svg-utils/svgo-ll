@@ -3,6 +3,7 @@ import type { Plugin as PluginDef } from '../lib/types.js';
 type BuiltinPlugins = {
   applyTransforms: void;
   cleanupAttributes: void;
+  cleanupGradientAttributes: void;
   cleanupTextElements: void;
   cleanupTextNodes: void;
   cleanupXlink: void;
@@ -37,7 +38,6 @@ type BuiltinPlugins = {
   inlineUse: void;
   mergeFilters: void;
   mergeGradients: void;
-  minifyGradientUnits: void;
   minifyAttrsAndStyles: void;
   minifyClassNames: void;
   minifyColors: void;

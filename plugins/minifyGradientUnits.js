@@ -7,7 +7,7 @@ import { getHrefId } from '../lib/tools-ast.js';
 import {
   ARR_LINEAR_BB_ATTS,
   GRADIENT_NAMES,
-  minifyTemplateAtts,
+  removeUnusedGradientAtts,
 } from '../lib/utils/tools-gradient.js';
 import { visitSkip } from '../lib/xast.js';
 
@@ -95,7 +95,11 @@ export const fn = (info) => {
             continue;
           }
 
-          minifyTemplateAtts(gradient, referencingGradients, idToTemplateRefs);
+          removeUnusedGradientAtts(
+            gradient,
+            referencingGradients,
+            idToTemplateRefs,
+          );
 
           // Since it's not referenced directly by stroke or fill, there is no need to process below.
           idToGradient.delete(id);

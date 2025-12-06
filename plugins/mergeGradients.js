@@ -7,7 +7,7 @@ import {
 } from '../lib/tools-ast.js';
 import {
   GRADIENT_NAMES,
-  minifyTemplateAtts,
+  removeUnusedGradientAtts,
 } from '../lib/utils/tools-gradient.js';
 
 export const name = 'mergeGradients';
@@ -93,7 +93,7 @@ export const fn = (info) => {
             if (id === undefined) {
               throw new Error();
             }
-            minifyTemplateAtts(
+            removeUnusedGradientAtts(
               gradient,
               idToTemplateRefs.get(id) ?? [],
               idToTemplateRefs,

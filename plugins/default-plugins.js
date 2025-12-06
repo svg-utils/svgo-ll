@@ -21,6 +21,7 @@ import * as minifyIds from './minifyIds.js';
 import * as minifyPathData from './minifyPathData.js';
 import * as minifyStyles from './minifyStyles.js';
 import * as moveElemsStylesToGroup from './moveElemsStylesToGroup.js';
+import * as moveGradientAttsToTemplate from './moveGradientAttsToTemplate.js';
 import * as removeComments from './removeComments.js';
 import * as removeDesc from './removeDesc.js';
 import * as removeDoctype from './removeDoctype.js';
@@ -81,6 +82,7 @@ export const defaultPlugins = Object.freeze({
   post: Object.freeze([
     removeUnusedNS,
     convertImageToUse,
+    moveGradientAttsToTemplate,
     minifyIds,
     minifyAttrsAndStyles,
     stylesToClasses,

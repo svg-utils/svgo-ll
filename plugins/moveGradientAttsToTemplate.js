@@ -15,8 +15,8 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<string,import('../lib/types.js').XastElement>} */
-  const idToGradient = new Map();
+  /** @type {{id:string,gradient:import('../lib/types.js').XastElement}[]} */
+  const templateGradients = [];
 
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
   const idToTemplateRefs = new Map();
@@ -33,22 +33,22 @@ export const fn = (info) => {
           if (id === undefined) {
             return;
           }
-          idToGradient.set(id, element);
 
           const referencedId = getHrefId(element);
           if (referencedId !== undefined) {
             addToMapArray(idToTemplateRefs, referencedId, element);
+          } else {
+            templateGradients.push({ id: id, gradient: element });
           }
-          return;
         }
       },
     },
     root: {
       exit: () => {
-        for (const [id, refs] of idToTemplateRefs) {
-          const gradient = idToGradient.get(id);
-          if (gradient === undefined) {
-            throw new Error();
+        for (const { id, gradient } of templateGradients) {
+          const refs = idToTemplateRefs.get(id);
+          if (refs === undefined) {
+            continue;
           }
           moveGradientAttsToTemplate(gradient, refs, idToTemplateRefs);
         }

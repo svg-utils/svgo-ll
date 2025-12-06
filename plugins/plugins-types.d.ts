@@ -49,6 +49,7 @@ type BuiltinPlugins = {
   minifyPathData: void;
   minifyStyles: void;
   moveElemsStylesToGroup: void;
+  moveGradientAttsToTemplate: void;
   removeComments: {
     preservePatterns: Array<RegExp | string> | false;
   };

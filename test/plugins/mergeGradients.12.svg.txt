@@ -23,11 +23,11 @@ Check for non-gradient references recursively when minifying template attributes
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50">
   <defs>
-    <linearGradient id="c" x2=".7" spreadMethod="reflect">
+    <linearGradient id="c" x2=".7">
       <stop style="stop-color:#aaa"/>
       <stop style="stop-color:#aaa;stop-opacity:0" offset="1"/>
     </linearGradient>
-    <linearGradient id="a" href="#c"/>
+    <linearGradient id="a" href="#c" spreadMethod="reflect"/>
   </defs>
   <rect width="20" height="10" fill="url(#a)"/>
   <rect y="15" width="20" height="10" fill="url(#a)"/>

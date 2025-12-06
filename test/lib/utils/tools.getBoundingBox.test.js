@@ -1,4 +1,4 @@
-import { getBoundingBox } from '../../../lib/svgo/tools.js';
+import { getBoundingBox } from '../../../lib/utils/tools-shapes.js';
 import { createTestElement } from '../../utils.js';
 
 const tests = [

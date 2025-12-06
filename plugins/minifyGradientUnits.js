@@ -1,14 +1,11 @@
-import {
-  addToMapArray,
-  getBoundingBox,
-  getLenPctPixels,
-} from '../lib/svgo/tools.js';
+import { addToMapArray } from '../lib/svgo/tools.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import {
   ARR_LINEAR_BB_ATTS,
   GRADIENT_NAMES,
   removeUnusedGradientAtts,
 } from '../lib/utils/tools-gradient.js';
+import { getBoundingBox, getLenPctPixels } from '../lib/utils/tools-shapes.js';
 import { visitSkip } from '../lib/xast.js';
 
 export const name = 'minifyGradientUnits';

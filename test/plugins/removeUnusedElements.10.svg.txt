@@ -1,0 +1,19 @@
+Remove linear gradients that point to a non-existing template.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 80">
+  <defs>
+    <linearGradient id="a" href="#b" x1="25" y1="30" x2="80" y2="30" spreadMethod="reflect"/>
+  </defs>
+  <rect fill="blue" stroke="url(#a)" width="30" height="40" y="30"/>
+  <rect style="fill:url(#a);stroke:blue" width="55" height="40" x="45" y="30"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 80">
+  <defs/>
+  <rect fill="blue" stroke="none" width="30" height="40" y="30"/>
+  <rect style="fill:none;stroke:blue" width="55" height="40" x="45" y="30"/>
+</svg>

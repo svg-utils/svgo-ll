@@ -1,3 +1,4 @@
+import { PaintAttValue } from '../lib/attrs/paintAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import {
   addToMapArray,
@@ -14,6 +15,8 @@ import { elemsGroups } from './_collections.js';
 
 export const name = 'removeUnusedElements';
 export const description = 'removes unused <defs> and non-displayed elements';
+
+/** @typedef {Map<string,(import('../types/types.js').ReferenceInfo&{element:import('../lib/types.js').XastElement})[]>} ReferenceInfoMap */
 
 const renderedElements = new Set([
   'a',
@@ -58,7 +61,11 @@ export const fn = (info) => {
   const idToElement = new Map();
 
   /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
+  /** @deprecated use idToReferenceInfo */
   const idToReferences = new Map();
+
+  /** @type {ReferenceInfoMap} */
+  const idToReferenceInfo = new Map();
 
   /** @type {Map<import('../lib/types.js').XastElement,boolean>} */
   const elementsToDelete = new Map();
@@ -68,6 +75,9 @@ export const fn = (info) => {
 
   /** @type {Set<import('../lib/types.js').XastElement>} */
   const uselessClippingRegions = new Set();
+
+  /** @type {{gradient:import('../lib/types.js').XastElement,referencedId:string}[]} */
+  const referencingGradients = [];
 
   return {
     element: {
@@ -88,6 +98,12 @@ export const fn = (info) => {
         for (const info of referencedIds) {
           addToMapArray(idToReferences, info.id, element);
         }
+        referencedIds.forEach((info) => {
+          addToMapArray(idToReferenceInfo, info.id, {
+            element: element,
+            ...info,
+          });
+        });
 
         if (element.local === 'defs') {
           allDefs.push(element);
@@ -108,8 +124,22 @@ export const fn = (info) => {
                 break;
             }
           }
-          if (element.local === 'clipPath') {
-            clipPaths.add(element);
+          switch (element.local) {
+            case 'clipPath':
+              clipPaths.add(element);
+              break;
+            case 'linearGradient':
+            case 'radialGradient':
+              {
+                const href = getHrefId(element);
+                if (href) {
+                  referencingGradients.push({
+                    gradient: element,
+                    referencedId: href,
+                  });
+                }
+              }
+              break;
           }
           return;
         }
@@ -178,6 +208,12 @@ export const fn = (info) => {
           clipPaths,
           uselessClippingRegions,
           styleIds,
+        );
+
+        deleteInvalidGradients(
+          referencingGradients,
+          idToElement,
+          idToReferenceInfo,
         );
 
         // Merge defs after all elements have been removed.
@@ -304,6 +340,46 @@ function deleteElementsAndClipPath(
       styleIds,
     );
   }
+}
+
+/**
+ * @param {{gradient:import('../lib/types.js').XastElement,referencedId:string}[]} referencingGradients
+ * @param {Map<string,import('../lib/types.js').XastElement>} idToElement
+ * @param {ReferenceInfoMap} idToReferenceInfo
+ */
+function deleteInvalidGradients(
+  referencingGradients,
+  idToElement,
+  idToReferenceInfo,
+) {
+  const childrenToDelete = new ChildDeletionQueue();
+  for (const { gradient, referencedId } of referencingGradients) {
+    if (idToElement.has(referencedId)) {
+      continue;
+    }
+    childrenToDelete.add(gradient);
+    // Set stroke or fill that references this element to "none".
+    const id = gradient.svgAtts.get('id')?.toString();
+    if (id === undefined) {
+      continue;
+    }
+    const references = idToReferenceInfo.get(id) ?? [];
+    references.forEach((info) => {
+      switch (info.name) {
+        case 'fill':
+        case 'stroke':
+          if (info.type === 'a') {
+            info.element.svgAtts.set(info.name, new PaintAttValue('none'));
+          } else {
+            /** @type {import('../types/types.js').StyleAttValue} */
+            const styleAttValue = info.element.svgAtts.getAtt('style');
+            styleAttValue.set(info.name, new PaintAttValue('none'));
+          }
+          break;
+      }
+    });
+  }
+  childrenToDelete.delete();
 }
 
 /**

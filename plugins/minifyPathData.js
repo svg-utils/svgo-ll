@@ -1,10 +1,10 @@
-import { ExactNum } from '../lib/exactnum.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import {
   getCmdArgs,
   PathParseError,
   stringifyPathCommand,
 } from '../lib/pathutils.js';
+import { ExactPoint } from '../lib/utils/exactPoint.js';
 import { pathElems } from './_collections.js';
 
 export const name = 'minifyPathData';
@@ -413,61 +413,4 @@ function optimize(commands) {
         : undefined;
   }
   return optimized;
-}
-
-class ExactPoint {
-  #x;
-  #y;
-
-  /**
-   * @param {ExactNum} x
-   * @param {ExactNum} y
-   */
-  constructor(x, y) {
-    this.#x = x;
-    this.#y = y;
-  }
-
-  clone() {
-    return new ExactPoint(this.#x.clone(), this.#y.clone());
-  }
-
-  getX() {
-    return this.#x;
-  }
-
-  getY() {
-    return this.#y;
-  }
-
-  /**
-   * @param {ExactNum|undefined} dx
-   * @param {ExactNum} [dy]
-   * @return {ExactPoint|undefined}
-   */
-  incr(dx, dy) {
-    const x = dx === undefined ? this.#x : this.#x.add(dx);
-    const y = dy === undefined ? this.#y : this.#y.add(dy);
-    return x === undefined || y === undefined
-      ? undefined
-      : new ExactPoint(x, y);
-  }
-
-  /**
-   * @param {ExactNum} x
-   */
-  setX(x) {
-    this.#x = x;
-  }
-
-  /**
-   * @param {ExactNum} y
-   */
-  setY(y) {
-    this.#y = y;
-  }
-
-  static zero() {
-    return new ExactPoint(new ExactNum(0), new ExactNum(0));
-  }
 }

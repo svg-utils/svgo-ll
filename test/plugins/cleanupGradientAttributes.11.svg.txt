@@ -1,0 +1,25 @@
+Handle scale() in transform.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="linearGradient6" x1="22.5" y1="70" x2="50" y2="70" gradientUnits="userSpaceOnUse" gradientTransform="scale(2 1)">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect style="fill:url(#linearGradient6)" width="55" height="80" x="45" y="30"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="linearGradient6">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect style="fill:url(#linearGradient6)" width="55" height="80" x="45" y="30"/>
+</svg>

@@ -198,6 +198,12 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
+        deleteInvalidGradients(
+          referencingGradients,
+          idToElement,
+          idToReferenceInfo,
+        );
+
         const styleIds = styleData.getReferencedIds();
 
         deleteElementsAndClipPath(
@@ -208,12 +214,6 @@ export const fn = (info) => {
           clipPaths,
           uselessClippingRegions,
           styleIds,
-        );
-
-        deleteInvalidGradients(
-          referencingGradients,
-          idToElement,
-          idToReferenceInfo,
         );
 
         // Merge defs after all elements have been removed.
@@ -376,10 +376,25 @@ function deleteInvalidGradients(
             styleAttValue.set(info.name, new PaintAttValue('none'));
           }
           break;
+        default:
+          throw new Error();
       }
     });
   }
   childrenToDelete.delete();
+
+  for (const info of idToReferenceInfo.values()) {
+    for (const ref of info) {
+      switch (ref.name) {
+        case 'fill':
+        case 'stroke':
+          if (!idToElement.has(ref.id)) {
+            throw new Error();
+          }
+          break;
+      }
+    }
+  }
 }
 
 /**

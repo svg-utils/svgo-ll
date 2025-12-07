@@ -1,0 +1,15 @@
+Remove fill/stroke that points to a non-existent paint server.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 80">
+  <rect fill="url(#a) blue" width="30" height="40" y="30"/>
+  <rect style="fill:url(#a);stroke:red" width="55" height="40" x="45" y="30"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 80">
+  <rect fill="blue" width="30" height="40" y="30"/>
+  <rect style="fill:none;stroke:red" width="55" height="40" x="45" y="30"/>
+</svg>

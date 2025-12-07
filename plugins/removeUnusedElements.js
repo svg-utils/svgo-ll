@@ -368,13 +368,7 @@ function deleteInvalidGradients(
       switch (info.name) {
         case 'fill':
         case 'stroke':
-          if (info.type === 'a') {
-            info.element.svgAtts.set(info.name, new PaintAttValue('none'));
-          } else {
-            /** @type {import('../types/types.js').StyleAttValue} */
-            const styleAttValue = info.element.svgAtts.getAtt('style');
-            styleAttValue.set(info.name, new PaintAttValue('none'));
-          }
+          setPaintToNone(info.element, info.name, info.type, false);
           break;
         default:
           throw new Error();
@@ -389,7 +383,7 @@ function deleteInvalidGradients(
         case 'fill':
         case 'stroke':
           if (!idToElement.has(ref.id)) {
-            throw new Error();
+            setPaintToNone(ref.element, ref.name, ref.type, true);
           }
           break;
       }
@@ -716,4 +710,31 @@ function removeUsingElements(element, id, childrenToDelete, idToReferences) {
       removeDescendantReferences(element, idToReferences);
     }
   }
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {string} attName
+ * @param {'a'|'p'} type
+ * @param {boolean} allowFallback
+ */
+function setPaintToNone(element, attName, type, allowFallback) {
+  const svgAtts =
+    type === 'a'
+      ? element.svgAtts
+      : /** @type {import('../types/types.js').StyleAttValue} */ (
+          element.svgAtts.getAtt('style')
+        );
+
+  /** @type {PaintAttValue} */
+  const attValue = svgAtts.getAtt(attName);
+  const isImportant = attValue.isImportant();
+  const color = allowFallback ? attValue.getColor() : undefined;
+
+  svgAtts.set(
+    attName,
+    color
+      ? new PaintAttValue(undefined, isImportant, color)
+      : new PaintAttValue('none', isImportant),
+  );
 }

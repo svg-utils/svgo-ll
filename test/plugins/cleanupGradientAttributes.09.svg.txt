@@ -18,7 +18,7 @@ Remove all unused attributes in reference chain.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150">
   <defs>
-    <linearGradient id="lg1" href="#lg2" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse" spreadMethod="reflect"/>
+    <linearGradient id="lg1" href="#lg2" x1="25" x2="80" gradientUnits="userSpaceOnUse" spreadMethod="reflect"/>
     <linearGradient id="lg2" href="#rg"/>
     <radialGradient id="rg">
       <stop style="stop-color:#f57900"/>

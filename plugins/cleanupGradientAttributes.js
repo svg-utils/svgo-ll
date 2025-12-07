@@ -114,6 +114,8 @@ export const fn = (info) => {
             )
           ) {
             convertToBoundingBoxUnits(gradient, id, idToTemplateRefs);
+          } else {
+            removeDefaultCoordinates(gradient);
           }
         }
       },
@@ -218,4 +220,17 @@ function getPaintAttValue(props, propName) {
     return attVal;
   }
   return /** @type {import('../types/types.js').PaintAttValue} */ (attVal);
+}
+
+/**
+ * @param {import('../lib/types.js').XastElement} gradient
+ */
+function removeDefaultCoordinates(gradient) {
+  const y1 = gradient.svgAtts.get('y1');
+  const y2 = gradient.svgAtts.get('y2');
+  if (y1 === undefined || y2 === undefined || y1.toString() !== y2.toString()) {
+    return;
+  }
+  gradient.svgAtts.delete('y1');
+  gradient.svgAtts.delete('y2');
 }

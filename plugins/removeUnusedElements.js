@@ -343,6 +343,37 @@ function deleteElementsAndClipPath(
 }
 
 /**
+ * @param {import('../lib/types.js').XastElement} gradient
+ * @param {ChildDeletionQueue} childrenToDelete
+ * @param {ReferenceInfoMap} idToReferenceInfo
+ */
+function deleteInvalidGradient(gradient, childrenToDelete, idToReferenceInfo) {
+  childrenToDelete.add(gradient);
+  // Set stroke or fill that references this element to "none".
+  const id = gradient.svgAtts.get('id')?.toString();
+  if (id === undefined) {
+    return;
+  }
+  const references = idToReferenceInfo.get(id) ?? [];
+  references.forEach((info) => {
+    switch (info.name) {
+      case 'fill':
+      case 'stroke':
+        setPaintToNone(info.element, info.name, info.type, false);
+        break;
+      case 'href':
+      case 'xlink:href':
+        deleteInvalidGradient(
+          info.element,
+          childrenToDelete,
+          idToReferenceInfo,
+        );
+        break;
+    }
+  });
+}
+
+/**
  * @param {{gradient:import('../lib/types.js').XastElement,referencedId:string}[]} referencingGradients
  * @param {Map<string,import('../lib/types.js').XastElement>} idToElement
  * @param {ReferenceInfoMap} idToReferenceInfo
@@ -353,28 +384,14 @@ function deleteInvalidGradients(
   idToReferenceInfo,
 ) {
   const childrenToDelete = new ChildDeletionQueue();
+
   for (const { gradient, referencedId } of referencingGradients) {
     if (idToElement.has(referencedId)) {
       continue;
     }
-    childrenToDelete.add(gradient);
-    // Set stroke or fill that references this element to "none".
-    const id = gradient.svgAtts.get('id')?.toString();
-    if (id === undefined) {
-      continue;
-    }
-    const references = idToReferenceInfo.get(id) ?? [];
-    references.forEach((info) => {
-      switch (info.name) {
-        case 'fill':
-        case 'stroke':
-          setPaintToNone(info.element, info.name, info.type, false);
-          break;
-        default:
-          throw new Error();
-      }
-    });
+    deleteInvalidGradient(gradient, childrenToDelete, idToReferenceInfo);
   }
+
   childrenToDelete.delete();
 
   for (const info of idToReferenceInfo.values()) {

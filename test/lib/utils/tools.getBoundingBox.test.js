@@ -24,6 +24,20 @@ const tests = [
     },
     expect: { x1: 10, y1: 20, x2: 30, y2: 40 },
   },
+  {
+    in: {
+      name: 'path',
+      atts: { d: 'm10 20l5 6' },
+    },
+    expect: { x1: 10, y1: 20, x2: 15, y2: 26 },
+  },
+  {
+    in: {
+      name: 'path',
+      atts: { d: 'm10 20L5 6' },
+    },
+    expect: { x1: 5, y1: 6, x2: 10, y2: 20 },
+  },
 ];
 
 /** @type {('x1'|'y1'|'x2'|'y2')[]} */

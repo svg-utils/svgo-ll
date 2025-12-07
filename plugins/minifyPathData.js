@@ -1,10 +1,10 @@
-import { ExactNum } from '../lib/exactnum.js';
 import { PathAttValue } from '../lib/attrs/pathAttValue.js';
 import {
   getCmdArgs,
   PathParseError,
   stringifyPathCommand,
 } from '../lib/pathutils.js';
+import { ExactPoint } from '../lib/utils/exactPoint.js';
 import { pathElems } from './_collections.js';
 
 export const name = 'minifyPathData';
@@ -368,18 +368,30 @@ function optimize(commands) {
       case 'q':
       case 's':
       case 't':
-        if (!currentPoint.incr(command.dx, command.dy)) {
-          return;
+        {
+          const cp = currentPoint.incr(command.dx, command.dy);
+          if (cp === undefined) {
+            return;
+          }
+          currentPoint = cp;
         }
         break;
       case 'h':
-        if (!currentPoint.incr(command.dx)) {
-          return;
+        {
+          const cp = currentPoint.incr(command.dx);
+          if (cp === undefined) {
+            return;
+          }
+          currentPoint = cp;
         }
         break;
       case 'v':
-        if (!currentPoint.incr(undefined, command.dy)) {
-          return;
+        {
+          const cp = currentPoint.incr(undefined, command.dy);
+          if (cp === undefined) {
+            return;
+          }
+          currentPoint = cp;
         }
         break;
       case 'H':
@@ -401,67 +413,4 @@ function optimize(commands) {
         : undefined;
   }
   return optimized;
-}
-
-class ExactPoint {
-  #x;
-  #y;
-
-  /**
-   * @param {ExactNum} x
-   * @param {ExactNum} y
-   */
-  constructor(x, y) {
-    this.#x = x;
-    this.#y = y;
-  }
-
-  clone() {
-    return new ExactPoint(this.#x.clone(), this.#y.clone());
-  }
-
-  getX() {
-    return this.#x;
-  }
-
-  getY() {
-    return this.#y;
-  }
-
-  /**
-   * @param {ExactNum|undefined} dx
-   * @param {ExactNum} [dy]
-   * @return {boolean}
-   */
-  incr(dx, dy) {
-    if (dx) {
-      if (!this.#x.incr(dx)) {
-        return false;
-      }
-    }
-    if (dy) {
-      if (!this.#y.incr(dy)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * @param {ExactNum} x
-   */
-  setX(x) {
-    this.#x = x;
-  }
-
-  /**
-   * @param {ExactNum} y
-   */
-  setY(y) {
-    this.#y = y;
-  }
-
-  static zero() {
-    return new ExactPoint(new ExactNum(0), new ExactNum(0));
-  }
 }

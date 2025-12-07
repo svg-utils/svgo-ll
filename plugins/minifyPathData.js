@@ -368,18 +368,30 @@ function optimize(commands) {
       case 'q':
       case 's':
       case 't':
-        if (!currentPoint.incr(command.dx, command.dy)) {
-          return;
+        {
+          const cp = currentPoint.incr(command.dx, command.dy);
+          if (cp === undefined) {
+            return;
+          }
+          currentPoint = cp;
         }
         break;
       case 'h':
-        if (!currentPoint.incr(command.dx)) {
-          return;
+        {
+          const cp = currentPoint.incr(command.dx);
+          if (cp === undefined) {
+            return;
+          }
+          currentPoint = cp;
         }
         break;
       case 'v':
-        if (!currentPoint.incr(undefined, command.dy)) {
-          return;
+        {
+          const cp = currentPoint.incr(undefined, command.dy);
+          if (cp === undefined) {
+            return;
+          }
+          currentPoint = cp;
         }
         break;
       case 'H':
@@ -431,20 +443,14 @@ class ExactPoint {
   /**
    * @param {ExactNum|undefined} dx
    * @param {ExactNum} [dy]
-   * @return {boolean}
+   * @return {ExactPoint|undefined}
    */
   incr(dx, dy) {
-    if (dx) {
-      if (!this.#x.incr(dx)) {
-        return false;
-      }
-    }
-    if (dy) {
-      if (!this.#y.incr(dy)) {
-        return false;
-      }
-    }
-    return true;
+    const x = dx === undefined ? this.#x : this.#x.add(dx);
+    const y = dy === undefined ? this.#y : this.#y.add(dy);
+    return x === undefined || y === undefined
+      ? undefined
+      : new ExactPoint(x, y);
   }
 
   /**

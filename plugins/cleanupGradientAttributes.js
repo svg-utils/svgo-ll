@@ -105,6 +105,7 @@ export const fn = (info) => {
         for (const [id, gradient] of idToGradient.entries()) {
           const bbGradient = getGradientBoundingBox(gradient);
           if (bbGradient === undefined) {
+            removeDefaultCoordinates(gradient);
             continue;
           }
           const boundingBoxes = idToBoundingBoxes.get(id) ?? [];

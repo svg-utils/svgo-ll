@@ -21,7 +21,7 @@ Preserve template attributes which are not present in referencing gradients.
       <stop style="stop-color:#f57900"/>
       <stop style="stop-color:#8ae234" offset="1"/>
     </linearGradient>
-    <linearGradient id="linearGradient6" href="#linearGradient1" x1="25" y1="30" x2="80" y2="30" gradientUnits="userSpaceOnUse"/>
+    <linearGradient id="linearGradient6" href="#linearGradient1" x1="25" x2="80" gradientUnits="userSpaceOnUse"/>
   </defs>
   <rect style="fill:url(#linearGradient6)" width="55" height="80.038612" x="45" y="30"/>
 </svg>

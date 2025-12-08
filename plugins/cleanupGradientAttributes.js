@@ -1,3 +1,4 @@
+import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { addToMapArray } from '../lib/svgo/tools.js';
 import { getHrefId } from '../lib/tools-ast.js';
 import {
@@ -97,15 +98,12 @@ export const fn = (info) => {
             referencingGradients,
             idToTemplateRefs,
           );
-
-          // Since it's not referenced directly by stroke or fill, there is no need to process below.
-          idToGradient.delete(id);
         }
 
         for (const [id, gradient] of idToGradient.entries()) {
           const bbGradient = getGradientBoundingBox(gradient);
           if (bbGradient === undefined) {
-            removeDefaultCoordinates(gradient);
+            removeDefaultCoordinates(gradient, idToGradient);
             continue;
           }
           const boundingBoxes = idToBoundingBoxes.get(id) ?? [];
@@ -116,7 +114,7 @@ export const fn = (info) => {
           ) {
             convertToBoundingBoxUnits(gradient, id, idToTemplateRefs);
           } else {
-            removeDefaultCoordinates(gradient);
+            removeDefaultCoordinates(gradient, idToGradient);
           }
         }
       },
@@ -211,6 +209,51 @@ function getGradientRef(props, attName) {
 }
 
 /**
+ * @param {import('../lib/types.js').XastElement} gradient
+ * @param {('y1'|'y2')[]} attNames
+ * @param {Map<string,import('../lib/types.js').XastElement>} idToGradient
+ * @returns {Object<'y1'|'y2',import('../types/types.js').LengthPercentageAttValue>|undefined}
+ */
+function getInheritedCoordinates(gradient, attNames, idToGradient) {
+  const id = getHrefId(gradient);
+  if (id === undefined) {
+    return;
+  }
+  const templateGradient = idToGradient.get(id);
+  if (templateGradient === undefined) {
+    return;
+  }
+
+  /** @type {Object<'y1'|'y2',import('../types/types.js').LengthPercentageAttValue>} */
+  const result = {};
+  attNames.forEach((attName) => {
+    /** @type {import('../types/types.js').LengthPercentageAttValue|undefined} */
+    const attValue = templateGradient.svgAtts.get(attName);
+    if (attValue) {
+      result[attName] = attValue;
+    }
+  });
+
+  const missingAtts = attNames.filter(
+    (attName) => result[attName] === undefined,
+  );
+  if (missingAtts.length > 0) {
+    const templateAtts = getInheritedCoordinates(
+      templateGradient,
+      missingAtts,
+      idToGradient,
+    );
+    if (templateAtts) {
+      for (const [k, v] of Object.entries(templateAtts)) {
+        result[k] = v;
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
  * @param {import('../lib/types.js').ComputedPropertyMap} props
  * @param {string} propName
  * @returns {import('../types/types.js').PaintAttValue|null|undefined}
@@ -225,13 +268,31 @@ function getPaintAttValue(props, propName) {
 
 /**
  * @param {import('../lib/types.js').XastElement} gradient
+ * @param {Map<string,import('../lib/types.js').XastElement>} idToGradient
  */
-function removeDefaultCoordinates(gradient) {
+function removeDefaultCoordinates(gradient, idToGradient) {
   const y1 = gradient.svgAtts.get('y1');
   const y2 = gradient.svgAtts.get('y2');
   if (y1 === undefined || y2 === undefined || y1.toString() !== y2.toString()) {
     return;
   }
+
+  /** @type {('y1'|'y2')[]} */
+  const coords = ['y1', 'y2'];
+
+  // Make sure these aren't necessary to override any inherited attributes.
+  /** @type {Object<'y1'|'y2',import('../types/types.js').LengthPercentageAttValue>} */
+  const inherited = getInheritedCoordinates(gradient, coords, idToGradient);
+  if (
+    inherited &&
+    (inherited['y1'] !== undefined || inherited['y2'] !== undefined)
+  ) {
+    coords.forEach((attName) => {
+      gradient.svgAtts.set(attName, new LengthPercentageAttValue('1'));
+    });
+    return;
+  }
+
   gradient.svgAtts.delete('y1');
   gradient.svgAtts.delete('y2');
 }

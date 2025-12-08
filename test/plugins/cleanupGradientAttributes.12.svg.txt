@@ -1,0 +1,31 @@
+Preserve y1/y2 when necessary to prevent inheritance.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="a" y1=".1" y2=".9">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+    <linearGradient id="c" href="#a"/>
+    <linearGradient id="b" href="#c" y1=".5" y2=".5"/>
+  </defs>
+  <rect style="fill:url(#a)" width="55" height="50" x="45" y="10"/>
+  <rect style="fill:url(#b)" width="55" height="50" x="45" y="70"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="a" y1=".1" y2=".9">
+      <stop style="stop-color:#f57900"/>
+      <stop style="stop-color:#8ae234" offset="1"/>
+    </linearGradient>
+    <linearGradient id="c" href="#a"/>
+    <linearGradient id="b" href="#c" y1="1" y2="1"/>
+  </defs>
+  <rect style="fill:url(#a)" width="55" height="50" x="45" y="10"/>
+  <rect style="fill:url(#b)" width="55" height="50" x="45" y="70"/>
+</svg>

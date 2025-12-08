@@ -3,7 +3,6 @@ import { AttValue } from '../lib/attrs/attValue.js';
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { LengthPercentageAttValue } from '../lib/attrs/lengthPercentageAttValue.js';
 import { ViewBoxAttValue } from '../lib/attrs/viewBoxAttValue.js';
-import { ExactNum } from '../lib/exactnum.js';
 import {
   addToMapArray,
   getBase64ImageDimensions,
@@ -17,6 +16,7 @@ import {
   getXlinkHref,
   NS_XLINK,
 } from '../lib/tools-ast.js';
+import { ExactNum } from '../lib/utils/exactNum.js';
 import { createElement } from '../lib/xast.js';
 import { USER_SPACE_PROPS } from './_collections.js';
 import { getAllProperties } from './_styles.js';

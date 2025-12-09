@@ -176,6 +176,19 @@ export const presentationProperties = new Set(
   ]),
 );
 
+// See https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/fill-rule#specifications
+export const preserveFillRuleElements = new Set([
+  'path',
+  'polygon',
+  'polyline',
+  'text',
+  'textPath',
+  'tspan',
+  // <g> and <use> may contain or reference elements which need fill-rule
+  'g',
+  'use',
+]);
+
 export const pathElems = new Set(['glyph', 'missing-glyph', 'path']);
 
 /**

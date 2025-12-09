@@ -1,10 +1,7 @@
 import {
-  elems,
-  attrsGroups,
-  elemsGroups,
-  attrsGroupsDefaults,
   inheritableAttrs,
   presentationProperties,
+  preserveFillRuleElements,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
 import { getHrefId } from '../lib/tools-ast.js';
@@ -12,6 +9,11 @@ import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getPresentationProperties, getProperty } from './_styles.js';
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
+import {
+  getAllowedAttributes,
+  getAllowedChildren,
+  getAttributeDefaults,
+} from '../lib/utils/tools-collections.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -30,12 +32,6 @@ const ALLOWED_CURRENTCOLOR_PROPS = [
   'lighting-color',
 ];
 
-/** @type {Map<string, Set<string>>} */
-const allowedChildrenPerElement = new Map();
-/** @type {Map<string, Set<string>>} */
-const allowedAttributesPerElement = new Map();
-/** @type {Map<string, Map<string, string>>} */
-const attributesDefaultsPerElement = new Map();
 const preserveOverflowElements = new Set([
   'foreignObject',
   'image',
@@ -45,77 +41,6 @@ const preserveOverflowElements = new Set([
   'symbol',
   'text',
 ]);
-
-// See https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/fill-rule#specifications
-const preserveFillRuleElements = new Set([
-  'path',
-  'polygon',
-  'polyline',
-  'text',
-  'textPath',
-  'tspan',
-  // <g> and <use> may contain or reference elements which need fill-rule
-  'g',
-  'use',
-]);
-
-for (const [name, config] of Object.entries(elems)) {
-  /** @type {Set<string>} */
-  const allowedChildren = new Set();
-  if (config.content) {
-    for (const elementName of config.content) {
-      allowedChildren.add(elementName);
-    }
-  }
-  if (config.contentGroups) {
-    for (const contentGroupName of config.contentGroups) {
-      const elemsGroup = elemsGroups[contentGroupName];
-      if (elemsGroup) {
-        for (const elementName of elemsGroup) {
-          allowedChildren.add(elementName);
-        }
-      }
-    }
-  }
-
-  /** @type {Set<string>} */
-  const allowedAttributes = new Set();
-  if (config.attrs) {
-    for (const attrName of config.attrs) {
-      if (attrName === 'fill-rule' && !preserveFillRuleElements.has(name)) {
-        continue;
-      }
-      allowedAttributes.add(attrName);
-    }
-  }
-  /** @type {Map<string, string>} */
-  const attributesDefaults = new Map();
-  if (config.defaults) {
-    for (const [attrName, defaultValue] of Object.entries(config.defaults)) {
-      attributesDefaults.set(attrName, defaultValue);
-    }
-  }
-  for (const attrsGroupName of config.attrsGroups) {
-    const attrsGroup = attrsGroups[attrsGroupName];
-    if (attrsGroup) {
-      for (const attrName of attrsGroup) {
-        if (attrName === 'fill-rule' && !preserveFillRuleElements.has(name)) {
-          continue;
-        }
-        allowedAttributes.add(attrName);
-      }
-    }
-    const groupDefaults = attrsGroupsDefaults[attrsGroupName];
-    if (groupDefaults) {
-      for (const [attrName, defaultValue] of Object.entries(groupDefaults)) {
-        attributesDefaults.set(attrName, defaultValue);
-      }
-    }
-  }
-  allowedChildrenPerElement.set(name, allowedChildren);
-  allowedAttributesPerElement.set(name, allowedAttributes);
-  attributesDefaultsPerElement.set(name, attributesDefaults);
-}
 
 /**
  * Remove unknown elements content and attributes,
@@ -229,7 +154,7 @@ export const fn = (info, params) => {
           }
         }
 
-        const allowedChildren = allowedChildrenPerElement.get(element.local);
+        const allowedChildren = getAllowedChildren(element.local);
         if (allowedChildren) {
           // Remove any disallowed child elements.
           if (
@@ -249,12 +174,8 @@ export const fn = (info, params) => {
           }
         }
 
-        const allowedAttributes = allowedAttributesPerElement.get(
-          element.local,
-        );
-        const attributesDefaults = attributesDefaultsPerElement.get(
-          element.local,
-        );
+        const allowedAttributes = getAllowedAttributes(element.local);
+        const attributesDefaults = getAttributeDefaults(element.local);
 
         // Remove any unnecessary style properties.
         /** @type {StyleAttValue|undefined} */
@@ -560,6 +481,7 @@ function addElsWhichHaveCurrentColor(
  * @param {string} propName
  * @param {Set<string>|undefined} allowedAttributes
  * @returns {boolean}
+ * @deprecated
  */
 function canHaveProperty(propName, allowedAttributes) {
   if (!allowedAttributes || allowedAttributes.has(propName)) {

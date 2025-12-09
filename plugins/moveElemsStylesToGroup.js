@@ -36,6 +36,8 @@ export const fn = (info) => {
         }
 
         const commonProperties = new SvgAttMap();
+        /** @type {Map<string,number>} */
+        const propCounts = new Map();
         /** @type {Set<string>} */
         const uncommonProperties = new Set();
         /** @type {Set<string>} */
@@ -81,6 +83,7 @@ export const fn = (info) => {
               childProperty.toString() === commonValue.toString() &&
               childProperty.isImportant() === commonValue.isImportant()
             ) {
+              propCounts.set(name, (propCounts.get(name) ?? 0) + 1);
               continue;
             }
             uncommonProperties.add(name);
@@ -95,6 +98,12 @@ export const fn = (info) => {
           });
         }
 
+        // Remove any properties with only 1 occurrence.
+        for (const propName of commonProperties.keys()) {
+          if (propCounts.get(propName) === 1) {
+            commonProperties.delete(propName);
+          }
+        }
         if (commonProperties.count() === 0) {
           return;
         }

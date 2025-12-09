@@ -481,7 +481,6 @@ function addElsWhichHaveCurrentColor(
  * @param {string} propName
  * @param {Set<string>|undefined} allowedAttributes
  * @returns {boolean}
- * @deprecated
  */
 function canHaveProperty(propName, allowedAttributes) {
   if (!allowedAttributes || allowedAttributes.has(propName)) {

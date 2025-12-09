@@ -340,9 +340,12 @@ export const fn = (info, params) => {
           }
 
           if (name === 'clip-path') {
-            const parentProperties = styleData.computeParentStyle(parentList);
-            const parentClipPath = parentProperties.get(name);
-            if (parentClipPath && parentClipPath === attValue.toString()) {
+            const parentProps = styleData.computeParentProps(parentList);
+            const parentClipPath = parentProps.get(name);
+            if (
+              parentClipPath &&
+              parentClipPath.toString() === attValue.toString()
+            ) {
               element.svgAtts.delete(name);
               continue;
             }
@@ -381,11 +384,11 @@ export const fn = (info, params) => {
             attributesDefaults,
           );
           if (inheritableAttrs.has(name)) {
-            const parentProperties = styleData.computeParentStyle(parentList);
-            const parentValue = parentProperties.get(name);
+            const parentProps = styleData.computeParentProps(parentList);
+            const parentValue = parentProps.get(name);
             if (
               (isDefault && parentValue === undefined) ||
-              strValue === parentValue
+              strValue === parentValue?.toString()
             ) {
               attsToDelete.push(name);
             }

@@ -83,7 +83,7 @@ export const fn = (info) => {
           }
         }
 
-        const groupOwnStyle = styleData.computeOwnStyle(element);
+        const groupOwnStyle = styleData.computeOwnProps(element);
 
         // Don't move transform on children when group has filter or clip-path or mask, or if not all transform properties can
         // be moved.
@@ -122,8 +122,9 @@ export const fn = (info) => {
           groupProperties.set(name, value);
         }
 
+        /** @type {StyleAttValue} */
         let groupStyleAttValue =
-          StyleAttValue.getAttValue(element) || new StyleAttValue('');
+          element.svgAtts.get('style') || new StyleAttValue('');
         for (const [name, value] of groupProperties.entries()) {
           groupStyleAttValue.set(name, value);
           element.svgAtts.delete(name);
@@ -133,7 +134,8 @@ export const fn = (info) => {
         // Delete common properties from children.
         for (const child of element.children) {
           if (child.type === 'element') {
-            const childStyleAttValue = StyleAttValue.getAttValue(child);
+            /** @type {StyleAttValue|undefined} */
+            const childStyleAttValue = child.svgAtts.get('style');
             for (const name of commonProperties.keys()) {
               if (childStyleAttValue) {
                 childStyleAttValue.delete(name);

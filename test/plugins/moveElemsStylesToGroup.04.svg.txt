@@ -1,0 +1,23 @@
+Move common child styles to group if they are not relevant to some elements.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g>
+    <text font-size="6" y="10">test</text>
+    <text font-size="6" y="20">test</text>
+    <text font-size="6" y="30">test</text>
+    <path d="M10 40h80" stroke="black"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <g style="font-size:6">
+    <text y="10">test</text>
+    <text y="20">test</text>
+    <text y="30">test</text>
+    <path d="M10 40h80" stroke="black"/>
+  </g>
+</svg>

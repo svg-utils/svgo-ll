@@ -185,8 +185,8 @@ export const fn = (info, params) => {
           elementsById.set(id, element);
         }
 
-        /** @type {Map<string, string | null>} */
-        const computedStyle = styleData.computeStyle(element, parentList);
+        /** @type {import('../lib/types.js').ComputedPropertyMap} */
+        const computedProps = styleData.computeProps(element, parentList);
 
         if (element.local === 'use') {
           const id = getHrefId(element);
@@ -198,14 +198,14 @@ export const fn = (info, params) => {
             }
             els.push({
               element: element,
-              hasColor: !!computedStyle.get('color'),
+              hasColor: !!computedProps.get('color'),
             });
           }
           addElsWhichHaveCurrentColor(
             elsWithCurrentColor,
             elsWithCurrentColorToDelete,
             element,
-            computedStyle,
+            computedProps,
           );
 
           // x="0" and y="0" can be removed.
@@ -257,7 +257,8 @@ export const fn = (info, params) => {
         );
 
         // Remove any unnecessary style properties.
-        const styleAttValue = StyleAttValue.getAttValue(element);
+        /** @type {StyleAttValue|undefined} */
+        const styleAttValue = element.svgAtts.get('style');
         if (styleAttValue) {
           // Delete the associated attributes, since they will always be overridden by the style property.
           for (let p of styleAttValue.keys()) {
@@ -291,7 +292,7 @@ export const fn = (info, params) => {
               continue;
             }
 
-            const origVal = computedStyle.get(propertyName);
+            const origVal = computedProps.get(propertyName)?.toString();
             const newVal = newComputedStyle.get(propertyName);
             if (
               origVal !== null &&
@@ -300,7 +301,7 @@ export const fn = (info, params) => {
                   isDefaultPropertyValue(
                     element,
                     propertyName,
-                    origVal,
+                    origVal?.toString(),
                     attributesDefaults,
                   )))
             ) {
@@ -397,14 +398,14 @@ export const fn = (info, params) => {
         }
 
         // Remove attribute if value is "currentColor" and color is not set.
-        if (computedStyle.get('color') !== undefined) {
+        if (computedProps.get('color') !== undefined) {
           elsWithColorAtt.add(element);
         }
         addElsWhichHaveCurrentColor(
           elsWithCurrentColor,
           elsWithCurrentColorToDelete,
           element,
-          computedStyle,
+          computedProps,
         );
       },
     },
@@ -466,7 +467,8 @@ export const fn = (info, params) => {
                 }
               }
             }
-            const styleAttValue = StyleAttValue.getAttValue(element);
+            /** @type {StyleAttValue|undefined} */
+            const styleAttValue = element.svgAtts.get('style');
             if (styleAttValue) {
               for (const propName of styleAttValue.keys()) {
                 if (referencedElementProps.has(propName)) {
@@ -531,20 +533,20 @@ function addElsWhichCanHaveColorAtt(
  * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColor
  * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColorToDelete
  * @param {import('../lib/types.js').XastElement} element
- * @param {Map<string,string|null>} computedStyle
+ * @param {import('../lib/types.js').ComputedPropertyMap} computedProps
  */
 function addElsWhichHaveCurrentColor(
   elsWithCurrentColor,
   elsWithCurrentColorToDelete,
   element,
-  computedStyle,
+  computedProps,
 ) {
   ALLOWED_CURRENTCOLOR_PROPS.forEach((attName) => {
-    const attValue = computedStyle.get(attName);
+    const attValue = computedProps.get(attName)?.toString();
     if (attValue === 'currentColor') {
       elsWithCurrentColor.add(element);
       // If color is not set, delete it at the end if it is not used by an element with color property.
-      if (computedStyle.get('color') === undefined) {
+      if (computedProps.get('color') === undefined) {
         elsWithCurrentColorToDelete.add(element);
       }
     }
@@ -584,7 +586,8 @@ function deleteColorAtts(elsWithColorAtt, elsWithCurrentColor, usedElsById) {
   elsWithColorAtt.forEach((element) => {
     if (!elsWhichCanHaveColorAtt.has(element)) {
       element.svgAtts.delete('color');
-      const styleAttValue = StyleAttValue.getAttValue(element);
+      /** @type {StyleAttValue|undefined} */
+      const styleAttValue = element.svgAtts.get('style');
       if (styleAttValue) {
         styleAttValue.delete('color');
         styleAttValue.updateElement(element);

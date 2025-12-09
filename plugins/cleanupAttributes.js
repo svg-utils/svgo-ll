@@ -1,4 +1,3 @@
-import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import {
   elemsGroups,
   geometryProperties,
@@ -50,7 +49,12 @@ export const fn = (info) => {
               );
               break;
             case 'style':
-              cleanupStyleAttribute(element);
+              cleanupStyleAttribute(
+                element,
+                /** @type {import('../types/types.js').StyleAttValue} */ (
+                  attValue
+                ),
+              );
               break;
           }
         }
@@ -78,14 +82,10 @@ function cleanupClassAttribute(element, cv, styleData) {
 
 /**
  * @param {import('../lib/types.js').XastElement} element
+ * @param {import('../types/types.js').StyleAttValue} styleAttValue
  * @returns {void}
  */
-function cleanupStyleAttribute(element) {
-  const styleAttValue = StyleAttValue.getAttValue(element);
-  if (styleAttValue === undefined) {
-    return;
-  }
-
+function cleanupStyleAttribute(element, styleAttValue) {
   if (elemsGroups.animation.has(element.local)) {
     // Style attributes have no effect on animation elements.
     element.svgAtts.delete('style');

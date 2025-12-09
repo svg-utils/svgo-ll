@@ -277,7 +277,7 @@ export const fn = (info, params) => {
           }
 
           // Calculate the style if we remove all properties.
-          const newComputedStyle = styleData.computeStyle(
+          const newComputedProps = styleData.computeProps(
             element,
             parentList,
             new SvgAttMap(),
@@ -292,16 +292,16 @@ export const fn = (info, params) => {
               continue;
             }
 
-            const origVal = computedProps.get(propertyName)?.toString();
-            const newVal = newComputedStyle.get(propertyName);
+            const valOrig = computedProps.get(propertyName);
+            const valNew = newComputedProps.get(propertyName);
             if (
-              origVal !== null &&
-              (origVal === newVal ||
-                (newVal === undefined &&
+              valOrig !== null &&
+              (valOrig?.toString() === valNew?.toString() ||
+                (valNew === undefined &&
                   isDefaultPropertyValue(
                     element,
                     propertyName,
-                    origVal?.toString(),
+                    valOrig?.toString(),
                     attributesDefaults,
                   )))
             ) {

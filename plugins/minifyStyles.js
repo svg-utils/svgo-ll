@@ -1,13 +1,7 @@
-import { ClassAttValue } from '../lib/attrs/classAttValue.js';
-
 export const name = 'minifyStyles';
 export const description = 'minifies styles and removes unused styles';
 
-/**
- * Minifies styles (<style> element + style attribute) using CSSO.
- *
- * @type {import('./plugins-types.js').Plugin<'minifyStyles'>}
- */
+/** @type {import('./plugins-types.js').Plugin<'minifyStyles'>} */
 export const fn = (info) => {
   /** @type {Set<string>} */
   const tagsUsage = new Set();
@@ -42,7 +36,8 @@ export const fn = (info) => {
         if (id !== undefined) {
           idsUsage.add(id);
         }
-        const classAtt = ClassAttValue.getAttValue(element);
+        /** @type {import('../types/types.js').ClassAttValue|undefined} */
+        const classAtt = element.svgAtts.get('class');
         if (classAtt !== undefined) {
           for (const className of classAtt.getClassNames()) {
             classesUsage.add(className);

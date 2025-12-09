@@ -1,0 +1,17 @@
+Remove invalid properties.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <style>rect {fill:#00f;xxx:yyy}</style>
+  <rect width="100" height="100"/>
+</svg>
+
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <style>rect{fill:#00f}</style>
+  <rect width="100" height="100"/>
+</svg>
+

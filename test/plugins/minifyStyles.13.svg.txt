@@ -4,12 +4,12 @@ Ensure plugin works even when style has multiple children.
 
 <svg xmlns="http://www.w3.org/2000/svg">
     <style>
-        <![CDATA[.used { p: 1 }
-        .unused { p: 2 }
-        #us]]>e<![CDATA[d { p: 3 }
-        #unused { p: 4 }
-        g { p: 5 }
-        unused { p: 6 }]]>
+        <![CDATA[.used { fill:red }
+        .unused { fill:red }
+        #us]]>e<![CDATA[d { fill:#123456 }
+        #unused { fill:red }
+        g { fill:#fff }
+        unused { fill:red }]]>
     </style>
     <g id="used" class="used">
         test
@@ -19,6 +19,6 @@ Ensure plugin works even when style has multiple children.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg">
-    <style>.used{p:1}#used{p:3}g{p:5}</style>
+    <style>.used{fill:red}#used{fill:#123456}g{fill:#fff}</style>
     <g id="used" class="used"/>
 </svg>

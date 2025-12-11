@@ -145,6 +145,7 @@ export class StyleData {
   computeOwnProps(node: XastElement): ComputedPropertyMap;
   /** @deprecated */
   computeOwnStyle(node: XastElement): Map<string, string | null>;
+  computeParentProps(parentList: Readonly<ParentList>): ComputedPropertyMap;
   /** @deprecated */
   computeParentStyle(
     parentList: Readonly<ParentList>,

@@ -1,5 +1,7 @@
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
+import { getAllowedAttributes } from '../lib/utils/tools-collections.js';
+import { elemsGroups, uselessShapeProperties } from './_collections.js';
 import { getInheritableProperties, TRANSFORM_PROP_NAMES } from './_styles.js';
 
 export const name = 'moveElemsStylesToGroup';
@@ -33,42 +35,56 @@ export const fn = (info) => {
           return;
         }
 
-        /**
-         * Find common properties in group children.
-         */
         const commonProperties = new SvgAttMap();
         /** @type {Set<string>} */
+        const uncommonProperties = new Set();
+        /** @type {Set<string>} */
         const transformPropertiesFound = new Set();
-        let initial = true;
 
-        for (const child of element.children) {
+        for (let index = 0; index < element.children.length; index++) {
+          const child = element.children[index];
+
           if (child.type !== 'element') {
             continue;
           }
 
           const childProperties = getInheritableProperties(child);
-          if (childProperties === undefined) {
-            return;
-          }
 
-          if (initial) {
-            initial = false;
-            // Collect all inheritable properties from first child element.
-            for (const [name, value] of childProperties.entries()) {
-              commonProperties.set(name, value);
+          for (const [
+            propName,
+            propValueCurrent,
+          ] of childProperties.entries()) {
+            if (uncommonProperties.has(propName)) {
+              // Already rejected this one.
+              continue;
             }
-          } else {
-            // exclude uncommon attributes from initial list
-            for (const [name, commonValue] of commonProperties.entries()) {
-              const childProperty = childProperties.get(name);
-              if (
-                !childProperty ||
-                childProperty.toString() !== commonValue.toString() ||
-                childProperty.isImportant() !== commonValue.isImportant()
-              ) {
-                commonProperties.delete(name);
+            const commonValue = commonProperties.get(propName);
+            if (commonValue === undefined) {
+              // We haven't seen this property yet. If the property is not relevant to all previous children, include it.
+              if (propNotAllowedForPrevChildren(propName, element, index)) {
+                commonProperties.set(propName, propValueCurrent);
+              } else {
+                uncommonProperties.add(propName);
               }
             }
+          }
+
+          // Check all the current common properties and make sure they are valid for this element
+          for (const [name, commonValue] of commonProperties.entries()) {
+            const childProperty = childProperties.get(name);
+            if (childProperty === undefined) {
+              // Allow only if it is not relevant for this element.
+              if (!propAllowedForElement(name, child)) {
+                continue;
+              }
+            } else if (
+              childProperty.toString() === commonValue.toString() &&
+              childProperty.isImportant() === commonValue.isImportant()
+            ) {
+              continue;
+            }
+            uncommonProperties.add(name);
+            commonProperties.delete(name);
           }
 
           // Record any transform properties found.
@@ -77,13 +93,13 @@ export const fn = (info) => {
               transformPropertiesFound.add(name);
             }
           });
-
-          if (commonProperties.count() === 0) {
-            return;
-          }
         }
 
-        const groupOwnStyle = styleData.computeOwnStyle(element);
+        if (commonProperties.count() === 0) {
+          return;
+        }
+
+        const groupOwnStyle = styleData.computeOwnProps(element);
 
         // Don't move transform on children when group has filter or clip-path or mask, or if not all transform properties can
         // be moved.
@@ -122,8 +138,9 @@ export const fn = (info) => {
           groupProperties.set(name, value);
         }
 
+        /** @type {StyleAttValue} */
         let groupStyleAttValue =
-          StyleAttValue.getAttValue(element) || new StyleAttValue('');
+          element.svgAtts.get('style') || new StyleAttValue('');
         for (const [name, value] of groupProperties.entries()) {
           groupStyleAttValue.set(name, value);
           element.svgAtts.delete(name);
@@ -133,7 +150,8 @@ export const fn = (info) => {
         // Delete common properties from children.
         for (const child of element.children) {
           if (child.type === 'element') {
-            const childStyleAttValue = StyleAttValue.getAttValue(child);
+            /** @type {StyleAttValue|undefined} */
+            const childStyleAttValue = child.svgAtts.get('style');
             for (const name of commonProperties.keys()) {
               if (childStyleAttValue) {
                 childStyleAttValue.delete(name);
@@ -149,3 +167,40 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {string} propName
+ * @param {import('../lib/types.js').XastElement} element
+ * @returns {boolean}
+ */
+function propAllowedForElement(propName, element) {
+  const allowedAtts = getAllowedAttributes(element.local);
+  if (allowedAtts === undefined) {
+    return true;
+  }
+  if (!allowedAtts.has(propName)) {
+    return false;
+  }
+  return !(
+    elemsGroups.shape.has(element.local) && uselessShapeProperties.has(propName)
+  );
+}
+
+/**
+ * @param {string} propName
+ * @param {import('../lib/types.js').XastElement} element
+ * @param {number} currentIndex
+ * @return {boolean}
+ */
+function propNotAllowedForPrevChildren(propName, element, currentIndex) {
+  for (let index = 0; index < currentIndex; index++) {
+    const child = element.children[index];
+    if (child.type !== 'element') {
+      continue;
+    }
+    if (propAllowedForElement(propName, child)) {
+      return false;
+    }
+  }
+  return true;
+}

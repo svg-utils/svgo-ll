@@ -1,10 +1,7 @@
 import {
-  elems,
-  attrsGroups,
-  elemsGroups,
-  attrsGroupsDefaults,
   inheritableAttrs,
   presentationProperties,
+  preserveFillRuleElements,
 } from './_collections.js';
 import { visitSkip } from '../lib/xast.js';
 import { getHrefId } from '../lib/tools-ast.js';
@@ -12,6 +9,11 @@ import { StyleAttValue } from '../lib/attrs/styleAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { getPresentationProperties, getProperty } from './_styles.js';
 import { SvgAttMap } from '../lib/ast/svgAttMap.js';
+import {
+  getAllowedAttributes,
+  getAllowedChildren,
+  getAttributeDefaults,
+} from '../lib/utils/tools-collections.js';
 
 export const name = 'removeUnknownsAndDefaults';
 export const description =
@@ -30,12 +32,6 @@ const ALLOWED_CURRENTCOLOR_PROPS = [
   'lighting-color',
 ];
 
-/** @type {Map<string, Set<string>>} */
-const allowedChildrenPerElement = new Map();
-/** @type {Map<string, Set<string>>} */
-const allowedAttributesPerElement = new Map();
-/** @type {Map<string, Map<string, string>>} */
-const attributesDefaultsPerElement = new Map();
 const preserveOverflowElements = new Set([
   'foreignObject',
   'image',
@@ -45,77 +41,6 @@ const preserveOverflowElements = new Set([
   'symbol',
   'text',
 ]);
-
-// See https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/fill-rule#specifications
-const preserveFillRuleElements = new Set([
-  'path',
-  'polygon',
-  'polyline',
-  'text',
-  'textPath',
-  'tspan',
-  // <g> and <use> may contain or reference elements which need fill-rule
-  'g',
-  'use',
-]);
-
-for (const [name, config] of Object.entries(elems)) {
-  /** @type {Set<string>} */
-  const allowedChildren = new Set();
-  if (config.content) {
-    for (const elementName of config.content) {
-      allowedChildren.add(elementName);
-    }
-  }
-  if (config.contentGroups) {
-    for (const contentGroupName of config.contentGroups) {
-      const elemsGroup = elemsGroups[contentGroupName];
-      if (elemsGroup) {
-        for (const elementName of elemsGroup) {
-          allowedChildren.add(elementName);
-        }
-      }
-    }
-  }
-
-  /** @type {Set<string>} */
-  const allowedAttributes = new Set();
-  if (config.attrs) {
-    for (const attrName of config.attrs) {
-      if (attrName === 'fill-rule' && !preserveFillRuleElements.has(name)) {
-        continue;
-      }
-      allowedAttributes.add(attrName);
-    }
-  }
-  /** @type {Map<string, string>} */
-  const attributesDefaults = new Map();
-  if (config.defaults) {
-    for (const [attrName, defaultValue] of Object.entries(config.defaults)) {
-      attributesDefaults.set(attrName, defaultValue);
-    }
-  }
-  for (const attrsGroupName of config.attrsGroups) {
-    const attrsGroup = attrsGroups[attrsGroupName];
-    if (attrsGroup) {
-      for (const attrName of attrsGroup) {
-        if (attrName === 'fill-rule' && !preserveFillRuleElements.has(name)) {
-          continue;
-        }
-        allowedAttributes.add(attrName);
-      }
-    }
-    const groupDefaults = attrsGroupsDefaults[attrsGroupName];
-    if (groupDefaults) {
-      for (const [attrName, defaultValue] of Object.entries(groupDefaults)) {
-        attributesDefaults.set(attrName, defaultValue);
-      }
-    }
-  }
-  allowedChildrenPerElement.set(name, allowedChildren);
-  allowedAttributesPerElement.set(name, allowedAttributes);
-  attributesDefaultsPerElement.set(name, attributesDefaults);
-}
 
 /**
  * Remove unknown elements content and attributes,
@@ -185,8 +110,8 @@ export const fn = (info, params) => {
           elementsById.set(id, element);
         }
 
-        /** @type {Map<string, string | null>} */
-        const computedStyle = styleData.computeStyle(element, parentList);
+        /** @type {import('../lib/types.js').ComputedPropertyMap} */
+        const computedProps = styleData.computeProps(element, parentList);
 
         if (element.local === 'use') {
           const id = getHrefId(element);
@@ -198,14 +123,14 @@ export const fn = (info, params) => {
             }
             els.push({
               element: element,
-              hasColor: !!computedStyle.get('color'),
+              hasColor: !!computedProps.get('color'),
             });
           }
           addElsWhichHaveCurrentColor(
             elsWithCurrentColor,
             elsWithCurrentColorToDelete,
             element,
-            computedStyle,
+            computedProps,
           );
 
           // x="0" and y="0" can be removed.
@@ -229,7 +154,7 @@ export const fn = (info, params) => {
           }
         }
 
-        const allowedChildren = allowedChildrenPerElement.get(element.local);
+        const allowedChildren = getAllowedChildren(element.local);
         if (allowedChildren) {
           // Remove any disallowed child elements.
           if (
@@ -249,15 +174,12 @@ export const fn = (info, params) => {
           }
         }
 
-        const allowedAttributes = allowedAttributesPerElement.get(
-          element.local,
-        );
-        const attributesDefaults = attributesDefaultsPerElement.get(
-          element.local,
-        );
+        const allowedAttributes = getAllowedAttributes(element.local);
+        const attributesDefaults = getAttributeDefaults(element.local);
 
         // Remove any unnecessary style properties.
-        const styleAttValue = StyleAttValue.getAttValue(element);
+        /** @type {StyleAttValue|undefined} */
+        const styleAttValue = element.svgAtts.get('style');
         if (styleAttValue) {
           // Delete the associated attributes, since they will always be overridden by the style property.
           for (let p of styleAttValue.keys()) {
@@ -276,7 +198,7 @@ export const fn = (info, params) => {
           }
 
           // Calculate the style if we remove all properties.
-          const newComputedStyle = styleData.computeStyle(
+          const newComputedProps = styleData.computeProps(
             element,
             parentList,
             new SvgAttMap(),
@@ -291,16 +213,16 @@ export const fn = (info, params) => {
               continue;
             }
 
-            const origVal = computedStyle.get(propertyName);
-            const newVal = newComputedStyle.get(propertyName);
+            const valOrig = computedProps.get(propertyName);
+            const valNew = newComputedProps.get(propertyName);
             if (
-              origVal !== null &&
-              (origVal === newVal ||
-                (newVal === undefined &&
+              valOrig !== null &&
+              (valOrig?.toString() === valNew?.toString() ||
+                (valNew === undefined &&
                   isDefaultPropertyValue(
                     element,
                     propertyName,
-                    origVal,
+                    valOrig?.toString(),
                     attributesDefaults,
                   )))
             ) {
@@ -339,9 +261,12 @@ export const fn = (info, params) => {
           }
 
           if (name === 'clip-path') {
-            const parentProperties = styleData.computeParentStyle(parentList);
-            const parentClipPath = parentProperties.get(name);
-            if (parentClipPath && parentClipPath === attValue.toString()) {
+            const parentProps = styleData.computeParentProps(parentList);
+            const parentClipPath = parentProps.get(name);
+            if (
+              parentClipPath &&
+              parentClipPath.toString() === attValue.toString()
+            ) {
               element.svgAtts.delete(name);
               continue;
             }
@@ -380,11 +305,11 @@ export const fn = (info, params) => {
             attributesDefaults,
           );
           if (inheritableAttrs.has(name)) {
-            const parentProperties = styleData.computeParentStyle(parentList);
-            const parentValue = parentProperties.get(name);
+            const parentProps = styleData.computeParentProps(parentList);
+            const parentValue = parentProps.get(name);
             if (
               (isDefault && parentValue === undefined) ||
-              strValue === parentValue
+              strValue === parentValue?.toString()
             ) {
               attsToDelete.push(name);
             }
@@ -397,14 +322,14 @@ export const fn = (info, params) => {
         }
 
         // Remove attribute if value is "currentColor" and color is not set.
-        if (computedStyle.get('color') !== undefined) {
+        if (computedProps.get('color') !== undefined) {
           elsWithColorAtt.add(element);
         }
         addElsWhichHaveCurrentColor(
           elsWithCurrentColor,
           elsWithCurrentColorToDelete,
           element,
-          computedStyle,
+          computedProps,
         );
       },
     },
@@ -466,7 +391,8 @@ export const fn = (info, params) => {
                 }
               }
             }
-            const styleAttValue = StyleAttValue.getAttValue(element);
+            /** @type {StyleAttValue|undefined} */
+            const styleAttValue = element.svgAtts.get('style');
             if (styleAttValue) {
               for (const propName of styleAttValue.keys()) {
                 if (referencedElementProps.has(propName)) {
@@ -531,20 +457,20 @@ function addElsWhichCanHaveColorAtt(
  * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColor
  * @param {Set<import('../lib/types.js').XastElement>} elsWithCurrentColorToDelete
  * @param {import('../lib/types.js').XastElement} element
- * @param {Map<string,string|null>} computedStyle
+ * @param {import('../lib/types.js').ComputedPropertyMap} computedProps
  */
 function addElsWhichHaveCurrentColor(
   elsWithCurrentColor,
   elsWithCurrentColorToDelete,
   element,
-  computedStyle,
+  computedProps,
 ) {
   ALLOWED_CURRENTCOLOR_PROPS.forEach((attName) => {
-    const attValue = computedStyle.get(attName);
+    const attValue = computedProps.get(attName)?.toString();
     if (attValue === 'currentColor') {
       elsWithCurrentColor.add(element);
       // If color is not set, delete it at the end if it is not used by an element with color property.
-      if (computedStyle.get('color') === undefined) {
+      if (computedProps.get('color') === undefined) {
         elsWithCurrentColorToDelete.add(element);
       }
     }
@@ -584,7 +510,8 @@ function deleteColorAtts(elsWithColorAtt, elsWithCurrentColor, usedElsById) {
   elsWithColorAtt.forEach((element) => {
     if (!elsWhichCanHaveColorAtt.has(element)) {
       element.svgAtts.delete('color');
-      const styleAttValue = StyleAttValue.getAttValue(element);
+      /** @type {StyleAttValue|undefined} */
+      const styleAttValue = element.svgAtts.get('style');
       if (styleAttValue) {
         styleAttValue.delete('color');
         styleAttValue.updateElement(element);

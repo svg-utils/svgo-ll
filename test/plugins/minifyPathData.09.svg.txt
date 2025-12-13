@@ -1,0 +1,13 @@
+Convert C to S when following S
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 120 120">
+  <path d="M10 90S 15 30 50 10C85 -10 80 0 90 10" stroke="black" fill="none"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -10 120 120">
+  <path d="M10 90s5-60 40-80 30-10 40 0" stroke="black" fill="none"/>
+</svg>

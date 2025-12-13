@@ -417,6 +417,7 @@ function optimize(commands) {
     // Update previous control point.
     switch (command.command) {
       case 'c':
+      case 's':
         {
           const x = currentPoint.getX().add(command.cp2x);
           const y = currentPoint.getY().add(command.cp2y);
@@ -427,6 +428,7 @@ function optimize(commands) {
         }
         break;
       case 'C':
+      case 'S':
         prevCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
         break;
       default:

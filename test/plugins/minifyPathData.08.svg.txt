@@ -1,0 +1,13 @@
+Convert C to S
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M10 10C10 20 30 40 50 50C70 60 60 70 90 90" stroke="black" fill="none"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M10 10c0 10 20 30 40 40s10 20 40 40" stroke="black" fill="none"/>
+</svg>

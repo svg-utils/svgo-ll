@@ -241,6 +241,38 @@ function getAlternateCmd(cmd, currentPoint) {
 }
 
 /**
+ * @param {import('../lib/pathutils.js').CBezAbs|import('../lib/pathutils.js').CBezRel} command
+ * @param {ExactPoint} currentPoint
+ * @param {ExactPoint|undefined} prevCtrlPt
+ * @returns {import('../lib/pathutils.js').PathCommand}
+ */
+function minifyCubic(command, currentPoint, prevCtrlPt) {
+  if (prevCtrlPt === undefined) {
+    return command;
+  }
+
+  const x = currentPoint.getX().add(currentPoint.getX().sub(prevCtrlPt.getX()));
+  const y = currentPoint.getY().add(currentPoint.getY().sub(prevCtrlPt.getY()));
+  if (x === undefined || y === undefined) {
+    return command;
+  }
+
+  if (command.command === 'C') {
+    if (command.cp1x.isEqualTo(x) && command.cp1y.isEqualTo(y)) {
+      return {
+        command: 'S',
+        cp2x: command.cp2x,
+        cp2y: command.cp2y,
+        x: command.x,
+        y: command.y,
+      };
+    }
+  }
+
+  return command;
+}
+
+/**
  * @param {import('../lib/pathutils.js').PathCommand[]} commands
  * @returns {import('../lib/pathutils.js').PathCommand[]|undefined}
  */
@@ -263,11 +295,16 @@ function optimize(commands) {
   let subpathStartPoint = ExactPoint.zero();
   let prevCmdChar = '';
   let lastNumber;
+  /** @type {ExactPoint|undefined} */
+  let prevCtrlPt;
 
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
 
     switch (command.command) {
+      case 'C':
+        command = minifyCubic(command, currentPoint, prevCtrlPt);
+        break;
       case 'l':
         if (command.dy.getValue() === 0) {
           // Convert l dx 0 to h dx.
@@ -376,6 +413,26 @@ function optimize(commands) {
     }
 
     optimized.push(command);
+
+    // Update previous control point.
+    switch (command.command) {
+      case 'c':
+        {
+          const x = currentPoint.getX().add(command.cp2x);
+          const y = currentPoint.getY().add(command.cp2y);
+          prevCtrlPt =
+            x === undefined || y === undefined
+              ? undefined
+              : new ExactPoint(x, y);
+        }
+        break;
+      case 'C':
+        prevCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
+        break;
+      default:
+        prevCtrlPt = undefined;
+        break;
+    }
 
     // Update current point.
     switch (command.command) {

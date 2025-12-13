@@ -41,17 +41,11 @@ export const fn = (info) => {
           return;
         }
 
-        let data;
-        try {
-          data = d.getParsedPath();
-        } catch (error) {
-          if (error instanceof PathParseError) {
-            console.warn(error.message);
-            return;
-          }
-          throw error;
+        const commands = d.getParsedPath();
+        if (commands === null) {
+          return;
         }
-        data = optimize(data);
+        const data = optimize(commands);
         if (data) {
           element.svgAtts.set('d', new PathAttValue(undefined, data, true));
         }

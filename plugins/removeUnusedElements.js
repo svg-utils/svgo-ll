@@ -678,6 +678,9 @@ function removeEmptyShapes(element, properties, elementsToDelete) {
         return true;
       }
       const commands = d.getParsedPath();
+      if (commands === null) {
+        return false;
+      }
       if (commands.length === 0) {
         elementsToDelete.set(element, false);
         return true;

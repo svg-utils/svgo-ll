@@ -432,27 +432,7 @@ function optimize(commands) {
 
     optimized.push(command);
 
-    // Update previous control point.
-    switch (command.command) {
-      case 'c':
-      case 's':
-        {
-          const x = currentPoint.getX().add(command.cp2x);
-          const y = currentPoint.getY().add(command.cp2y);
-          prevCtrlPt =
-            x === undefined || y === undefined
-              ? undefined
-              : new ExactPoint(x, y);
-        }
-        break;
-      case 'C':
-      case 'S':
-        prevCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
-        break;
-      default:
-        prevCtrlPt = undefined;
-        break;
-    }
+    const oldCurrentPoint = currentPoint;
 
     // Update current point.
     switch (command.command) {
@@ -503,6 +483,36 @@ function optimize(commands) {
         currentPoint = new ExactPoint(command.x, command.y);
         break;
     }
+
+    // Update previous control point.
+    switch (command.command) {
+      case 'c':
+      case 's':
+        {
+          const x = oldCurrentPoint.getX().add(command.cp2x);
+          const y = oldCurrentPoint.getY().add(command.cp2y);
+          prevCtrlPt =
+            x === undefined || y === undefined
+              ? undefined
+              : new ExactPoint(x, y);
+        }
+        break;
+      case 'C':
+      case 'S':
+        prevCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
+        break;
+      case 'q':
+      case 'Q':
+      case 't':
+      case 'T':
+      case 'z':
+        prevCtrlPt = undefined;
+        break;
+      default:
+        prevCtrlPt = currentPoint;
+        break;
+    }
+
     prevCmdChar = command.command;
     const cmdArgs = getCmdArgs(command);
     lastNumber =

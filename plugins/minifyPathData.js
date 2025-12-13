@@ -251,13 +251,17 @@ function minifyCubic(command, currentPoint, prevCtrlPt) {
     return command;
   }
 
-  const x = currentPoint.getX().add(currentPoint.getX().sub(prevCtrlPt.getX()));
-  const y = currentPoint.getY().add(currentPoint.getY().sub(prevCtrlPt.getY()));
-  if (x === undefined || y === undefined) {
-    return command;
-  }
-
   if (command.command === 'C') {
+    const x = currentPoint
+      .getX()
+      .add(currentPoint.getX().sub(prevCtrlPt.getX()));
+    const y = currentPoint
+      .getY()
+      .add(currentPoint.getY().sub(prevCtrlPt.getY()));
+    if (x === undefined || y === undefined) {
+      return command;
+    }
+
     if (command.cp1x.isEqualTo(x) && command.cp1y.isEqualTo(y)) {
       return {
         command: 'S',
@@ -265,6 +269,22 @@ function minifyCubic(command, currentPoint, prevCtrlPt) {
         cp2y: command.cp2y,
         x: command.x,
         y: command.y,
+      };
+    }
+  } else {
+    const dx = currentPoint.getX().sub(prevCtrlPt.getX());
+    const dy = currentPoint.getY().sub(prevCtrlPt.getY());
+    if (dx === undefined || dy === undefined) {
+      return command;
+    }
+
+    if (command.cp1x.isEqualTo(dx) && command.cp1y.isEqualTo(dy)) {
+      return {
+        command: 's',
+        cp2x: command.cp2x,
+        cp2y: command.cp2y,
+        dx: command.dx,
+        dy: command.dy,
       };
     }
   }
@@ -302,6 +322,7 @@ function optimize(commands) {
     let command = commands[index];
 
     switch (command.command) {
+      case 'c':
       case 'C':
         command = minifyCubic(command, currentPoint, prevCtrlPt);
         break;

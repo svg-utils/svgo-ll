@@ -303,9 +303,10 @@ function optimize(commands) {
             case 'm':
               // If the next command is 'm', merge this one into the next one.
               {
-                /** @type {import('../lib/pathutils.js').MoveRel} */
-                // @ts-ignore
-                const cmd = commands[index + 1];
+                const cmd =
+                  /** @type {import('../lib/pathutils.js').MoveRel} */ (
+                    commands[index + 1]
+                  );
                 const dx = cmd.dx.add(command.dx);
                 const dy = cmd.dy.add(command.dy);
                 if (dx === undefined || dy === undefined) {

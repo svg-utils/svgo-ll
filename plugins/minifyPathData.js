@@ -78,6 +78,33 @@ function getAlternateCmd(cmd, currentPoint) {
         dy: dy,
       };
     }
+    case 'c': {
+      const cp1x = cmd.cp1x.add(currentPoint.getX());
+      const cp1y = cmd.cp1y.add(currentPoint.getY());
+      const cp2x = cmd.cp2x.add(currentPoint.getX());
+      const cp2y = cmd.cp2y.add(currentPoint.getY());
+      const x = cmd.dx.add(currentPoint.getX());
+      const y = cmd.dy.add(currentPoint.getY());
+      if (
+        cp1x === undefined ||
+        cp1y === undefined ||
+        cp2x === undefined ||
+        cp2y === undefined ||
+        x === undefined ||
+        y === undefined
+      ) {
+        return;
+      }
+      return {
+        command: 'C',
+        cp1x: cp1x,
+        cp1y: cp1y,
+        cp2x: cp2x,
+        cp2y: cp2y,
+        x: x,
+        y: y,
+      };
+    }
     case 'C': {
       const cp1x = cmd.cp1x.sub(currentPoint.getX());
       const cp1y = cmd.cp1y.sub(currentPoint.getY());

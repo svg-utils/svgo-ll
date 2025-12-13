@@ -396,10 +396,7 @@ function optimize(commands) {
         ) {
           continue;
         }
-        subpathStartPoint = new ExactPoint(
-          command.x.clone(),
-          command.y.clone(),
-        );
+        subpathStartPoint = new ExactPoint(command.x, command.y);
         break;
     }
 
@@ -461,7 +458,7 @@ function optimize(commands) {
     switch (command.command) {
       case 'z':
         currentPoint = subpathStartPoint;
-        subpathStartPoint = currentPoint.clone();
+        subpathStartPoint = currentPoint;
         break;
       case 'a':
       case 'c':
@@ -497,13 +494,13 @@ function optimize(commands) {
         }
         break;
       case 'H':
-        currentPoint.setX(command.x.clone());
+        currentPoint = new ExactPoint(command.x, currentPoint.getY());
         break;
       case 'V':
-        currentPoint.setY(command.y.clone());
+        currentPoint = new ExactPoint(currentPoint.getX(), command.y);
         break;
       default:
-        currentPoint = new ExactPoint(command.x.clone(), command.y.clone());
+        currentPoint = new ExactPoint(command.x, command.y);
         break;
     }
     prevCmdChar = command.command;

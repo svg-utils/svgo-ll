@@ -319,6 +319,9 @@ function roundPath(element, xDigits, yDigits) {
   }
 
   const commands = attValue.getParsedPath();
+  if (commands === null) {
+    return;
+  }
   for (const command of commands) {
     switch (command.command) {
       case 'l':

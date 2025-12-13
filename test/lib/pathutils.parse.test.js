@@ -1,10 +1,11 @@
 import {
   parsePathCommands,
+  PathParseError,
   stringifyPathCommands,
 } from '../../lib/pathutils.js';
 
 describe('test parsing of path', function () {
-  /** @type {{input:string,expected?:string}[]} */
+  /** @type {{input:string,expected?:string|null}[]} */
   const tests = [
     { input: 'm 2 2 h10', expected: 'm2 2h10' },
     { input: 'm2 2h10' },
@@ -60,14 +61,24 @@ describe('test parsing of path', function () {
       input: 'M275,175 v-150 a150,150 0 0,0 -150,150 z',
       expected: 'M275 175v-150a150 150 0 0 0-150 150z',
     },
+    { input: 'M 10 10 L 90. 90', expected: null },
   ];
 
   for (const test of tests) {
     it(test.input, function () {
-      const parsed = parsePathCommands(test.input);
-      const s = stringifyPathCommands(parsed);
-      const expected = test.expected ?? test.input;
-      expect(s).toBe(expected);
+      try {
+        const parsed = parsePathCommands(test.input);
+        const s = stringifyPathCommands(parsed);
+        const expected =
+          test.expected === undefined ? test.input : test.expected;
+        expect(s).toBe(expected);
+      } catch (error) {
+        if (error instanceof PathParseError) {
+          expect(test.expected).toBeNull();
+        } else {
+          throw error;
+        }
+      }
     });
   }
 });

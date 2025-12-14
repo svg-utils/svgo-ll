@@ -316,7 +316,7 @@ function optimize(commands) {
   let prevCmdChar = '';
   let lastNumber;
   /** @type {ExactPoint|undefined} */
-  let prevCtrlPt;
+  let prevCubicCtrlPt;
 
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
@@ -324,7 +324,7 @@ function optimize(commands) {
     switch (command.command) {
       case 'c':
       case 'C':
-        command = minifyCubic(command, currentPoint, prevCtrlPt);
+        command = minifyCubic(command, currentPoint, prevCubicCtrlPt);
         break;
       case 'l':
         if (command.dy.getValue() === 0) {
@@ -491,25 +491,21 @@ function optimize(commands) {
         {
           const x = oldCurrentPoint.getX().add(command.cp2x);
           const y = oldCurrentPoint.getY().add(command.cp2y);
-          prevCtrlPt =
-            x === undefined || y === undefined
-              ? undefined
-              : new ExactPoint(x, y);
+          if (x === undefined || y === undefined) {
+            return;
+          }
+          prevCubicCtrlPt = new ExactPoint(x, y);
         }
         break;
       case 'C':
       case 'S':
-        prevCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
+        prevCubicCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
         break;
-      case 'q':
-      case 'Q':
-      case 't':
-      case 'T':
       case 'z':
-        prevCtrlPt = undefined;
+        prevCubicCtrlPt = undefined;
         break;
       default:
-        prevCtrlPt = currentPoint;
+        prevCubicCtrlPt = currentPoint;
         break;
     }
 

@@ -252,17 +252,15 @@ function minifyCubic(command, currentPoint, prevCtrlPt) {
   }
 
   if (command.command === 'C') {
-    const x = currentPoint
-      .getX()
-      .add(currentPoint.getX().sub(prevCtrlPt.getX()));
-    const y = currentPoint
-      .getY()
-      .add(currentPoint.getY().sub(prevCtrlPt.getY()));
-    if (x === undefined || y === undefined) {
+    const pt = reflectPoint(prevCtrlPt, currentPoint);
+    if (pt === undefined) {
       return command;
     }
 
-    if (command.cp1x.isEqualTo(x) && command.cp1y.isEqualTo(y)) {
+    if (
+      command.cp1x.isEqualTo(pt.getX()) &&
+      command.cp1y.isEqualTo(pt.getY())
+    ) {
       return {
         command: 'S',
         cp2x: command.cp2x,
@@ -283,6 +281,52 @@ function minifyCubic(command, currentPoint, prevCtrlPt) {
         command: 's',
         cp2x: command.cp2x,
         cp2y: command.cp2y,
+        dx: command.dx,
+        dy: command.dy,
+      };
+    }
+  }
+
+  return command;
+}
+
+/**
+ * @param {import('../lib/pathutils.js').QBezAbs|import('../lib/pathutils.js').QBezRel} command
+ * @param {ExactPoint} currentPoint
+ * @param {ExactPoint|undefined} prevCtrlPt
+ * @returns {import('../lib/pathutils.js').PathCommand}
+ */
+function minifyQuadratic(command, currentPoint, prevCtrlPt) {
+  if (prevCtrlPt === undefined) {
+    return command;
+  }
+
+  if (command.command === 'Q') {
+    const pt = reflectPoint(prevCtrlPt, currentPoint);
+    if (pt === undefined) {
+      return command;
+    }
+
+    if (
+      command.cp1x.isEqualTo(pt.getX()) &&
+      command.cp1y.isEqualTo(pt.getY())
+    ) {
+      return {
+        command: 'T',
+        x: command.x,
+        y: command.y,
+      };
+    }
+  } else {
+    const dx = currentPoint.getX().sub(prevCtrlPt.getX());
+    const dy = currentPoint.getY().sub(prevCtrlPt.getY());
+    if (dx === undefined || dy === undefined) {
+      return command;
+    }
+
+    if (command.cp1x.isEqualTo(dx) && command.cp1y.isEqualTo(dy)) {
+      return {
+        command: 't',
         dx: command.dx,
         dy: command.dy,
       };
@@ -317,6 +361,8 @@ function optimize(commands) {
   let lastNumber;
   /** @type {ExactPoint|undefined} */
   let prevCubicCtrlPt;
+  /** @type {ExactPoint|undefined} */
+  let prevQuadraticCtrlPt;
 
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
@@ -397,6 +443,10 @@ function optimize(commands) {
           continue;
         }
         subpathStartPoint = new ExactPoint(command.x, command.y);
+        break;
+      case 'q':
+      case 'Q':
+        command = minifyQuadratic(command, currentPoint, prevQuadraticCtrlPt);
         break;
     }
 
@@ -488,24 +538,35 @@ function optimize(commands) {
     switch (command.command) {
       case 'c':
       case 's':
-        {
-          const x = oldCurrentPoint.getX().add(command.cp2x);
-          const y = oldCurrentPoint.getY().add(command.cp2y);
-          if (x === undefined || y === undefined) {
-            return;
-          }
-          prevCubicCtrlPt = new ExactPoint(x, y);
-        }
+        prevCubicCtrlPt = oldCurrentPoint.incr(command.cp2x, command.cp2y);
+        prevQuadraticCtrlPt = currentPoint;
         break;
       case 'C':
       case 'S':
         prevCubicCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
+        prevQuadraticCtrlPt = currentPoint;
+        break;
+      case 'Q':
+        prevQuadraticCtrlPt = new ExactPoint(command.cp1x, command.cp1y);
+        prevCubicCtrlPt = currentPoint;
+        break;
+      case 'q':
+        prevQuadraticCtrlPt = oldCurrentPoint.incr(command.cp1x, command.cp1y);
+        prevCubicCtrlPt = currentPoint;
+        break;
+      case 't':
+      case 'T':
+        prevQuadraticCtrlPt =
+          prevQuadraticCtrlPt === undefined
+            ? undefined
+            : reflectPoint(prevQuadraticCtrlPt, oldCurrentPoint);
+        prevCubicCtrlPt = currentPoint;
         break;
       case 'z':
-        prevCubicCtrlPt = undefined;
+        prevCubicCtrlPt = prevQuadraticCtrlPt = undefined;
         break;
       default:
-        prevCubicCtrlPt = currentPoint;
+        prevCubicCtrlPt = prevQuadraticCtrlPt = currentPoint;
         break;
     }
 
@@ -518,4 +579,18 @@ function optimize(commands) {
         : undefined;
   }
   return optimized;
+}
+
+/**
+ * @param {ExactPoint} point
+ * @param {ExactPoint} reflectionPt
+ * @returns {ExactPoint|undefined}
+ */
+function reflectPoint(point, reflectionPt) {
+  const x = reflectionPt.getX().add(reflectionPt.getX().sub(point.getX()));
+  const y = reflectionPt.getY().add(reflectionPt.getY().sub(point.getY()));
+  if (x === undefined || y === undefined) {
+    return;
+  }
+  return new ExactPoint(x, y);
 }

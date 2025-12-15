@@ -197,6 +197,20 @@ function getAlternateCmd(cmd, currentPoint) {
         dy: dy,
       };
     }
+    case 'q': {
+      const cp1 = currentPoint.incr(cmd.cp1x, cmd.cp1y);
+      const end = currentPoint.incr(cmd.dx, cmd.dy);
+      if (cp1 === undefined || end === undefined) {
+        return;
+      }
+      return {
+        command: 'Q',
+        cp1x: cp1.getX(),
+        cp1y: cp1.getY(),
+        x: end.getX(),
+        y: end.getY(),
+      };
+    }
     case 'S': {
       const cp2x = cmd.cp2x.sub(currentPoint.getX());
       const cp2y = cmd.cp2y.sub(currentPoint.getY());

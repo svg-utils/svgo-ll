@@ -212,6 +212,20 @@ function getAlternateCmd(cmd, currentPoint) {
         y: end.getY(),
       };
     }
+    case 's': {
+      const cp = currentPoint.incr(cmd.cp2x, cmd.cp2y);
+      const end = currentPoint.incr(cmd.dx, cmd.dy);
+      if (cp === undefined || end === undefined) {
+        return;
+      }
+      return {
+        command: 'S',
+        cp2x: cp.getX(),
+        cp2y: cp.getY(),
+        x: end.getX(),
+        y: end.getY(),
+      };
+    }
     case 'S': {
       const cp2x = cmd.cp2x.sub(currentPoint.getX());
       const cp2y = cmd.cp2y.sub(currentPoint.getY());

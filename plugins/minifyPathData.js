@@ -61,6 +61,22 @@ export const fn = (info) => {
  */
 function getAlternateCmd(cmd, currentPoint) {
   switch (cmd.command) {
+    case 'a': {
+      const end = currentPoint.incr(cmd.dx, cmd.dy);
+      if (end === undefined) {
+        return;
+      }
+      return {
+        command: 'A',
+        rx: cmd.rx,
+        ry: cmd.ry,
+        angle: cmd.angle,
+        flagLgArc: cmd.flagLgArc,
+        flagSweep: cmd.flagSweep,
+        x: end.getX(),
+        y: end.getY(),
+      };
+    }
     case 'A': {
       const dx = cmd.x.sub(currentPoint.getX());
       const dy = cmd.y.sub(currentPoint.getY());

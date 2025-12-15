@@ -1,0 +1,13 @@
+Convert t to T when shorter
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M20 20Q30 40 70 80t-61 -79" stroke="black" fill="none"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M20 20q10 20 50 60T9 1" stroke="black" fill="none"/>
+</svg>

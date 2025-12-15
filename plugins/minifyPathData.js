@@ -144,8 +144,9 @@ function getAlternateCmd(cmd, currentPoint) {
       return { command: 'h', dx: dx };
     }
     case 'l':
-    case 'm': {
-      /** @type {'L'|'M'} */
+    case 'm':
+    case 't': {
+      /** @type {'L'|'M'|'T'} */
       // @ts-ignore
       const altCmd = cmd.command.toUpperCase();
       const x = cmd.dx.add(currentPoint.getX());

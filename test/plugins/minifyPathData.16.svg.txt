@@ -1,4 +1,4 @@
-Convert to Q when shorter
+Convert q to Q when shorter
 
 ===
 

@@ -17,10 +17,10 @@ Merge single-use templates.
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 100">
   <defs>
-    <pattern id="a" viewBox="0 0 10 10" width="10%" height="10%" patternTransform="rotate(20)">
+    <pattern id="b" viewBox="0 0 10 10" width="10%" height="10%" patternTransform="rotate(20)">
       <polygon points="0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"/>
     </pattern>
   </defs>
-  <circle cx="50" cy="50" r="50" fill="url(#a)"/>
-  <circle cx="180" cy="50" r="40" fill="none" stroke-width="20" stroke="url(#a)"/>
+  <circle cx="50" cy="50" r="50" fill="url(#b)"/>
+  <circle cx="180" cy="50" r="40" fill="none" stroke-width="20" stroke="url(#b)"/>
 </svg>

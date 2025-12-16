@@ -99,10 +99,7 @@ export const fn = (info) => {
           addToMapArray(idToReferences, info.id, element);
         }
         referencedIds.forEach((info) => {
-          addToMapArray(idToReferenceInfo, info.id, {
-            element: element,
-            ...info,
-          });
+          addToMapArray(idToReferenceInfo, info.id, info);
         });
 
         if (element.local === 'defs') {

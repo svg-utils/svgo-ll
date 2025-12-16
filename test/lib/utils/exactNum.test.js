@@ -1,4 +1,4 @@
-import { ExactNum } from '../../lib/exactnum.js';
+import { ExactNum } from '../../../lib/utils/exactNum.js';
 
 describe('test minification', () => {
   /** @type {{in:string,digits:number,out:string}[]} */

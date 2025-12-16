@@ -1,0 +1,13 @@
+Convert s to S when shorter
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M1 1C20 30 50 40 99 90s-98 -88 -96 -86" stroke="black" fill="none"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <path d="M1 1c19 29 49 39 98 89S1 2 3 4" stroke="black" fill="none"/>
+</svg>

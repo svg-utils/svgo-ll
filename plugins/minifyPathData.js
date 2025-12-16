@@ -61,6 +61,22 @@ export const fn = (info) => {
  */
 function getAlternateCmd(cmd, currentPoint) {
   switch (cmd.command) {
+    case 'a': {
+      const end = currentPoint.incr(cmd.dx, cmd.dy);
+      if (end === undefined) {
+        return;
+      }
+      return {
+        command: 'A',
+        rx: cmd.rx,
+        ry: cmd.ry,
+        angle: cmd.angle,
+        flagLgArc: cmd.flagLgArc,
+        flagSweep: cmd.flagSweep,
+        x: end.getX(),
+        y: end.getY(),
+      };
+    }
     case 'A': {
       const dx = cmd.x.sub(currentPoint.getX());
       const dy = cmd.y.sub(currentPoint.getY());
@@ -76,6 +92,33 @@ function getAlternateCmd(cmd, currentPoint) {
         flagSweep: cmd.flagSweep,
         dx: dx,
         dy: dy,
+      };
+    }
+    case 'c': {
+      const cp1x = cmd.cp1x.add(currentPoint.getX());
+      const cp1y = cmd.cp1y.add(currentPoint.getY());
+      const cp2x = cmd.cp2x.add(currentPoint.getX());
+      const cp2y = cmd.cp2y.add(currentPoint.getY());
+      const x = cmd.dx.add(currentPoint.getX());
+      const y = cmd.dy.add(currentPoint.getY());
+      if (
+        cp1x === undefined ||
+        cp1y === undefined ||
+        cp2x === undefined ||
+        cp2y === undefined ||
+        x === undefined ||
+        y === undefined
+      ) {
+        return;
+      }
+      return {
+        command: 'C',
+        cp1x: cp1x,
+        cp1y: cp1y,
+        cp2x: cp2x,
+        cp2y: cp2y,
+        x: x,
+        y: y,
       };
     }
     case 'C': {
@@ -117,8 +160,9 @@ function getAlternateCmd(cmd, currentPoint) {
       return { command: 'h', dx: dx };
     }
     case 'l':
-    case 'm': {
-      /** @type {'L'|'M'} */
+    case 'm':
+    case 't': {
+      /** @type {'L'|'M'|'T'} */
       // @ts-ignore
       const altCmd = cmd.command.toUpperCase();
       const x = cmd.dx.add(currentPoint.getX());
@@ -170,6 +214,34 @@ function getAlternateCmd(cmd, currentPoint) {
         dy: dy,
       };
     }
+    case 'q': {
+      const cp1 = currentPoint.incr(cmd.cp1x, cmd.cp1y);
+      const end = currentPoint.incr(cmd.dx, cmd.dy);
+      if (cp1 === undefined || end === undefined) {
+        return;
+      }
+      return {
+        command: 'Q',
+        cp1x: cp1.getX(),
+        cp1y: cp1.getY(),
+        x: end.getX(),
+        y: end.getY(),
+      };
+    }
+    case 's': {
+      const cp = currentPoint.incr(cmd.cp2x, cmd.cp2y);
+      const end = currentPoint.incr(cmd.dx, cmd.dy);
+      if (cp === undefined || end === undefined) {
+        return;
+      }
+      return {
+        command: 'S',
+        cp2x: cp.getX(),
+        cp2y: cp.getY(),
+        x: end.getX(),
+        y: end.getY(),
+      };
+    }
     case 'S': {
       const cp2x = cmd.cp2x.sub(currentPoint.getX());
       const cp2y = cmd.cp2y.sub(currentPoint.getY());
@@ -214,6 +286,102 @@ function getAlternateCmd(cmd, currentPoint) {
 }
 
 /**
+ * @param {import('../lib/pathutils.js').CBezAbs|import('../lib/pathutils.js').CBezRel} command
+ * @param {ExactPoint} currentPoint
+ * @param {ExactPoint|undefined} prevCtrlPt
+ * @returns {import('../lib/pathutils.js').PathCommand}
+ */
+function minifyCubic(command, currentPoint, prevCtrlPt) {
+  if (prevCtrlPt === undefined) {
+    return command;
+  }
+
+  if (command.command === 'C') {
+    const pt = reflectPoint(prevCtrlPt, currentPoint);
+    if (pt === undefined) {
+      return command;
+    }
+
+    if (
+      command.cp1x.isEqualTo(pt.getX()) &&
+      command.cp1y.isEqualTo(pt.getY())
+    ) {
+      return {
+        command: 'S',
+        cp2x: command.cp2x,
+        cp2y: command.cp2y,
+        x: command.x,
+        y: command.y,
+      };
+    }
+  } else {
+    const dx = currentPoint.getX().sub(prevCtrlPt.getX());
+    const dy = currentPoint.getY().sub(prevCtrlPt.getY());
+    if (dx === undefined || dy === undefined) {
+      return command;
+    }
+
+    if (command.cp1x.isEqualTo(dx) && command.cp1y.isEqualTo(dy)) {
+      return {
+        command: 's',
+        cp2x: command.cp2x,
+        cp2y: command.cp2y,
+        dx: command.dx,
+        dy: command.dy,
+      };
+    }
+  }
+
+  return command;
+}
+
+/**
+ * @param {import('../lib/pathutils.js').QBezAbs|import('../lib/pathutils.js').QBezRel} command
+ * @param {ExactPoint} currentPoint
+ * @param {ExactPoint|undefined} prevCtrlPt
+ * @returns {import('../lib/pathutils.js').PathCommand}
+ */
+function minifyQuadratic(command, currentPoint, prevCtrlPt) {
+  if (prevCtrlPt === undefined) {
+    return command;
+  }
+
+  if (command.command === 'Q') {
+    const pt = reflectPoint(prevCtrlPt, currentPoint);
+    if (pt === undefined) {
+      return command;
+    }
+
+    if (
+      command.cp1x.isEqualTo(pt.getX()) &&
+      command.cp1y.isEqualTo(pt.getY())
+    ) {
+      return {
+        command: 'T',
+        x: command.x,
+        y: command.y,
+      };
+    }
+  } else {
+    const dx = currentPoint.getX().sub(prevCtrlPt.getX());
+    const dy = currentPoint.getY().sub(prevCtrlPt.getY());
+    if (dx === undefined || dy === undefined) {
+      return command;
+    }
+
+    if (command.cp1x.isEqualTo(dx) && command.cp1y.isEqualTo(dy)) {
+      return {
+        command: 't',
+        dx: command.dx,
+        dy: command.dy,
+      };
+    }
+  }
+
+  return command;
+}
+
+/**
  * @param {import('../lib/pathutils.js').PathCommand[]} commands
  * @returns {import('../lib/pathutils.js').PathCommand[]|undefined}
  */
@@ -236,11 +404,19 @@ function optimize(commands) {
   let subpathStartPoint = ExactPoint.zero();
   let prevCmdChar = '';
   let lastNumber;
+  /** @type {ExactPoint|undefined} */
+  let prevCubicCtrlPt;
+  /** @type {ExactPoint|undefined} */
+  let prevQuadraticCtrlPt;
 
   for (let index = 0; index < commands.length; index++) {
     let command = commands[index];
 
     switch (command.command) {
+      case 'c':
+      case 'C':
+        command = minifyCubic(command, currentPoint, prevCubicCtrlPt);
+        break;
       case 'l':
         if (command.dy.getValue() === 0) {
           // Convert l dx 0 to h dx.
@@ -276,9 +452,10 @@ function optimize(commands) {
             case 'm':
               // If the next command is 'm', merge this one into the next one.
               {
-                /** @type {import('../lib/pathutils.js').MoveRel} */
-                // @ts-ignore
-                const cmd = commands[index + 1];
+                const cmd =
+                  /** @type {import('../lib/pathutils.js').MoveRel} */ (
+                    commands[index + 1]
+                  );
                 const dx = cmd.dx.add(command.dx);
                 const dy = cmd.dy.add(command.dy);
                 if (dx === undefined || dy === undefined) {
@@ -310,10 +487,11 @@ function optimize(commands) {
         ) {
           continue;
         }
-        subpathStartPoint = new ExactPoint(
-          command.x.clone(),
-          command.y.clone(),
-        );
+        subpathStartPoint = new ExactPoint(command.x, command.y);
+        break;
+      case 'q':
+      case 'Q':
+        command = minifyQuadratic(command, currentPoint, prevQuadraticCtrlPt);
         break;
     }
 
@@ -349,11 +527,13 @@ function optimize(commands) {
 
     optimized.push(command);
 
+    const oldCurrentPoint = currentPoint;
+
     // Update current point.
     switch (command.command) {
       case 'z':
         currentPoint = subpathStartPoint;
-        subpathStartPoint = currentPoint.clone();
+        subpathStartPoint = currentPoint;
         break;
       case 'a':
       case 'c':
@@ -389,15 +569,52 @@ function optimize(commands) {
         }
         break;
       case 'H':
-        currentPoint.setX(command.x.clone());
+        currentPoint = new ExactPoint(command.x, currentPoint.getY());
         break;
       case 'V':
-        currentPoint.setY(command.y.clone());
+        currentPoint = new ExactPoint(currentPoint.getX(), command.y);
         break;
       default:
-        currentPoint = new ExactPoint(command.x.clone(), command.y.clone());
+        currentPoint = new ExactPoint(command.x, command.y);
         break;
     }
+
+    // Update previous control point.
+    switch (command.command) {
+      case 'c':
+      case 's':
+        prevCubicCtrlPt = oldCurrentPoint.incr(command.cp2x, command.cp2y);
+        prevQuadraticCtrlPt = currentPoint;
+        break;
+      case 'C':
+      case 'S':
+        prevCubicCtrlPt = new ExactPoint(command.cp2x, command.cp2y);
+        prevQuadraticCtrlPt = currentPoint;
+        break;
+      case 'Q':
+        prevQuadraticCtrlPt = new ExactPoint(command.cp1x, command.cp1y);
+        prevCubicCtrlPt = currentPoint;
+        break;
+      case 'q':
+        prevQuadraticCtrlPt = oldCurrentPoint.incr(command.cp1x, command.cp1y);
+        prevCubicCtrlPt = currentPoint;
+        break;
+      case 't':
+      case 'T':
+        prevQuadraticCtrlPt =
+          prevQuadraticCtrlPt === undefined
+            ? undefined
+            : reflectPoint(prevQuadraticCtrlPt, oldCurrentPoint);
+        prevCubicCtrlPt = currentPoint;
+        break;
+      case 'z':
+        prevCubicCtrlPt = prevQuadraticCtrlPt = undefined;
+        break;
+      default:
+        prevCubicCtrlPt = prevQuadraticCtrlPt = currentPoint;
+        break;
+    }
+
     prevCmdChar = command.command;
     const cmdArgs = getCmdArgs(command);
     lastNumber =
@@ -407,4 +624,18 @@ function optimize(commands) {
         : undefined;
   }
   return optimized;
+}
+
+/**
+ * @param {ExactPoint} point
+ * @param {ExactPoint} reflectionPt
+ * @returns {ExactPoint|undefined}
+ */
+function reflectPoint(point, reflectionPt) {
+  const x = reflectionPt.getX().add(reflectionPt.getX().sub(point.getX()));
+  const y = reflectionPt.getY().add(reflectionPt.getY().sub(point.getY()));
+  if (x === undefined || y === undefined) {
+    return;
+  }
+  return new ExactPoint(x, y);
 }

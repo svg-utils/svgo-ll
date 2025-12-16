@@ -1,0 +1,13 @@
+Convert Q to T after T
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -50 100 150">
+  <path d="M9.5 9.5Q30 50 40 90Q50 130 90 9Q130 -112 9 80" stroke="black" fill="none"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -50 100 150">
+  <path d="M9.5 9.5Q30 50 40 90T90 9 9 80" stroke="black" fill="none"/>
+</svg>

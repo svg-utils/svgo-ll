@@ -47,6 +47,7 @@ type BuiltinPlugins = {
     preservePrefixes?: string[];
   };
   minifyPathData: void;
+  minifyPatterns: void;
   minifyStyles: void;
   moveElemsStylesToGroup: void;
   moveGradientAttsToTemplate: void;

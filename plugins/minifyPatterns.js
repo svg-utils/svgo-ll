@@ -79,6 +79,8 @@ export const fn = (info) => {
         /** @type {Map<string,string>} original id to new id */
         const mergedTemplates = new Map();
 
+        const idsReferncedByStyles = styleData.getIdsReferencedByProperties();
+
         // Check to see if templates can be collapsed.
         for (const [origPatternId, references] of templateReferencesById) {
           if (references.length !== 1) {
@@ -122,6 +124,13 @@ export const fn = (info) => {
           const referencingId = referencingEl.svgAtts.get('id')?.toString();
           if (referencingId === undefined) {
             continue;
+          }
+
+          if (idsReferncedByStyles.includes(referencingId)) {
+            styleData.updateReferencedIds(
+              styleData.getReferencedIds(),
+              new Map([[referencingId, patternId]]),
+            );
           }
 
           const refs = paintReferencesById.get(referencingId);

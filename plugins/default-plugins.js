@@ -19,6 +19,7 @@ import * as minifyColors from './minifyColors.js';
 import * as minifyGradients from './minifyGradients.js';
 import * as minifyIds from './minifyIds.js';
 import * as minifyPathData from './minifyPathData.js';
+import * as minifyPatterns from './minifyPatterns.js';
 import * as minifyStyles from './minifyStyles.js';
 import * as moveElemsStylesToGroup from './moveElemsStylesToGroup.js';
 import * as moveGradientAttsToTemplate from './moveGradientAttsToTemplate.js';
@@ -73,6 +74,7 @@ export const defaultPlugins = Object.freeze({
     mergeFilters,
     mergeGradients,
     minifyGradients,
+    minifyPatterns,
     removeEmptyContainers,
     convertPathToUse,
     createGroups,

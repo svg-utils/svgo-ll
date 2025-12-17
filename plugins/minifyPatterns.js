@@ -142,6 +142,11 @@ export const fn = (info) => {
             templateRefs.forEach((element) =>
               element.svgAtts.set('href', new HrefAttValue('#' + patternId)),
             );
+
+            const targetRefs = templateReferencesById.get(patternId) ?? [];
+            targetRefs.push(...templateRefs);
+            templateReferencesById.set(patternId, targetRefs);
+
             mergedTemplates.set(referencingId, patternId);
           }
         }

@@ -114,6 +114,10 @@ export const fn = (info) => {
           for (const refInfo of refs) {
             updateReferencedId2(refInfo, patternId);
           }
+          // Update the list of references.
+          const targetRefs = paintReferencesById.get(patternId) ?? [];
+          targetRefs.push(...refs);
+          paintReferencesById.set(patternId, targetRefs);
         }
 
         childrenToDelete.delete();

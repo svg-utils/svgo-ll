@@ -1,8 +1,10 @@
+import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray } from '../lib/svgo/tools.js';
 import {
   getHrefId,
   getReferencedIds2,
+  moveChildren,
   updateReferencedId2,
 } from '../lib/tools-ast.js';
 
@@ -74,11 +76,16 @@ export const fn = (info) => {
       exit: () => {
         const childrenToDelete = new ChildDeletionQueue();
 
+        /** @type {Map<string,string>} original id to new id */
+        const mergedTemplates = new Map();
+
         // Check to see if templates can be collapsed.
-        for (const [patternId, references] of templateReferencesById) {
+        for (const [origPatternId, references] of templateReferencesById) {
           if (references.length !== 1) {
             continue;
           }
+
+          const patternId = mergedTemplates.get(origPatternId) ?? origPatternId;
 
           if (paintReferencesById.get(patternId) !== undefined) {
             // Template is referenced directly by fill/stroke; don't merge.
@@ -101,6 +108,13 @@ export const fn = (info) => {
             }
           }
 
+          // If there are children, overwrite children of the template.
+          if (
+            referencingEl.children.some((child) => child.type === 'element')
+          ) {
+            moveChildren(referencingEl.children, template);
+          }
+
           // Delete the referencing element.
           childrenToDelete.add(referencingEl);
 
@@ -109,17 +123,27 @@ export const fn = (info) => {
           if (referencingId === undefined) {
             continue;
           }
+
           const refs = paintReferencesById.get(referencingId);
-          if (!refs) {
-            continue;
+          if (refs) {
+            for (const refInfo of refs) {
+              updateReferencedId2(refInfo, patternId);
+            }
+
+            // Update the list of references.
+            const targetRefs = paintReferencesById.get(patternId) ?? [];
+            targetRefs.push(...refs);
+            paintReferencesById.set(patternId, targetRefs);
           }
-          for (const refInfo of refs) {
-            updateReferencedId2(refInfo, patternId);
+
+          // Update any references to this pattern as a template.
+          const templateRefs = templateReferencesById.get(referencingId);
+          if (templateRefs) {
+            templateRefs.forEach((element) =>
+              element.svgAtts.set('href', new HrefAttValue('#' + patternId)),
+            );
+            mergedTemplates.set(referencingId, patternId);
           }
-          // Update the list of references.
-          const targetRefs = paintReferencesById.get(patternId) ?? [];
-          targetRefs.push(...refs);
-          paintReferencesById.set(patternId, targetRefs);
         }
 
         childrenToDelete.delete();

@@ -80,10 +80,12 @@ export const fn = (info) => {
             continue;
           }
 
-          const referencingEl = references[0];
-          if (referencingEl.local !== 'pattern') {
+          if (paintReferencesById.get(patternId) !== undefined) {
+            // Template is referenced directly by fill/stroke; don't merge.
             continue;
           }
+
+          const referencingEl = references[0];
 
           const template = patternsById.get(patternId);
           if (template === undefined) {

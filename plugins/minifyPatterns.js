@@ -1,5 +1,10 @@
+import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray } from '../lib/svgo/tools.js';
-import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
+import {
+  getHrefId,
+  getReferencedIds2,
+  updateReferencedId2,
+} from '../lib/tools-ast.js';
 
 export const name = 'minifyPatterns';
 export const description =
@@ -67,6 +72,8 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
+        const childrenToDelete = new ChildDeletionQueue();
+
         // Check to see if templates can be collapsed.
         for (const [patternId, references] of templateReferencesById) {
           if (references.length !== 1) {
@@ -83,7 +90,7 @@ export const fn = (info) => {
             continue;
           }
 
-          // There is only a single reference, from another pattern - merge them.
+          // There is only a single reference, from another pattern; merge them.
 
           for (const [attName, attValue] of referencingEl.svgAtts.entries()) {
             // Overwrite the template attributes with referencing attributes.
@@ -91,7 +98,25 @@ export const fn = (info) => {
               template.svgAtts.set(attName, attValue);
             }
           }
+
+          // Delete the referencing element.
+          childrenToDelete.add(referencingEl);
+
+          // Change all references to the original pattern to point to the template.
+          const referencingId = referencingEl.svgAtts.get('id')?.toString();
+          if (referencingId === undefined) {
+            continue;
+          }
+          const refs = paintReferencesById.get(referencingId);
+          if (!refs) {
+            continue;
+          }
+          for (const refInfo of refs) {
+            updateReferencedId2(refInfo, patternId);
+          }
         }
+
+        childrenToDelete.delete();
       },
     },
   };

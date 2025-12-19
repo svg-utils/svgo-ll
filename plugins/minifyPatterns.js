@@ -107,6 +107,10 @@ class PatternInfo {
     );
   }
 
+  isReferencedByPaint() {
+    return this.#paintRefs.length > 0 || this.#hasStyleRefs;
+  }
+
   /**
    * @param {PatternInfo|undefined} ref
    */
@@ -184,6 +188,20 @@ export const fn = (info) => {
     },
   };
 };
+
+/**
+ * @param {IterableIterator<PatternInfo>} refs
+ * @param {string} attName
+ * @returns {boolean}
+ */
+function allReferersOverride(refs, attName) {
+  for (const ref of refs) {
+    if (ref.getElement().svgAtts.get(attName) === undefined) {
+      return false;
+    }
+  }
+  return true;
+}
 
 /**
  * @param {PatternInfo} info
@@ -329,9 +347,29 @@ function minifyPatternSet(patterns, childrenToDelete) {
     collapseTemplate(info, changedPatterns);
     mergeIntoTemplate(info, changedPatterns, childrenToDelete);
     mergeIntoReferrer(info, changedPatterns, childrenToDelete);
+    removeUselessAttributes(info);
   }
 
   if (changedPatterns.size > 0) {
     minifyPatterns(changedPatterns);
+  }
+}
+
+/**
+ * @param {PatternInfo} info
+ */
+function removeUselessAttributes(info) {
+  if (info.isReferencedByPaint()) {
+    return;
+  }
+  const element = info.getElement();
+  const refs = info.getPatternRefs();
+  for (const attName of element.svgAtts.keys()) {
+    if (!OVERRIDEABLE_PATTERN_ATTS.has(attName)) {
+      continue;
+    }
+    if (allReferersOverride(refs.values(), attName)) {
+      element.svgAtts.delete(attName);
+    }
   }
 }

@@ -1,6 +1,10 @@
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
+import {
+  getHrefId,
+  getReferencedIds2,
+  moveChildren,
+} from '../lib/tools-ast.js';
 
 export const name = 'minifyPatterns';
 export const description =
@@ -69,6 +73,10 @@ class PatternInfo {
     return this.#id;
   }
 
+  getNumberOfReferences() {
+    return this.#paintRefs.length + this.#patternRefs.size;
+  }
+
   /**
    * @param {Map<string,PatternInfo>} patternInfoById
    * @returns {boolean}
@@ -98,12 +106,16 @@ class PatternInfo {
   }
 
   /**
-   * @param {PatternInfo} ref
+   * @param {PatternInfo|undefined} ref
    */
   setHref(ref) {
     this.#href = ref;
-    const id = ref.getId();
-    this.#element.svgAtts.set('href', new HrefAttValue('#' + id));
+    this.#hrefId = ref?.getId();
+    if (ref === undefined) {
+      this.#element.svgAtts.delete('href');
+    } else {
+      this.#element.svgAtts.set('href', new HrefAttValue('#' + this.#hrefId));
+    }
   }
 }
 
@@ -220,6 +232,42 @@ function initializeReferences(patterns, patternInfoById, paintReferences) {
 }
 
 /**
+ * @param {PatternInfo} info
+ * @param {Set<PatternInfo>} changedPatterns
+ * @param {ChildDeletionQueue} childrenToDelete
+ */
+function mergeTemplate(info, changedPatterns, childrenToDelete) {
+  const href = info.getHref();
+  if (href === undefined) {
+    return;
+  }
+  if (href.getNumberOfReferences() !== 1) {
+    return;
+  }
+
+  // The target template is only referenced by this pattern; merge them.
+  const element = info.getElement();
+  const targetEl = href.getElement();
+  if (element.children.every((child) => child.type !== 'element')) {
+    moveChildren(targetEl.children, element);
+  }
+
+  for (const [attName, attValue] of targetEl.svgAtts.entries()) {
+    if (!OVERRIDEABLE_PATTERN_ATTS.has(attName)) {
+      continue;
+    }
+    if (element.svgAtts.get(attName) !== undefined) {
+      continue;
+    }
+    element.svgAtts.set(attName, attValue);
+  }
+
+  info.setHref(href.getHref());
+  changedPatterns.delete(href);
+  childrenToDelete.add(targetEl);
+}
+
+/**
  * @param {Set<PatternInfo>} patterns
  */
 function minifyPatterns(patterns) {
@@ -242,6 +290,7 @@ function minifyPatternSet(patterns, childrenToDelete) {
       childrenToDelete.add(info.getElement());
     }
     collapseTemplate(info, changedPatterns);
+    mergeTemplate(info, changedPatterns, childrenToDelete);
   }
 
   if (changedPatterns.size > 0) {

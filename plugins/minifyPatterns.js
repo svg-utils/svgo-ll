@@ -204,6 +204,7 @@ function collapseTemplate(info, changedPatterns) {
 
   info.setHref(targetHref);
   target.removeTemplateRef(info);
+  targetHref.removeTemplateRef(target);
   targetHref.addTemplateRef(info);
   changedPatterns.add(target);
   changedPatterns.add(targetHref);
@@ -262,9 +263,17 @@ function mergeTemplate(info, changedPatterns, childrenToDelete) {
     element.svgAtts.set(attName, attValue);
   }
 
-  info.setHref(href.getHref());
   changedPatterns.delete(href);
   childrenToDelete.add(targetEl);
+
+  const newHref = href.getHref();
+  info.setHref(newHref);
+  if (newHref !== undefined) {
+    newHref.removeTemplateRef(href);
+    newHref.addTemplateRef(info);
+    changedPatterns.add(newHref);
+    mergeTemplate(info, changedPatterns, childrenToDelete);
+  }
 }
 
 /**

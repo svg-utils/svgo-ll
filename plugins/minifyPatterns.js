@@ -50,13 +50,6 @@ class PatternInfo {
     this.#paintRefs.push(ref);
   }
 
-  /**
-   * @param {PatternInfo} ref
-   */
-  addTemplateRef(ref) {
-    this.#patternRefs.add(ref);
-  }
-
   getElement() {
     return this.#element;
   }
@@ -77,6 +70,10 @@ class PatternInfo {
     return this.#paintRefs.length + this.#patternRefs.size;
   }
 
+  getPatternRefs() {
+    return this.#patternRefs;
+  }
+
   /**
    * @param {Map<string,PatternInfo>} patternInfoById
    * @returns {boolean}
@@ -90,7 +87,7 @@ class PatternInfo {
     if (this.#href === undefined) {
       return false;
     }
-    this.#href.addTemplateRef(this);
+    this.#href.#patternRefs.add(this);
     return true;
   }
 
@@ -99,16 +96,16 @@ class PatternInfo {
   }
 
   /**
-   * @param {PatternInfo} ref
-   */
-  removeTemplateRef(ref) {
-    this.#patternRefs.delete(ref);
-  }
-
-  /**
    * @param {PatternInfo|undefined} ref
    */
   setHref(ref) {
+    if (this.#href !== undefined) {
+      this.#href.#patternRefs.delete(this);
+    }
+    if (ref) {
+      ref.#patternRefs.add(this);
+    }
+
     this.#href = ref;
     this.#hrefId = ref?.getId();
     if (ref === undefined) {
@@ -203,9 +200,7 @@ function collapseTemplate(info, changedPatterns) {
   }
 
   info.setHref(targetHref);
-  target.removeTemplateRef(info);
-  targetHref.removeTemplateRef(target);
-  targetHref.addTemplateRef(info);
+  // TODO: ROLL THIS INTO SETHREF()?
   changedPatterns.add(target);
   changedPatterns.add(targetHref);
 
@@ -237,7 +232,26 @@ function initializeReferences(patterns, patternInfoById, paintReferences) {
  * @param {Set<PatternInfo>} changedPatterns
  * @param {ChildDeletionQueue} childrenToDelete
  */
-function mergeTemplate(info, changedPatterns, childrenToDelete) {
+function mergeIntoReferrer(info, changedPatterns, childrenToDelete) {
+  // If this pattern is only referenced by a single pattern, merge it into the referencing pattern.
+  if (info.getNumberOfReferences() !== 1) {
+    return;
+  }
+  const refs = info.getPatternRefs();
+  if (refs.size !== 1) {
+    return;
+  }
+  refs.forEach((ref) =>
+    mergeIntoTemplate(ref, changedPatterns, childrenToDelete),
+  );
+}
+
+/**
+ * @param {PatternInfo} info
+ * @param {Set<PatternInfo>} changedPatterns
+ * @param {ChildDeletionQueue} childrenToDelete
+ */
+function mergeIntoTemplate(info, changedPatterns, childrenToDelete) {
   const href = info.getHref();
   if (href === undefined) {
     return;
@@ -269,10 +283,9 @@ function mergeTemplate(info, changedPatterns, childrenToDelete) {
   const newHref = href.getHref();
   info.setHref(newHref);
   if (newHref !== undefined) {
-    newHref.removeTemplateRef(href);
-    newHref.addTemplateRef(info);
+    // TODO: ROLL THIS INTO SETHREF()?
     changedPatterns.add(newHref);
-    mergeTemplate(info, changedPatterns, childrenToDelete);
+    mergeIntoTemplate(info, changedPatterns, childrenToDelete);
   }
 }
 
@@ -296,10 +309,12 @@ function minifyPatternSet(patterns, childrenToDelete) {
   for (const info of patterns) {
     changedPatterns.delete(info);
     if (!info.isReferenced()) {
+      info.setHref(undefined);
       childrenToDelete.add(info.getElement());
     }
     collapseTemplate(info, changedPatterns);
-    mergeTemplate(info, changedPatterns, childrenToDelete);
+    mergeIntoTemplate(info, changedPatterns, childrenToDelete);
+    mergeIntoReferrer(info, changedPatterns, childrenToDelete);
   }
 
   if (changedPatterns.size > 0) {

@@ -164,8 +164,9 @@ export const fn = (info) => {
 
 /**
  * @param {PatternInfo} info
+ * @param {Set<PatternInfo>} changedPatterns
  */
-function collapseTemplate(info) {
+function collapseTemplate(info, changedPatterns) {
   // Remove intermediate template references if possible.
 
   const target = info.getHref();
@@ -192,9 +193,11 @@ function collapseTemplate(info) {
   info.setHref(targetHref);
   target.removeTemplateRef(info);
   targetHref.addTemplateRef(info);
+  changedPatterns.add(target);
+  changedPatterns.add(targetHref);
 
   // See if we can collapse again.
-  collapseTemplate(info);
+  collapseTemplate(info, changedPatterns);
 }
 
 /**
@@ -221,13 +224,27 @@ function initializeReferences(patterns, patternInfoById, paintReferences) {
  */
 function minifyPatterns(patterns) {
   const childrenToDelete = new ChildDeletionQueue();
+  minifyPatternSet(patterns, childrenToDelete);
+  childrenToDelete.delete();
+}
+
+/**
+ * @param {Set<PatternInfo>} patterns
+ * @param {ChildDeletionQueue} childrenToDelete
+ */
+function minifyPatternSet(patterns, childrenToDelete) {
+  /** @type {Set<PatternInfo>} */
+  const changedPatterns = new Set();
 
   for (const info of patterns) {
+    changedPatterns.delete(info);
     if (!info.isReferenced()) {
       childrenToDelete.add(info.getElement());
     }
-    collapseTemplate(info);
+    collapseTemplate(info, changedPatterns);
   }
 
-  childrenToDelete.delete();
+  if (changedPatterns.size > 0) {
+    minifyPatterns(changedPatterns);
+  }
 }

@@ -1,19 +1,13 @@
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
-import { addToMapArray } from '../lib/svgo/tools.js';
-import {
-  getHrefId,
-  getReferencedIds2,
-  moveChildren,
-  updateReferencedId2,
-} from '../lib/tools-ast.js';
+import { getHrefId, getReferencedIds2 } from '../lib/tools-ast.js';
 
 export const name = 'minifyPatterns';
 export const description =
   'merge pattern elements and remove unused attributes';
 
 /** @type {Set<string>} */
-const PATTERN_ATTS_OVERRIDE = new Set([
+const OVERRIDEABLE_PATTERN_ATTS = new Set([
   'height',
   'patternContentUnits',
   'patternTransform',
@@ -25,6 +19,94 @@ const PATTERN_ATTS_OVERRIDE = new Set([
   'y',
 ]);
 
+class PatternInfo {
+  #id;
+  #element;
+  #hrefId;
+  /** @type {PatternInfo|undefined} */
+  #href;
+  /** @type {import('../types/types.js').ReferenceInfo[]} */
+  #paintRefs = [];
+  /** @type {Set<PatternInfo>} */
+  #patternRefs = new Set();
+
+  /**
+   * @param {import('../lib/types.js').XastElement} element
+   */
+  constructor(element) {
+    this.#id = element.svgAtts.get('id')?.toString();
+    this.#element = element;
+    this.#hrefId = getHrefId(element);
+  }
+
+  /**
+   * @param {import('../types/types.js').ReferenceInfo} ref
+   */
+  addPaintRef(ref) {
+    this.#paintRefs.push(ref);
+  }
+
+  /**
+   * @param {PatternInfo} ref
+   */
+  addTemplateRef(ref) {
+    this.#patternRefs.add(ref);
+  }
+
+  getElement() {
+    return this.#element;
+  }
+
+  getHref() {
+    return this.#href;
+  }
+
+  getHrefId() {
+    return this.#hrefId;
+  }
+
+  getId() {
+    return this.#id;
+  }
+
+  /**
+   * @param {Map<string,PatternInfo>} patternInfoById
+   * @returns {boolean}
+   */
+  initHref(patternInfoById) {
+    if (this.#hrefId === undefined) {
+      return true;
+    }
+
+    this.#href = patternInfoById.get(this.#hrefId);
+    if (this.#href === undefined) {
+      return false;
+    }
+    this.#href.addTemplateRef(this);
+    return true;
+  }
+
+  isReferenced() {
+    return this.#paintRefs.length > 0 || this.#patternRefs.size > 0;
+  }
+
+  /**
+   * @param {PatternInfo} ref
+   */
+  removeTemplateRef(ref) {
+    this.#patternRefs.delete(ref);
+  }
+
+  /**
+   * @param {PatternInfo} ref
+   */
+  setHref(ref) {
+    this.#href = ref;
+    const id = ref.getId();
+    this.#element.svgAtts.set('href', new HrefAttValue('#' + id));
+  }
+}
+
 /** @type {import('./plugins-types.js').Plugin<'minifyPatterns'>}; */
 export const fn = (info) => {
   const styleData = info.docData.getStyles();
@@ -32,14 +114,14 @@ export const fn = (info) => {
     return;
   }
 
-  /** @type {Map<string,import('../lib/types.js').XastElement>} */
-  const patternsById = new Map();
+  /** @type {Set<PatternInfo>} */
+  const patterns = new Set();
 
-  /** @type {Map<string,import('../lib/types.js').XastElement[]>} */
-  const templateReferencesById = new Map();
+  /** @type {Map<string,PatternInfo>} */
+  const patternInfoById = new Map();
 
-  /** @type {Map<string,import('../types/types.js').ReferenceInfo[]>} */
-  const paintReferencesById = new Map();
+  /** @type {import('../types/types.js').ReferenceInfo[]} */
+  const paintReferences = [];
 
   return {
     element: {
@@ -51,13 +133,11 @@ export const fn = (info) => {
         switch (element.local) {
           case 'pattern':
             {
-              const id = element.svgAtts.get('id')?.toString();
+              const info = new PatternInfo(element);
+              patterns.add(info);
+              const id = info.getId();
               if (id !== undefined) {
-                patternsById.set(id, element);
-              }
-              const hrefId = getHrefId(element);
-              if (hrefId !== undefined) {
-                addToMapArray(templateReferencesById, hrefId, element);
+                patternInfoById.set(id, info);
               }
             }
             break;
@@ -65,7 +145,7 @@ export const fn = (info) => {
             const refs = getReferencedIds2(element);
             refs.forEach((ref) => {
               if (ref.name === 'fill' || ref.name === 'stroke') {
-                addToMapArray(paintReferencesById, ref.id, ref);
+                paintReferences.push(ref);
               }
             });
           }
@@ -74,94 +154,80 @@ export const fn = (info) => {
     },
     root: {
       exit: () => {
-        const childrenToDelete = new ChildDeletionQueue();
+        initializeReferences(patterns, patternInfoById, paintReferences);
 
-        /** @type {Map<string,string>} original id to new id */
-        const mergedTemplates = new Map();
-
-        const idsReferncedByStyles = styleData.getIdsReferencedByProperties();
-
-        // Check to see if templates can be collapsed.
-        for (const [origPatternId, references] of templateReferencesById) {
-          if (references.length !== 1) {
-            continue;
-          }
-
-          const patternId = mergedTemplates.get(origPatternId) ?? origPatternId;
-
-          if (paintReferencesById.get(patternId) !== undefined) {
-            // Template is referenced directly by fill/stroke; don't merge.
-            continue;
-          }
-
-          const referencingEl = references[0];
-
-          const template = patternsById.get(patternId);
-          if (template === undefined) {
-            continue;
-          }
-
-          // There is only a single reference, from another pattern; merge them.
-
-          for (const [attName, attValue] of referencingEl.svgAtts.entries()) {
-            // Overwrite the template attributes with referencing attributes.
-            if (PATTERN_ATTS_OVERRIDE.has(attName)) {
-              template.svgAtts.set(attName, attValue);
-            }
-          }
-
-          // If there are children, overwrite children of the template.
-          if (
-            referencingEl.children.some((child) => child.type === 'element')
-          ) {
-            moveChildren(referencingEl.children, template);
-          }
-
-          // Delete the referencing element.
-          childrenToDelete.add(referencingEl);
-
-          // Change all references to the original pattern to point to the template.
-          const referencingId = referencingEl.svgAtts.get('id')?.toString();
-          if (referencingId === undefined) {
-            continue;
-          }
-
-          if (idsReferncedByStyles.includes(referencingId)) {
-            styleData.updateReferencedIds(
-              styleData.getReferencedIds(),
-              new Map([[referencingId, patternId]]),
-            );
-          }
-
-          const refs = paintReferencesById.get(referencingId);
-          if (refs) {
-            for (const refInfo of refs) {
-              updateReferencedId2(refInfo, patternId);
-            }
-
-            // Update the list of references.
-            const targetRefs = paintReferencesById.get(patternId) ?? [];
-            targetRefs.push(...refs);
-            paintReferencesById.set(patternId, targetRefs);
-          }
-
-          // Update any references to this pattern as a template.
-          const templateRefs = templateReferencesById.get(referencingId);
-          if (templateRefs) {
-            templateRefs.forEach((element) =>
-              element.svgAtts.set('href', new HrefAttValue('#' + patternId)),
-            );
-
-            const targetRefs = templateReferencesById.get(patternId) ?? [];
-            targetRefs.push(...templateRefs);
-            templateReferencesById.set(patternId, targetRefs);
-
-            mergedTemplates.set(referencingId, patternId);
-          }
-        }
-
-        childrenToDelete.delete();
+        minifyPatterns(patterns);
       },
     },
   };
 };
+
+/**
+ * @param {PatternInfo} info
+ */
+function collapseTemplate(info) {
+  // Remove intermediate template references if possible.
+
+  const target = info.getHref();
+  if (target === undefined) {
+    return;
+  }
+  const targetHref = target.getHref();
+  if (targetHref === undefined) {
+    return;
+  }
+
+  // If none of the intermediate template attributes are used, bypass the intermediate template.
+  const srcEl = info.getElement();
+  const targetEl = target.getElement();
+  for (const attName of targetEl.svgAtts.keys()) {
+    if (!OVERRIDEABLE_PATTERN_ATTS.has(attName)) {
+      continue;
+    }
+    if (srcEl.svgAtts.get(attName) === undefined) {
+      return;
+    }
+  }
+
+  info.setHref(targetHref);
+  target.removeTemplateRef(info);
+  targetHref.addTemplateRef(info);
+
+  // See if we can collapse again.
+  collapseTemplate(info);
+}
+
+/**
+ * @param {Set<PatternInfo>} patterns
+ * @param {Map<string,PatternInfo>} patternInfoById
+ * @param {import('../types/types.js').ReferenceInfo[]} paintReferences
+ */
+function initializeReferences(patterns, patternInfoById, paintReferences) {
+  for (const info of patterns) {
+    info.initHref(patternInfoById);
+    // TODO: HANDLE false return
+  }
+
+  for (const ref of paintReferences) {
+    const referencedPattern = patternInfoById.get(ref.id);
+    if (referencedPattern !== undefined) {
+      referencedPattern.addPaintRef(ref);
+    }
+  }
+}
+
+/**
+ * @param {Set<PatternInfo>} patterns
+ */
+function minifyPatterns(patterns) {
+  const childrenToDelete = new ChildDeletionQueue();
+
+  for (const info of patterns) {
+    if (!info.isReferenced()) {
+      childrenToDelete.add(info.getElement());
+    }
+    collapseTemplate(info);
+  }
+
+  childrenToDelete.delete();
+}

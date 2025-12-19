@@ -19,9 +19,11 @@ Update <style> after merge.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 100">
-  <style>circle{fill:url(#b)}</style>
+  <style>
+  circle {fill:url(#a)}
+  </style>
   <defs>
-    <pattern id="b" viewBox="0 0 10 10" width="10%" height="10%" patternTransform="rotate(20)">
+    <pattern id="a" patternTransform="rotate(20)" viewBox="0 0 10 10" width="10%" height="10%">
       <polygon points="0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"/>
     </pattern>
   </defs>

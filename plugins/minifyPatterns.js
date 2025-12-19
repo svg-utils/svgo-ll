@@ -33,14 +33,18 @@ class PatternInfo {
   #paintRefs = [];
   /** @type {Set<PatternInfo>} */
   #patternRefs = new Set();
+  /** @type {boolean} */
+  #hasStyleRefs;
 
   /**
    * @param {import('../lib/types.js').XastElement} element
+   * @param {string[]} styleIds
    */
-  constructor(element) {
+  constructor(element, styleIds) {
     this.#id = element.svgAtts.get('id')?.toString();
     this.#element = element;
     this.#hrefId = getHrefId(element);
+    this.#hasStyleRefs = styleIds.includes(this.#id ?? '');
   }
 
   /**
@@ -67,7 +71,11 @@ class PatternInfo {
   }
 
   getNumberOfReferences() {
-    return this.#paintRefs.length + this.#patternRefs.size;
+    return (
+      this.#paintRefs.length +
+      this.#patternRefs.size +
+      (this.#hasStyleRefs ? 1 : 0)
+    );
   }
 
   getPatternRefs() {
@@ -92,7 +100,11 @@ class PatternInfo {
   }
 
   isReferenced() {
-    return this.#paintRefs.length > 0 || this.#patternRefs.size > 0;
+    return (
+      this.#paintRefs.length > 0 ||
+      this.#patternRefs.size > 0 ||
+      this.#hasStyleRefs
+    );
   }
 
   /**
@@ -123,6 +135,8 @@ export const fn = (info) => {
     return;
   }
 
+  const styleIds = styleData.getIdsReferencedByProperties();
+
   /** @type {Set<PatternInfo>} */
   const patterns = new Set();
 
@@ -142,7 +156,7 @@ export const fn = (info) => {
         switch (element.local) {
           case 'pattern':
             {
-              const info = new PatternInfo(element);
+              const info = new PatternInfo(element, styleIds);
               patterns.add(info);
               const id = info.getId();
               if (id !== undefined) {

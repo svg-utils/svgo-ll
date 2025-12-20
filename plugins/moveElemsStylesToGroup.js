@@ -142,8 +142,17 @@ export const fn = (info) => {
         let groupStyleAttValue =
           element.svgAtts.get('style') || new StyleAttValue('');
         for (const [name, value] of groupProperties.entries()) {
-          groupStyleAttValue.set(name, value);
           element.svgAtts.delete(name);
+          if (name === 'transform') {
+            if (
+              /** @type {import('../types/types.js').TransformAttValue} */ (
+                value
+              ).isIdentityTransform()
+            ) {
+              continue;
+            }
+          }
+          groupStyleAttValue.set(name, value);
         }
         groupStyleAttValue.updateElement(element);
 

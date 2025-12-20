@@ -126,19 +126,18 @@ class PatternInfo {
 
   /**
    * @param {Map<string,PatternInfo>} patternInfoById
-   * @returns {boolean}
+   * @returns {void}
    */
   initHref(patternInfoById) {
     if (this.#hrefId === undefined) {
-      return true;
+      return;
     }
 
     this.#href = patternInfoById.get(this.#hrefId);
     if (this.#href === undefined) {
-      return false;
+      return;
     }
     this.#href.#patternRefs.add(this);
-    return true;
   }
 
   isReferenced() {
@@ -283,7 +282,6 @@ function collapseTemplate(info, changedPatterns) {
   }
 
   info.setHref(targetHref);
-  // TODO: ROLL THIS INTO SETHREF()?
   changedPatterns.add(target);
   changedPatterns.add(targetHref);
 
@@ -299,7 +297,6 @@ function collapseTemplate(info, changedPatterns) {
 function initializeReferences(patterns, patternInfoById, paintReferences) {
   for (const info of patterns) {
     info.initHref(patternInfoById);
-    // TODO: HANDLE false return
   }
 
   for (const ref of paintReferences) {
@@ -418,7 +415,6 @@ function mergeIntoTemplate(info, changedPatterns, childrenToDelete) {
   const newHref = href.getHref();
   info.setHref(newHref);
   if (newHref !== undefined) {
-    // TODO: ROLL THIS INTO SETHREF()?
     changedPatterns.add(newHref);
     mergeIntoTemplate(info, changedPatterns, childrenToDelete);
   }

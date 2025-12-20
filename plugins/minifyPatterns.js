@@ -67,6 +67,19 @@ class PatternInfo {
     this.addPaintRef(ref);
   }
 
+  /**
+   * @param {PatternInfo} origPattern
+   * @param {import('../lib/types.js').StyleData} styleData
+   */
+  changeStyleRef(origPattern, styleData) {
+    const origId = origPattern.getId();
+    styleData.updateReferencedIds(
+      styleData.getReferencedIds(),
+      new Map([[origId, this.#id]]),
+    );
+    this.#hasStyleRefs = true;
+  }
+
   #generateKey() {
     return getElementKey(this.#element);
   }
@@ -105,6 +118,10 @@ class PatternInfo {
 
   getPatternRefs() {
     return this.#patternRefs;
+  }
+
+  hasStyleRefs() {
+    return this.#hasStyleRefs;
   }
 
   /**
@@ -217,7 +234,7 @@ export const fn = (info) => {
       exit: () => {
         initializeReferences(patterns, patternInfoById, paintReferences);
 
-        minifyPatterns(patterns);
+        minifyPatterns(patterns, styleData);
       },
     },
   };
@@ -296,8 +313,9 @@ function initializeReferences(patterns, patternInfoById, paintReferences) {
 /**
  * @param {Set<PatternInfo>} patterns
  * @param {ChildDeletionQueue} childrenToDelete
+ * @param {import('../lib/types.js').StyleData} styleData
  */
-function mergeDuplicates(patterns, childrenToDelete) {
+function mergeDuplicates(patterns, childrenToDelete, styleData) {
   /** @type {Map<string,PatternInfo[]>} */
   const patternMap = new Map();
 
@@ -332,11 +350,15 @@ function mergeDuplicates(patterns, childrenToDelete) {
       for (const ref of dupInfo.getPaintRefs()) {
         newRef.changePaintRef(ref);
       }
+
+      if (dupInfo.hasStyleRefs()) {
+        newRef.changeStyleRef(dupInfo, styleData);
+      }
     }
   }
 
   if (merged) {
-    mergeDuplicates(patterns, childrenToDelete);
+    mergeDuplicates(patterns, childrenToDelete, styleData);
   }
 }
 
@@ -404,19 +426,21 @@ function mergeIntoTemplate(info, changedPatterns, childrenToDelete) {
 
 /**
  * @param {Set<PatternInfo>} patterns
+ * @param {import('../lib/types.js').StyleData} styleData
  */
-function minifyPatterns(patterns) {
+function minifyPatterns(patterns, styleData) {
   const childrenToDelete = new ChildDeletionQueue();
-  mergeDuplicates(patterns, childrenToDelete);
-  minifyPatternSet(patterns, childrenToDelete);
+  mergeDuplicates(patterns, childrenToDelete, styleData);
+  minifyPatternSet(patterns, childrenToDelete, styleData);
   childrenToDelete.delete();
 }
 
 /**
  * @param {Set<PatternInfo>} patterns
  * @param {ChildDeletionQueue} childrenToDelete
+ * @param {import('../lib/types.js').StyleData} styleData
  */
-function minifyPatternSet(patterns, childrenToDelete) {
+function minifyPatternSet(patterns, childrenToDelete, styleData) {
   /** @type {Set<PatternInfo>} */
   const changedPatterns = new Set();
 
@@ -433,7 +457,7 @@ function minifyPatternSet(patterns, childrenToDelete) {
   }
 
   if (changedPatterns.size > 0) {
-    minifyPatterns(changedPatterns);
+    minifyPatterns(changedPatterns, styleData);
   }
 }
 

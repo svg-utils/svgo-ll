@@ -1,6 +1,7 @@
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
 import { addToMapArray } from '../lib/svgo/tools.js';
 import { recordReferencedIds, updateReferencedId } from '../lib/tools-ast.js';
+import { getElementKey } from '../lib/utils/tools-dups.js';
 import { visitSkip } from '../lib/xast.js';
 
 export const name = 'mergeFilters';
@@ -33,7 +34,7 @@ export const fn = (info) => {
           return;
         }
 
-        const key = getFilterKey(element);
+        const key = getElementKey(element);
         addToMapArray(uniqueFilters, key, element);
 
         return visitSkip;
@@ -86,48 +87,3 @@ export const fn = (info) => {
     },
   };
 };
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @returns {Array<string>}
- */
-function getAttributeKey(element) {
-  /** @type {string[]} */
-  const attStrs = [];
-  for (const [k, v] of element.svgAtts.entries()) {
-    if (k === 'id' && element.local === 'filter') {
-      continue;
-    }
-    attStrs.push(`${k}="${v}"`);
-  }
-  return attStrs.sort();
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @returns {Array<{}>}
- */
-function getChildKey(element) {
-  /** @type {string[]} */
-  const childstrs = [];
-  for (const child of element.children) {
-    if (child.type === 'element') {
-      childstrs.push(getFilterKey(child));
-    }
-  }
-  return childstrs;
-}
-
-/**
- * @param {import('../lib/types.js').XastElement} element
- * @returns {string}
- */
-function getFilterKey(element) {
-  /** @type {{n:string,a:Array<string>,c:Array<{}>}} */
-  const obj = {
-    n: element.local,
-    a: getAttributeKey(element),
-    c: getChildKey(element),
-  };
-  return JSON.stringify(obj);
-}

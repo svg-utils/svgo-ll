@@ -1,10 +1,13 @@
 import { HrefAttValue } from '../lib/attrs/hrefAttValue.js';
 import { ChildDeletionQueue } from '../lib/svgo/childDeletionQueue.js';
+import { addToMapArray } from '../lib/svgo/tools.js';
 import {
   getHrefId,
   getReferencedIds2,
   moveChildren,
+  updateReferencedId2,
 } from '../lib/tools-ast.js';
+import { getElementKey } from '../lib/utils/tools-dups.js';
 
 export const name = 'minifyPatterns';
 export const description =
@@ -35,16 +38,18 @@ class PatternInfo {
   #patternRefs = new Set();
   /** @type {boolean} */
   #hasStyleRefs;
+  #key;
 
   /**
    * @param {import('../lib/types.js').XastElement} element
    * @param {string[]} styleIds
    */
   constructor(element, styleIds) {
-    this.#id = element.svgAtts.get('id')?.toString();
+    this.#id = element.svgAtts.getAtt('id').toString();
     this.#element = element;
     this.#hrefId = getHrefId(element);
     this.#hasStyleRefs = styleIds.includes(this.#id ?? '');
+    this.#key = this.#generateKey();
   }
 
   /**
@@ -52,6 +57,18 @@ class PatternInfo {
    */
   addPaintRef(ref) {
     this.#paintRefs.push(ref);
+  }
+
+  /**
+   * @param {import('../types/types.js').ReferenceInfo} ref
+   */
+  changePaintRef(ref) {
+    updateReferencedId2(ref, this.#id);
+    this.addPaintRef(ref);
+  }
+
+  #generateKey() {
+    return getElementKey(this.#element);
   }
 
   getElement() {
@@ -70,12 +87,20 @@ class PatternInfo {
     return this.#id;
   }
 
+  getKey() {
+    return this.#key;
+  }
+
   getNumberOfReferences() {
     return (
       this.#paintRefs.length +
       this.#patternRefs.size +
       (this.#hasStyleRefs ? 1 : 0)
     );
+  }
+
+  getPaintRefs() {
+    return this.#paintRefs;
   }
 
   getPatternRefs() {
@@ -112,6 +137,13 @@ class PatternInfo {
   }
 
   /**
+   * @param {PatternInfo} ref
+   */
+  removeTemplateRef(ref) {
+    this.#patternRefs.delete(ref);
+  }
+
+  /**
    * @param {PatternInfo|undefined} ref
    */
   setHref(ref) {
@@ -129,6 +161,8 @@ class PatternInfo {
     } else {
       this.#element.svgAtts.set('href', new HrefAttValue('#' + this.#hrefId));
     }
+
+    this.#key = this.#generateKey();
   }
 }
 
@@ -260,6 +294,53 @@ function initializeReferences(patterns, patternInfoById, paintReferences) {
 }
 
 /**
+ * @param {Set<PatternInfo>} patterns
+ * @param {ChildDeletionQueue} childrenToDelete
+ */
+function mergeDuplicates(patterns, childrenToDelete) {
+  /** @type {Map<string,PatternInfo[]>} */
+  const patternMap = new Map();
+
+  for (const info of patterns) {
+    addToMapArray(patternMap, info.getKey(), info);
+  }
+
+  let merged = false;
+  for (const identicalPatterns of patternMap.values()) {
+    if (identicalPatterns.length === 1) {
+      continue;
+    }
+
+    // Change all references to the duplicates so they point to the first pattern.
+    const newRef = identicalPatterns[0];
+    for (let index = 1; index < identicalPatterns.length; index++) {
+      const dupInfo = identicalPatterns[index];
+      childrenToDelete.add(dupInfo.getElement());
+      patterns.delete(dupInfo);
+
+      for (const ref of dupInfo.getPatternRefs()) {
+        merged = true;
+        ref.setHref(newRef);
+      }
+
+      // If the duplicate references a template, remove the old reference from the template.
+      const oldRef = dupInfo.getHref();
+      if (oldRef !== undefined) {
+        oldRef.removeTemplateRef(dupInfo);
+      }
+
+      for (const ref of dupInfo.getPaintRefs()) {
+        newRef.changePaintRef(ref);
+      }
+    }
+  }
+
+  if (merged) {
+    mergeDuplicates(patterns, childrenToDelete);
+  }
+}
+
+/**
  * @param {PatternInfo} info
  * @param {Set<PatternInfo>} changedPatterns
  * @param {ChildDeletionQueue} childrenToDelete
@@ -326,6 +407,7 @@ function mergeIntoTemplate(info, changedPatterns, childrenToDelete) {
  */
 function minifyPatterns(patterns) {
   const childrenToDelete = new ChildDeletionQueue();
+  mergeDuplicates(patterns, childrenToDelete);
   minifyPatternSet(patterns, childrenToDelete);
   childrenToDelete.delete();
 }

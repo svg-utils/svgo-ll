@@ -1,0 +1,15 @@
+Don't remove identity transform that is overriding style.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <style>rect{transform:rotate(25deg)}</style>
+  <rect y="5" width="2" height="3" style="transform:translate(0,0)"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <style>rect{transform:rotate(25deg)}</style>
+  <rect y="5" width="2" height="3" style="transform:translate(0)"/>
+</svg>

@@ -142,7 +142,10 @@ export type ComputedPropertyMap = Map<string, AttValue | null>;
 
 export class StyleData {
   addStyleSection(css: string): void;
-  computeOwnProps(node: XastElement): ComputedPropertyMap;
+  computeOwnProps(
+    element: XastElement,
+    declarations?: SvgAttValues,
+  ): ComputedPropertyMap;
   /** @deprecated */
   computeOwnStyle(node: XastElement): Map<string, string | null>;
   computeParentProps(parentList: Readonly<ParentList>): ComputedPropertyMap;

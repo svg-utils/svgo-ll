@@ -1,3 +1,4 @@
+import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { addToMapArray } from '../lib/svgo/tools.js';
 import {
   deleteAttAndProp,
@@ -17,7 +18,12 @@ export const description =
 const presentationProperties = new Set(presentationPropertiesMinusTransform);
 
 /** @type {import('./plugins-types.js').Plugin<'removeUselessProperties'>} */
-export function fn() {
+export function fn(info) {
+  const styleData = info.docData.getStyles();
+  if (info.docData.hasScripts() || styleData === null) {
+    return;
+  }
+
   /** @type {import('../types/types.js').ReferenceInfo[]} */
   const referenceData = [];
 
@@ -42,7 +48,13 @@ export function fn() {
         const transform = props.get('transform');
         if (transform !== undefined) {
           if (transform.isIdentityTransform()) {
-            deleteAttAndProp(element, 'transform');
+            if (
+              styleData
+                .computeOwnProps(element, new SvgAttMap())
+                .get('transform') === undefined
+            ) {
+              deleteAttAndProp(element, 'transform');
+            }
           }
         }
       },

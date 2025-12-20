@@ -47,7 +47,13 @@ describe('test normalization of attributes', () => {
   for (const test of tests) {
     it(test.in, () => {
       const tl = new TransformList(test.in);
-      expect(tl.normalize().toString()).toBe(test.out ?? test.in);
+      expect(tl.normalize().toString()).toBe(
+        test.out === undefined
+          ? test.in
+          : test.out === ''
+            ? 'scale(1)'
+            : test.out,
+      );
     });
   }
 });

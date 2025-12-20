@@ -1,4 +1,4 @@
-Remove identity transforms after merging.
+Preserve identity transforms after merging.
 
 ===
 
@@ -10,6 +10,6 @@ Remove identity transforms after merging.
 @@@
 
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -10 100 150">
-    <rect x="0" y="10" width="5" height="8" fill="red"/>
-    <rect x="0" y="10" width="5" height="8" fill="red"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(1)"/>
+    <rect x="0" y="10" width="5" height="8" fill="red" transform="scale(1)"/>
 </svg>

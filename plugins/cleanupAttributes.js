@@ -118,12 +118,7 @@ function cleanupStyleAttribute(element, styleAttValue) {
  * @param {import('../lib/types.js').SvgAttValues} props
  */
 function cleanupTransformAttribute(attName, transform, props) {
-  const normalized = transform.normalize();
-  if (normalized.isIdentityTransform()) {
-    props.delete(attName);
-  } else {
-    props.set(attName, normalized);
-  }
+  props.set(attName, transform.normalize());
 }
 
 /**

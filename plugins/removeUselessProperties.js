@@ -1,4 +1,3 @@
-import { SvgAttMap } from '../lib/ast/svgAttMap.js';
 import { addToMapArray } from '../lib/svgo/tools.js';
 import {
   deleteAttAndProp,
@@ -49,9 +48,8 @@ export function fn(info) {
         if (transform !== undefined) {
           if (transform.isIdentityTransform()) {
             if (
-              styleData
-                .computeOwnProps(element, new SvgAttMap())
-                .get('transform') === undefined
+              styleData.computeStyleElementProps(element).get('transform') ===
+              undefined
             ) {
               deleteAttAndProp(element, 'transform');
             }

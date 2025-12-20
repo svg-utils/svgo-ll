@@ -164,6 +164,7 @@ export class StyleData {
     parentList: Readonly<ParentList>,
     declarations?: SvgAttValues,
   ): ComputedStyleMap;
+  computeStyleElementProps(element: XastElement): ComputedPropertyMap;
   deleteRules(rules: Set<CSSRule>): void;
   getFeatures(): Set<CSSFeatures>;
   getIdsReferencedByProperties(): string[];

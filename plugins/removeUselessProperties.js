@@ -1,8 +1,14 @@
-import { getParentName, recordReferencedIds } from '../lib/tools-ast.js';
+import { addToMapArray } from '../lib/svgo/tools.js';
+import {
+  deleteAttAndProp,
+  getParentName,
+  getReferencedIds2,
+} from '../lib/tools-ast.js';
 import {
   elemsGroups,
   presentationPropertiesMinusTransform,
 } from './_collections.js';
+import { getPresentationProperties } from './_styles.js';
 
 export const name = 'removeUselessProperties';
 export const description =
@@ -12,8 +18,8 @@ const presentationProperties = new Set(presentationPropertiesMinusTransform);
 
 /** @type {import('./plugins-types.js').Plugin<'removeUselessProperties'>} */
 export function fn() {
-  /** @type {import('../lib/tools-ast.js').IdReferenceMap} */
-  const referenceData = new Map();
+  /** @type {import('../types/types.js').ReferenceInfo[]} */
+  const referenceData = [];
 
   /** @type {Set<import('../lib/types.js').XastElement>} */
   const shapes = new Set();
@@ -25,15 +31,26 @@ export function fn() {
           return;
         }
 
-        recordReferencedIds(element, referenceData);
+        referenceData.push(...getReferencedIds2(element));
 
         if (elemsGroups.shape.has(element.local) || element.local === 'use') {
           shapes.add(element);
+        }
+
+        const props = getPresentationProperties(element);
+        /** @type {import('../types/types.js').TransformAttValue|undefined} */
+        const transform = props.get('transform');
+        if (transform !== undefined) {
+          if (transform.isIdentityTransform()) {
+            deleteAttAndProp(element, 'transform');
+          }
         }
       },
     },
     root: {
       exit: () => {
+        const referencesById = generateReferenceMap(referenceData);
+
         for (const shapeElement of shapes) {
           const parentName = getParentName(shapeElement);
           if (parentName !== 'defs' && parentName !== 'clipPath') {
@@ -44,11 +61,11 @@ export function fn() {
           // If it is <use>d by a displayed element, don't remove.
           const id = shapeElement.svgAtts.get('id')?.toString();
           if (id !== undefined) {
-            const referencingEls = referenceData.get(id);
+            const referencingEls = referencesById.get(id);
             if (referencingEls) {
               if (
-                referencingEls.some((referenceData) => {
-                  const referencingEl = referenceData.referencingEl;
+                referencingEls.some((info) => {
+                  const referencingEl = info.element;
                   if (referencingEl.local === 'textPath') {
                     return false;
                   }
@@ -77,6 +94,19 @@ export function fn() {
       },
     },
   };
+}
+
+/**
+ * @param {import('../types/types.js').ReferenceInfo[]} references
+ * @returns {Map<string,import('../types/types.js').ReferenceInfo[]>}
+ */
+function generateReferenceMap(references) {
+  /** @type {Map<string,import('../types/types.js').ReferenceInfo[]>} */
+  const referencesById = new Map();
+  for (const ref of references) {
+    addToMapArray(referencesById, ref.id, ref);
+  }
+  return referencesById;
 }
 
 /**

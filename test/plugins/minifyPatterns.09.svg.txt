@@ -1,0 +1,30 @@
+Handle <style> when merging.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 100">
+  <defs>
+    <style>#a{fill:url(#f)}</style>
+    <pattern id="e" viewBox="0 0 10 10" width="10%" height="10%" patternTransform="scale(3)">
+      <polygon points="0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"/>
+    </pattern>
+    <pattern id="f" viewBox="0 0 10 10" width="10%" height="10%" patternTransform="scale(3)">
+      <polygon points="0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"/>
+    </pattern>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#e)"/>
+  <circle id="a" cx="160" cy="50" r="50"/>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 100">
+  <defs>
+    <style>#a{fill:url(#e)}</style>
+    <pattern id="e" viewBox="0 0 10 10" width="10%" height="10%" patternTransform="scale(3)">
+      <polygon points="0,0 2,5 0,10 5,8 10,10 8,5 10,0 5,2"/>
+    </pattern>
+  </defs>
+  <circle cx="50" cy="50" r="50" fill="url(#e)"/>
+  <circle id="a" cx="160" cy="50" r="50"/>
+</svg>

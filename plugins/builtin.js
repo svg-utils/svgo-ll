@@ -21,6 +21,7 @@ import * as minifyColors from '../plugins/minifyColors.js';
 import * as minifyGradients from '../plugins/minifyGradients.js';
 import * as minifyIds from '../plugins/minifyIds.js';
 import * as minifyPathData from '../plugins/minifyPathData.js';
+import * as minifyPatterns from '../plugins/minifyPatterns.js';
 import * as minifyStyles from '../plugins/minifyStyles.js';
 import * as moveElemsStylesToGroup from '../plugins/moveElemsStylesToGroup.js';
 import * as moveGradientAttsToTemplate from '../plugins/moveGradientAttsToTemplate.js';
@@ -112,6 +113,7 @@ const pluginList = [
   minifyGradients,
   minifyIds,
   minifyPathData,
+  minifyPatterns,
   minifyStyles,
   moveElemsStylesToGroup,
   moveGradientAttsToTemplate,

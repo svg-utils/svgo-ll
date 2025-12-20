@@ -16,8 +16,6 @@ import { elemsGroups } from './_collections.js';
 export const name = 'removeUnusedElements';
 export const description = 'removes unused <defs> and non-displayed elements';
 
-/** @typedef {Map<string,(import('../types/types.js').ReferenceInfo&{element:import('../lib/types.js').XastElement})[]>} ReferenceInfoMap */
-
 const renderedElements = new Set([
   'a',
   'image',
@@ -64,7 +62,7 @@ export const fn = (info) => {
   /** @deprecated use idToReferenceInfo */
   const idToReferences = new Map();
 
-  /** @type {ReferenceInfoMap} */
+  /** @type {Map<string,import('../types/types.js').ReferenceInfo[]>} */
   const idToReferenceInfo = new Map();
 
   /** @type {Map<import('../lib/types.js').XastElement,boolean>} */
@@ -99,10 +97,7 @@ export const fn = (info) => {
           addToMapArray(idToReferences, info.id, element);
         }
         referencedIds.forEach((info) => {
-          addToMapArray(idToReferenceInfo, info.id, {
-            element: element,
-            ...info,
-          });
+          addToMapArray(idToReferenceInfo, info.id, info);
         });
 
         if (element.local === 'defs') {
@@ -345,7 +340,7 @@ function deleteElementsAndClipPath(
 /**
  * @param {import('../lib/types.js').XastElement} gradient
  * @param {ChildDeletionQueue} childrenToDelete
- * @param {ReferenceInfoMap} idToReferenceInfo
+ * @param {Map<string,import('../types/types.js').ReferenceInfo[]>} idToReferenceInfo
  */
 function deleteInvalidGradient(gradient, childrenToDelete, idToReferenceInfo) {
   childrenToDelete.add(gradient);
@@ -376,7 +371,7 @@ function deleteInvalidGradient(gradient, childrenToDelete, idToReferenceInfo) {
 /**
  * @param {{gradient:import('../lib/types.js').XastElement,referencedId:string}[]} referencingGradients
  * @param {Map<string,import('../lib/types.js').XastElement>} idToElement
- * @param {ReferenceInfoMap} idToReferenceInfo
+ * @param {Map<string,import('../types/types.js').ReferenceInfo[]>} idToReferenceInfo
  */
 function deleteInvalidGradients(
   referencingGradients,

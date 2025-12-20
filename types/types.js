@@ -12,5 +12,5 @@
  * @typedef {import('../lib/ast/svgAttMap.js').SvgAttMap} SvgAttMap
  *
  * @typedef {{x1:ExactNum,y1:ExactNum,x2:ExactNum,y2:ExactNum}} BoundingBox
- * @typedef {{id:string,type:'p'|'a',name:string}} ReferenceInfo
+ * @typedef {{element:import('../lib/types.js').XastElement,id:string,type:'p'|'a',name:string}} ReferenceInfo
  */

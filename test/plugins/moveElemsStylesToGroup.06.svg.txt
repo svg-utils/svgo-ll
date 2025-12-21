@@ -1,0 +1,19 @@
+Remove identity transforms.
+
+===
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <g transform="translate(1,2)">
+    <rect y="5" width="2" height="3" style="transform:translate(-1px,-2px)"/>
+    <ellipse cx="5" cy="5" ry="2" style="transform:translate(-1px,-2px)"/>
+  </g>
+</svg>
+
+@@@
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+  <g>
+    <rect y="5" width="2" height="3"/>
+    <ellipse cx="5" cy="5" ry="2"/>
+  </g>
+</svg>

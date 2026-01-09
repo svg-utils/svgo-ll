@@ -33,7 +33,6 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - removeUselessProperties
 - removeUnusedElements
 - [removeUselessStrokeAndFill](./removeUselessStrokeAndFill.md)
-- [mergeDefs](./mergeDefs.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
 - [convertShapeToPath](./convertShapeToPath.md)

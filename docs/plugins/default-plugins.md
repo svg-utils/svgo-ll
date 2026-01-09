@@ -27,7 +27,6 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 
 - [inlineStyles](./inlineStyles.md)
 - minifyStyles
-- [cleanupIds](./cleanupIds.md)
 - [minifyColors](./minifyColors.md)
 - [minifyGradients](./minifyGradients.md)
 - [removeUnknownsAndDefaults](./removeUnknownsAndDefaults.md)

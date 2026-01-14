@@ -1,4 +1,4 @@
-Remove unreferenced symbols with content that with references only inside the symbol.
+Remove unreferenced symbols whose content only references inside the symbol.
 
 ===
 

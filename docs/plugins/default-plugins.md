@@ -30,7 +30,7 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - [minifyColors](./minifyColors.md)
 - [removeUnknownsAndDefaults](./removeUnknownsAndDefaults.md)
 - removeNonInheritableGroupAttrs
-- removeUselessProperties
+- [removeUselessProperties](./removeUselessProperties.md)
 - [removeUnusedElements](./removeUnusedElements.md)
 - [removeUselessStrokeAndFill](./removeUselessStrokeAndFill.md)
 - convertEllipseToCircle

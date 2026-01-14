@@ -11,6 +11,7 @@ The plugin has no effect if:
 
 This plugin makes the following transformations:
 
+- Unnecessary stop elements are removed.
 - `stop` attributes are written in the shortest format (for example, `"90%"` becomes `".9"`).
 - If a gradient consists of a single solid color, any references to the gradient are changed to use the color itself.
 - If a gradient is used as a [template](https://svgwg.org/svg2-draft/pservers.html#PaintServerTemplates) and is only referenced once, the template is merged with the referencing gradient.

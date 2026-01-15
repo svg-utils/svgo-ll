@@ -38,7 +38,7 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - cleanupGradientAttributes
 - [convertShapeToPath](./convertShapeToPath.md)
 - [minifyPathData](./minifyPathData.md)
-- mergeFilters
+- [mergeFilters](./mergeFilters.md)
 - [mergeGradients](./mergeGradients.md)
 - [minifyGradients](./minifyGradients.md)
 - minifyPatterns

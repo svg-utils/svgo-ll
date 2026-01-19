@@ -35,7 +35,7 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - [removeUselessStrokeAndFill](./removeUselessStrokeAndFill.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
-- cleanupGradientAttributes
+- [cleanupGradientAttributes](./cleanupGradientAttributes.md)
 - [convertShapeToPath](./convertShapeToPath.md)
 - [minifyPathData](./minifyPathData.md)
 - [mergeFilters](./mergeFilters.md)

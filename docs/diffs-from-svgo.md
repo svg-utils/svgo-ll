@@ -8,37 +8,9 @@ In SVGO, rounding of decimal values is enabled by default and integrated into ma
 
 ## Plugins
 
-The following SVGO default plugins have been removed from **svgo-ll**:
+Many plugins have been removed or rewritten, and new plugins have been added.
 
-- **cleanupAttrs**
-- **cleanupEnableBackground**
-- **cleanupNumericValues**
-- **convertColors** - similar functionality is in the new **[minifyColors](./plugins/minifyColors.md)** plugin
-- **convertPathData** - most of the lossless functionality of this plugin has been preserved in the new **[minifyPathData](./plugins/minifyPathData.md)** plugin
-- **convertTransform** - some of the benefits of this plugin are achieved with the new **[minifyTransforms](./plugins/minifyTransforms.md)** plugin
-- **mergePaths** - some of the benefits of **mergePaths** are achieved with the new **[createGroups](./plugins/createGroups.md)** plugin
-- **mergeStyles**
-- **moveElemsAttrsToGroup**
-- **moveGroupAttrsToElems**
-- **removeDeprecatedAttrs**
-- **removeEmptyAttrs**
-- **removeEmptyText** - now handled by [removeEmptyContainers](./plugins/removeEmptyContainers.md)
-- **sortAttrs**
-- **sortDefsChildren**
-
-The following new default plugins have been added to **svgo-ll**:
-
-- **[cleanupStyleAttributes](./plugins/cleanupStyleAttributes.md)**
-- **[cleanupTextElements](./plugins/cleanupTextElements.md)**
-- **[cleanupXlink](./plugins/cleanupXlink.md)**
-- **combineStyleElements**
-- **[createGroups](./plugins/createGroups.md)**
-- **[mergeGradients](./plugins/mergeGradients.md)**
-- **[minifyColors](./plugins/minifyColors.md)**
-- **[minifyGradients](./plugins/minifyGradients.md)**
-- **[minifyPathData](./plugins/minifyPathData.md)**
-- **[minifyTransforms](./plugins/minifyTransforms.md)**
-- **moveElemsStylesToGroup**
+See the list of [default plugins](./plugins/default-plugins.md) for information about **svgo-ll** plugins.
 
 ## CSS
 
@@ -49,6 +21,8 @@ In SVGO, many plugins do not account for the impact of CSS. Many transformations
 Plugins can be [enabled, disabled, and configured](./command-line-options.md#plugins) from the command line without writing code.
 
 The `--multipass` option has been removed and replaced by [`--max-passes`](./command-line-options.md#max-passes). By default **svgo-ll** will make up to 10 passes, the equivalent of using the `--multipass` option in SVGO.
+
+A preprocessing phase (plugins are run once each, before the main plugin loop) and a postprocessing phase (plugins are run once each, after the main plugin loop).
 
 <a id="scalability"></a>
 

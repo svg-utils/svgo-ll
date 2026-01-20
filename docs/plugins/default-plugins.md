@@ -41,7 +41,7 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 - [mergeFilters](./mergeFilters.md)
 - [mergeGradients](./mergeGradients.md)
 - [minifyGradients](./minifyGradients.md)
-- minifyPatterns
+- [minifyPatterns](./minifyPatterns.md)
 - [removeEmptyContainers](./removeEmptyContainers.md)
 - [convertPathToUse](./convertPathToUse.md)
 - [createGroups](./createGroups.md)

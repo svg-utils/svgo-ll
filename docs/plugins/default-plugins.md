@@ -56,7 +56,7 @@ Run once, in the specified order, after main plugins have completed:
 
 - removeUnusedNS
 - convertImageToUse
-- moveGradientAttsToTemplate
+- [moveGradientAttsToTemplate](./moveGradientAttsToTemplate.md)
 - [minifyIds](./minifyIds.md)
 - [minifyAttrsAndStyles](./minifyAttrsAndStyles.md)
 - [stylesToClasses](./stylesToClasses.md)

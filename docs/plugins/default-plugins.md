@@ -55,7 +55,7 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 Run once, in the specified order, after main plugins have completed:
 
 - removeUnusedNS
-- convertImageToUse
+- [convertImageToUse](./convertImageToUse.md)
 - [moveGradientAttsToTemplate](./moveGradientAttsToTemplate.md)
 - [minifyIds](./minifyIds.md)
 - [minifyAttrsAndStyles](./minifyAttrsAndStyles.md)

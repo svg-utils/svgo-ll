@@ -63,7 +63,7 @@
     "csso": "^5.0.5",
     "image-size": "^2.0.2",
     "picocolors": "^1.1.1",
-    "sax": "^1.4.3"
+    "sax": "^1.4.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
@@ -82,7 +82,7 @@
     "pixelmatch": "^7.1.0",
     "playwright": "^1.57.0",
     "pngjs": "^7.0.0",
-    "prettier": "^3.8.0",
+    "prettier": "^3.8.1",
     "tar-stream": "^3.1.7",
     "typescript": "^5.9.3"
   }

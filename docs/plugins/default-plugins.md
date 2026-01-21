@@ -27,19 +27,21 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 
 - [inlineStyles](./inlineStyles.md)
 - minifyStyles
-- [cleanupIds](./cleanupIds.md)
 - [minifyColors](./minifyColors.md)
-- [minifyGradients](./minifyGradients.md)
 - [removeUnknownsAndDefaults](./removeUnknownsAndDefaults.md)
 - removeNonInheritableGroupAttrs
+- [removeUselessProperties](./removeUselessProperties.md)
+- [removeUnusedElements](./removeUnusedElements.md)
 - [removeUselessStrokeAndFill](./removeUselessStrokeAndFill.md)
-- [removeHiddenElems](./removeHiddenElems.md)
-- [mergeDefs](./mergeDefs.md)
 - convertEllipseToCircle
 - moveElemsStylesToGroup
+- [cleanupGradientAttributes](./cleanupGradientAttributes.md)
 - [convertShapeToPath](./convertShapeToPath.md)
 - [minifyPathData](./minifyPathData.md)
+- [mergeFilters](./mergeFilters.md)
 - [mergeGradients](./mergeGradients.md)
+- [minifyGradients](./minifyGradients.md)
+- [minifyPatterns](./minifyPatterns.md)
 - [removeEmptyContainers](./removeEmptyContainers.md)
 - [convertPathToUse](./convertPathToUse.md)
 - [createGroups](./createGroups.md)
@@ -53,6 +55,8 @@ Run until there are no further decreases in size, up to [max-passes](../command-
 Run once, in the specified order, after main plugins have completed:
 
 - removeUnusedNS
+- [convertImageToUse](./convertImageToUse.md)
+- [moveGradientAttsToTemplate](./moveGradientAttsToTemplate.md)
 - [minifyIds](./minifyIds.md)
 - [minifyAttrsAndStyles](./minifyAttrsAndStyles.md)
 - [stylesToClasses](./stylesToClasses.md)

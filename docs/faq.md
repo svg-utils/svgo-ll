@@ -37,7 +37,7 @@ npx svgo-ll --plugins minifyPathData -i test.svg
 Use the `--disable` command line option. For example:
 
 ```
-npx svgo-ll --disable minifyPathData cleanupIds -i test.svg
+npx svgo-ll --disable minifyPathData minifyIds -i test.svg
 ```
 
 <a id="comp-round"></a>
@@ -54,11 +54,11 @@ npx svgo-ll -i test.svg --enable round
 
 ### Change the default options for a plugin
 
-You can change the default options for a plugin by creating a JSON file and using the [`--options` command line option](./command-line-options.md#options). For example, to use the default plugins and specify an id that should not be changed by the `cleanupIds` plugin, create file named `options.json` with the content:
+You can change the default options for a plugin by creating a JSON file and using the [`--options` command line option](./command-line-options.md#options). For example, to use the default plugins and specify an id that should not be changed by the `minifyIds` plugin, create a file named `options.json` with the content:
 
 ```
 {
-  "cleanupIds": {
+  "minifyIds": {
     "preserve": "abc"
   }
 }

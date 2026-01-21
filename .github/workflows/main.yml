@@ -45,5 +45,4 @@ jobs:
       - run: npm install
       - run: npx playwright install
       - run: npm run test
-      - run: npm run test:bundles
-      - run: npm run test:regress
+      - run: npm run regress

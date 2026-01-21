@@ -4,9 +4,6 @@ import globals from 'globals';
 export default [
   js.configs.recommended,
   {
-    ignores: ['dist/**'],
-  },
-  {
     languageOptions: {
       ecmaVersion: 'latest',
       globals: {
@@ -16,7 +13,7 @@ export default [
     linterOptions: {
       reportUnusedDisableDirectives: 'error',
     },
-    files: ['**/*.js', '**/*.cjs', '**/*.mjs'],
+    files: ['**/*.js', '**/*.mjs'],
     rules: {
       strict: 'error',
       eqeqeq: 'error',

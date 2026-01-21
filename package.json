@@ -16,11 +16,6 @@
   "exports": {
     ".": {
       "import": "./lib/svgo.js",
-      "require": "./dist/svgo-node.cjs",
-      "types": "./lib/svgo.d.ts"
-    },
-    "./browser": {
-      "import": "./dist/svgo.browser.js",
       "types": "./lib/svgo.d.ts"
     }
   },
@@ -38,21 +33,18 @@
     "bin",
     "lib",
     "plugins",
-    "dist",
     "!**/*.test.js"
   ],
   "engines": {
     "node": ">=20.0.0"
   },
   "scripts": {
-    "build": "node scripts/sync-version.js && rollup -c",
     "typecheck": "tsc",
     "lint": "eslint . && prettier --check .",
     "fix": "eslint --fix . && prettier --write .",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --maxWorkers=4 --coverage --coverageDirectory ./ignored/coverage",
-    "test:bundles": "npm run build && node ./test/svgo.cjs && node ./test/browser.js",
-    "test:regress": "cross-env NO_DIFF=1 node ./test/regression.js -i ./test/fixtures/files && cross-env NO_DIFF=1 node ./test/regression.js --enable round -i ./test/fixtures/files",
-    "qa": "npm run typecheck && npm run lint && npm run test && npm run test:bundles && npm run test:regress"
+    "regress": "cross-env NO_DIFF=1 node ./test/regression.js -i ./test/fixtures/files && cross-env NO_DIFF=1 node ./test/regression.js --enable round -i ./test/fixtures/files",
+    "qa": "npm run typecheck && npm run lint && npm run test && npm run regress"
   },
   "jest": {
     "coveragePathIgnorePatterns": [
@@ -75,9 +67,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
-    "@rollup/plugin-commonjs": "^29.0.0",
-    "@rollup/plugin-node-resolve": "^16.0.3",
-    "@rollup/plugin-terser": "^0.4.4",
     "@types/csso": "^5.0.4",
     "@types/image-size": "^0.7.0",
     "@types/jest": "^30.0.0",
@@ -86,7 +75,6 @@
     "@types/pngjs": "^6.0.5",
     "@types/sax": "^1.2.7",
     "@types/tar-stream": "^3.1.4",
-    "buffer": "^6.0.3",
     "cross-env": "^10.1.0",
     "eslint": "^9.39.2",
     "globals": "^17.0.0",
@@ -95,8 +83,6 @@
     "playwright": "^1.57.0",
     "pngjs": "^7.0.0",
     "prettier": "^3.8.0",
-    "rollup": "^4.53.5",
-    "string_decoder": "^1.3.0",
     "tar-stream": "^3.1.7",
     "typescript": "^5.9.3"
   }

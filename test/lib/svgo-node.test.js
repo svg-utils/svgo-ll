@@ -148,11 +148,6 @@ describe('loadConfig', () => {
     ).toStrictEqual({
       plugins: ['mjs'],
     });
-    expect(
-      await loadConfig(undefined, path.join(fixtures, 'cjs')),
-    ).toStrictEqual({
-      plugins: ['cjs'],
-    });
   });
 
   test('fails when specified config does not exist', async () => {

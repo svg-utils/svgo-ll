@@ -10,5 +10,5 @@
     "resolveJsonModule": true
   },
   "include": ["**/*.js"],
-  "exclude": ["ignored/**/*", "dist/**/*", "rollup.config.js"]
+  "exclude": ["ignored/**/*"]
 }
